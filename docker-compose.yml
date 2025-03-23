@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend_service:
+    build: ./social-network-visualizer-backend
+    container_name: backend_container
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./social-network-visualizer-backend:/app
+    depends_on:
+      - neo4j
+  neo4j:
+    image: 'neo4j:latest'
+    environment:
+      - 'NEO4J_AUTH=neo4j/notverysecret'
+    ports:
+      - '7687:7687'
+      - '7474:7474'
+  frontend_service:
+    build: ./social-network-visualizer-frontend
+    container_name: frontend_container
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./social-network-visualizer-frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    environment:
+      - WATCHPACK_POLLING=true
