@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend;
 
 //import com.example.social_network_visualizer_backend.service.TweetService;
+import com.example.social_network_visualizer_backend.service.TweetsFolderParser;
 import com.example.social_network_visualizer_backend.service.TweetsParser;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,10 +18,17 @@ public class SocialNetworkVisualizerBackendApplication {
 
 	}
 
+//	@Bean
+//	CommandLineRunner run(TweetsParser tweetsParser) {
+//		return args -> {
+//			tweetsParser.parseJsonFile(new File("./src/main/resources/output.json"));
+//		};
+//	}
+
 	@Bean
-	CommandLineRunner run(TweetsParser tweetsParser) {
+	CommandLineRunner run(TweetsFolderParser tweetsFolderParser) {
 		return args -> {
-			tweetsParser.parseJsonFile(new File("./src/main/resources/output.json"));
+			tweetsFolderParser.parseDirectory("./src/main/resources/data");
 		};
 	}
 }

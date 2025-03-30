@@ -1,11 +1,15 @@
 package com.example.social_network_visualizer_backend.dto;
 
+import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.model.Tweet;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TweetDto {
     private String id;
     private String objectType;
@@ -20,14 +24,14 @@ public class TweetDto {
     private String url;
     private List<String> hashtags;
     private List<String> cashtags;
-    private List<Object> mentions;
+    private List<MentionDto> mentions;
     private List<String> links;
     private List<String> photos;
     private List<String> videos;
-    private List<Object> replies;
+    private List<ReplyDto> replies;
     private long repliesCount;
     private long retweetsCount;
     private long likesCount;
     private String conversationId;
-    private Object parent;
+    private TweetDto parent;
 }

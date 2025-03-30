@@ -19,14 +19,13 @@ public class Tweet {
     private String id;
     private Date objectCreatedAt;
     private Date publicationDate;
+    private String objectType;
     private String language;
     private String contentPreview;
     private String content;
     private String twitterId;
     private String url;
     private String conversationId;
-//    private List<Object> mentions;
-//    private List<Object> replies;
     private List<String> links;
     private List<String> photos;
     private List<String> videos;
@@ -42,4 +41,14 @@ public class Tweet {
 
     @Relationship(type = "HAS_CASHTAG", direction = Relationship.Direction.OUTGOING)
     private List<Cashtag> cashtags;
+
+    @Relationship(type = "HAS_REPLY", direction = Relationship.Direction.OUTGOING)
+    private List<Author> replies;
+
+    @Relationship(type = "MENTIONS", direction = Relationship.Direction.OUTGOING)
+    private List<Author> mentions;
+
+    @Relationship(type = "HAS_PARENT", direction = Relationship.Direction.OUTGOING)
+    private Tweet parent;
+
 }
