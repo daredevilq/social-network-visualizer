@@ -12,6 +12,7 @@ import java.util.Objects;
 @Node("Tweet")
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class Tweet {
 

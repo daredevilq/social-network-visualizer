@@ -1,7 +1,5 @@
 package com.example.social_network_visualizer_backend.dto;
 
-import com.example.social_network_visualizer_backend.model.Author;
-import com.example.social_network_visualizer_backend.model.Tweet;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
