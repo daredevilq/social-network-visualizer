@@ -1,8 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.model.Tweet;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -38,4 +36,10 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         LIMIT 10
     """)
     List<Tweet> findTweetsWithRelationships(@Param("authorName") String authorName);
+
+    @Query("""
+        MATCH (node)
+        DETACH DELETE node
+    """)
+    void deleteAllNodes();
 }

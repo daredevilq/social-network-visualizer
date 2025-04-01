@@ -11,8 +11,8 @@ import com.example.social_network_visualizer_backend.repository.HashtagRepositor
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -20,20 +20,17 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class TweetsParser {
+    private final TweetRepository tweetRepository;
+    private final AuthorRepository authorRepository;
+    private final CashtagRepository cashtagRepository;
+    private final HashtagRepository hashtagRepository;
 
-    @Autowired
-    private TweetRepository tweetRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private CashtagRepository cashtagRepository;
-    @Autowired
-    private HashtagRepository hashtagRepository;
-
-    public void parseJsonFile(File file) {
+    public void parseJsonFileFromPath(String filePath) {
+        File file = new File(filePath);
         List<TweetDto> objectList = readFile(file);
         if (objectList == null) {
             log.error("Error parsing file!");

@@ -13,23 +13,25 @@ import com.example.social_network_visualizer_backend.repository.CashtagRepositor
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class TweetsFolderParser {
-
-    @Autowired
-    private TweetRepository tweetRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private HashtagRepository hashtagRepository;
-    @Autowired
-    private CashtagRepository cashtagRepository;
+    private final TweetRepository tweetRepository;
+    private final AuthorRepository authorRepository;
+    private final CashtagRepository cashtagRepository;
+    private final HashtagRepository hashtagRepository;
 
     public void parseDirectory(String folderPath) {
         File folder = new File(folderPath);
@@ -60,30 +62,28 @@ public class TweetsFolderParser {
         cashtagRepository.saveAll(cashtagsMap.values());
         tweetRepository.saveAll(tweetsMap.values());
 
-        System.out.println("All JSON files parsed and saved form folder: " + folderPath);
+        log.info("All JSON files parsed and saved form folder: {}", folderPath);
     }
 
     private List<TweetDto> loadAllJsonFiles(File[] files) {
         List<TweetDto> allTweetDtos = new ArrayList<>();
         System.out.println(Arrays.toString(files));
         for (File file : files) {
-            List<TweetDto> tweetDtosFromFile = readFile(file);
-            if (tweetDtosFromFile != null) {
-                allTweetDtos.addAll(tweetDtosFromFile);
+            try {
+                List<TweetDto> tweetDtosFromFile = readFile(file);
+                if (tweetDtosFromFile != null) {
+                    allTweetDtos.addAll(tweetDtosFromFile);
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse file into TweetDto: {} {}", file.getName(), e.getMessage());
             }
         }
         return allTweetDtos;
     }
 
-    private List<TweetDto> readFile(File file) {
+    private List<TweetDto> readFile(File file) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(file,
-                    mapper.getTypeFactory().constructCollectionType(List.class, TweetDto.class));
-        } catch (Exception e) {
-            System.out.println("Failed to parse file: " + file.getName() + " " + e.getMessage());
-            return null;
-        }
+        return mapper.readValue(file, mapper.getTypeFactory().constructCollectionType(List.class, TweetDto.class));
     }
 
     private void buildNodes(
