@@ -11,20 +11,32 @@ import java.util.List;
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
     @Query("""
-        MATCH (author:Author {userName: $userName})-[:POSTED]->(tweet:Tweet)
-        RETURN tweet {
-            .*,
-            author: {
-                id: author.id,
-                userName: author.userName,
-                displayName: author.displayName,
-                name: author.name,
-                foreignId: author.foreignId
-            }
-        }
-        ORDER BY tweet.publicationDate DESC
+        MATCH (a:Author)-[:POSTED]->(t:Tweet)
+        WHERE a.userName = $authorName
+        OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+        OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
+        RETURN t.id AS id,
+               t.objectCreatedAt AS objectCreatedAt,
+               t.publicationDate AS publicationDate,
+               t.objectType AS objectType,
+               t.language AS language,
+               t.contentPreview AS contentPreview,
+               t.content AS content,
+               t.twitterId AS twitterId,
+               t.url AS url,
+               t.conversationId AS conversationId,
+               t.links AS links,
+               t.photos AS photos,
+               t.videos AS videos,
+               t.repliesCount AS repliesCount,
+               t.retweetsCount AS retweetsCount,
+               t.likesCount AS likesCount,
+               COLLECT(h) AS hashtags,
+               COLLECT(c) AS cashtags
+        ORDER BY t.publicationDate DESC
         LIMIT 10
     """)
-    List<Tweet> findTop10TweetsByAuthorUsername(@Param("userName") String userName);
+    List<Tweet> findTop10TweetsByAuthorUsername(@Param("authorName") String authorName);
+
 }
 
