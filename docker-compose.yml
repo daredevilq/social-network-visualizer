@@ -15,6 +15,7 @@ services:
     image: 'neo4j:latest'
     environment:
       - 'NEO4J_AUTH=neo4j/notverysecret'
+      - NEO4J_PLUGINS=["graph-data-science"]
     ports:
       - '7687:7687'
       - '7474:7474'

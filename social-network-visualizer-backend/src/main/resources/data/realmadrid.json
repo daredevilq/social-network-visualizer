@@ -79,6 +79,10 @@
         {
           "userId": "auth_bayern",
           "userName": "BayernMunich"
+        },
+        {
+          "userId": "auth_juventusfc",
+          "userName": "juventusfc"
         }
       ],
       "links": [],
