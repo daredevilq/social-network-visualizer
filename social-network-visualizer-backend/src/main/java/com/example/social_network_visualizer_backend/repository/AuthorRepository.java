@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
+import com.example.social_network_visualizer_backend.dto.AuthorDegreeCentralityDTO;
 import com.example.social_network_visualizer_backend.dto.AuthorLinkDTO;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDTO;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -8,6 +9,7 @@ import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
@@ -88,6 +90,68 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
           MATCH (a1:Author)-[r:MENTIONS]->(a2:Author)
           RETURN a1.userName AS source, a2.userName AS target
           """)
-    List<AuthorLinkDTO> findUserSourceAndTarget();
+    List<AuthorLinkDTO> findUserMentions();
+
+    @Query("""
+            MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(a2:Author)
+            MERGE (a1)-[:RETWEETS]->(a2)
+        """)
+    void createRelationshipAuthorRetweetAuthor();
+
+    @Query("""
+            MATCH (a:Author {userName: $authorName})-[:POSTED]->(t:Tweet)
+            WITH a, t
+            RETURN datetime(t.publicationDate) AS activityDate
+            ORDER BY activityDate DESC
+        """)
+    List<ZonedDateTime> getUserActivity(@Param("authorName") String authorName);
+
+    @Query("""
+      CALL gds.graph.project(
+          'author-importance',
+          'Author',
+          {
+            RETWEET: { type: 'RETWEETS', orientation: 'NATURAL' },
+            MENTIONS: { type: 'MENTIONS', orientation: 'NATURAL' }
+          }
+    ) YIELD graphName
+    RETURN graphName;
+    """)
+    void createImportanceGraph();
+
+    @Query("""
+        CALL gds.degree.write('author-importance', {
+          writeProperty: 'degreeCentrality'
+        }) YIELD nodePropertiesWritten
+        RETURN nodePropertiesWritten;
+    """)
+    void computeAuthorDegree();
+
+    @Query("""
+            MATCH (a:Author)
+            WHERE a.degreeCentrality IS NOT NULL
+            RETURN a.userName AS userName, a.degreeCentrality AS degreeCentrality
+        """)
+    List<AuthorDegreeCentralityDTO> findUsersDegreeCentrality();
+
+    @Query("""
+              MATCH (a1:Author)-[r:RETWEETS]->(a2:Author)
+              RETURN a1.userName AS source, a2.userName AS target
+          """)
+    List<AuthorLinkDTO> findUserRetweets();
+
+    @Query("""
+               MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
+               CALL gds.shortestPath.dijkstra.stream('author-importance', {
+                   sourceNode: a1,
+                   targetNode: a2
+                   })
+               YIELD index, path
+               WITH nodes(path) AS nodes
+               UNWIND nodes AS node
+               MATCH (author:Author) WHERE id(author) = id(node)
+               RETURN author.userName AS userNames
+            """)
+    List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
 }
 

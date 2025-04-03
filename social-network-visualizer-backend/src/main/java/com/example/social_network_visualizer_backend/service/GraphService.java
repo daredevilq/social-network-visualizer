@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.AuthorDegreeCentralityDTO;
 import com.example.social_network_visualizer_backend.dto.AuthorLinkDTO;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDTO;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -22,11 +23,25 @@ public class GraphService {
 
     public Map<String, Object> getAuthorMentionsGraph() {
         List<AuthorNodeDTO> nodesRaw = authorRepository.findUsersPagerankCommunity();
-        List<AuthorLinkDTO> linksRaw = authorRepository.findUserSourceAndTarget();
+        List<AuthorLinkDTO> linksRaw = authorRepository.findUserMentions();
 
         Map<String, Object> result = new HashMap<>();
         result.put("nodes", nodesRaw);
         result.put("links", linksRaw);
+
+        return result;
+    }
+
+
+    public Map<String, Object> getAuthorImportanceGraph() {
+        List<AuthorDegreeCentralityDTO> nodesRaw = authorRepository.findUsersDegreeCentrality();
+        List<AuthorLinkDTO> mentionsRaw = authorRepository.findUserMentions();
+        List<AuthorLinkDTO> retweetsRaw = authorRepository.findUserRetweets();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("nodes", nodesRaw);
+        result.put("mentions", mentionsRaw);
+        result.put("retweets", retweetsRaw);
 
         return result;
     }

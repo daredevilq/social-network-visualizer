@@ -22,4 +22,9 @@ public class GraphController {
     public Map<String, Object> getAuthorMentionsGraph() {
         return graphService.getAuthorMentionsGraph();
     }
+
+    @GetMapping("/degree-centrality")
+    public Map<String, Object> getAuthorDegreeCentrality() {
+        return graphService.getAuthorImportanceGraph();
+    }
 }

@@ -95,9 +95,12 @@ public class DataInitializationConfig {
 
     private void computeMetricsAndRelations(){
         authorRepository.createRelationshipAuthorMentionsAuthor();
+        authorRepository.createRelationshipAuthorRetweetAuthor();
         authorRepository.createGdsGraph();
+        authorRepository.createImportanceGraph();
         authorRepository.computePageRank();
         authorRepository.createCommunities();
+        authorRepository.computeAuthorDegree();
     }
 
 }
