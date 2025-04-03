@@ -1,8 +1,6 @@
 package com.example.social_network_visualizer_backend.config;
 
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
-import com.example.social_network_visualizer_backend.repository.CashtagRepository;
-import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.example.social_network_visualizer_backend.service.TweetsFolderParser;
 import com.example.social_network_visualizer_backend.service.TweetsParser;
@@ -93,7 +91,7 @@ public class DataInitializationConfig {
         throw new RuntimeException("Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts");
     }
 
-    private void computeMetricsAndRelations(){
+    private void computeMetricsAndRelations() {
         authorRepository.createRelationshipAuthorMentionsAuthor();
         authorRepository.createRelationshipAuthorRetweetAuthor();
         authorRepository.createGdsGraph();
