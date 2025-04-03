@@ -3,7 +3,7 @@ version: '3.8'
 services:
   backend_service:
     build: ./social-network-visualizer-backend
-    container_name: backend_container
+    container_name: backend_container_inz
     ports:
       - '8080:8080'
     volumes:
@@ -11,15 +11,17 @@ services:
     depends_on:
       - neo4j
   neo4j:
+    container_name: neo4j-database
     image: 'neo4j:latest'
     environment:
       - 'NEO4J_AUTH=neo4j/notverysecret'
+      - NEO4J_PLUGINS=["graph-data-science"]
     ports:
       - '7687:7687'
       - '7474:7474'
   frontend_service:
     build: ./social-network-visualizer-frontend
-    container_name: frontend_container
+    container_name: frontend_container_inz
     ports:
       - '3000:3000'
     volumes:
