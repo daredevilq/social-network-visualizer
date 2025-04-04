@@ -1,11 +1,17 @@
+export interface Node {
+    id: string;
+    degreeCentrality?: number;
+    pagerank?: number;
+    community?: string;
+}
+
+export interface Link {
+    source: string;
+    target: string;
+    type?: string;
+}
+
 export interface GraphData {
-    nodes: Array<{
-        id: string;
-        [key: string]: any;
-    }>;
-    links: Array<{
-        source: string;
-        target: string;
-        [key: string]: any;
-    }>;
+    nodes: Node[];
+    links: Link[];
 }

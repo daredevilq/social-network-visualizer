@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import BaseGraph from "./BaseGraph";
-import GraphData from "@/app/interface/GraphData"; // Importujemy nasz komponent bazowy
+import BaseGraph from "../model/BaseGraph";
+import {GraphData, Link, Node} from "@/app/interface/GraphData";
 
 export default function AuthorMentionsGraph() {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -9,11 +9,20 @@ export default function AuthorMentionsGraph() {
         fetch("http://localhost:8080/api/graph/author-mentions")
             .then((res) => res.json())
             .then((data) => {
-                const links = data.links.map((link: any) => ({
+                console.log("AuthorMentions Fetched data:", data);
+                if (!data.nodes || !Array.isArray(data.nodes) || !data.links || !Array.isArray(data.links)) {
+                    console.error("Invalid data format:", data);
+                    return;
+                }
+                const links: Link[] = data.links.map(link => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));
-                setGraphData({ nodes: data.nodes, links });
+                const nodes: Node[] = data.nodes.map((node: Node) => ({
+                    ...node,
+                    degreeCentrality: node.degreeCentrality ? node.degreeCentrality * 5 : 1,
+                }));
+                setGraphData({ nodes, links });
             })
             .catch((err) => console.error("Fetch error:", err));
     }, []);

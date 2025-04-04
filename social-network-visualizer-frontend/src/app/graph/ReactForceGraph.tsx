@@ -134,7 +134,7 @@ export default function ReactForceGraph() {
                         const fontSize = 0 / globalScale; // Większa czcionka
                         const pulseSize = size * (1 + 0.1 * Math.sin(Date.now() * 0.001)); // Animacja pulsowania
                         ctx.beginPath();
-                        ctx.arc(node.x, node.y, pulseSize, 0, 2 * Math.PI, false);
+                        ctx.arc(node.x, node.y, pulseSize,  0, 2 * Math.PI, false);
 
 // Kolor węzła z przezroczystością
                         ctx.fillStyle = highlightedNode === node.id ? 'rgba(255, 0, 0, 0.8)' : 'rgba(113, 64, 244, 0.8)';
