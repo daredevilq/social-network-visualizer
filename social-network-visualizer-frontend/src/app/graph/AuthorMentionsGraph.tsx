@@ -33,7 +33,7 @@ export default function AuthorMentionsGraph() {
             nodeVal={(node: any) => (node.degreeCentrality ? node.degreeCentrality : 0)}
             nodeLabel={(node: any) => `User: ${node.id}\nDC: ${node.degreeCentrality}`}
             nodeColor={(node: any) => `hsl(${node.degreeCentrality * 40}, 100%, 50%)`}
-            linkColor={(link: any) => (link.type === "mention" ? "#1f77b4" : "#ff7f0e")}
+            linkColor={(link: any) => (link.type === "mention" ? "red" : "#fafafa")}
             linkWidth={(link: any) => (link.type === "mention" ? 1 : 2)}
             linkDirectionalArrowLength={6}
             linkDirectionalArrowRelPos={1}

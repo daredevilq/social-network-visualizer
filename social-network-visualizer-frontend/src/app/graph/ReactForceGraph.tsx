@@ -59,7 +59,7 @@ export default function ReactForceGraph() {
     };
 
     return (
-        <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             {/* Kontrolki do wyboru liczby wierzchołków i krawędzi */}
             <div style={{ marginBottom: '20px' }}>
                 <label>
@@ -106,13 +106,12 @@ export default function ReactForceGraph() {
             {/* Kontener dla grafu z rozmytymi krawędziami */}
             <div
                 style={{
-                    width: '90%',
-                    height: '95%',
+                    width: '100%',
+                    height: '100%',
                     position: 'relative',
                     overflow: 'hidden',
                     borderRadius: '30px',
-                    boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
-                    maskImage: 'radial-gradient(circle, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 70%), linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 30%, rgba(0, 0, 0, 0) 0%)'
+                    maskImage: 'radial-gradient(circle, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 70%)'
                 }}
             >
                 <ForceGraph2D
@@ -130,47 +129,34 @@ export default function ReactForceGraph() {
                     linkDirectionalArrowRelPos={10}
                     nodeCanvasObject={(node, ctx, globalScale) => {
                         const label = node.name;
-                        const size = 14; // Większy rozmiar węzła
-                        const fontSize = 0 / globalScale; // Większa czcionka
-                        const pulseSize = size * (1 + 0.1 * Math.sin(Date.now() * 0.001)); // Animacja pulsowania
+                        const size = 14; // Stały rozmiar węzła
+                        const fontSize = 0 / globalScale;
+
                         ctx.beginPath();
-                        ctx.arc(node.x, node.y, pulseSize,  0, 2 * Math.PI, false);
+                        ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
 
-// Kolor węzła z przezroczystością
-                        ctx.fillStyle = highlightedNode === node.id ? 'rgba(255, 0, 0, 0.8)' : 'rgba(113, 64, 244, 0.8)';
+                        // Kolor węzła z przezroczystością
+                        ctx.fillStyle = highlightedNode === node.id ? 'rgba(255, 0, 0, 0.8)' : 'rgba(113, 64, 244, 0.90)';
 
-// Cień węzła
+                        // Cień węzła
                         ctx.shadowBlur = 15;
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
 
                         ctx.fill();
-                        ctx.strokeStyle = '#7140F4'; // Biała obwódka
+                        ctx.strokeStyle = '#7140F4';
                         ctx.lineWidth = 2;
                         ctx.stroke();
 
-// Reset cienia
+                        // Reset cienia
+                        ctx.shadowBlur = 0;
+
                         // Etykieta węzła
                         ctx.font = `${fontSize}px Sans-Serif`;
-                        ctx.fillStyle = '#FAFAFA'; // Czarny tekst
+                        ctx.fillStyle = '#FAFAFA';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(label, node.x, node.y);
-                    }}
-                    onBackgroundClick={() => {
-                        // Resetuj pozycje węzłów po kliknięciu w tło
-                        graphData.nodes.forEach((node) => {
-                            node.fx = null;
-                            node.fy = null;
-                        });
-                        fgRef.current?.zoomToFit(400);
-                    }}
-                    onEngineStop={() => {
-                        // Zablokuj pozycje węzłów po zatrzymaniu symulacji
-                        graphData.nodes.forEach((node) => {
-                            node.fx = node.x; // Zablokuj pozycję X
-                            node.fy = node.y; // Zablokuj pozycję Y
-                        });
                     }}
                 />
             </div>

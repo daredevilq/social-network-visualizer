@@ -12,39 +12,34 @@ export default function GraphContainer() {
 
     const renderGraph = () => {
         switch (selectedGraph) {
-            case "forceGraph":
-                return <ReactForceGraph></ReactForceGraph>
             case "standardGraph":
-                return <StandardGraph></StandardGraph>
+                return <StandardGraph/>;
             case "mentionsGraph":
                 return <AuthorMentionsGraph/>
             case "degreeCentralityGraph":
                 return <AuthorDegreeCentralityGraph/>
             default:
-                return <ReactForceGraph/>;
+                return <StandardGraph/>;
         }
     };
 
     return (
-        <div style={{width: "100%", height: "100vh", overflow: "hidden"}}>
-            <h1>Choose type of graph you would like to see:</h1>
-
-            {/* Type of Graph List */}
-            <div style={{marginBottom: "10px"}}>
+        <div className="flex flex-col h-screen w-screen overflow-hidden">
+            {/* Panel wyboru typu grafu - przezroczysty z białą ramką */}
+            <div className="absolute top-2 w-full z-10 p-4 bg-transparent rounded-md">
                 <select
                     value={selectedGraph}
                     onChange={(e) => setSelectedGraph(e.target.value)}
-                    style={{padding: "10px", fontSize: "16px"}}
+                    className="px-4 py-2 text-lg min-w-[250px] border border-white/30 rounded-md bg-transparent"
                 >
-                    <option value="standardGraph">Standard Graph</option>
-                    <option value="forceGraph">React Force Graph</option>
-                    <option value="mentionsGraph">Mentions Graph</option>
-                    <option value="degreeCentralityGraph">Degree Centrality Graph</option>
+                    <option value="standardGraph" className="text-black">Standard Graph</option>
+                    <option value="mentionsGraph" className="text-black">Mentions Graph</option>
+                    <option value="degreeCentralityGraph" className="text-black">Degree Centrality Graph</option>
                 </select>
             </div>
 
-            {/* Graph */}
-            <div style={{width: "100%", height: "80vh", overflow: "hidden"}}>
+            {/* Kontener na graf - pełna przestrzeń */}
+            <div className="w-full h-full">
                 {renderGraph()}
             </div>
         </div>

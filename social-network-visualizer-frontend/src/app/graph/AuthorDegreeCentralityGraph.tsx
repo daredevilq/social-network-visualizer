@@ -34,7 +34,12 @@ export default function AuthorPagerankGraph() {
             nodeLabel={(node: any) =>
                 `User: ${node.id}\nPR: ${node.pagerank?.toFixed(2)}\nComm: ${node.community}`
             }
-            nodeColor={(node: any) => `hsl(${node.pagerank * 40}, 100%, 50%)`}
+            nodeColor={(node: any) => {
+                const baseHue = 240;
+                const degreeHue = node.pagerank * 80;
+                const finalHue = baseHue + degreeHue;
+                return `hsl(${finalHue}, 73%, 54%)`;
+            }}
             linkColor={() => "#999"}
             linkDirectionalArrowLength={7}
             linkDirectionalArrowRelPos={1}

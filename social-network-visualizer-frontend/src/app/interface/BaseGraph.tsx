@@ -5,7 +5,11 @@ function BaseGraph<T extends GraphData>({ graphData, nodeVal, nodeLabel, nodeCol
     const fgRef = useRef(null);
 
     return (
-        <div id="ForceGraph2DCon" style={{ width: "100%", height: "100%" }}>
+        <div id="ForceGraph2DCon" style={{ width: "100%", height: "100%", position: 'relative',
+            overflow: 'hidden',
+            borderRadius: '30px',
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
+            maskImage: 'radial-gradient(circle, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 70%)' }}>
     <ForceGraph2D
         ref={fgRef}
     graphData={graphData}
