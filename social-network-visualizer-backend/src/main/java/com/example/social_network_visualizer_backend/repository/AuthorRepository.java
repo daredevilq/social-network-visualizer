@@ -42,11 +42,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     """)
     List<Tweet> findTop10TweetsByAuthorUsername(@Param("authorName") String authorName);
 
-    @Query("""
-        MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTIONS]->(a2:Author)
-        MERGE (a1)-[:MENTIONS]->(a2)
-        """)
-    void createRelationshipAuthorMentionsAuthor();
 
     @Query("""
     CALL gds.graph.project(
@@ -91,12 +86,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
           RETURN a1.userName AS source, a2.userName AS target
           """)
     List<AuthorLinkDTO> findUserMentions();
-
-    @Query("""
-            MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(a2:Author)
-            MERGE (a1)-[:RETWEETS]->(a2)
-        """)
-    void createRelationshipAuthorRetweetAuthor();
 
     @Query("""
             MATCH (a:Author {userName: $authorName})-[:POSTED]->(t:Tweet)

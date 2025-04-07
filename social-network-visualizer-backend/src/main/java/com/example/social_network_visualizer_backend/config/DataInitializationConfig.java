@@ -1,12 +1,14 @@
 package com.example.social_network_visualizer_backend.config;
 
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.repository.RelationshipRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.example.social_network_visualizer_backend.service.TweetsFolderParser;
 import com.example.social_network_visualizer_backend.service.TweetsParser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +20,7 @@ public class DataInitializationConfig {
     private final TweetsParser tweetsParser;
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
+    private final RelationshipRepository relationshipRepository;
     private final static int MAX_CONNECTION_ATTEMPTS = 10;
 
     @Value("${drop.mode:true}")
@@ -92,8 +95,19 @@ public class DataInitializationConfig {
     }
 
     private void computeMetricsAndRelations() {
-        authorRepository.createRelationshipAuthorMentionsAuthor();
-        authorRepository.createRelationshipAuthorRetweetAuthor();
+        // creating relationships
+        relationshipRepository.createRelationshipAuthorMentionsAuthor();
+        relationshipRepository.createRelationshipAuthorRetweetAuthor();
+        relationshipRepository.createRelationshipAuthorRepliesAuthor();
+        relationshipRepository.createRelationshipAuthorUsesHashtag();
+        relationshipRepository.createRelationshipAuthorsShareHashtag();
+        relationshipRepository.createRelationshipAuthorUsesCashtag();
+        relationshipRepository.createRelationshipAuthorsShareCashtag();
+        relationshipRepository.createQuoteRelationships();
+        relationshipRepository.createRetweetRelationships();
+        relationshipRepository.createReplyTotRelationships();
+
+        //performing algorithms
         authorRepository.createGdsGraph();
         authorRepository.createImportanceGraph();
         authorRepository.computePageRank();
