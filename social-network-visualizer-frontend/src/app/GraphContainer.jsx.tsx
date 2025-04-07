@@ -1,4 +1,5 @@
 "use client";
+
 import {useState} from "react";
 import dynamic from "next/dynamic";
 import StandardGraph from "@/app/graph/StandardGraph";
@@ -6,6 +7,7 @@ import StandardGraph from "@/app/graph/StandardGraph";
 const ReactForceGraph = dynamic(() => import("./graph/ReactForceGraph"), {ssr: false});
 const AuthorMentionsGraph = dynamic(() => import("./graph/AuthorMentionsGraph"), {ssr: false});
 const AuthorDegreeCentralityGraph = dynamic(() => import("./graph/AuthorDegreeCentralityGraph"), {ssr: false});
+const CommunityGraph = dynamic(() => import("./graph/CommunityGraph"), {ssr: false});
 
 export default function GraphContainer() {
     const [selectedGraph, setSelectedGraph] = useState("forceGraph");
@@ -18,6 +20,8 @@ export default function GraphContainer() {
                 return <AuthorMentionsGraph/>
             case "degreeCentralityGraph":
                 return <AuthorDegreeCentralityGraph/>
+            case "communityGraph":
+                return< CommunityGraph/>
             default:
                 return <StandardGraph/>;
         }
@@ -35,6 +39,7 @@ export default function GraphContainer() {
                     <option value="standardGraph" className="text-black">Standard Graph</option>
                     <option value="mentionsGraph" className="text-black">Mentions Graph</option>
                     <option value="degreeCentralityGraph" className="text-black">Degree Centrality Graph</option>
+                    <option value="communityGraph" className="text-black">Community Graph</option>
                 </select>
             </div>
 
