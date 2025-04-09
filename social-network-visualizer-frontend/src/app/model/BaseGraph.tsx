@@ -7,15 +7,16 @@ const ForceGraph2D = dynamic(() => import("react-force-graph").then(mod => mod.F
 
 
 function BaseGraph({
-                       graphData,
-                       nodeVal,
-                       nodeLabel,
-                       nodeColor,
-                       linkColor,
-                       linkWidth,
-                       linkDirectionalArrowLength,
-                       linkDirectionalArrowRelPos
-                   }) {
+    graphData,
+    nodeVal,
+    nodeLabel,
+    nodeColor,
+    linkColor,
+    linkWidth,
+    linkDirectionalArrowLength,
+    linkDirectionalArrowRelPos,
+    onNodeClick,
+}) {
     const fgRef = useRef(null);
     return (
         <div style={{width: "100%", height: "100%"}}>
@@ -29,6 +30,7 @@ function BaseGraph({
                 linkWidth={linkWidth}
                 linkDirectionalArrowLength={linkDirectionalArrowLength}
                 linkDirectionalArrowRelPos={linkDirectionalArrowRelPos}
+                onNodeClick={onNodeClick}
             />
         </div>
     );

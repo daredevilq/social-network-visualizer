@@ -1,8 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.AuthorDegreeCentralityDTO;
-import com.example.social_network_visualizer_backend.dto.AuthorLinkDTO;
-import com.example.social_network_visualizer_backend.dto.AuthorNodeDTO;
+import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -11,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
@@ -42,6 +41,18 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     """)
     List<Tweet> findTop10TweetsByAuthorUsername(@Param("authorName") String authorName);
 
+    @Query("""
+            MATCH (a:Author)-[:POSTED]->(t:Tweet)
+            WHERE a.userName = $authorName
+            RETURN MIN(t.publicationDate) AS dateOfFirstTweet,
+                   COUNT(CASE WHEN t.objectType = 'TWEET' THEN 1 END) AS tweetsCount,
+                   COUNT(CASE WHEN t.objectType = 'RETWEET' THEN 1 END) AS retweetsCount,
+                   COUNT(CASE WHEN t.objectType = 'REPLY' THEN 1 END) AS repliesCount,
+                   AVG(t.repliesCount) AS averageRepliesCount,
+                   AVG(t.retweetsCount) AS averageRetweetsCount,
+                   AVG(t.likesCount) AS averageLikesCount
+            """)
+    Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
     @Query("""
     CALL gds.graph.project(

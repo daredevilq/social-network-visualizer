@@ -98,14 +98,14 @@ public class DataInitializationConfig {
         // creating relationships
         relationshipRepository.createRelationshipAuthorMentionsAuthor();
         relationshipRepository.createRelationshipAuthorRetweetAuthor();
-        relationshipRepository.createRelationshipAuthorRepliesAuthor();
-        relationshipRepository.createRelationshipAuthorUsesHashtag();
-        relationshipRepository.createRelationshipAuthorsShareHashtag();
-        relationshipRepository.createRelationshipAuthorUsesCashtag();
-        relationshipRepository.createRelationshipAuthorsShareCashtag();
-        relationshipRepository.createQuoteRelationships();
-        relationshipRepository.createRetweetRelationships();
-        relationshipRepository.createReplyTotRelationships();
+//        relationshipRepository.createRelationshipAuthorRepliesAuthor();
+//        relationshipRepository.createRelationshipAuthorUsesHashtag();
+//        relationshipRepository.createRelationshipAuthorsShareHashtag();
+//        relationshipRepository.createRelationshipAuthorUsesCashtag();
+//        relationshipRepository.createRelationshipAuthorsShareCashtag();
+//        relationshipRepository.createQuoteRelationships();
+//        relationshipRepository.createRetweetRelationships();
+//        relationshipRepository.createReplyTotRelationships();
 
         //performing algorithms
         authorRepository.createGdsGraph();

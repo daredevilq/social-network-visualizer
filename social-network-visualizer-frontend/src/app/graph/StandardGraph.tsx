@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
+import RightSidebar from "@/app/component/RideSideBar";
 
 export default function StandardGraph() {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -8,6 +9,8 @@ export default function StandardGraph() {
     const [source, setSource] = useState("");
     const [target, setTarget] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
 
     useEffect(() => {
         fetch("http://localhost:8080/api/graph/author-mentions")
@@ -46,6 +49,11 @@ export default function StandardGraph() {
             })
             .catch((err) => console.error("Fetch error:", err))
             .finally(() => setIsLoading(false));
+    };
+
+    const handleNodeClick = (node: Node) => {
+        setSelectedUserName(node.id);
+        setIsSidebarOpen(true);
     };
 
     return (
@@ -100,6 +108,12 @@ export default function StandardGraph() {
                     }
                     linkDirectionalArrowLength={6}
                     linkDirectionalArrowRelPos={1}
+                    onNodeClick={handleNodeClick}
+                />
+                <RightSidebar
+                    isOpen={isSidebarOpen}
+                    onClose={() => setIsSidebarOpen(false)}
+                    userName={selectedUserName}
                 />
             </div>
         </div>

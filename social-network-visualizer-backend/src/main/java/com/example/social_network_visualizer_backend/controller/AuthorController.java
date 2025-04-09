@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.controller;
 
+import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.service.AuthorService;
@@ -25,7 +26,7 @@ public class AuthorController {
     }
 
     @GetMapping("/{authorName}")
-    public Author findAuthorById(@PathVariable String authorName) {
+    public AuthorDataResponse findAuthorById(@PathVariable String authorName) {
         return authorService.findAuthorById(authorName);
     }
 
