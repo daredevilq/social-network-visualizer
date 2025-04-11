@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
-import RightSidebar from "@/app/component/RideSideBar";
+import RightSidebar from "@/app/component/RightSideBar";
 
 export default function StandardGraph() {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
