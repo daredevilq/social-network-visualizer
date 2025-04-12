@@ -3,6 +3,7 @@ import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
 import RightSidebar from "@/app/component/RightSideBar";
 
+
 export default function StandardGraph() {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
     const [shortestPath, setShortestPath] = useState<string[]>([]);
@@ -58,7 +59,6 @@ export default function StandardGraph() {
 
     return (
         <div className="relative flex flex-col justify-center items-center h-screen w-full">
-            {/* Panel wyboru typu grafu */}
             <div className="absolute top-10 w-2/5 min-w-[300px] z-10 p-5 bg-transparent backdrop-blur-lg border border-white/30 bg-black/50 rounded-md">
                 <h3 className="text-xl text-center font-medium">
                     Choose source and target to display the shortest path by mentions parameter
@@ -91,7 +91,6 @@ export default function StandardGraph() {
                 </h5>
             </div>
 
-            {/* Kontener na graf, który zajmuje pełną wysokość */}
             <div className="h-full w-full mt-[15vh]">
                 <BaseGraph
                     graphData={graphData}

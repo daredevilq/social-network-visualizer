@@ -1,11 +1,7 @@
 @import "tailwindcss";
 
 html, body, div, span, h1, h2, h3, p, a, ul, li {
-    margin: 0;
-    padding: 0;
-    border: 0;
     box-sizing: border-box;
-    color: #fafafa;
     font-family: 'Raleway', sans-serif;
 }
 

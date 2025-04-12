@@ -19,7 +19,7 @@ interface UserActivity {
 interface RightSidebarProps {
     isOpen: boolean;
     onClose: () => void;
-    userName: string;
+    userName: string | null;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/';
@@ -82,8 +82,7 @@ export default function RightSidebar({isOpen, onClose, userName}: RightSidebarPr
         <div
             className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-50 transform transition-transform duration-300 ease-in-out rounded-l-xl ${
                 isOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
-            style={{backgroundColor: '#262631'}}
+            } border-l-[1px] border-[#FAFAFA] rounded-tl-[5%] rounded-bl-[5%] bg-[#262631]`}
         >
             <div className="p-6 h-full flex flex-col overflow-y-auto text-white space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-600 pb-4">

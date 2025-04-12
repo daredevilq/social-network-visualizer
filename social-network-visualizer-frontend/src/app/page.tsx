@@ -4,7 +4,7 @@ import '../app/globals.css';
 import {useState} from 'react';
 import LeftBar from "./component/LeftBar";
 import GraphContainer from "./component/GraphContainer";
-import RightSidebar from "./component/RightSideBar";
+import RightSidebar from "@/app/component/RightSideBar";
 import LeftSidebar from "./component/LeftSideBar";
 
 export default function Home() {
@@ -12,14 +12,16 @@ export default function Home() {
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const [selectedUserName, setSelectedUserName] = useState("testUser")
     const [selectedGraph, setSelectedGraph] = useState("standardGraph")
+    const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
 
     return (
         <div className="min-h-screen flex">
-            <LeftBar setIsLeftSideBarOpen={setIsLeftSidebarOpen}/>
+            <LeftBar setIsLeftSideBarOpen={setIsLeftSidebarOpen} setSelectedLeftSideBarContent={setSelectedLeftSideBarContent}/>
             <LeftSidebar
                 isOpen={isLeftSidebarOpen}
                 selectedGraph={selectedGraph}
                 setSelectedGraph={setSelectedGraph}
+                selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
             <GraphContainer selectedGraph={selectedGraph}/>
             <RightSidebar

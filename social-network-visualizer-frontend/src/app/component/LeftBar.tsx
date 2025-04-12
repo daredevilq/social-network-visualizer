@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 
 const icons = [
     {
@@ -18,7 +18,7 @@ const icons = [
         alt: 'Graph'
     },
     {
-        id: 'function',
+        id: 'functions',
         default: 'functions_icon.png',
         hover: 'clicked_functions_icon.png',
         active: 'clicked_functions_icon.png',
@@ -56,19 +56,21 @@ const icons = [
 
 interface LeftBarProps {
     setIsLeftSideBarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void;
+    setSelectedLeftSideBarContent: (value: (((prevState: string) => string) | string)) => void;
 }
 
-export default function LeftBar({setIsLeftSideBarOpen}: LeftBarProps) {
+export default function LeftBar({setIsLeftSideBarOpen, setSelectedLeftSideBarContent}: LeftBarProps) {
     const [activeIcon, setActiveIcon] = useState<string | null>(null);
     const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
 
-    const handleIconClick = (id: string) => {
-        setActiveIcon((prev) => {
-            const isSame = prev === id;
-            setIsLeftSideBarOpen(!isSame);
-            return isSame ? null : id;
-        });
-    };
+    const handleIconClick = useCallback((id: string) => {
+        const isSame = activeIcon === id;
+        if (!isSame) {
+            setSelectedLeftSideBarContent(id);
+        }
+        setIsLeftSideBarOpen(!isSame);
+        setActiveIcon(isSame ? null : id);
+    }, [activeIcon, setIsLeftSideBarOpen, setSelectedLeftSideBarContent]);
 
     return (
         <div
