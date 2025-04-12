@@ -3,10 +3,8 @@ package com.example.social_network_visualizer_backend.service;
 import com.example.social_network_visualizer_backend.dto.AuthorDto;
 import com.example.social_network_visualizer_backend.dto.TweetDto;
 import com.example.social_network_visualizer_backend.model.Author;
-import com.example.social_network_visualizer_backend.model.Cashtag;
 import com.example.social_network_visualizer_backend.model.Hashtag;
 import com.example.social_network_visualizer_backend.model.Tweet;
-import com.example.social_network_visualizer_backend.repository.CashtagRepository;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -26,7 +24,6 @@ import java.util.stream.Collectors;
 public class TweetsParser {
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
-    private final CashtagRepository cashtagRepository;
     private final HashtagRepository hashtagRepository;
 
     public void parseJsonFileFromPath(String filePath) {
@@ -39,12 +36,11 @@ public class TweetsParser {
 
         Map<String, Author> authorsMap = new HashMap<>();
         Map<String, Hashtag> hashtagsMap = new HashMap<>();
-        Map<String, Cashtag> cashtagsMap = new HashMap<>();
-        buildMaps(objectList, authorsMap, hashtagsMap, cashtagsMap);
+        buildMaps(objectList, authorsMap, hashtagsMap);
 
-        List<Tweet> tweetsToSave = createTweets(objectList, authorsMap, hashtagsMap, cashtagsMap);
+        List<Tweet> tweetsToSave = createTweets(objectList, authorsMap, hashtagsMap);
 
-        saveTweets(tweetsToSave, new ArrayList<>(authorsMap.values()), new ArrayList<>(hashtagsMap.values()), new ArrayList<>(cashtagsMap.values()));
+        saveTweets(tweetsToSave, new ArrayList<>(authorsMap.values()), new ArrayList<>(hashtagsMap.values()));
     }
 
     private List<TweetDto> readFile(File file) {
@@ -57,7 +53,7 @@ public class TweetsParser {
         }
     }
 
-    private void buildMaps(List<TweetDto> objectList, Map<String, Author> authorsMap, Map<String, Hashtag> hashtagsMap, Map<String, Cashtag> cashtagsMap) {
+    private void buildMaps(List<TweetDto> objectList, Map<String, Author> authorsMap, Map<String, Hashtag> hashtagsMap) {
 
         for (TweetDto tweetDto : objectList) {
             AuthorDto authorDto = tweetDto.getAuthor();
@@ -78,22 +74,16 @@ public class TweetsParser {
                     hashtagsMap.putIfAbsent(hashtag, new Hashtag(hashtag, new ArrayList<>()));
                 }
             }
-
-            if (tweetDto.getCashtags() != null) {
-                for (String cashtag : tweetDto.getCashtags()) {
-                    cashtagsMap.putIfAbsent(cashtag, new Cashtag(cashtag, new ArrayList<>()));
-                }
-            }
         }
     }
 
     private List<Tweet> createTweets(List<TweetDto> objectList, Map<String, Author> authorsMap,
-                                     Map<String, Hashtag> hashtagsMap, Map<String, Cashtag> cashtagsMap) {
+                                     Map<String, Hashtag> hashtagsMap) {
         List<Tweet> tweetsToSave = new ArrayList<>();
         for (TweetDto tweetDto : objectList) {
 
             Author author = authorsMap.get(tweetDto.getAuthor().getId());
-            Tweet tweet = createTweetFromDto(tweetDto, author, hashtagsMap, cashtagsMap);
+            Tweet tweet = createTweetFromDto(tweetDto, author, hashtagsMap);
             tweetsToSave.add(tweet);
 
         }
@@ -101,7 +91,7 @@ public class TweetsParser {
     }
 
     private Tweet createTweetFromDto(TweetDto tweetDto, Author author,
-                                     Map<String, Hashtag> hashtagsMap, Map<String, Cashtag> cashtagsMap) {
+                                     Map<String, Hashtag> hashtagsMap) {
         Tweet tweet = Tweet.builder()
                 .id(tweetDto.getId())
                 .objectCreatedAt(tweetDto.getObjectCreatedAt())
@@ -126,11 +116,6 @@ public class TweetsParser {
                                 .map(hashtagsMap::get)
                                 .collect(Collectors.toList()) : new ArrayList<>()
                 )
-                .cashtags(
-                        tweetDto.getCashtags() != null ? tweetDto.getCashtags().stream()
-                                .map(cashtagsMap::get)
-                                .collect(Collectors.toList()) : new ArrayList<>()
-                )
                 .build();
 
         author.addTweet(tweet);
@@ -138,19 +123,13 @@ public class TweetsParser {
         for (Hashtag hashtag : tweet.getHashtags()) {
             hashtag.addTweet(tweet);
         }
-
-        for (Cashtag cashtag : tweet.getCashtags()) {
-            cashtag.addTweet(tweet);
-        }
-
         return tweet;
     }
 
-    private void saveTweets(List<Tweet> tweets, List<Author> authors, List<Hashtag> hashtags, List<Cashtag> cashtags) {
+    private void saveTweets(List<Tweet> tweets, List<Author> authors, List<Hashtag> hashtags) {
         tweetRepository.saveAll(tweets);
         authorRepository.saveAll(authors);
         hashtagRepository.saveAll(hashtags);
-        cashtagRepository.saveAll(cashtags);
         log.info("Save data to database");
     }
 }

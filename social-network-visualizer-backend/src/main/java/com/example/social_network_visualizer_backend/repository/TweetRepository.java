@@ -42,4 +42,14 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         DETACH DELETE node
     """)
     void deleteAllNodes();
+
+    @Query("""
+        CALL gds.graph.drop('author-mentions', false) YIELD graphName
+        RETURN graphName
+        UNION ALL
+        CALL gds.graph.drop('author-importance', false) YIELD graphName
+        RETURN graphName
+    """)
+    List<String> dropAllGdsGraphs();
+
 }

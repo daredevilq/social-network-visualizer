@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MentionDto {
-    private String userName;
+    private String username;
     private String userId;
 }

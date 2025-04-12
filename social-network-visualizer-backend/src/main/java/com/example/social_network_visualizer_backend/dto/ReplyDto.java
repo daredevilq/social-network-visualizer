@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ReplyDto {
-    private String userName;
+    private String username;
     private String userId;
 }
