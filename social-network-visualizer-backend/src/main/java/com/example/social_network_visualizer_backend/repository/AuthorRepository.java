@@ -11,8 +11,31 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
+
+    @Query("""
+        UNWIND $authors AS author
+        CREATE (a:Author {
+            id: author.id,
+            userName: author.userName,
+            displayName: author.displayName,
+            name: author.name,
+            foreignId: author.foreignId,
+            bot: author.bot
+        })
+    """)
+    void createAll(@Param("authors") List<Map<String, Object>> authors);
+
+    @Query("""
+        UNWIND $authorTweetData AS data
+        MATCH (a:Author {userName: data.userName})
+        WITH a, data
+        MATCH (t:Tweet {id: data.tweetId})
+        MERGE (a)-[:POSTED]->(t)
+    """)
+    void createAuthorTweetRelations(@Param("authorTweetData") List<Map<String, Object>> authorTweetData);
 
     @Query("""
         MATCH (a:Author)-[:POSTED]->(t:Tweet)
