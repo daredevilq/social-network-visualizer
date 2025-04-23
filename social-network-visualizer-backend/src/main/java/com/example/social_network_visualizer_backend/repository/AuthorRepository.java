@@ -29,6 +29,19 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     void createAll(@Param("authors") List<Map<String, Object>> authors);
 
     @Query("""
+        UNWIND $authors AS author
+        MERGE (a:Author {
+            id: author.id,
+            userName: author.userName,
+            displayName: author.displayName,
+            name: author.name,
+            foreignId: author.foreignId,
+            bot: author.bot
+        })
+    """)
+    void mergeAll(@Param("authors") List<Map<String, Object>> authors);
+
+    @Query("""
         UNWIND $authorTweetData AS data
         MATCH (a:Author {userName: data.userName})
         WITH a, data

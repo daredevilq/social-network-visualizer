@@ -46,12 +46,16 @@ public class TweetsFolderParser {
             throw new RuntimeException("Error reading directory: " + folderPath, e);
         }
 
+        importFilesToDatabse(jsonFiles, true);
+    }
+
+    public void importFilesToDatabse(List<Path> jsonFiles, boolean createAllNodes) {
         List<TweetDto> allTweetDtos = loadAllJsonFiles(jsonFiles);
         addAllParentsToTweetsList(allTweetDtos);
 
         Map<String, TweetDto> tweetsMap = new HashMap<>();
 
-        buildNodes(allTweetDtos, tweetsMap);
+        buildNodes(allTweetDtos, tweetsMap, createAllNodes);
         log.info("All nodes added to database");
 
         createRelationships(tweetsMap);
@@ -100,7 +104,8 @@ public class TweetsFolderParser {
     @Transactional
     public void buildNodes(
             List<TweetDto> tweetDtosList,
-            Map<String, TweetDto> tweetsMap
+            Map<String, TweetDto> tweetsMap,
+            boolean createAllNodes
     ) {
         List<Map<String, Object>> authorsData = new ArrayList<>();
         List<Map<String, Object>> hashtagsData = new ArrayList<>();
@@ -152,9 +157,16 @@ public class TweetsFolderParser {
         updateAuthorsDataFromReplies(uniqAuthors, repliesMap, authorsData);
         updateAuthorsDataFromMentions(uniqAuthors, mentionsMap, authorsData);
 
-        tweetRepository.createAll(tweetsData);
-        authorRepository.createAll(authorsData);
-        hashtagRepository.createAll(hashtagsData);
+        if (createAllNodes) {
+            tweetRepository.createAll(tweetsData);
+            authorRepository.createAll(authorsData);
+            hashtagRepository.createAll(hashtagsData);
+        } else {
+            tweetRepository.mergeAll(tweetsData);
+            authorRepository.mergeAll(authorsData);
+            hashtagRepository.mergeAll(hashtagsData);
+        }
+
     }
 
     private void updateAuthorsDataFromReplies(Set<String> uniqAuthors, Map<String, ReplyDto> repliesMap, List<Map<String, Object>> authorsData) {

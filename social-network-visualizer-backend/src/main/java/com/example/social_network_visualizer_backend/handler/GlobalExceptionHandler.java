@@ -1,12 +1,14 @@
 package com.example.social_network_visualizer_backend.handler;
 
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
-import com.example.social_network_visualizer_backend.exceptions.ProjectReadException;
+import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -35,17 +37,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "Neo4j is not available", "message", ex.getMessage()));
     }
 
-    @ExceptionHandler(ProjectReadException.class)
-    public ResponseEntity<Map<String, String>> handleProjectReadException(ProjectReadException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Unable to read project files", "message", e.getMessage()));
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
         log.error("Internal server error", e);
         return ResponseEntity
                 .internalServerError()
                 .body(Map.of("error", "Unexpected error occurred. Please try again later."));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException e) {
+        return ResponseEntity.status(e.getStatusCode())
+                .body(Map.of("error", e.getReason()));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, String>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(Map.of(
+                        "error", "Method " + e.getMethod() + " is not supported for this endpoint."
+                ));
+    }
+
+    @ExceptionHandler(ProjectException.class)
+    public ResponseEntity<Map<String, String>> handleProjectException(ProjectException e) {
+        return ResponseEntity.status(e.getStatus())
+                .body(Map.of("error", e.getMessage()));
     }
 }

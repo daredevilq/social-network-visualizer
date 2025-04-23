@@ -16,4 +16,12 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
         })
     """)
     void createAll(@Param("hashtags") List<Map<String, Object>> hashtags);
+
+    @Query("""
+        UNWIND $hashtags AS hashtag
+        MERGE (h:Hashtag {
+            hashtag: hashtag.hashtag
+        })
+    """)
+    void mergeAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 }

@@ -35,6 +35,29 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
     """)
     void createAll(@Param("tweets") List<Map<String, Object>> tweets);
 
+
+    @Query("""
+        UNWIND $tweets AS tweet
+        MERGE (t:Tweet { id: tweet.id })
+        SET t.objectCreatedAt = tweet.objectCreatedAt,
+            t.publicationDate = tweet.publicationDate,
+            t.objectType = tweet.objectType,
+            t.language = tweet.language,
+            t.contentPreview = tweet.contentPreview,
+            t.content = tweet.content,
+            t.twitterId = tweet.twitterId,
+            t.url = tweet.url,
+            t.conversationId = tweet.conversationId,
+            t.links = tweet.links,
+            t.photos = tweet.photos,
+            t.videos = tweet.videos,
+            t.repliesCount = tweet.repliesCount,
+            t.retweetsCount = tweet.retweetsCount,
+            t.likesCount = tweet.likesCount
+    """)
+    void mergeAll(@Param("tweets") List<Map<String, Object>> tweets);
+
+
     @Query("""
         UNWIND $tweetMentionsData AS data
         MATCH (a:Author {userName: data.userName})
