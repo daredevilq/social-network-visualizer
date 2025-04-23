@@ -3,13 +3,12 @@ import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
 import RightSidebar from "@/app/component/RightSideBar";
 
+interface GraphProps {
+    shortestPath: string[];
+}
 
-export default function StandardGraph() {
+export default function StandardGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
-    const [shortestPath, setShortestPath] = useState<string[]>([]);
-    const [source, setSource] = useState("");
-    const [target, setTarget] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
 
@@ -35,23 +34,6 @@ export default function StandardGraph() {
             .catch((err) => console.error("Fetch error:", err));
     }, []);
 
-    const handleSearch = () => {
-        if (!source || !target) {
-            setShortestPath([]);
-            return;
-        }
-
-        setIsLoading(true);
-
-        fetch(`http://localhost:8080/author/shortestPath/${source}?target=${target}`)
-            .then((res) => res.json())
-            .then((data) => {
-                setShortestPath(data);
-            })
-            .catch((err) => console.error("Fetch error:", err))
-            .finally(() => setIsLoading(false));
-    };
-
     const handleNodeClick = (node: Node) => {
         setSelectedUserName(node.id);
         setIsSidebarOpen(true);
@@ -59,39 +41,6 @@ export default function StandardGraph() {
 
     return (
         <div className="relative flex flex-col justify-center items-center h-screen w-full">
-            <div className="absolute top-10 w-2/5 min-w-[300px] z-10 p-5 bg-transparent backdrop-blur-lg border border-white/30 bg-black/50 rounded-md">
-                <h3 className="text-xl text-center font-medium">
-                    Choose source and target to display the shortest path by mentions parameter
-                </h3>
-                <div className="flex gap-4 items-center justify-center">
-                    <input
-                        type="text"
-                        value={source}
-                        onChange={(e) => setSource(e.target.value)}
-                        placeholder="RealMadrid"
-                        className="px-3 py-2 rounded-md border border-white/30 bg-black/20 text-white w-full min-w-[120px]"
-                    />
-                    <input
-                        type="text"
-                        value={target}
-                        onChange={(e) => setTarget(e.target.value)}
-                        placeholder="FIFACWC"
-                        className="px-3 py-2 rounded-md border border-white/30 bg-black/20 text-white w-full min-w-[120px]"
-                    />
-                    <button
-                        onClick={handleSearch}
-                        disabled={isLoading}
-                        className="h-10 w-90 px-6 py-2 rounded-md bg-transparent border-2 border-white/30 text-white cursor-pointer transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:border-white/50"
-                    >
-                        {isLoading ? "Loading..." : "Show path"}
-                    </button>
-                </div>
-                <h5 className="text-sm text-center opacity-80">
-                    Display without source and target to display standard graph
-                </h5>
-            </div>
-
-            <div className="h-full w-full mt-[15vh]">
                 <BaseGraph
                     graphData={graphData}
                     nodeVal={(node: any) => (node.pagerank ? node.pagerank * 5 : 1)}
@@ -114,7 +63,6 @@ export default function StandardGraph() {
                     onClose={() => setIsSidebarOpen(false)}
                     userName={selectedUserName}
                 />
-            </div>
         </div>
     );
 }

@@ -13,6 +13,7 @@ export default function Home() {
     const [selectedUserName, setSelectedUserName] = useState("testUser")
     const [selectedGraph, setSelectedGraph] = useState("standardGraph")
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
+    const [shortestPath, setShortestPath] = useState<string[]>([]);
 
     return (
         <div className="min-h-screen flex">
@@ -22,8 +23,9 @@ export default function Home() {
                 selectedGraph={selectedGraph}
                 setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
+                setShortestPath={setShortestPath}
             />
-            <GraphContainer selectedGraph={selectedGraph}/>
+            <GraphContainer selectedGraph={selectedGraph} shortestPath={shortestPath}/>
             <RightSidebar
                 isOpen={isRightSidebarOpen}
                 onClose={() => setIsRightSidebarOpen(false)}

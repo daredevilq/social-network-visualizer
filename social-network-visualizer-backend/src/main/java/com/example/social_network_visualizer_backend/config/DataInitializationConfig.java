@@ -21,7 +21,7 @@ public class DataInitializationConfig {
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
     private final RelationshipRepository relationshipRepository;
-    private final static int MAX_CONNECTION_ATTEMPTS = 10;
+    private final static int MAX_CONNECTION_ATTEMPTS = 60;
 
     @Value("${drop.mode:true}")
     private String dropMode;

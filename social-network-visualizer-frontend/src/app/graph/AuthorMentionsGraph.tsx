@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import BaseGraph from "../model/BaseGraph";
 import {GraphData, Link, Node} from "@/app/interface/GraphData";
 
-export default function AuthorMentionsGraph() {
+interface GraphProps {
+    shortestPath: string[];
+}
+export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
 
     useEffect(() => {

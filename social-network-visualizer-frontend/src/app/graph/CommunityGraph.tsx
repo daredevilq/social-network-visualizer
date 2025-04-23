@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
 
-export default function CommunityGraph() {
+interface GraphProps {
+    shortestPath: string[];
+}
+
+export default function CommunityGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
 
     useEffect(() => {
@@ -41,8 +45,12 @@ export default function CommunityGraph() {
                 `Community: ${node.community}`
             }
             nodeColor={getNodeColor}
-            linkColor={() => "#fafafa"}
-            linkWidth={() => 1}
+            linkColor={(link: any) =>
+                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
+            }
+            linkWidth={(link: any) =>
+                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 3 : 2
+            }
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={1}
         />

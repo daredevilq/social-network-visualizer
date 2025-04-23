@@ -8,23 +8,24 @@ const AuthorDegreeCentralityGraph = dynamic(() => import("../graph/AuthorDegreeC
 const CommunityGraph = dynamic(() => import("../graph/CommunityGraph"), {ssr: false});
 
 interface GraphContainerProps {
-    selectedGraph: string;
+    selectedGraph: string,
+    shortestPath: string[];
 }
 
-export default function GraphContainer({selectedGraph}: GraphContainerProps) {
+export default function GraphContainer({selectedGraph, shortestPath}: GraphContainerProps) {
 
     const renderGraph = () => {
         switch (selectedGraph) {
             case "standardGraph":
-                return <StandardGraph/>;
+                return <StandardGraph shortestPath={shortestPath}/>;
             case "mentionsGraph":
-                return <AuthorMentionsGraph/>
+                return <AuthorMentionsGraph shortestPath={shortestPath}/>
             case "degreeCentralityGraph":
-                return <AuthorDegreeCentralityGraph/>
+                return <AuthorDegreeCentralityGraph shortestPath={shortestPath}/>
             case "communityGraph":
-                return < CommunityGraph/>
+                return < CommunityGraph shortestPath={shortestPath}/>
             default:
-                return <StandardGraph/>;
+                return <StandardGraph shortestPath={shortestPath}/>;
         }
     };
 
