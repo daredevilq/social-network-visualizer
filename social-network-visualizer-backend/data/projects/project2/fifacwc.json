@@ -1,0 +1,59 @@
+[
+  {
+    "id": "tweet3",
+    "objectType": "TWEET",
+    "objectCreatedAt": "2025-02-24T12:10:00.000Z",
+    "publicationDate": "2025-02-24T12:05:00Z",
+    "author": {
+      "id": "auth_fifacwc",
+      "userName": "FIFACWC",
+      "displayName": "FIFACWC",
+      "name": "FIFACWC | FIFA Club World Cup",
+      "foreignId": "for_fifacwc",
+      "origin": {
+        "name": "x.com",
+        "type": "TWITTER"
+      },
+      "bot": null
+    },
+    "source": {
+      "id": "src_fifacwc",
+      "name": "FIFACWC",
+      "url": "x.com/FIFACWC",
+      "type": "TWITTER"
+    },
+    "language": "ENGLISH",
+    "contentPreview": "We are ready for the showdown!",
+    "content": "FIFACWC announces the schedule for the upcoming club world cup. Exciting times ahead!",
+    "twitterId": "1003",
+    "url": "https://x.com/FIFACWC/status/1003",
+    "hashtags": ["ClubWorldCup"],
+    "cashtags": [],
+    "mentions": [
+      {
+        "userId": "auth_fcporto",
+        "username": "FCPorto"
+      },
+      {
+        "userId": "auth_juventusfc",
+        "username": "juventusfc"
+      }
+    ],
+    "links": [],
+    "photos": [
+      "https://pbs.twimg.com/media/FIFACWCPhoto1.jpg"
+    ],
+    "videos": [],
+    "replies": [
+      {
+        "userId": "auth_fcporto",
+        "username": "FCPorto"
+      }
+    ],
+    "repliesCount": 2,
+    "retweetsCount": 8,
+    "likesCount": 40,
+    "conversationId": "conv2",
+    "parent": null
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "tweet2",
+    "objectType": "REPLY",
+    "objectCreatedAt": "2025-02-24T12:05:00.000Z",
+    "publicationDate": "2025-02-24T12:00:00Z",
+    "author": {
+      "id": "auth_fcporto",
+      "userName": "FCPorto",
+      "displayName": "FCPorto",
+      "name": "FCPorto",
+      "foreignId": "for_fcporto",
+      "origin": {
+        "name": "x.com",
+        "type": "TWITTER"
+      },
+      "bot": null
+    },
+    "source": {
+      "id": "src_fcporto",
+      "name": "FCPorto",
+      "url": "x.com/FCPorto",
+      "type": "TWITTER"
+    },
+    "language": "ENGLISH",
+    "contentPreview": "Replying to Atleti",
+    "content": "Great performance, Atleti! Looking forward to our next encounter.",
+    "twitterId": "1002",
+    "url": "https://x.com/FCPorto/status/1002",
+    "hashtags": [],
+    "cashtags": [],
+    "mentions": [],
+    "links": [],
+    "photos": [
+      "https://pbs.twimg.com/media/FCPortoPhoto1.jpg"
+    ],
+    "videos": [],
+    "replies": [],
+    "repliesCount": 0,
+    "retweetsCount": 5,
+    "likesCount": 30,
+    "conversationId": "conv1",
+    "parent": {
+      "id": "tweet1",
+      "objectType": "TWEET",
+      "objectCreatedAt": "2025-02-24T12:00:00.000Z",
+      "publicationDate": "2025-02-24T11:50:00Z",
+      "author": {
+        "id": "auth_atleti",
+        "userName": "Atleti",
+        "displayName": "Atleti",
+        "name": "Atleti",
+        "foreignId": "for_atleti",
+        "origin": {
+          "name": "x.com",
+          "type": "TWITTER"
+        },
+        "bot": null
+      },
+      "source": {
+        "id": "src_atleti",
+        "name": "Atleti",
+        "url": "x.com/Atleti",
+        "type": "TWITTER"
+      },
+      "language": "ENGLISH",
+      "contentPreview": "Match starting soon!",
+      "content": "The match between Atleti and their opponents is about to begin. Stay tuned!",
+      "twitterId": "1001",
+      "url": "https://x.com/Atleti/status/1001",
+      "hashtags": ["MatchDay"],
+      "cashtags": [],
+      "mentions": [
+        {
+          "userId": "auth_fifacwc",
+          "username": "FIFACWC"
+        }
+      ],
+      "links": [],
+      "photos": [
+        "https://pbs.twimg.com/media/AtletiPhoto1.jpg"
+      ],
+      "videos": [],
+      "replies": [],
+      "repliesCount": 1,
+      "retweetsCount": 10,
+      "likesCount": 50,
+      "conversationId": "conv1",
+      "parent": null
+    }
+  }
+]

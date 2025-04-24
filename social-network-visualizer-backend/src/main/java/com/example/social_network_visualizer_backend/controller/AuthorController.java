@@ -31,7 +31,7 @@ public class AuthorController {
     }
 
     @GetMapping("/activity/{authorName}")
-    public Map<String, Long> getAuthorActivity(@PathVariable String authorName) {
+    public Map<String, Long> getAuthorActivity(@PathVariable String authorName){
         return authorService.getUserActivity(authorName);
     }
 

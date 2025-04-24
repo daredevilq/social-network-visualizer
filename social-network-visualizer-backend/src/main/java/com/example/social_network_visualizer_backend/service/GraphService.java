@@ -30,7 +30,6 @@ public class GraphService {
         return result;
     }
 
-
     public Map<String, Object> getAuthorImportanceGraph() {
         List<AuthorDegreeCentralityDTO> nodesRaw = authorRepository.findUsersDegreeCentrality();
         List<AuthorLinkDTO> mentionsRaw = authorRepository.findUserMentions();

@@ -1,0 +1,148 @@
+[
+  {
+    "id": "tweet6",
+    "objectType": "REPLY",
+    "objectCreatedAt": "2025-02-24T12:40:00.000Z",
+    "publicationDate": "2025-02-24T12:35:00Z",
+    "author": {
+      "id": "auth_fcbarca",
+      "userName": "FCBarcelona",
+      "displayName": "FC Barcelona",
+      "name": "FC Barcelona",
+      "foreignId": "for_fcbarca",
+      "origin": {
+        "name": "x.com",
+        "type": "TWITTER"
+      },
+      "bot": null
+    },
+    "source": {
+      "id": "src_fcbarca",
+      "name": "FCBarcelona",
+      "url": "x.com/FCBarcelona",
+      "type": "TWITTER"
+    },
+    "language": "ENGLISH",
+    "contentPreview": "Replying to Bayern",
+    "content": "We see you're in top shape, @BayernMunich. Barça is ready for El Clásico and beyond!",
+    "twitterId": "1006",
+    "url": "https://x.com/FCBarcelona/status/1006",
+    "hashtags": ["ViscaBarca"],
+    "cashtags": [],
+    "mentions": [
+      {
+        "userId": "auth_bayern",
+        "username": "BayernMunich"
+      },
+      {
+        "userId": "auth_juventusfc",
+        "username": "juventusfc"
+      }
+    ],
+    "links": [],
+    "photos": [
+      "https://pbs.twimg.com/media/FCBarcelonaPhoto1.jpg"
+    ],
+    "videos": [],
+    "replies": [],
+    "repliesCount": 1,
+    "retweetsCount": 3,
+    "likesCount": 22,
+    "conversationId": "conv3",
+    "parent": {
+      "id": "tweet5",
+      "objectType": "REPLY",
+      "objectCreatedAt": "2025-02-24T12:30:00.000Z",
+      "publicationDate": "2025-02-24T12:25:00Z",
+      "author": {
+        "id": "auth_bayern",
+        "userName": "BayernMunich",
+        "displayName": "FC Bayern Munich",
+        "name": "FC Bayern Munich",
+        "foreignId": "for_bayern",
+        "origin": {
+          "name": "x.com",
+          "type": "TWITTER"
+        },
+        "bot": null
+      },
+      "source": {
+        "id": "src_bayern",
+        "name": "FCBayern",
+        "url": "x.com/FCBayern",
+        "type": "TWITTER"
+      },
+      "language": "ENGLISH",
+      "contentPreview": "Replying to Juventus",
+      "content": "@juventusfc Impressive form in Serie A! Bayern is ready to face you in the Champions League.",
+      "twitterId": "1005",
+      "url": "https://x.com/BayernMunich/status/1005",
+      "hashtags": ["UCL"],
+      "cashtags": [],
+      "mentions": [
+        {
+          "userId": "auth_juventusfc",
+          "username": "juventusfc"
+        }
+      ],
+      "links": [],
+      "photos": [
+        "https://pbs.twimg.com/media/BayernPhoto1.jpg"
+      ],
+      "videos": [],
+      "replies": [],
+      "repliesCount": 0,
+      "retweetsCount": 3,
+      "likesCount": 28,
+      "conversationId": "conv3",
+      "parent": {
+        "id": "tweet4",
+        "objectType": "REPLY",
+        "objectCreatedAt": "2025-02-24T12:15:00.000Z",
+        "publicationDate": "2025-02-24T12:10:00Z",
+        "author": {
+          "id": "auth_juventusfc",
+          "userName": "juventusfc",
+          "displayName": "juventusfc",
+          "name": "juventusfc",
+          "foreignId": "for_juventusfc",
+          "origin": {
+            "name": "x.com",
+            "type": "TWITTER"
+          },
+          "bot": null
+        },
+        "source": {
+          "id": "src_juventusfc",
+          "name": "juventusfc",
+          "url": "x.com/juventusfc",
+          "type": "TWITTER"
+        },
+        "language": "ENGLISH",
+        "contentPreview": "@FIFACWC Thanks for the update! Looking forward to the match.",
+        "content": "@FIFACWC Thanks for the update! Looking forward to the match. Let's make history!",
+        "twitterId": "1004",
+        "url": "https://x.com/juventusfc/status/1004",
+        "hashtags": [],
+        "cashtags": [],
+        "mentions": [
+          {
+            "userId": "auth_fifacwc",
+            "username": "FIFACWC"
+          }
+        ],
+        "links": [],
+        "photos": [
+          "https://pbs.twimg.com/media/JuventusPhoto1.jpg"
+        ],
+        "videos": [],
+        "replies": [],
+        "repliesCount": 0,
+        "retweetsCount": 4,
+        "likesCount": 25,
+        "conversationId": "conv2",
+        "parent": null
+      }
+    }
+  }
+]

@@ -43,9 +43,9 @@ public class Tweet {
     @Relationship(type = "HAS_HASHTAG", direction = Relationship.Direction.OUTGOING)
     private List<Hashtag> hashtags;
 
-    @JsonManagedReference
-    @Relationship(type = "HAS_CASHTAG", direction = Relationship.Direction.OUTGOING)
-    private List<Cashtag> cashtags;
+//    @JsonManagedReference
+//    @Relationship(type = "HAS_CASHTAG", direction = Relationship.Direction.OUTGOING)
+//    private List<Cashtag> cashtags;
 
     @JsonBackReference
     @Relationship(type = "HAS_REPLY", direction = Relationship.Direction.OUTGOING)

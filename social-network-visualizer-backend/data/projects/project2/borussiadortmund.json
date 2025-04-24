@@ -1,0 +1,102 @@
+[
+    {
+      "id": "tweet_bd_1",
+      "objectType": "REPLY",
+      "objectCreatedAt": "2025-03-01T08:10:00.000Z",
+      "publicationDate": "2025-03-01T08:15:00Z",
+      "author": {
+        "id": "auth_borussiadortmund",
+        "userName": "BorussiaDortmund",
+        "displayName": "Borussia Dortmund",
+        "name": "borussiadortmund",
+        "foreignId": "for_borussiadortmund",
+        "origin": {
+          "name": "x.com",
+          "type": "TWITTER"
+        },
+        "bot": null
+      },
+      "source": {
+        "id": "src_borussiadortmund",
+        "name": "Borussia Dortmund",
+        "url": "https://x.com/BorussiaDortmund",
+        "type": "TWITTER"
+      },
+      "language": "ENGLISH",
+      "contentPreview": "@ACMilan We'll see about that!",
+      "content": "@ACMilan We'll see about that! Can't wait to face you and @Liverpool on the pitch.",
+      "twitterId": "2002",
+      "url": "https://x.com/BorussiaDortmund/status/2002",
+      "hashtags": [],
+      "cashtags": [],
+      "mentions": [
+        {
+          "userId": "auth_acmilan",
+          "username": "ACMilan"
+        },
+        {
+          "userId": "auth_liverpool",
+          "username": "Liverpool"
+        }
+      ],
+      "links": [],
+      "photos": [],
+      "videos": [],
+      "replies": [],
+      "repliesCount": 0,
+      "retweetsCount": 0,
+      "likesCount": 0,
+      "conversationId": "conv_ac_1",
+      "parent": {
+        "id": "tweet_ac_1",
+        "objectType": "TWEET",
+        "objectCreatedAt": "2025-03-01T08:00:00.000Z",
+        "publicationDate": "2025-03-01T08:05:00Z",
+        "author": {
+          "id": "auth_acmilan",
+          "userName": "ACMilan",
+          "displayName": "AC Milan",
+          "name": "acmilan",
+          "foreignId": "for_acmilan",
+          "origin": {
+            "name": "x.com",
+            "type": "TWITTER"
+          },
+          "bot": null
+        },
+        "source": {
+          "id": "src_acmilan",
+          "name": "AC Milan",
+          "url": "https://x.com/ACMilan",
+          "type": "TWITTER"
+        },
+        "language": "ENGLISH",
+        "contentPreview": "Big match coming soon!",
+        "content": "Ready for the big match against our rivals! @BorussiaDortmund and @Liverpool – let's see who comes out on top!",
+        "twitterId": "2001",
+        "url": "https://x.com/ACMilan/status/2001",
+        "hashtags": ["BigMatch", "Rivals"],
+        "cashtags": [],
+        "mentions": [
+          {
+            "userId": "auth_borussiadortmund",
+            "username": "BorussiaDortmund"
+          },
+          {
+            "userId": "auth_liverpool",
+            "username": "Liverpool"
+          }
+        ],
+        "links": [],
+        "photos": [],
+        "videos": [],
+        "replies": [],
+        "repliesCount": 0,
+        "retweetsCount": 0,
+        "likesCount": 0,
+        "conversationId": "conv_ac_1",
+        "parent": null
+      }
+    }
+  ]
+  

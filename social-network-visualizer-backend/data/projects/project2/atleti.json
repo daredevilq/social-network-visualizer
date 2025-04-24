@@ -1,0 +1,54 @@
+[
+  {
+    "id": "tweet1",
+    "objectType": "TWEET",
+    "objectCreatedAt": "2025-02-24T12:00:00.000Z",
+    "publicationDate": "2025-02-24T11:50:00Z",
+    "author": {
+      "id": "auth_atleti",
+      "userName": "Atleti",
+      "displayName": "Atleti",
+      "name": "Atleti",
+      "foreignId": "for_atleti",
+      "origin": {
+        "name": "x.com",
+        "type": "TWITTER"
+      },
+      "bot": null
+    },
+    "source": {
+      "id": "src_atleti",
+      "name": "Atleti",
+      "url": "x.com/Atleti",
+      "type": "TWITTER"
+    },
+    "language": "ENGLISH",
+    "contentPreview": "Match starting soon!",
+    "content": "The match between Atleti and their opponents is about to begin. Stay tuned!",
+    "twitterId": "1001",
+    "url": "https://x.com/Atleti/status/1001",
+    "hashtags": ["MatchDay"],
+    "cashtags": ["APPL", "CASHTAG"],
+    "mentions": [
+      {
+        "userId": "auth_fifacwc",
+        "username": "FIFACWC"
+      },
+      {
+        "userId": "auth_juventusfc",
+        "username": "juventusfc"
+      }
+    ],
+    "links": [],
+    "photos": [
+      "https://pbs.twimg.com/media/AtletiPhoto1.jpg"
+    ],
+    "videos": [],
+    "replies": [],
+    "repliesCount": 1,
+    "retweetsCount": 10,
+    "likesCount": 50,
+    "conversationId": "conv1",
+    "parent": null
+  }
+]

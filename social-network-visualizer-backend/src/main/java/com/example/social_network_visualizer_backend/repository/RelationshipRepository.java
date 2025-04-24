@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface RelationshipRepository extends Neo4jRepository<Author, String>{
 
     @Query("""
-        MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTIONS]->(a2:Author)
+        MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTION]->(a2:Author)
         MERGE (a1)-[:MENTIONS]->(a2)
         """)
     void createRelationshipAuthorMentionsAuthor();

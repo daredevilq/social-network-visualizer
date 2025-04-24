@@ -50,7 +50,7 @@ public class AuthorService {
 
         return AuthorDataResponse.builder()
                 .userName(authorName)
-                .dateOfFirstTweet(authorStatsDto.dateOfFirstTweet().toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                .dateOfFirstTweet(authorStatsDto.dateOfFirstTweet().toLocalDate())
                 .tweetsCount(authorStatsDto.tweetsCount())
                 .retweetsCount(authorStatsDto.retweetsCount())
                 .repliesCount(authorStatsDto.repliesCount())
