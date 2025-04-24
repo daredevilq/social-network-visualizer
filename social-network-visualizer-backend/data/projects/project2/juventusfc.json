@@ -1,7 +1,7 @@
 [
   {
     "id": "tweet4",
-    "objectType": "REPLY",
+    "objectType": "RETWEET",
     "objectCreatedAt": "2025-02-24T12:15:00.000Z",
     "publicationDate": "2025-02-24T12:10:00Z",
     "author": {

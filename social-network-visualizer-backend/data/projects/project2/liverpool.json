@@ -1,0 +1,49 @@
+[
+    {
+      "id": "tweet_liv_1",
+      "objectType": "TWEET",
+      "objectCreatedAt": "2025-03-01T09:00:00.000Z",
+      "publicationDate": "2025-03-01T09:05:00Z",
+      "author": {
+        "id": "auth_liverpool",
+        "userName": "Liverpool",
+        "displayName": "Liverpool FC",
+        "name": "liverpool",
+        "foreignId": "for_liverpool",
+        "origin": {
+          "name": "x.com",
+          "type": "TWITTER"
+        },
+        "bot": null
+      },
+      "source": {
+        "id": "src_liverpool",
+        "name": "Liverpool",
+        "url": "https://x.com/Liverpool",
+        "type": "TWITTER"
+      },
+      "language": "ENGLISH",
+      "contentPreview": "Let's keep the focus.",
+      "content": "Incredible atmosphere building up! @ACMilan, we accept the challenge. Let's make it a memorable clash!",
+      "twitterId": "2003",
+      "url": "https://x.com/Liverpool/status/2003",
+      "hashtags": ["ChallengeAccepted"],
+      "cashtags": [],
+      "mentions": [
+        {
+          "userId": "auth_acmilan",
+          "username": "ACMilan"
+        }
+      ],
+      "links": [],
+      "photos": [],
+      "videos": [],
+      "replies": [],
+      "repliesCount": 0,
+      "retweetsCount": 0,
+      "likesCount": 0,
+      "conversationId": "conv_liv_1",
+      "parent": null
+    }
+  ]
+  

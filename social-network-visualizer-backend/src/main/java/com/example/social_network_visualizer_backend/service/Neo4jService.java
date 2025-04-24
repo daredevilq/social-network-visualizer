@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.repository.RelationshipRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ public class Neo4jService {
     private final static int MAX_CONNECTION_ATTEMPTS = 10;
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
+    private final RelationshipRepository relationshipRepository;
 
     public void handleDatabaseDrop() {
         log.info("Dropping all nodes in the database...");
@@ -44,8 +46,19 @@ public class Neo4jService {
     }
 
     public void computeMetricsAndRelations(){
-        authorRepository.createRelationshipAuthorMentionsAuthor();
-        authorRepository.createRelationshipAuthorRetweetAuthor();
+        // creating relationships
+        relationshipRepository.createRelationshipAuthorMentionsAuthor();
+        relationshipRepository.createRelationshipAuthorRetweetAuthor();
+        relationshipRepository.createRelationshipAuthorRepliesAuthor();
+        relationshipRepository.createRelationshipAuthorUsesHashtag();
+        relationshipRepository.createRelationshipAuthorsShareHashtag();
+        relationshipRepository.createRelationshipAuthorUsesCashtag();
+        relationshipRepository.createRelationshipAuthorsShareCashtag();
+        relationshipRepository.createQuoteRelationships();
+        relationshipRepository.createRetweetRelationships();
+        relationshipRepository.createReplyTotRelationships();
+
+        //performing algorithms
         authorRepository.createGdsGraph();
         authorRepository.createImportanceGraph();
         authorRepository.computePageRank();

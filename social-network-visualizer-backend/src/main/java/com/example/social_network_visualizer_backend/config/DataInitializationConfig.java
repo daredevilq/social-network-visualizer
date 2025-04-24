@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializationConfig {
-    private final Neo4jService neo4jService;
 
+    private final Neo4jService neo4jService;
     @Value("${drop.mode:true}")
     private String dropMode;
 

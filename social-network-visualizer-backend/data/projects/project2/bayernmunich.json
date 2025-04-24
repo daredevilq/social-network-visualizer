@@ -1,7 +1,7 @@
 [
   {
     "id": "tweet5",
-    "objectType": "REPLY",
+    "objectType": "QUOTE",
     "objectCreatedAt": "2025-02-24T12:30:00.000Z",
     "publicationDate": "2025-02-24T12:25:00Z",
     "author": {

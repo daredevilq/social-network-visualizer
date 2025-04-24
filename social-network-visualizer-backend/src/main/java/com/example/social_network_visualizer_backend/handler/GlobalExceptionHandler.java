@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.handler;
 
+
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import jakarta.persistence.EntityNotFoundException;
+
+
 
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Map<String, String>> handleNoResourceFoundException(NoResourceFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Requested URL not found"));
@@ -63,5 +68,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleProjectException(ProjectException e) {
         return ResponseEntity.status(e.getStatus())
                 .body(Map.of("error", e.getMessage()));
+    }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFoundExceptions(EntityNotFoundException e) {
+        log.error("Entity Not Found Error: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
     }
 }
