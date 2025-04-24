@@ -106,6 +106,7 @@ public class TweetsParser {
                 .id(tweetDto.getId())
                 .objectCreatedAt(tweetDto.getObjectCreatedAt())
                 .publicationDate(tweetDto.getPublicationDate())
+                .objectType(tweetDto.getObjectType())
                 .language(tweetDto.getLanguage())
                 .contentPreview(tweetDto.getContentPreview())
                 .content(tweetDto.getContent())
