@@ -2,10 +2,10 @@
 
 import '../app/globals.css';
 import {useState} from 'react';
-import LeftBar from "./component/LeftBar";
-import GraphContainer from "./component/GraphContainer";
-import RightSidebar from "@/app/component/RightSideBar";
-import LeftSidebar from "./component/LeftSideBar";
+import LeftBar from "./components/LeftBar";
+import GraphContainer from "./components/GraphContainer";
+import RightSidebar from "@/app/components/RightSideBar";
+import LeftSidebar from "./components/LeftSideBar";
 
 export default function Home() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);

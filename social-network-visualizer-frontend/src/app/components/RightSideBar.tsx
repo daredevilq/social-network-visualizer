@@ -82,14 +82,14 @@ export default function RightSidebar({isOpen, onClose, userName}: RightSidebarPr
         <div
             className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-50 transform transition-transform duration-300 ease-in-out rounded-l-xl ${
                 isOpen ? 'translate-x-0' : 'translate-x-full'
-            } border-l-[1px] border-[#FAFAFA] rounded-tl-[5%] rounded-bl-[5%] bg-[#262631]`}
+            } border-l-[1px] border-[#FAFAFA] rounded-tr-2xl rounded-br-2xl bg-[#262631]`}
         >
             <div className="p-6 h-full flex flex-col overflow-y-auto text-white space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-600 pb-4">
                     <h1 className="text-2xl font-bold">{userName}</h1>
                     <button
                         onClick={onClose}
-                        className="p-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
+                        className="p-2 bg-[#7140F4] text-white rounded-full shadow-md hover:bg-[#5c32c3] transition-colors"
                         aria-label="Close sidebar"
                     >
                         <span className="sr-only">Close</span>

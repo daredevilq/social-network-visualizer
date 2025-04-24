@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import BaseGraph from "../model/BaseGraph";
 import { GraphData, Link, Node } from "@/app/interface/GraphData";
+import { useProject } from '@/app/context/ProjectContext';
 
 interface GraphProps {
     shortestPath: string[];
@@ -10,8 +11,11 @@ interface GraphProps {
 
 export default function CommunityGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
+    const { selected, loading} = useProject();
 
     useEffect(() => {
+        if (!selected || loading) return;
+
         fetch("http://localhost:8080/api/graph/author-mentions")
             .then((res) => res.json())
             .then((data) => {
@@ -29,11 +33,16 @@ export default function CommunityGraph({shortestPath}: GraphProps) {
                 setGraphData({ nodes, links });
             })
             .catch((err) => console.error("Fetch error:", err));
-    }, []);
+    }, [selected, loading]);
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
     };
+
+    if (!selected)
+        return <div className="h-full flex items-center justify-center text-[#fafafa]">
+                 Wybierz projekt…
+               </div>;
 
     return (
         <BaseGraph
