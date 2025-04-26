@@ -13,8 +13,6 @@ export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
     useEffect(() => {
         if (!selected || loading) return;
 
-        setGraphData(null);
-
         fetch("http://localhost:8080/api/graph/author-mentions")
             .then((res) => res.json())
             .then((data) => {

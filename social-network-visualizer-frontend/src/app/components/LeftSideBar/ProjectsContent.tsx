@@ -1,102 +1,173 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 
+import ProjectNameModal   from '@/app/components/Popups/ProjectNameModal';
+import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
+import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
+
 const API = 'http://localhost:8080';
 
 export default function ProjectsContent() {
-	const { selected, loading, select } = useProject();
+	const { selected, loading, select, runWithLoading } = useProject();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
-	const [status, setStatus]     = useState<string | null>(null);
-  	const fileRef = useRef<HTMLInputElement>(null);
+	const [status,   setStatus]   = useState<string | null>(null);
+
+	const hideTimer = useRef<NodeJS.Timeout | null>(null);
+	const showStatus = (msg: string) => {
+		clearTimeout(hideTimer.current as NodeJS.Timeout);
+		setStatus(msg);
+		hideTimer.current = setTimeout(() => setStatus(null), 3_000); // po 3 sek znika
+	};
+
+	const [nameModalOpen, setNameModalOpen] = useState(false);
+	const [pendingFiles,  setPendingFiles]  = useState<File[]>([]);
+	const [deleteTarget,  setDeleteTarget]  = useState<string | null>(null);
+	const fileRef = useRef<HTMLInputElement>(null);
+
+	const refreshProjects = async () => {
+		const res = await fetch(`${API}/project/list`);
+		setProjects(await res.json());
+	};
+	useEffect(() => { refreshProjects().catch(console.error); }, []);
 
 	useEffect(() => {
-	(async () => {
-    	const res  = await fetch(`${API}/project/list`);
-    	const list = (await res.json()) as ProjectSummary[];
-    	setProjects(list);
+		if (selected) showStatus(`Project “${selected}” loaded`);
+	}, [selected]);
 
-    })().catch(console.error);
-	}, []);
+	const handleChooseFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (!e.target.files?.length) return;
+		setPendingFiles(Array.from(e.target.files));
+		setNameModalOpen(true);
+		e.target.value = '';
+	};
 
-	const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-	const files = e.target.files;
-	
-	if (!files?.length) return;
+	const cancelNameModal = () => { setNameModalOpen(false); setPendingFiles([]); };
 
-    const name = prompt('Project name:', selected ?? '')?.trim();
-    if (!name) return;
+	const confirmName = async (name: string) => {
+		setNameModalOpen(false);
+		if (!pendingFiles.length) return;
 
-    const form = new FormData();
-    Array.from(files).forEach(f => form.append('files', f));
+		await runWithLoading(async () => {
+			const form = new FormData();
+			pendingFiles.forEach(f => form.append('files', f, f.name));
 
-    const exists = projects.some(p => p.name === name);
-    const url    = exists
-    	? `${API}/project/${name}/files/add`
-    	: `${API}/project/${name}`;
-    const method = exists ? 'PUT' : 'POST';
+			const exists = projects.some(p => p.name === name);
+			const url    = exists
+				? `${API}/project/${encodeURIComponent(name)}/files/add`
+				: `${API}/project/${encodeURIComponent(name)}`;
+			const method = exists ? 'PUT' : 'POST';
 
-    await fetch(url, { method, body: form });
-    setStatus(exists ? 'Files added' : 'Project created');
+			const res = await fetch(url, { method, body: form });
+			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+			showStatus(exists ? 'Files added' : 'Project created');
 
-    await (async () => {
-    	const res  = await fetch(`${API}/project/list`);
-    	const list = (await res.json()) as ProjectSummary[];
-      	setProjects(list);
-    })();
-    await select(name);
-    e.target.value = '';
-  };
+			await refreshProjects();
+			await select(name);
+			setPendingFiles([]);
+		}).catch(err => {
+			console.error(err);
+			showStatus(`Upload error: ${err.message}`);
+		});
+	};
 
+	const askDeleteProject = (name: string) => setDeleteTarget(name);
 
-  return (
-    <div className="relative h-full flex flex-col text-white">
-    	{/* spiner ktory blokuje - trzeba jeszcze zrobic cos takiego na grafie zeby nie klikac podczas kiedy ladujemy dane */}
-    	{loading && (
-    	<div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
-        	<svg className="animate-spin w-10 h-10 text-[#7140F4]" viewBox="0 0 24 24" fill="none">
-        		<circle className="opacity-25" cx="12" cy="12" r="10"
-                	stroke="currentColor" strokeWidth="4"/>
-            	<path className="opacity-75" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
-                	fill="currentColor"/>
-          	</svg>
-        </div>
-      )}
+	const runDeleteProject = async (name: string) => {
+		await runWithLoading(async () => {
+			const res = await fetch(`${API}/project/${encodeURIComponent(name)}`, { method: 'DELETE' });
+			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
-    	<h1 className="text-2xl font-bold border-b border-white py-2">Projects</h1>
+			if (selected === name) await select('');
+			await refreshProjects();
+			showStatus(`Project “${name}” deleted`);
+		}).catch(err => {
+			console.error(err);
+			showStatus(`Delete error: ${err.message}`);
+		});
+	};
 
-		<div className="flex-1 overflow-y-auto">
-			{projects.map(p => (
-			<button
-				key={p.name}
-				disabled={loading}
-				onClick={() => select(p.name)}
-				className={`flex items-center w-full py-3 border-b border-gray-500
-							hover:text-[#7140F4] ${selected === p.name && 'text-[#7140F4]'}`}
-			>
-				<img src={selected === p.name
-							? '/icons/leftSideBar/current_project_icon.png'
-							: '/icons/leftSideBar/project_icon.png'}
-					className="w-7 h-7 mr-2" alt="" />
-				<span className="truncate">{p.name}</span>
-			</button>
-			))}
+	return (
+		<div className="relative h-full flex flex-col text-white">
+			<h1 className="text-2xl font-bold border-b border-white py-2">Projects</h1>
 
-			<button
-				disabled={loading}
-				onClick={() => fileRef.current?.click()}
-				className="flex items-center w-full py-3 hover:text-[#7140F4]"
-			>
-				<img src="/icons/leftSideBar/plus_icon.png" className="w-7 h-7 mr-2" alt="" />
-				<span>Upload file(s)</span>
-				<input ref={fileRef} type="file" multiple accept=".json"
-					onChange={handleUpload} className="hidden" />
-			</button>
+			<div className="flex-1 overflow-y-auto">
+				{projects.map(p => (
+					<div
+						key={p.name}
+						className={`flex items-center justify-between w-full py-3 border-b border-gray-500
+												${selected === p.name ? 'text-[#7140F4]' : 'hover:text-[#7140F4]'}`}
+					>
+						<button
+							disabled={loading}
+							onClick={() => select(p.name)}
+							className="flex items-center flex-1 text-left"
+						>
+							<img
+								src={
+									selected === p.name
+										? '/icons/leftSideBar/current_project_icon.png'
+										: '/icons/leftSideBar/project_icon.png'
+								}
+								className="w-7 h-7 mr-2"
+								alt=""
+							/>
+							<span className="truncate">{p.name}</span>
+						</button>
+
+						<ProjectActionsMenu
+							disabled={loading}
+							onDelete={() => askDeleteProject(p.name)}
+						/>
+					</div>
+				))}
+
+				{/* upload */}
+				<button
+					disabled={loading}
+					onClick={() => fileRef.current?.click()}
+					className="flex items-center w-full py-3 hover:text-[#7140F4]"
+				>
+					<img src="/icons/leftSideBar/plus_icon.png" className="w-7 h-7 mr-2" alt="" />
+					<span>Upload project</span>
+					<input
+						ref={fileRef}
+						type="file"
+						multiple
+						accept=".json"
+						onChange={handleChooseFiles}
+						className="hidden"
+					/>
+				</button>
+			</div>
+
+			{status && !loading && (
+				<p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
+			)}
+
+			{/* nowy projekt */}
+			<ProjectNameModal
+				open={nameModalOpen}
+				defaultName={selected}
+				onCancel={cancelNameModal}
+				onConfirm={confirmName}
+			/>
+
+			{/* potwierdzienie */}
+			<ConfirmModal
+				open={deleteTarget !== null}
+				title="Delete project?"
+				message={`Project “${deleteTarget ?? ''}” will be permanently removed.`}
+				confirmLabel="Delete"
+				cancelLabel="Cancel"
+				onCancel={() => setDeleteTarget(null)}
+				onConfirm={() => {
+					if (deleteTarget) runDeleteProject(deleteTarget);
+					setDeleteTarget(null);
+				}}
+			/>
 		</div>
-
-    	{status && !loading && (
-    	<p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
-      )}
-    </div>
-  );
+	);
 }

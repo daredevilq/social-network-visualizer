@@ -48,30 +48,30 @@ export default function StandardGraph({shortestPath}: GraphProps) {
                  Wybierz projekt…
                </div>;
 
-    return (
+    return (       
         <div className="relative flex flex-col justify-center items-center h-screen w-full">
-                <BaseGraph
-                    graphData={graphData}
-                    nodeVal={(node: any) => (node.pagerank ? node.pagerank * 5 : 1)}
-                    nodeLabel={(node: any) =>
-                        `User: ${node.id}\nPR: ${node.pagerank?.toFixed(2)}\nComm: ${node.community}`
-                    }
-                    nodeColor={(node: Node) => shortestPath.includes(node.id) ? "rgba(255, 159, 64, 0.95)" : 'rgba(92, 55, 230, 0.95)'}
-                    linkColor={(link: any) =>
-                        shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
-                    }
-                    linkWidth={(link: any) =>
-                        shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 3 : 2
-                    }
-                    linkDirectionalArrowLength={6}
-                    linkDirectionalArrowRelPos={1}
-                    onNodeClick={handleNodeClick}
-                />
-                <RightSidebar
-                    isOpen={isSidebarOpen}
-                    onClose={() => setIsSidebarOpen(false)}
-                    userName={selectedUserName}
-                />
+            <BaseGraph
+                graphData={graphData}
+                nodeVal={(node: any) => (node.pagerank ? node.pagerank * 5 : 1)}
+                nodeLabel={(node: any) =>
+                    `User: ${node.id}\nPR: ${node.pagerank?.toFixed(2)}\nComm: ${node.community}`
+                }
+                nodeColor={(node: Node) => shortestPath.includes(node.id) ? "rgba(255, 159, 64, 0.95)" : 'rgba(92, 55, 230, 0.95)'}
+                linkColor={(link: any) =>
+                    shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
+                }
+                linkWidth={(link: any) =>
+                    shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 3 : 2
+                }
+                linkDirectionalArrowLength={6}
+                linkDirectionalArrowRelPos={1}
+                onNodeClick={handleNodeClick}
+            />
+            <RightSidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                userName={selectedUserName}
+            />
         </div>
     );
 }
