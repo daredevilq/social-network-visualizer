@@ -14,28 +14,24 @@ export default function ProjectsContent() {
 	const { selected, loading, select, runWithLoading } = useProject();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
 	const [status,   setStatus]   = useState<string | null>(null);
-
+	const [nameModalOpen, setNameModalOpen] = useState(false);
+	const [pendingFiles,  setPendingFiles]  = useState<File[]>([]);
+	const [deleteTarget,  setDeleteTarget]  = useState<string | null>(null);
+	const fileRef = useRef<HTMLInputElement>(null);
 	const hideTimer = useRef<NodeJS.Timeout | null>(null);
+	const askDeleteProject = (name: string) => setDeleteTarget(name);
+	const cancelNameModal = () => { setNameModalOpen(false); setPendingFiles([]); };
+	
 	const showStatus = (msg: string) => {
 		clearTimeout(hideTimer.current as NodeJS.Timeout);
 		setStatus(msg);
 		hideTimer.current = setTimeout(() => setStatus(null), 3_000); // po 3 sek znika
 	};
 
-	const [nameModalOpen, setNameModalOpen] = useState(false);
-	const [pendingFiles,  setPendingFiles]  = useState<File[]>([]);
-	const [deleteTarget,  setDeleteTarget]  = useState<string | null>(null);
-	const fileRef = useRef<HTMLInputElement>(null);
-
 	const refreshProjects = async () => {
 		const res = await fetch(`${API}/project/list`);
 		setProjects(await res.json());
 	};
-	useEffect(() => { refreshProjects().catch(console.error); }, []);
-
-	useEffect(() => {
-		if (selected) showStatus(`Project “${selected}” loaded`);
-	}, [selected]);
 
 	const handleChooseFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files?.length) return;
@@ -43,8 +39,6 @@ export default function ProjectsContent() {
 		setNameModalOpen(true);
 		e.target.value = '';
 	};
-
-	const cancelNameModal = () => { setNameModalOpen(false); setPendingFiles([]); };
 
 	const confirmName = async (name: string) => {
 		setNameModalOpen(false);
@@ -73,8 +67,6 @@ export default function ProjectsContent() {
 		});
 	};
 
-	const askDeleteProject = (name: string) => setDeleteTarget(name);
-
 	const runDeleteProject = async (name: string) => {
 		await runWithLoading(async () => {
 			const res = await fetch(`${API}/project/${encodeURIComponent(name)}`, { method: 'DELETE' });
@@ -88,6 +80,12 @@ export default function ProjectsContent() {
 			showStatus(`Delete error: ${err.message}`);
 		});
 	};
+
+	useEffect(() => { refreshProjects().catch(console.error); }, []);
+
+	useEffect(() => {
+		if (selected) showStatus(`Project “${selected}” loaded`);
+	}, [selected]);
 
 	return (
 		<div className="relative h-full flex flex-col text-white">
