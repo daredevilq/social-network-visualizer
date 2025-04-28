@@ -186,7 +186,7 @@ public class ProjectService {
         //List<Path> jsonFiles = addFilesToProject(projectName, files, projectDir);
         addFilesToProject(projectName, files, projectDir);
         //tweetsFolderParser.importFilesToDatabse(jsonFiles, false);
-        loadProject(projectName);
+        //loadProject(projectName);
     }
 
     public void deleteFileFromProject(String projectName, String fileName) {
@@ -206,7 +206,7 @@ public class ProjectService {
             if (!deleted) {
                 throw new ProjectException("Failed to delete file '" + fileName + "' from project '" + projectName + "'", HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            loadProject(projectName);
+            // loadProject(projectName);
         } catch (IOException e) {
             throw new ProjectException("Error while deleting file '" + fileName + "' from project '" + projectName + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
