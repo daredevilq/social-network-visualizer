@@ -3,13 +3,14 @@ package com.example.social_network_visualizer_backend.controller;
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor

@@ -8,6 +8,7 @@ interface Context {
 	loading: boolean;
 	select: (name: string) => Promise<void>;
 	runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
+	refresh: () => Promise<void>; 
 }
 
 const ProjectContext = createContext<Context>({
@@ -15,6 +16,7 @@ const ProjectContext = createContext<Context>({
 	loading: false,
 	select: async () => {},
 	runWithLoading: async (fn) => fn(),
+	refresh:  async () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -40,8 +42,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 			setSelected(name);
 		});
 
+	const refresh = async () =>
+		runWithLoading(async () => {
+			if (!selected) return;   // brak wybranego
+			await fetch(`${BASE_URL}/project/import/${selected}`);
+		});
+
 	return (
-		<ProjectContext.Provider value={{ selected, loading, select, runWithLoading }}>
+		<ProjectContext.Provider value={{ selected, loading, select, runWithLoading, refresh }}>
 			{children}
 		</ProjectContext.Provider>
 	);

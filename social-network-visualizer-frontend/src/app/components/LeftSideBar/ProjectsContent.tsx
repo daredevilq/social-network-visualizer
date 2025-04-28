@@ -8,16 +8,18 @@ import ProjectNameModal   from '@/app/components/Popups/ProjectNameModal';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
+import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
 
 const API = 'http://localhost:8080';
 
 export default function ProjectsContent() {
-	const { selected, loading, select, runWithLoading } = useProject();
+	const { selected, loading, select, runWithLoading, refresh } = useProject();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [createModalOpen, setCreateModalOpen] = useState(false);
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+	const [editTarget, setEditTarget] = useState<string|null>(null);
 	const fileRef = useRef<HTMLInputElement>(null);
 	const hideTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -86,6 +88,7 @@ export default function ProjectsContent() {
 						<ProjectActionsMenu
 							disabled={loading}
 							onDelete={() => askDeleteProject(p.name)}
+							onEdit={() => setEditTarget(p.name)}
 						/>
 					</div>
 				))}
@@ -120,8 +123,19 @@ export default function ProjectsContent() {
 					showStatus('Project uploaded successfully');
 				}}
 			/>
+			
+			{/* nowy projekt */}
+			<ProjectEditModal
+				API={API}
+				projectName={editTarget}
+				onClose={() => setEditTarget(null)}
+				onSuccess={ async () =>{
+					await refresh();
+					await refreshProjects()}
+				}			
+			/>
 
-			{/* potwierdzenie */}
+			{/* edycja projektu */}
 			<ConfirmModal
 				open={deleteTarget !== null}
 				title="Delete project?"
