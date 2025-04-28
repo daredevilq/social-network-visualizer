@@ -110,17 +110,17 @@ export default function ProjectUploadModal({
     <Dialog open={open} onClose={onCancel} className="fixed inset-0 z-50 flex items-center justify-center">
       {open && (
         <div
-          className="fixed inset-0 bg-[rgba(0,0,0,0.5)]"
+          className="fixed inset-0 bg-black/50"
           aria-hidden="true"
           onClick={onCancel}
         />
       )}
 
       <div
-        className="bg-white rounded-lg p-6 w-full max-w-md z-50 relative shadow-xl"
+        className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <Dialog.Title className="text-2xl font-bold text-center mb-4 text-black">
+        <Dialog.Title className="text-2xl font-bold text-center mb-4">
           Upload New Project
         </Dialog.Title>
 
@@ -128,27 +128,31 @@ export default function ProjectUploadModal({
           ref={nameRef}
           defaultValue={defaultName}
           placeholder="Project name"
-          className={`w-full mb-4 p-2 border rounded text-black ${isNameError ? 'border-red-500' : 'border-gray-300'}`}
+          className={`w-full mb-4 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
+            isNameError ? 'border-red-500' : 'border-gray-600'
+          }`}
         />
 
         {isNameError && (
-          <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
+          <p className="text-red-400 text-sm mb-4">{errorMessage}</p>
         )}
 
         <div
-          className={`mb-4 p-2 rounded ${isFileError ? 'border-2 border-red-300' : 'border-2 border-gray-200'}`}
+          className={`mb-4 p-2 rounded ${
+            isFileError ? 'border-2 border-red-300' : 'border-2 border-gray-600'
+          }`}
         >
-          <p className="text-black font-semibold mb-1">Selected files:</p>
-          <ul className="max-h-32 overflow-y-auto text-black text-sm list-disc list-inside bg-gray-100 p-2 rounded">
+          <p className="font-semibold mb-1">Selected files:</p>
+          <ul className="max-h-32 overflow-y-auto text-sm list-disc list-inside bg-[#30303d] p-2 rounded">
             {pendingFiles.length === 0 ? (
-              <li className="italic text-gray-500">No files added yet. Please select files.</li>
+              <li className="italic text-gray-400">No files added yet. Please select files.</li>
             ) : (
               pendingFiles.map((file, idx) => (
                 <li key={idx} className="flex justify-between items-center">
                   <span>{file.name}</span>
                   <button
                     onClick={() => removeFile(idx)}
-                    className="text-red-500 hover:text-red-700 ml-2"
+                    className="text-red-400 hover:text-red-500 ml-2"
                   >
                     ✖
                   </button>
@@ -161,7 +165,7 @@ export default function ProjectUploadModal({
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-black"
+            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
           >
             Add files
           </button>
@@ -182,13 +186,13 @@ export default function ProjectUploadModal({
               setIsNameError(false);
               onCancel();
             }}
-            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+            className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
           >
             Cancel
           </button>
           <button
             onClick={handleUpload}
-            className="px-4 py-2 rounded bg-[#7140F4] hover:bg-[#5b30c9] text-white"
+            className="px-4 py-2 rounded bg-[#7140F4] hover:bg-[#5b30c9]"
           >
             Upload
           </button>
