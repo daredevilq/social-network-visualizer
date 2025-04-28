@@ -209,7 +209,7 @@ export default function ProjectEditModal({
 			onClick={handleSave}
 			className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5b30c9]"
 		  >
-			Reload / Save
+			Reload changes
 		  </button>
 		</div>
 
