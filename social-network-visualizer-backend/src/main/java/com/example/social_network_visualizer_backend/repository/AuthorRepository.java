@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
@@ -93,20 +95,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                    AVG(t.likesCount) AS averageLikesCount
             """)
     Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
-
-    @Query("""
-            MATCH (a:Author)
-            WHERE a.pagerank IS NOT NULL
-            RETURN a.userName AS id, a.pagerank AS pagerank, a.community AS community
-        """)
-    List<AuthorNodeDTO> findUsersPagerankCommunity();
-
-    @Query("""
-          MATCH (a1:Author)-[r:MENTIONS]->(a2:Author)
-          RETURN a1.userName AS source, a2.userName AS target
-          """)
-    List<AuthorLinkDTO> findUserMentions();
-
     @Query("""
             MATCH (a:Author {userName: $authorName})-[:POSTED]->(t:Tweet)
             WITH a, t
@@ -114,13 +102,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             ORDER BY activityDate DESC
         """)
     List<ZonedDateTime> getUserActivity(@Param("authorName") String authorName);
-
-    @Query("""
-            MATCH (a:Author)
-            WHERE a.degreeCentrality IS NOT NULL
-            RETURN a.userName AS userName, a.degreeCentrality AS degreeCentrality
-        """)
-    List<AuthorDegreeCentralityDTO> findUsersDegreeCentrality();
 
     @Query("""
               MATCH (a1:Author)-[r:RETWEETS]->(a2:Author)
@@ -138,8 +119,43 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                WITH nodes(path) AS nodes
                UNWIND nodes AS node
                MATCH (author:Author) WHERE id(author) = id(node)
-               RETURN author.userName AS userNames
-            """)
+        RETURN author.userName AS userNames
+        """)
     List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
+
+    @Query("MATCH (a:Author) WHERE a.community IS NOT NULL RETURN a")
+    List<Author> findAllWithCommunity();
+
+    @Query("""
+        MATCH (a1:Author)-[r]->(a2:Author)
+        WHERE type(r) IN $relations
+        RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+    """)
+    List<AuthorLinkDTO> findAuthorRelations(@Param("relations") Set<RelationType> relations);
+
+    @Query("""
+        MATCH (a:Author)
+        RETURN a.userName AS userName
+    """)
+    List<String> findAuthors();
+
+    @Query("""
+        MATCH (a:Author)
+        WHERE a.community = $communityId
+        RETURN a.userName AS userName
+    """)
+    List<String> findAuthorsWithCommunity(@Param("communityId") int communityId);
+
+    @Query("""
+        MATCH (a1:Author)-[r]->(a2:Author)
+        WHERE type(r) IN $relations
+          AND a1.community = $communityId
+          AND a2.community = $communityId
+        RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+    """)
+    List<AuthorLinkDTO> findAuthorRelationsWithinCommunity(
+            @Param("relations") Set<RelationType> relations,
+            @Param("communityId") int communityId);
+
 }
 
