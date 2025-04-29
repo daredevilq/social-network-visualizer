@@ -92,37 +92,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
     @Query("""
-    CALL gds.graph.project(
-      'author-mentions',
-      'Author',
-      {
-        MENTIONS: {
-          type: 'MENTIONS',
-          orientation: 'NATURAL'
-        }
-      }
-    ) YIELD graphName
-    RETURN 1
-    """)
-    void createGdsGraph();
-
-    @Query("""
-        CALL gds.pageRank.write('author-mentions', {
-            writeProperty: 'pagerank'
-        }) YIELD nodePropertiesWritten
-        RETURN 1
-    """)
-    void computePageRank();
-
-    @Query("""
-        CALL gds.labelPropagation.write('author-mentions', {
-            writeProperty: 'community'
-        }) YIELD communityCount
-        RETURN 1
-        """)
-    void createCommunities();
-
-    @Query("""
             MATCH (a:Author)
             WHERE a.pagerank IS NOT NULL
             RETURN a.userName AS id, a.pagerank AS pagerank, a.community AS community
@@ -142,27 +111,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             ORDER BY activityDate DESC
         """)
     List<ZonedDateTime> getUserActivity(@Param("authorName") String authorName);
-
-    @Query("""
-      CALL gds.graph.project(
-          'author-importance',
-          'Author',
-          {
-            RETWEET: { type: 'RETWEETS', orientation: 'NATURAL' },
-            MENTIONS: { type: 'MENTIONS', orientation: 'NATURAL' }
-          }
-    ) YIELD graphName
-    RETURN graphName;
-    """)
-    void createImportanceGraph();
-
-    @Query("""
-        CALL gds.degree.write('author-importance', {
-          writeProperty: 'degreeCentrality'
-        }) YIELD nodePropertiesWritten
-        RETURN nodePropertiesWritten;
-    """)
-    void computeAuthorDegree();
 
     @Query("""
             MATCH (a:Author)
