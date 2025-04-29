@@ -24,4 +24,7 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
         })
     """)
     void mergeAll(@Param("hashtags") List<Map<String, Object>> hashtags);
+
+    @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (h:Hashtag) REQUIRE h.hashtag IS UNIQUE")
+    void createHashtagConstraint();
 }

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class Neo4jService {
     private final static int MAX_CONNECTION_ATTEMPTS = 10;
     private final TweetRepository tweetRepository;
+    private final AuthorRepository authorRepository;
+    private final HashtagRepository hashtagRepository;
     private final RelationshipRepository relationshipRepository;
     private final GraphRepository graphRepository;
     private final AlgorithmRepository algorithmRepository;
@@ -85,5 +87,11 @@ public class Neo4jService {
         algorithmRepository.computePageRank(graphName);
         algorithmRepository.createCommunities(graphName);
         algorithmRepository.computeAuthorDegree(graphName);
+    }
+
+    public void createConstraints() {
+        tweetRepository.createTweetIdConstraint();
+        authorRepository.createAuthorUserNameConstraint();
+        hashtagRepository.createHashtagConstraint();
     }
 }

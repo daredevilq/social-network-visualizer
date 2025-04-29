@@ -50,6 +50,9 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     """)
     void createAuthorTweetRelations(@Param("authorTweetData") List<Map<String, Object>> authorTweetData);
 
+    @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (a:Author) REQUIRE a.userName IS UNIQUE")
+    void createAuthorUserNameConstraint();
+
     @Query("""
         MATCH (a:Author)-[:POSTED]->(t:Tweet)
         WHERE a.userName = $authorName
