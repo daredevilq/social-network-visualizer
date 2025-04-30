@@ -108,13 +108,13 @@ export default function ProjectUploadModal({
 
 	return (
 		<Dialog open={open} onClose={onCancel} className="fixed inset-0 z-50 flex items-center justify-center">
-			{open && (
+			open && (
 				<div
 					className="fixed inset-0 bg-black/50"
 					aria-hidden="true"
 					onClick={onCancel}
 				/>
-			)}
+			)
 
 			<div
 				className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"

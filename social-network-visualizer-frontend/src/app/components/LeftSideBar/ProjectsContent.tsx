@@ -20,7 +20,6 @@ export default function ProjectsContent() {
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 	const [editTarget, setEditTarget] = useState<string|null>(null);
-	const fileRef = useRef<HTMLInputElement>(null);
 	const hideTimer = useRef<NodeJS.Timeout | null>(null);
 
 	const askDeleteProject = (name: string) => setDeleteTarget(name);
@@ -108,7 +107,7 @@ export default function ProjectsContent() {
 				<p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
 			)}
 
-			{/* nowy projekt */}
+			{/* new project */}
 			<ProjectUploadModal
 				API={API}
 				open={createModalOpen}
@@ -124,7 +123,7 @@ export default function ProjectsContent() {
 				}}
 			/>
 			
-			{/* nowy projekt */}
+			{/* editing existing project */}
 			<ProjectEditModal
 				API={API}
 				projectName={editTarget}
@@ -135,7 +134,7 @@ export default function ProjectsContent() {
 				}			
 			/>
 
-			{/* edycja projektu */}
+			{/* delete project confirmation */}
 			<ConfirmModal
 				open={deleteTarget !== null}
 				title="Delete project?"

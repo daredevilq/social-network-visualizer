@@ -44,7 +44,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
 	const refresh = async () =>
 		runWithLoading(async () => {
-			if (!selected) return;   // brak wybranego
+			if (!selected) return;
 			await fetch(`${BASE_URL}/project/import/${selected}`);
 		});
 

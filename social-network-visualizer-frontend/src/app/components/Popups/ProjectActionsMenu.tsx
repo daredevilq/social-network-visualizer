@@ -9,7 +9,7 @@ interface Props {
 
 export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props) {
 	const [open, setOpen] = useState(false);
-	const buttonRef = useRef<HTMLButtonElement>(null);
+	const buttonRef = useRef<HTMLButtonElement>(null!);
 
 	useEffect(() => {
 		if (!open) return;

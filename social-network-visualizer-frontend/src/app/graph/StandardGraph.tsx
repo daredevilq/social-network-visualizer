@@ -45,7 +45,7 @@ export default function StandardGraph({shortestPath}: GraphProps) {
 
     if (!selected)
         return <div className="h-full flex items-center justify-center text-[#fafafa]">
-                 Wybierz projekt…
+                 Choose project…
                </div>;
 
     return (       
