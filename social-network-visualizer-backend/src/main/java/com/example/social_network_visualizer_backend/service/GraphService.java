@@ -21,7 +21,7 @@ public class GraphService {
         return algorithmRepository.getAllBridges();
     }
 
-    public GraphDataDTO getGraph(String graphType, Optional<Integer> communityId) {
+    public GraphDataDto getGraph(String graphType, Optional<Integer> communityId) {
         GraphDefinition definition = getGraphDefinition(graphType);
         Set<RelationType> relations = definition.getRelationTypes();
 
@@ -40,11 +40,11 @@ public class GraphService {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown graph type: " + graphType));
     }
 
-    private GraphDataDTO buildGraphUsingRelations(Set<RelationType> relations) {
-        List<String> authorList = authorRepository.findAuthors();
-        List<AuthorLinkDTO> edgeList = authorRepository.findAuthorRelations(relations);
+    private GraphDataDto buildGraphUsingRelations(Set<RelationType> relations) {
+        List<AuthorNodeDto> authorList = authorRepository.findAuthors();
+        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelations(relations);
 
-        return new GraphDataDTO(authorList, edgeList);
+        return new GraphDataDto(authorList, edgeList);
     }
 
     public List<String> getAllGraphTypes() {
@@ -53,11 +53,11 @@ public class GraphService {
                 .collect(Collectors.toList());
     }
 
-    private GraphDataDTO buildGraphUsingRelationsWithCommunity(Set<RelationType> relations, int communityId) {
-        List<String> authorList = authorRepository.findAuthorsWithCommunity(communityId);
-        List<AuthorLinkDTO> edgeList = authorRepository.findAuthorRelationsWithinCommunity(relations, communityId);
+    private GraphDataDto buildGraphUsingRelationsWithCommunity(Set<RelationType> relations, int communityId) {
+        List<AuthorNodeDto> authorList = authorRepository.findAuthorsWithCommunity(communityId);
+        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelationsWithinCommunity(relations, communityId);
 
-        return new GraphDataDTO(authorList, edgeList);
+        return new GraphDataDto(authorList, edgeList);
     }
 }
 

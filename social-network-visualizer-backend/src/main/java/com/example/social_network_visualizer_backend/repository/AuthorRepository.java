@@ -107,7 +107,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
               MATCH (a1:Author)-[r:RETWEETS]->(a2:Author)
               RETURN a1.userName AS source, a2.userName AS target
           """)
-    List<AuthorLinkDTO> findUserRetweets();
+    List<AuthorLinkDto> findUserRetweets();
 
     @Query("""
                MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
@@ -131,20 +131,28 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
         WHERE type(r) IN $relations
         RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
     """)
-    List<AuthorLinkDTO> findAuthorRelations(@Param("relations") Set<RelationType> relations);
+    List<AuthorLinkDto> findAuthorRelations(@Param("relations") Set<RelationType> relations);
 
     @Query("""
         MATCH (a:Author)
-        RETURN a.userName AS userName
+        RETURN 
+            a.userName AS name,
+            a.pagerank AS pagerank,
+            a.degreeCentrality AS centrality,
+            a.community AS community
     """)
-    List<String> findAuthors();
+    List<AuthorNodeDto> findAuthors();
 
     @Query("""
         MATCH (a:Author)
         WHERE a.community = $communityId
-        RETURN a.userName AS userName
+        RETURN 
+            a.userName AS name,
+            a.pagerank AS pagerank,
+            a.degreeCentrality AS centrality,
+            a.community AS community
     """)
-    List<String> findAuthorsWithCommunity(@Param("communityId") int communityId);
+    List<AuthorNodeDto> findAuthorsWithCommunity(@Param("communityId") int communityId);
 
     @Query("""
         MATCH (a1:Author)-[r]->(a2:Author)
@@ -153,7 +161,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
           AND a2.community = $communityId
         RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
     """)
-    List<AuthorLinkDTO> findAuthorRelationsWithinCommunity(
+    List<AuthorLinkDto> findAuthorRelationsWithinCommunity(
             @Param("relations") Set<RelationType> relations,
             @Param("communityId") int communityId);
 

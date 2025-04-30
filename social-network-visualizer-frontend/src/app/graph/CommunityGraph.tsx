@@ -12,19 +12,22 @@ export default function CommunityGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/graph/author-mentions")
+        fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
             .then((res) => res.json())
             .then((data) => {
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.links || !Array.isArray(data.links)) {
+                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const nodes: Node[] = data.nodes.map((node: Node) => ({
-                    ...node,
-                    size: node.pagerank ? node.pagerank * 20 : 5
+                const nodes: Node[] = data.nodes.map((node: any) => ({
+                    id: node.name,
+                    label: node.name,
+                    pagerank: node.pagerank ?? 0,
+                    degreeCentrality: node.centrality ?? 0,
+                    community: node.community?.toString() ?? ""
                 }));
 
-                const links: Link[] = data.links.map((link) => ({ ...link }));
+                const links: Link[] = data.edges.map((link) => ({ ...link }));
 
                 setGraphData({ nodes, links });
             })
@@ -41,7 +44,6 @@ export default function CommunityGraph({shortestPath}: GraphProps) {
             nodeVal={(node: any) => node.pagerank ? node.pagerank * 7 : 10}
             nodeLabel={(node: any) =>
                 `User: ${node.id}\n` +
-                `PageRank: ${node.pagerank?.toFixed(3) ?? 0}\n` +
                 `Community: ${node.community}`
             }
             nodeColor={getNodeColor}

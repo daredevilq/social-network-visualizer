@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.BridgeDto;
-import com.example.social_network_visualizer_backend.dto.GraphDataDTO;
+import com.example.social_network_visualizer_backend.dto.GraphDataDto;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +27,8 @@ public class GraphController {
     }
 
     @GetMapping("/{graphType}")
-    public ResponseEntity<GraphDataDTO> getGraph(@PathVariable String graphType) {
-        GraphDataDTO graph = graphService.getGraph(graphType, Optional.empty());
+    public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType) {
+        GraphDataDto graph = graphService.getGraph(graphType, Optional.empty());
         return ResponseEntity.ok(graph);
     }
 
@@ -38,8 +38,8 @@ public class GraphController {
     }
 
     @GetMapping("/{graphType}/community/{communityId}")
-    public ResponseEntity<GraphDataDTO> getGraph(@PathVariable String graphType, @PathVariable Integer communityId) {
-        GraphDataDTO graph = graphService.getGraph(graphType, Optional.ofNullable(communityId));
+    public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType, @PathVariable Integer communityId) {
+        GraphDataDto graph = graphService.getGraph(graphType, Optional.ofNullable(communityId));
         return ResponseEntity.ok(graph);
     }
 }
