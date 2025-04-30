@@ -6,7 +6,7 @@ import { Dialog } from '@headlessui/react';
 interface ProjectUploadModalProps {
 	API: string;
 	open: boolean;
-	defaultName?: string;
+	defaultName: string;
 	pendingFiles: File[];
 	onCancel: () => void;
 	onFilesChange: (files: File[]) => void;
@@ -22,8 +22,8 @@ export default function ProjectUploadModal({
 	onFilesChange,
 	onSuccess,
 }: ProjectUploadModalProps) {
-	const nameRef = useRef<HTMLInputElement>(null);
-	const fileInputRef = useRef<HTMLInputElement>(null);
+	const nameRef = useRef<HTMLInputElement>(null!);
+	const fileInputRef = useRef<HTMLInputElement>(null!);
 	const [errorMessage, setErrorMessage] = useState<string>('');
 	const [isNameError, setIsNameError] = useState<boolean>(false);
 	const [isFileError, setIsFileError] = useState<boolean>(false);
@@ -66,7 +66,7 @@ export default function ProjectUploadModal({
 			const response = await fetch(`${API}/project/${projectName}`, {
 				method: 'POST',
 				body: formData,
-			});
+			} as RequestInit) ;
 
 			const text = await response.text();
 			if (!response.ok) {

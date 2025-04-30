@@ -21,7 +21,7 @@ export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props
 
 	return (
 		<div className="relative">
-			{/* ikona 3-kropek */}
+			{/* 3dots icon */}
 			<button
 				ref={buttonRef}
 				disabled={disabled}
