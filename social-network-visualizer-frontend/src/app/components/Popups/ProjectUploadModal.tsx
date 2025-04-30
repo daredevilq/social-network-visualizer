@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Dialog } from '@headlessui/react';
+import { useRef, useState, useEffect } from "react";
+import { Dialog } from "@headlessui/react";
 
 interface ProjectUploadModalProps {
 	API: string;
@@ -22,11 +22,22 @@ export default function ProjectUploadModal({
 	onFilesChange,
 	onSuccess,
 }: ProjectUploadModalProps) {
-	const nameRef = useRef<HTMLInputElement>(null!);
 	const fileInputRef = useRef<HTMLInputElement>(null!);
-	const [errorMessage, setErrorMessage] = useState<string>('');
-	const [isNameError, setIsNameError] = useState<boolean>(false);
-	const [isFileError, setIsFileError] = useState<boolean>(false);
+	const [projectName, setProjectName] = useState<string>(defaultName);
+	const [isNameError, setIsNameError] = useState(false);
+	const [isFileError, setIsFileError] = useState(false);
+	const [nameErrorMessage, setNameErrorMessage] = useState("");
+	const [fileErrorMessage, setFileErrorMessage] = useState("");
+
+	useEffect(() => {
+		if (open) {
+			setProjectName("");
+			setIsNameError(false);
+			setIsFileError(false);
+			setNameErrorMessage("");
+			setFileErrorMessage("");
+		}
+	}, [open]);
 
 	const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
@@ -34,23 +45,28 @@ export default function ProjectUploadModal({
 			onFilesChange([...pendingFiles, ...filesArray]);
 			e.target.value = '';
 			setIsFileError(false);
+			setFileErrorMessage("");
 		}
 	};
 
 	const handleUpload = async () => {
-		if (!nameRef.current) return;
-	
-		const projectName = nameRef.current.value.trim();
+		const trimmedName = projectName.trim();
+
+		setIsNameError(false);
+		setIsFileError(false);
+		setNameErrorMessage("");
+		setFileErrorMessage("");
+
 		let hasError = false;
 
-		if (!projectName) {
-			setErrorMessage('Please enter a project name.');
+		if (!trimmedName) {
+			setNameErrorMessage("Please enter a project name.");
 			setIsNameError(true);
 			hasError = true;
 		}
 
 		if (pendingFiles.length === 0) {
-			setErrorMessage('Please add at least one file.');
+			setFileErrorMessage("Please add at least one file.");
 			setIsFileError(true);
 			hasError = true;
 		}
@@ -58,45 +74,40 @@ export default function ProjectUploadModal({
 		if (hasError) return;
 
 		const formData = new FormData();
-		pendingFiles.forEach((file) => {
-			formData.append('files', file);
-		});
+		pendingFiles.forEach((file) => formData.append("files", file));
 
 		try {
-			const response = await fetch(`${API}/project/${projectName}`, {
-				method: 'POST',
+			const response = await fetch(`${API}/project/${trimmedName}`, {
+				method: "POST",
 				body: formData,
-			} as RequestInit) ;
+			} as RequestInit);
 
 			const text = await response.text();
 			if (!response.ok) {
-				let message = 'Upload failed.';
-
+				let message = "Upload failed.";
 				try {
 					const json = JSON.parse(text);
-					if (json.error) {
-						message = json.error;
-					}
+					if (json.error) message = json.error;
 				} catch {
-					// Handle non-JSON error messages
+
 				}
 
-				if (message.includes('already exists')) {
-					setErrorMessage(`Project with name '${projectName}' already exists.`);
+				if (message.includes("already exists")) {
+					setNameErrorMessage(`Project with name '${trimmedName}' already exists.`);
 					setIsNameError(true);
 				} else {
-					setErrorMessage(message);
+					setFileErrorMessage(message);
+					setIsFileError(true);
 				}
-
 				throw new Error(message);
 			}
 
-			onSuccess(projectName);
-			if (nameRef.current) nameRef.current.value = '';
+			onSuccess(trimmedName);
+			setProjectName("");
 			onFilesChange([]);
-		} catch (error: any) {
-			console.error('Upload error:', error);
-			alert(error.message);
+		} catch (err: any) {
+			console.error("Upload error:", err);
+			alert(err.message); // to delete probably
 		}
 	};
 
@@ -107,15 +118,18 @@ export default function ProjectUploadModal({
 	};
 
 	return (
-		<Dialog open={open} onClose={onCancel} className="fixed inset-0 z-50 flex items-center justify-center">
-			open && (
-				<div
-					className="fixed inset-0 bg-black/50"
-					aria-hidden="true"
-					onClick={onCancel}
-				/>
-			)
+		<Dialog
+			open={open}
+			onClose={onCancel}
+			className="fixed inset-0 z-50 flex items-center justify-center"
+		>
+			<div
+				className="fixed inset-0 bg-black/50"
+				aria-hidden="true"
+				onClick={onCancel}
+			/>
 
+			{/* panel */}
 			<div
 				className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
 				onClick={(e) => e.stopPropagation()}
@@ -124,22 +138,27 @@ export default function ProjectUploadModal({
 					Upload New Project
 				</Dialog.Title>
 
+				{/* name input */}
 				<input
-					ref={nameRef}
-					defaultValue={defaultName}
+					value={projectName}
+					onChange={(e) => {
+						setProjectName(e.target.value);
+						setIsNameError(false);
+						setNameErrorMessage("");
+					}}
 					placeholder="Project name"
-					className={`w-full mb-4 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
-						isNameError ? 'border-red-500' : 'border-gray-600'
+					className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
+						isNameError ? "border-red-500" : "border-gray-600"
 					}`}
 				/>
-
 				{isNameError && (
-					<p className="text-red-400 text-sm mb-4">{errorMessage}</p>
+					<p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>
 				)}
 
+				{/* files list */}
 				<div
-					className={`mb-4 p-2 rounded ${
-						isFileError ? 'border-2 border-red-300' : 'border-2 border-gray-600'
+					className={`mb-1 p-2 rounded ${
+						isFileError ? "border-2 border-red-300" : "border-2 border-gray-600"
 					}`}
 				>
 					<p className="font-semibold mb-1">Selected files:</p>
@@ -161,6 +180,9 @@ export default function ProjectUploadModal({
 						)}
 					</ul>
 				</div>
+				{isFileError && (
+					<p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>
+				)}
 
 				<div className="flex justify-between items-center mb-4">
 					<button
@@ -184,6 +206,8 @@ export default function ProjectUploadModal({
 						onClick={() => {
 							setIsFileError(false);
 							setIsNameError(false);
+							setNameErrorMessage("");
+							setFileErrorMessage("");
 							onCancel();
 						}}
 						className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
