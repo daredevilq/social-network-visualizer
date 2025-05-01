@@ -28,5 +28,7 @@ public class DataInitializationConfig {
         if (Boolean.parseBoolean(dropMode)) {
             neo4jService.handleDatabaseDrop();
         }
+
+        neo4jService.createConstraints();
     }
 }

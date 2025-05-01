@@ -9,21 +9,24 @@ export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/graph/author-mentions")
+        fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
             .then((res) => res.json())
             .then((data) => {
-                console.log("AuthorMentions Fetched data:", data);
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.links || !Array.isArray(data.links)) {
+                console.log("PageRankGraph Fetched data:", data);
+                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const links: Link[] = data.links.map(link => ({
+                const links: Link[] = data.edges.map(link => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));
-                const nodes: Node[] = data.nodes.map((node: Node) => ({
-                    ...node,
-                    degreeCentrality: node.degreeCentrality ? node.degreeCentrality * 5 : 1,
+                const nodes: Node[] = data.nodes.map((node: any) => ({
+                    id: node.name,
+                    label: node.name,
+                    pagerank: node.pagerank ?? 0,
+                    degreeCentrality: node.centrality ?? 0,
+                    community: node.community?.toString() ?? ""
                 }));
                 setGraphData({ nodes, links });
             })

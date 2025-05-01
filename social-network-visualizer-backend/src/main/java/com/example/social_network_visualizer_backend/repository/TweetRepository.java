@@ -63,7 +63,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         MATCH (a:Author {userName: data.userName})
         WITH a, data
         MATCH (t:Tweet {id: data.tweetId})
-        MERGE (t)-[:MENTION]->(a)
+        CREATE (t)-[:MENTION]->(a)
     """)
     void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
     @Query("""
@@ -71,7 +71,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         MATCH (a:Author {userName: data.userName})
         WITH a, data
         MATCH (t:Tweet {id: data.tweetId})
-        MERGE (t)-[:HAS_REPLY]->(a)
+        CREATE (t)-[:HAS_REPLY]->(a)
     """)
     void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
 
@@ -80,7 +80,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         MATCH (t:Tweet {id: data.tweetId})
         WITH t, data
         MATCH (p:Tweet {id: data.parentId})
-        MERGE (t)-[:HAS_PARENT]->(p)
+        CREATE (t)-[:HAS_PARENT]->(p)
     """)
     void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
@@ -89,15 +89,17 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         MATCH (t:Tweet {id: data.tweetId})
         WITH t, data
         MATCH (h:Hashtag {hashtag: data.hashtag})
-        MERGE (t)-[:HAS_HASHTAG]->(h)
+        CREATE (t)-[:HAS_HASHTAG]->(h)
     """)
     void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
+
+    @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (t:Tweet) REQUIRE t.id IS UNIQUE")
+    void createTweetIdConstraint();
 
     @Query("""
         MATCH (a:Author)-[:POSTED]->(t:Tweet)
         WHERE a.userName = $authorName
         OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-        OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
         RETURN t.id AS id,
                t.objectCreatedAt AS objectCreatedAt,
                t.publicationDate AS publicationDate,
@@ -115,25 +117,8 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                t.retweetsCount AS retweetsCount,
                t.likesCount AS likesCount,
                COLLECT(h) AS hashtags,
-               COLLECT(c) AS cashtags
         ORDER BY t.publicationDate DESC
         LIMIT 10
     """)
     List<Tweet> findTweetsWithRelationships(@Param("authorName") String authorName);
-
-    @Query("""
-        MATCH (node)
-        DETACH DELETE node
-    """)
-    void deleteAllNodes();
-
-    @Query("""
-        CALL gds.graph.drop('author-mentions', false) YIELD graphName
-        RETURN graphName
-        UNION ALL
-        CALL gds.graph.drop('author-importance', false) YIELD graphName
-        RETURN graphName
-    """)
-    List<String> dropAllGdsGraphs();
-
 }
