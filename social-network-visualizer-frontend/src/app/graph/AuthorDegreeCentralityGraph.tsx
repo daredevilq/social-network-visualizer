@@ -8,28 +8,30 @@ interface GraphProps {
     shortestPath: string[];
 }
 
-export default function AuthorPagerankGraph({shortestPath}: GraphData) {
+export default function AuthorPagerankGraph({shortestPath}: GraphProps) {
     const [graphData, setGraphData] = useState<GraphData>({nodes: [], links: []});
     const {selected, loading} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-
-        fetch("http://localhost:8080/api/graph/author-mentions")
+        fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
             .then((res) => res.json())
             .then((data) => {
                 console.log("PageRankGraph Fetched data:", data);
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.links || !Array.isArray(data.links)) {
+                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const links: Link[] = data.links.map(link => ({
+                const links: Link[] = data.edges.map(link => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));
-                const nodes: Node[] = data.nodes.map((node: Node) => ({
-                    ...node,
-                    degreeCentrality: node.degreeCentrality ? node.degreeCentrality * 5 : 1,
+                const nodes: Node[] = data.nodes.map((node: any) => ({
+                    id: node.name,
+                    label: node.name,
+                    pagerank: node.pagerank ?? 0,
+                    degreeCentrality: node.centrality ?? 0,
+                    community: node.community?.toString() ?? ""
                 }));
                 setGraphData({nodes, links});
             })
@@ -52,9 +54,9 @@ export default function AuthorPagerankGraph({shortestPath}: GraphData) {
     return (
         <BaseGraph
             graphData={graphData}
-            nodeVal={(node: any) => (node.pagerank ? node.pagerank * 5 : 1)}
+            nodeVal={(node: any) => (node.degreeCentrality ? node.degreeCentrality * 5 : 1)}
             nodeLabel={(node: any) =>
-                `User: ${node.id}\nPR: ${node.pagerank?.toFixed(2)}\nComm: ${node.community}`
+                `User: ${node.id}\n Degree Centrality: ${node.degreeCentrality}`
             }
             nodeColor={(node: any) => {
                 const baseHue = 240;

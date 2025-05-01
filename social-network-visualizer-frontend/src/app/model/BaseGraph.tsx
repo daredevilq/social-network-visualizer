@@ -31,6 +31,7 @@ function BaseGraph({
                 linkDirectionalArrowLength={linkDirectionalArrowLength}
                 linkDirectionalArrowRelPos={linkDirectionalArrowRelPos}
                 onNodeClick={onNodeClick}
+                linkLabel={(link) => link?.relation ?? "no relation"}
             />
         </div>
     );
