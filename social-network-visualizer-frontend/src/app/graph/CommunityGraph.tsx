@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import BaseGraph from "../model/BaseGraph";
-import { GraphData, Link, Node } from "@/app/interface/GraphData";
+import {GraphData, Link, Node} from "@/app/interface/GraphData";
+import {useProject} from '@/app/context/ProjectContext';
+import {FolderPlus} from "lucide-react";
 
 interface GraphProps {
     shortestPath: string[];
 }
 
 export default function CommunityGraph({shortestPath}: GraphProps) {
-    const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
+    const [graphData, setGraphData] = useState<GraphData>({nodes: [], links: []});
+    const {selected, loading} = useProject();
 
     useEffect(() => {
+        if (!selected || loading) return;
         fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
             .then((res) => res.json())
             .then((data) => {
@@ -29,14 +33,27 @@ export default function CommunityGraph({shortestPath}: GraphProps) {
 
                 const links: Link[] = data.edges.map((link) => ({ ...link }));
 
-                setGraphData({ nodes, links });
+                setGraphData({nodes, links});
             })
             .catch((err) => console.error("Fetch error:", err));
-    }, []);
+    }, [selected, loading]);
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
     };
+
+    if (!selected)
+        return (
+            <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
+                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
+                <p className="text-lg font-medium text-[#fafafa]/80">
+                    Select a project to get started
+                </p>
+                <p className="text-sm text-[#fafafa]/50 mt-1">
+                    Use the sidebar to pick one
+                </p>
+            </div>
+        );
 
     return (
         <BaseGraph
