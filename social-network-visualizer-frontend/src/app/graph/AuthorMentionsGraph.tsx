@@ -19,7 +19,7 @@ export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
             .then((res) => res.json())
             .then((data) => {
                 console.log("AuthorMentions Fetched data:", data);
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.links || !Array.isArray(data.links)) {
+                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }

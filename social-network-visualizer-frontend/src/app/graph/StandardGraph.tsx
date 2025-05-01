@@ -48,7 +48,7 @@ export default function StandardGraph({shortestPath}: GraphProps) {
 
     if (!selected)
         return (
-            <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
+            <div className="h-full w-full flex flex-col items-center justify-center text-[#fafafa]">
                 <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
                 <p className="text-lg font-medium text-[#fafafa]/80">
                     Select a project to get started
