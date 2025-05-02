@@ -3,7 +3,7 @@ import BaseGraph from "../model/BaseGraph";
 import {GraphData, Link, Node} from "@/app/interface/GraphData";
 import RightSidebar from "@/app/components/RightSideBar";
 import {useProject} from '@/app/context/ProjectContext';
-import { FolderPlus } from "lucide-react";
+import {FolderPlus} from "lucide-react";
 
 interface GraphProps {
     shortestPath: string[];
@@ -41,15 +41,55 @@ export default function StandardGraph({shortestPath}: GraphProps) {
             .catch((err) => console.error("Fetch error:", err));
     }, [selected, loading]);
 
+    let clickTimeout: NodeJS.Timeout | null = null;
     const handleNodeClick = (node: Node) => {
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            clickTimeout = null;
+            handleDoubleClick(node);
+            return;
+        }
+        clickTimeout = setTimeout(() => {
+            clickTimeout = null;
+            handleSingleNodeClick(node);
+        }, 300);
+    }
+
+    const handleSingleNodeClick = (node: Node) => {
         setSelectedUserName(node.id);
         setIsSidebarOpen(true);
     };
+    const handleDoubleClick = (node: Node) => {
+        const newNodes = [];
+        const newLinks = [];
+
+        for (let i = 0; i < 10; i++) {
+            const newNodeId = `${node.id}_child_${i}`;
+            newNodes.push({
+                id: newNodeId,
+                name: `Auto_${newNodeId}`,
+                pagerank: Math.random() * 0.1,
+                centrality: Math.floor(Math.random() * 100),
+                community: node.community,
+            });
+            newLinks.push({
+                source: node.id,
+                target: newNodeId,
+                relation: "generated",
+            });
+        }
+
+
+        setGraphData((prev) => ({
+            nodes: [...prev.nodes, ...newNodes],
+            links: [...prev.links, ...newLinks],
+        }));
+    }
 
     if (!selected)
         return (
             <div className="h-full w-full flex flex-col items-center justify-center text-[#fafafa]">
-                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
+                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>
                 <p className="text-lg font-medium text-[#fafafa]/80">
                     Select a project to get started
                 </p>
