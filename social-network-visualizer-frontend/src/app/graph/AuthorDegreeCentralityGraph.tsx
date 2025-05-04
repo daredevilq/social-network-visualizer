@@ -1,16 +1,11 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import BaseGraph from "../model/BaseGraph";
-import {GraphData, Link, Node} from "@/app/interface/GraphData";
+import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 
-interface GraphProps {
-    shortestPath: string[];
-}
-
-export default function AuthorPagerankGraph({shortestPath}: GraphProps) {
-    const [graphData, setGraphData] = useState<GraphData>({nodes: [], links: []});
-    const {selected, loading} = useProject();
+export default function AuthorPagerankGraph() {
+    const {selected, loading, graphData, setGraphData, shortestPath} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -41,7 +36,7 @@ export default function AuthorPagerankGraph({shortestPath}: GraphProps) {
     if (!selected)
         return (
             <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
-                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
+                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>
                 <p className="text-lg font-medium text-[#fafafa]/80">
                     Select a project to get started
                 </p>

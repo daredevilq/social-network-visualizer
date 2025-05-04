@@ -80,7 +80,7 @@ export default function RightSidebar({isOpen, onClose, userName}: RightSidebarPr
 
     return (
         <div
-            className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-50 transform transition-transform duration-300 ease-in-out rounded-l-xl ${
+            className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-40 transform transition-transform duration-300 ease-in-out rounded-l-xl ${
                 isOpen ? 'translate-x-0' : 'translate-x-full'
             } border-l-[1px] border-[#FAFAFA] rounded-tr-2xl rounded-br-2xl bg-[#262631]`}
         >

@@ -13,7 +13,6 @@ interface LeftSidebarProps {
     selectedGraph: string;
     setSelectedGraph: (graph: string) => void;
     selectedLeftSideBarContent: string;
-    setShortestPath: (value: (((prevState: string[]) => string[]) | string[])) => void;
 }
 
 export default function LeftSidebar({
@@ -21,7 +20,6 @@ export default function LeftSidebar({
                                         selectedGraph,
                                         setSelectedGraph,
                                         selectedLeftSideBarContent,
-                                        setShortestPath
                                     }: LeftSidebarProps) {
     const renderLeftSideBarContent = () => {
         switch (selectedLeftSideBarContent) {
@@ -30,7 +28,7 @@ export default function LeftSidebar({
             case "graph":
                 return <GraphTypeContent selectedGraph={selectedGraph} setSelectedGraph={setSelectedGraph}/>
             case "functions":
-                return <FunctionsContent setShortestPath={setShortestPath}/>
+                return <FunctionsContent/>
             case "filters":
                 return <FiltersContent/>
             case "projects":

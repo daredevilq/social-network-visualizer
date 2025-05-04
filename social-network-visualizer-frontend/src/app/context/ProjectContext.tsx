@@ -1,56 +1,91 @@
 'use client';
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {createContext, ReactNode, useContext, useState} from 'react';
 
 const BASE_URL = `http://localhost:8080`;
 
 interface Context {
-	selected: string | null;
-	loading: boolean;
-	select: (name: string) => Promise<void>;
-	runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
-	refresh: () => Promise<void>; 
+    selected: string | null;
+    loading: boolean;
+    select: (name: string) => Promise<void>;
+    runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
+    refresh: () => Promise<void>;
+    isGraphMode: true | false;
+    setIsGraphMode: React.Dispatch<React.SetStateAction<true | false>>;
+    graphData: {nodes: any[], links: any[]};
+    setGraphData: React.Dispatch<React.SetStateAction<{nodes: any[], links: any[]}>>;
+    nodeFoundId: string | null;
+    setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
+    shortestPath: string[];
+    setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const ProjectContext = createContext<Context>({
-	selected: null,
-	loading: false,
-	select: async () => {},
-	runWithLoading: async (fn) => fn(),
-	refresh:  async () => {},
+    selected: null,
+    loading: false,
+    select: async () => {},
+    runWithLoading: async (fn) => fn(),
+    refresh: async () => {},
+    isGraphMode: true,
+    setIsGraphMode: () => {},
+    graphData: {nodes: [], links: []},
+    setGraphData: () => {},
+    nodeFoundId: null,
+    setNodeIdFound: () => {},
+    shortestPath: [],
+    setShortestPath: () => {}
 });
 
 export const useProject = () => useContext(ProjectContext);
 
-export function ProjectProvider({ children }: { children: ReactNode }) {
-	const [selected, setSelected] = useState<string | null>(null);
-	const [loading,  setLoading]  = useState(false);
+export function ProjectProvider({children}: { children: ReactNode }) {
+    const [selected, setSelected] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [isGraphMode, setIsGraphMode] = useState(true);
+    const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
+    const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
+    const [shortestPath, setShortestPath] = useState<string[]>([]);
 
-	const runWithLoading = async <T,>(fn: () => Promise<T>): Promise<T> => {
-		if (loading) return fn();
-		setLoading(true);
-		try {
-			return await fn();
-		} finally {
-			setLoading(false);
-		}
-	};
+    const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
+        if (loading) return fn();
+        setLoading(true);
+        try {
+            return await fn();
+        } finally {
+            setLoading(false);
+        }
+    };
 
-	const select = async (name: string) =>
-		runWithLoading(async () => {
-			if (selected === name) return;
-			await fetch(`${BASE_URL}/project/import/${name}`);
-			setSelected(name);
-		});
+    const select = async (name: string) =>
+        runWithLoading(async () => {
+            if (selected === name) return;
+            await fetch(`${BASE_URL}/project/import/${name}`);
+            setSelected(name);
+        });
 
-	const refresh = async () =>
-		runWithLoading(async () => {
-			if (!selected) return;
-			await fetch(`${BASE_URL}/project/import/${selected}`);
-		});
+    const refresh = async () =>
+        runWithLoading(async () => {
+            if (!selected) return;
+            await fetch(`${BASE_URL}/project/import/${selected}`);
+        });
 
-	return (
-		<ProjectContext.Provider value={{ selected, loading, select, runWithLoading, refresh }}>
-			{children}
-		</ProjectContext.Provider>
-	);
+    return (
+        <ProjectContext.Provider
+            value={{
+                selected,
+                loading,
+                select,
+                runWithLoading,
+                refresh,
+                isGraphMode,
+                setIsGraphMode,
+                graphData,
+                setGraphData,
+                nodeFoundId,
+                setNodeIdFound,
+                shortestPath,
+                setShortestPath
+            }}>
+            {children}
+        </ProjectContext.Provider>
+    );
 }

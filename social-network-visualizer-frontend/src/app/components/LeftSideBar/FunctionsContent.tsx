@@ -2,17 +2,14 @@
 
 
 import {useState} from "react";
+import {useProject} from "@/app/context/ProjectContext";
 
-
-interface FunctionsContentProps {
-    setShortestPath: (value: (((prevState: string[]) => string[]) | string[])) => void
-}
-
-export default function FunctionsContent({setShortestPath}: FunctionsContentProps) {
+export default function FunctionsContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [source, setSource] = useState("");
     const [target, setTarget] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const {setShortestPath} = useProject();
 
 
     const handleSearch = () => {

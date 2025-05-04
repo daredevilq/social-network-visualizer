@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import StandardGraph from "@/app/graph/StandardGraph";
+import {useProject} from "@/app/context/ProjectContext";
 
 const AuthorMentionsGraph = dynamic(() => import("../graph/AuthorMentionsGraph"), {ssr: false});
 const AuthorDegreeCentralityGraph = dynamic(() => import("../graph/AuthorDegreeCentralityGraph"), {ssr: false});
@@ -9,10 +10,10 @@ const CommunityGraph = dynamic(() => import("../graph/CommunityGraph"), {ssr: fa
 
 interface GraphContainerProps {
     selectedGraph: string,
-    shortestPath: string[];
 }
 
-export default function GraphContainer({selectedGraph, shortestPath}: GraphContainerProps) {
+export default function GraphContainer({selectedGraph}: GraphContainerProps) {
+    const {shortestPath} = useProject();
 
     const renderGraph = () => {
         switch (selectedGraph) {
