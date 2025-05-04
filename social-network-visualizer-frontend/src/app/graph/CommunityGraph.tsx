@@ -1,10 +1,12 @@
 "use client";
 
 import {useEffect, useState} from "react";
-import BaseGraph from "../model/BaseGraph";
 import {GraphData, Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
+import dynamic from 'next/dynamic';
+
+const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 interface GraphProps {
     shortestPath: string[];
