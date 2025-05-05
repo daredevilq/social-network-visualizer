@@ -180,10 +180,10 @@ const BaseGraph = forwardRef(({
     };
 
     return (
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        <div className="w-full h-full relative">
             <div
                 ref={containerRef}
-                style={{ width: "100%", height: "100%" }}
+                className="w-full h-full"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -192,54 +192,29 @@ const BaseGraph = forwardRef(({
 
             {selectionBox && (
                 <div
+                    className="absolute border-2 border-dashed border-[#783CDC] bg-[#783CDC33] pointer-events-none z-10"
                     style={{
-                        position: 'absolute',
-                        left: Math.min(selectionBox.startX, selectionBox.endX),
-                        top: Math.min(selectionBox.startY, selectionBox.endY),
-                        width: Math.abs(selectionBox.endX - selectionBox.startX),
-                        height: Math.abs(selectionBox.endY - selectionBox.startY),
-                        border: '2px dashed rgba(120, 60, 220, 0.7)',
-                        backgroundColor: 'rgba(120, 60, 220, 0.2)',
-                        pointerEvents: 'none',
-                        zIndex: 10,
+                        left: `${Math.min(selectionBox.startX, selectionBox.endX)}px`,
+                        top: `${Math.min(selectionBox.startY, selectionBox.endY)}px`,
+                        width: `${Math.abs(selectionBox.endX - selectionBox.startX)}px`,
+                        height: `${Math.abs(selectionBox.endY - selectionBox.startY)}px`,
                     }}
                 />
             )}
 
-            <div style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                padding: '10px',
-                zIndex: 30
-            }}>
-
+            <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30">
                 {selectedNodeIds.length > 0 && (
-                    <button 
-                        onClick={analyzeWorkspace} 
-                        style={{
-                            padding: '8px 12px',
-                            backgroundColor: 'rgb(56, 78, 179)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                        }}
+                    <button
+                        onClick={analyzeWorkspace}
+                        className="px-3 py-2 bg-[#384EB3] text-white border-none rounded-md cursor-pointer"
                     >
                         Analyze
                     </button>
                 )}
-                <button onClick={resetGraph} style={{
-                    padding: '8px 12px',
-                    backgroundColor: 'rgb(165, 39, 52)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                }}>
+                <button
+                    onClick={resetGraph}
+                    className="px-3 py-2 bg-[#A52734] text-white border-none rounded-md cursor-pointer"
+                >
                     Reset workspace
                 </button>
             </div>
