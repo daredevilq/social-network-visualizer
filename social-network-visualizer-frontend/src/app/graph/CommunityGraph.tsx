@@ -67,7 +67,7 @@ export default function CommunityGraph() {
             }
             nodeColor={node => {
                 if (node.id === nodeFoundId) return "red";
-                getNodeColor(node);
+                return getNodeColor(node);
             }}
             linkColor={(link: any) =>
                 shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
