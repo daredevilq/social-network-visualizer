@@ -114,7 +114,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
     @Query("""
                    MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
-                   CALL gds.shortestPath.dijkstra.stream('author-importance', {
+                   CALL gds.shortestPath.dijkstra.stream('g_author_mentions', {
                        sourceNode: a1,
                        targetNode: a2
                        })
@@ -132,31 +132,26 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     @Query("""
                 MATCH (a1:Author)-[r]->(a2:Author)
                 WHERE type(r) IN $relations
-                    AND a1.userName IN $authorNames
-                    AND a2.userName IN $authorNames
                 RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
             """)
-    List<AuthorLinkDto> findAuthorRelations(
-            @Param("relations") Set<RelationType> relations,
-            @Param("authorNames") List<String> authorNames
-    );
+    List<AuthorLinkDto> findAuthorRelations(@Param("relations") Set<RelationType> relations);
 
     @Query("""
                 MATCH (a:Author)
+                ORDER BY a.pagerank DESC
                 RETURN
                     a.userName AS name,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
-                ORDER BY a.pagerank DESC
-                LIMIT $limit
             """)
-    List<AuthorNodeDto> findTopNAuthorsByPageRank(@Param("limit") int limit);
+    List<AuthorNodeDto> findAuthors();
 
     @Query("""
                 MATCH (a:Author)
                 WHERE a.community = $communityId
-                RETURN 
+                ORDER BY a.pagerank DESC
+                RETURN
                     a.userName AS name,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,

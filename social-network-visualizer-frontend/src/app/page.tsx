@@ -13,8 +13,6 @@ import AnalysisContainer from "@/app/components/AnalysisContainer";
 
 export default function Home() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
-    const [selectedUserName] = useState("testUser")
     const [selectedGraph, setSelectedGraph] = useState("standardGraph")
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const [searchQuery, setSearchQuery] = useState("");
@@ -36,11 +34,7 @@ export default function Home() {
                 <GraphContainer selectedGraph={selectedGraph}/> :
                 <AnalysisContainer></AnalysisContainer>
             }
-            <RightSidebar
-                isOpen={isRightSidebarOpen}
-                onClose={() => setIsRightSidebarOpen(false)}
-                userName={selectedUserName}
-            />
+            <RightSidebar/>
         </div>
     );
 }

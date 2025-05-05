@@ -17,6 +17,10 @@ interface Context {
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
     setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
+    isSidebarOpen: boolean;
+    setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    selectedUserName: string | null;
+    setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const ProjectContext = createContext<Context>({
@@ -32,13 +36,19 @@ const ProjectContext = createContext<Context>({
     nodeFoundId: null,
     setNodeIdFound: () => {},
     shortestPath: [],
-    setShortestPath: () => {}
+    setShortestPath: () => {},
+    isSidebarOpen: false,
+    setIsSidebarOpen: () => {},
+    selectedUserName: null,
+    setSelectedUserName: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
 
 export function ProjectProvider({children}: { children: ReactNode }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
+    const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [isGraphMode, setIsGraphMode] = useState(true);
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
@@ -83,7 +93,11 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 nodeFoundId,
                 setNodeIdFound,
                 shortestPath,
-                setShortestPath
+                setShortestPath,
+                isSidebarOpen,
+                setIsSidebarOpen,
+                selectedUserName,
+                setSelectedUserName
             }}>
             {children}
         </ProjectContext.Provider>

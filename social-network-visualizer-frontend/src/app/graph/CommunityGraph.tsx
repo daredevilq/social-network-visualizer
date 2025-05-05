@@ -1,13 +1,20 @@
 "use client";
 
 import {useEffect} from "react";
-import BaseGraph from "../model/BaseGraph";
 import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
+import dynamic from 'next/dynamic';
 
+const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
-    const {selected, loading, graphData, setGraphData, shortestPath} = useProject();
+    const {
+        selected,
+        loading,
+        graphData,
+        setGraphData, nodeFoundId,
+        shortestPath
+    } = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -58,12 +65,15 @@ export default function CommunityGraph() {
                 `User: ${node.id}\n` +
                 `Community: ${node.community}`
             }
-            nodeColor={getNodeColor}
+            nodeColor={node => {
+                if (node.id === nodeFoundId) return "red";
+                getNodeColor(node);
+            }}
             linkColor={(link: any) =>
                 shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
             }
             linkWidth={(link: any) =>
-                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 3 : 2
+                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 4 : 2
             }
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={1}

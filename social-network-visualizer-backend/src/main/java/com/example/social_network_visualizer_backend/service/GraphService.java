@@ -1,25 +1,25 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
+import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.GraphDataDto;
 import com.example.social_network_visualizer_backend.model.GraphDefinition;
 import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.repository.AlgorithmRepository;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GraphService {
-    @Value("${graph.nodes.limit}")
-    private int NODES_LIMIT;
-
     private final AlgorithmRepository algorithmRepository;
     private final AuthorRepository authorRepository;
 
@@ -47,11 +47,9 @@ public class GraphService {
     }
 
     private GraphDataDto buildGraphUsingRelations(Set<RelationType> relations) {
-        List<AuthorNodeDto> authorList = authorRepository.findTopNAuthorsByPageRank(NODES_LIMIT);
-        List<String> authorNames = authorList.stream()
-                .map(AuthorNodeDto::name)
-                .toList();
-        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelations(relations, authorNames);
+        List<AuthorNodeDto> authorList = authorRepository.findAuthors();
+        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelations(relations);
+
         return new GraphDataDto(authorList, edgeList);
     }
 
@@ -68,4 +66,3 @@ public class GraphService {
         return new GraphDataDto(authorList, edgeList);
     }
 }
-

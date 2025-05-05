@@ -1,8 +1,10 @@
 import {useEffect} from "react";
-import BaseGraph from "../model/BaseGraph";
 import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
+import dynamic from 'next/dynamic';
+
+const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
     const {selected, loading, graphData, setGraphData, shortestPath} = useProject();
