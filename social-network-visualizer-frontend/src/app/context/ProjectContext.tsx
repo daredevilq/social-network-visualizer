@@ -1,5 +1,4 @@
-'use client';
-import {createContext, ReactNode, useContext, useState} from 'react';
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 
 const BASE_URL = `http://localhost:8080`;
 
@@ -55,6 +54,19 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
 
+    useEffect(() => {
+        const stored = localStorage.getItem('selectedProject');
+        if (stored) {
+            setSelected(JSON.parse(stored));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (selected) {
+            localStorage.setItem('selectedProject', JSON.stringify(selected));
+        }
+    }, [selected]);
+
     const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
         if (loading) return fn();
         setLoading(true);
@@ -70,6 +82,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
             if (selected === name) return;
             await fetch(`${BASE_URL}/project/import/${name}`);
             setSelected(name);
+            window.location.href = "/";
         });
 
     const refresh = async () =>

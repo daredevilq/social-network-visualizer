@@ -1,0 +1,27 @@
+package com.example.social_network_visualizer_backend.dto;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record TweetWithStats(
+        String id,
+        LocalDateTime publicationDate,
+        String objectType,
+        String language,
+        String contentPreview,
+        String content,
+        String twitterId,
+        String url,
+        String conversationId,
+        Long repliesCount,
+        Long retweetsCount,
+        Long likesCount,
+        List<String> hashtags,
+        Double avgLikes,
+        Double avgRetweets,
+        Double avgReplies,
+        Double likesRatio,
+        Double retweetsRatio,
+        Double repliesRatio
+) {}
+

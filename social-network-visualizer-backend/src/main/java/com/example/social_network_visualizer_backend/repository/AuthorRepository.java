@@ -92,9 +92,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                    COUNT(CASE WHEN t.objectType = 'TWEET' THEN 1 END) AS tweetsCount,
                    COUNT(CASE WHEN t.objectType = 'RETWEET' THEN 1 END) AS retweetsCount,
                    COUNT(CASE WHEN t.objectType = 'REPLY' THEN 1 END) AS repliesCount,
-                   AVG(t.repliesCount) AS averageRepliesCount,
-                   AVG(t.retweetsCount) AS averageRetweetsCount,
-                   AVG(t.likesCount) AS averageLikesCount
+                   COALESCE(AVG(t.repliesCount), 0) AS averageRepliesCount,
+                   COALESCE(AVG(t.retweetsCount), 0) AS averageRetweetsCount,
+                   COALESCE(AVG(t.likesCount), 0) AS averageLikesCount
+                                                         
             """)
     Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
@@ -170,5 +171,12 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             @Param("relations") Set<RelationType> relations,
             @Param("communityId") int communityId);
 
+
+    @Query("""
+                MATCH (a:Author)
+                WHERE a.userName = $userName
+                RETURN a
+            """)
+    Optional<Author> findAuthorByUSerName(String userName);
 }
 

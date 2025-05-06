@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.TweetDto;
+import com.example.social_network_visualizer_backend.dto.TweetWithStats;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -97,28 +98,37 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
     void createTweetIdConstraint();
 
     @Query("""
-        MATCH (a:Author)-[:POSTED]->(t:Tweet)
-        WHERE a.userName = $authorName
-        OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-        RETURN t.id AS id,
-               t.objectCreatedAt AS objectCreatedAt,
-               t.publicationDate AS publicationDate,
-               t.objectType AS objectType,
-               t.language AS language,
-               t.contentPreview AS contentPreview,
-               t.content AS content,
-               t.twitterId AS twitterId,
-               t.url AS url,
-               t.conversationId AS conversationId,
-               t.links AS links,
-               t.photos AS photos,
-               t.videos AS videos,
-               t.repliesCount AS repliesCount,
-               t.retweetsCount AS retweetsCount,
-               t.likesCount AS likesCount,
-               COLLECT(h) AS hashtags,
-        ORDER BY t.publicationDate DESC
-        LIMIT 10
-    """)
-    List<Tweet> findTweetsWithRelationships(@Param("authorName") String authorName);
+                MATCH (a:Author)-[:POSTED]->(tAll:Tweet)
+                WHERE a.userName = $authorName
+                WITH avg(tAll.likesCount) AS avgLikes, 
+                     avg(tAll.retweetsCount) AS avgRetweets, 
+                     avg(tAll.repliesCount) AS avgReplies
+            
+                MATCH (a:Author)-[:POSTED]->(t:Tweet)
+                WHERE a.userName = $authorName
+                OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+                WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies
+                RETURN
+                    t.id AS id,
+                    t.publicationDate AS publicationDate,
+                    t.objectType AS objectType,
+                    t.language AS language,
+                    t.contentPreview AS contentPreview,
+                    t.content AS content,
+                    t.twitterId AS twitterId,
+                    t.url AS url,
+                    t.conversationId AS conversationId,
+                    t.repliesCount AS repliesCount,
+                    t.retweetsCount AS retweetsCount,
+                    t.likesCount AS likesCount,
+                    hashtags,
+                    avgLikes,
+                    avgRetweets,
+                    avgReplies,
+                    (t.likesCount / avgLikes) * 100 AS likesRatio,
+                    (t.retweetsCount / avgRetweets) * 100 AS retweetsRatio,
+                    (t.repliesCount / avgReplies) * 100 AS repliesRatio
+                ORDER BY t.publicationDate DESC
+            """)
+    List<TweetWithStats> findTweetsWithRelationships(@Param("authorName") String authorName);
 }
