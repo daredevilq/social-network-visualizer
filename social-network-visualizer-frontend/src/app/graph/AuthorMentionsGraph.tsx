@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 export default function AuthorMentionsGraph() {
-    const {selected, loading, graphData, setGraphData} = useProject();
+    const {selected, loading, graphData, setGraphData, nodeFoundId} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -58,6 +58,7 @@ export default function AuthorMentionsGraph() {
             linkWidth={(link: any) => (link.type === "mention" ? 1 : 2)}
             linkDirectionalArrowLength={6}
             linkDirectionalArrowRelPos={1}
+            nodeFoundId={nodeFoundId}
         />
     );
 }

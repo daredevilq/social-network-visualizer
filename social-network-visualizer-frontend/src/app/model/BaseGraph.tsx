@@ -15,6 +15,9 @@ const BaseGraph = forwardRef(({
                                   linkDirectionalArrowRelPos,
                                   nodeFoundId
                               }: GraphProps, ref) => {
+    const NODE_DISPLAY_LIMIT: number = 100;
+    const [cooldownTicks, setCooldownTicks] = useState(100);
+    const [useForceLayout, setUseForceLayout] = useState(true);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const fgInstance = useRef<ForceGraphInstance | null>(null);
     const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
@@ -22,6 +25,9 @@ const BaseGraph = forwardRef(({
 
     const [workspaceNodes, setWorkspaceNodes] = useState<NodeObject[]>([]);
     const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+
+    const [displayedNodes, setDisplayedNodes] = useState<NodeObject[]>([]);
+    const [displayedLinks, setDisplayedLinks] = useState<LinkObject[]>([]);
 
     const {setIsSidebarOpen, setSelectedUserName} = useProject();
 
@@ -58,32 +64,51 @@ const BaseGraph = forwardRef(({
     const handleDoubleNodeClick = (node: Node) => {
         if (!fgInstance.current) return;
 
-        const graphCurrentData = fgInstance.current.graphData();
-        const newNodes = [];
-        const newLinks = [];
+        setUseForceLayout(false);
+        setCooldownTicks(0);
 
-        for (let i = 0; i < 5; i++) {
-            const newNodeId = `${node.id}_child_${Date.now()}_${i}`;
-            newNodes.push({
-                id: newNodeId,
-                label: `Child of ${node.id} (${i + 1})`,
-                pagerank: Math.random() * 0.5,
-                degreeCentrality: Math.random(),
-                community: (node as any).community || "new",
-                x: (node as any).x + (Math.random() - 0.5) * 50,
-                y: (node as any).y + (Math.random() - 0.5) * 50,
-            });
+        const currentGraphData = fgInstance.current.graphData();
+        const currentNodeIds = new Set(currentGraphData.nodes.map(n => n.id));
 
-            newLinks.push({
-                source: node.id,
-                target: newNodeId,
-                type: "generated"
-            });
+        const neighborLinks = graphData.links.filter(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            return sourceId === node.id || targetId === node.id;
+        })
 
+        const newNodes: NodeObject[] = [];
+        const newLinks: LinkObject[] = [];
+
+        neighborLinks.forEach(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            const neighborId = sourceId === node.id ? targetId : sourceId;
+            const neighborNode = graphData.nodes.find(n => n.id === neighborId);
+            if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
+                newNodes.push(neighborNode);
+                newLinks.push(link);
+            } else if (!currentGraphData.links.some(l => {
+                const existingSourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                const existingTargetId = typeof l.target === 'object' ? l.target.id : l.target;
+                return (existingSourceId === sourceId && existingTargetId === targetId) ||
+                    (existingSourceId === targetId && existingTargetId === sourceId);
+            })) {
+                newLinks.push(link);
+            }
+        });
+
+        if (newNodes.length > 0 || newLinks.length > 0) {
             fgInstance.current.graphData({
-                nodes: [...graphCurrentData.nodes, ...newNodes],
-                links: [...graphCurrentData.links, ...newLinks]
+                nodes: [...currentGraphData.nodes, ...newNodes],
+                links: [...currentGraphData.links, ...newLinks]
             });
+            setDisplayedNodes([...currentGraphData.nodes, ...newNodes]);
+            setDisplayedLinks([...currentGraphData.links, ...newLinks]);
+
+            setTimeout(() => {
+                setUseForceLayout(true);
+                setCooldownTicks(100);
+            }, 1000);
         }
     }
 
@@ -102,10 +127,26 @@ const BaseGraph = forwardRef(({
     }, []);
 
     useEffect(() => {
-        if (fgInstance.current) {
+        if (fgInstance.current && graphData.nodes.length > 0) {
+            const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
+            const topNodesIds = new Set(topNodes.map(node => node.id));
             fgInstance.current.graphData(graphData);
+            const relevantLinks = graphData.links.filter(link => {
+                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                return topNodesIds.has(sourceId) && topNodesIds.has(targetId);
+            });
+
+            setDisplayedNodes(topNodes);
+            setDisplayedLinks(relevantLinks);
+
+            fgInstance.current.graphData({
+                nodes: topNodes,
+                links: relevantLinks
+            });
         }
     }, [graphData]);
+
 
     useEffect(() => {
         if (fgInstance.current && nodeFoundId) {
@@ -130,6 +171,9 @@ const BaseGraph = forwardRef(({
                 .linkDirectionalArrowLength(linkDirectionalArrowLength)
                 .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
                 .onNodeClick(handleNodeClick)
+                .cooldownTicks(cooldownTicks)
+                .d3AlphaDecay(useForceLayout ? 0.1 : 0.5)
+                .d3VelocityDecay(useForceLayout ? 0.7 : 1)
                 .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
@@ -178,32 +222,25 @@ const BaseGraph = forwardRef(({
         loadGraphData();
     };
 
+
     const loadGraphData = () => {
-        if (fgInstance.current) {
-            fgInstance.current
-                .graphData(graphData)
-                .nodeVal(nodeVal)
-                .nodeLabel(nodeLabel)
-                .nodeColor(nodeColor)
-                .linkColor(linkColor)
-                .linkWidth(linkWidth)
-                .linkDirectionalArrowLength(linkDirectionalArrowLength)
-                .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-                .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
-                    const fontSize = 12 / globalScale;
-                    ctx.font = `${fontSize}px Sans-Serif`;
+        if (fgInstance.current && graphData.nodes.length > 0) {
+            const top5Nodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
+            const nodeIds = new Set(top5Nodes.map(node => node.id));
 
-                    ctx.beginPath();
-                    ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = nodeColor ? nodeColor(node) : 'gray';
-                    ctx.fill();
+            const relevantLinks = graphData.links.filter(link => {
+                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                return nodeIds.has(sourceId) && nodeIds.has(targetId);
+            });
 
-                    if (selectedNodeIds.includes(node.id as string)) {
-                        ctx.lineWidth = 1;
-                        ctx.strokeStyle = 'white';
-                        ctx.stroke();
-                    }
-                });
+            setDisplayedNodes(top5Nodes);
+            setDisplayedLinks(relevantLinks);
+
+            fgInstance.current.graphData({
+                nodes: top5Nodes,
+                links: relevantLinks
+            });
         }
     };
 

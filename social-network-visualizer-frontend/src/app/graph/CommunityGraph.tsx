@@ -12,7 +12,8 @@ export default function CommunityGraph() {
         selected,
         loading,
         graphData,
-        setGraphData, nodeFoundId,
+        setGraphData,
+        nodeFoundId,
         shortestPath
     } = useProject();
 
@@ -77,6 +78,7 @@ export default function CommunityGraph() {
             }
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={1}
+            nodeFoundId={nodeFoundId}
         />
     );
 }
