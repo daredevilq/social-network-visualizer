@@ -9,7 +9,7 @@ import LeftSidebar from "./components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay"
 import {useProject} from '@/app/context/ProjectContext';
 import SearchAndToggleModeContainer from "@/app/components/SearchAndToggleModeContainer";
-import AnalysisContainer from "@/app/components/AnalysisContainer";
+import AnalysisContainer from "@/app/components/Analysis/AnalysisContainer";
 
 export default function Home() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);

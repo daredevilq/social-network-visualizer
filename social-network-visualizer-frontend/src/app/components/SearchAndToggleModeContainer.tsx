@@ -45,7 +45,7 @@ const SearchAndToggleModeContainer = ({searchValue, onSearchChange, searchPlaceh
                         aria-label="Toggle display mode"
                     >
                         <div className={`w-12 h-6 rounded-full transition duration-300 ${
-                            !isGraphMode ? 'bg-indigo-500' : 'bg-gray-300'
+                            !isGraphMode ? 'bg-[#7140F4]' : 'bg-gray-300'
                         } relative`}>
                             <span className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform ${
                                 isGraphMode ? 'translate-x-6' : ''

@@ -1,9 +1,11 @@
 package com.example.social_network_visualizer_backend.repository;
 
+import com.example.social_network_visualizer_backend.dto.ActivityPoint;
 import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.model.Hashtag;
 import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -169,6 +171,26 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<AuthorLinkDto> findAuthorRelationsWithinCommunity(
             @Param("relations") Set<RelationType> relations,
             @Param("communityId") int communityId);
+
+    @Query("""
+        MATCH (a:Author)-[:USES_HASHTAG]->(h:Hashtag)
+        WHERE a.community = $communityId
+        WITH h.hashtag AS tag, count(*) AS cnt
+        ORDER BY cnt DESC
+        LIMIT 3
+        RETURN tag AS value
+    """)
+    List<String> findTopHashtagsByCommunity(@Param("communityId") int communityId);
+
+    @Query("""
+        MATCH (a:Author)-[:POSTED]->(t:Tweet)
+        WHERE a.community = $communityId
+        WITH date(t.publicationDate) AS day, count(t) AS posts
+        ORDER BY day
+        RETURN day AS day, posts AS posts
+    """)
+    List<ActivityPoint> getCommunityDailyActivity(@Param("communityId") int communityId);
+
 
 }
 

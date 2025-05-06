@@ -71,6 +71,7 @@ public class Neo4jService {
         relationshipRepository.createQuoteRelationships();
         relationshipRepository.createRetweetRelationships();
         relationshipRepository.createReplyTotRelationships();
+        relationshipRepository.createIndexForCommunity();
 
     }
 
