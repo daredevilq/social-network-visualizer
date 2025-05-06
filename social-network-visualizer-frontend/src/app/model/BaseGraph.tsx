@@ -13,6 +13,7 @@ const BaseGraph = forwardRef(({
                                   linkWidth,
                                   linkDirectionalArrowLength,
                                   linkDirectionalArrowRelPos,
+                                  nodeFoundId
                               }: GraphProps, ref) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const fgInstance = useRef<ForceGraphInstance | null>(null);
@@ -23,11 +24,68 @@ const BaseGraph = forwardRef(({
     const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
 
     const {setIsSidebarOpen, setSelectedUserName} = useProject();
+
+    const clickedNodeRef = useRef<Node | null>(null);
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+
     const handleSingleNodeClick = (node: Node) => {
         setSelectedUserName(node.id);
         setIsSidebarOpen(true);
+    }
+
+    const handleNodeClick = (node: Node) => {
+        if (clickedNodeRef.current && clickedNodeRef.current.id === node.id && clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+            clickedNodeRef.current = null;
+
+            handleDoubleNodeClick(node);
+        } else {
+            if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current);
+            }
+
+            clickedNodeRef.current = node;
+            clickTimeoutRef.current = setTimeout(() => {
+                handleSingleNodeClick(node);
+                clickedNodeRef.current = null;
+                clickTimeoutRef.current = null;
+            }, 300);
+        }
     };
 
+    const handleDoubleNodeClick = (node: Node) => {
+        if (!fgInstance.current) return;
+
+        const graphCurrentData = fgInstance.current.graphData();
+        const newNodes = [];
+        const newLinks = [];
+
+        for (let i = 0; i < 5; i++) {
+            const newNodeId = `${node.id}_child_${Date.now()}_${i}`;
+            newNodes.push({
+                id: newNodeId,
+                label: `Child of ${node.id} (${i + 1})`,
+                pagerank: Math.random() * 0.5,
+                degreeCentrality: Math.random(),
+                community: (node as any).community || "new",
+                x: (node as any).x + (Math.random() - 0.5) * 50,
+                y: (node as any).y + (Math.random() - 0.5) * 50,
+            });
+
+            newLinks.push({
+                source: node.id,
+                target: newNodeId,
+                type: "generated"
+            });
+
+            fgInstance.current.graphData({
+                nodes: [...graphCurrentData.nodes, ...newNodes],
+                links: [...graphCurrentData.links, ...newLinks]
+            });
+        }
+    }
 
     useImperativeHandle(ref, (): { getInstance: () => ForceGraphInstance | null } => ({
         getInstance: () => fgInstance.current
@@ -50,6 +108,18 @@ const BaseGraph = forwardRef(({
     }, [graphData]);
 
     useEffect(() => {
+        if (fgInstance.current && nodeFoundId) {
+            const graphCurrentData = fgInstance.current.graphData();
+            const node = graphCurrentData.nodes.find(n => n.id === nodeFoundId);
+
+            if (node) {
+                fgInstance.current.centerAt(node.x, node.y, 1000);
+                fgInstance.current.zoom(6, 1000);
+            }
+        }
+    }, [nodeFoundId]);
+
+    useEffect(() => {
         if (fgInstance.current) {
             fgInstance.current
                 .nodeVal(nodeVal)
@@ -59,7 +129,7 @@ const BaseGraph = forwardRef(({
                 .linkWidth(linkWidth)
                 .linkDirectionalArrowLength(linkDirectionalArrowLength)
                 .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-                .onNodeClick(handleSingleNodeClick)
+                .onNodeClick(handleNodeClick)
                 .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
@@ -119,7 +189,6 @@ const BaseGraph = forwardRef(({
                 .linkWidth(linkWidth)
                 .linkDirectionalArrowLength(linkDirectionalArrowLength)
                 .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-                .onNodeClick(onNodeClick)
                 .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
@@ -188,10 +257,10 @@ const BaseGraph = forwardRef(({
     };
 
     return (
-        <div style={{width: "100%", height: "100%", position: "relative"}}>
+        <div className="w-full h-full relative">
             <div
                 ref={containerRef}
-                style={{width: "100%", height: "100%"}}
+                className="w-full h-full"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -200,54 +269,29 @@ const BaseGraph = forwardRef(({
 
             {selectionBox && (
                 <div
+                    className="absolute border-2 border-dashed border-[#783CDC] bg-[#783CDC33] pointer-events-none z-10"
                     style={{
-                        position: 'absolute',
-                        left: Math.min(selectionBox.startX, selectionBox.endX),
-                        top: Math.min(selectionBox.startY, selectionBox.endY),
-                        width: Math.abs(selectionBox.endX - selectionBox.startX),
-                        height: Math.abs(selectionBox.endY - selectionBox.startY),
-                        border: '2px dashed rgba(120, 60, 220, 0.7)',
-                        backgroundColor: 'rgba(120, 60, 220, 0.2)',
-                        pointerEvents: 'none',
-                        zIndex: 10,
+                        left: `${Math.min(selectionBox.startX, selectionBox.endX)}px`,
+                        top: `${Math.min(selectionBox.startY, selectionBox.endY)}px`,
+                        width: `${Math.abs(selectionBox.endX - selectionBox.startX)}px`,
+                        height: `${Math.abs(selectionBox.endY - selectionBox.startY)}px`,
                     }}
                 />
             )}
 
-            <div style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                padding: '10px',
-                zIndex: 30
-            }}>
-
+            <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30">
                 {selectedNodeIds.length > 0 && (
                     <button
                         onClick={analyzeWorkspace}
-                        style={{
-                            padding: '8px 12px',
-                            backgroundColor: 'rgb(56, 78, 179)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                        }}
+                        className="px-3 py-2 bg-[#384EB3] text-white border-none rounded-md cursor-pointer"
                     >
                         Analyze
                     </button>
                 )}
-                <button onClick={resetGraph} style={{
-                    padding: '8px 12px',
-                    backgroundColor: 'rgb(165, 39, 52)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                }}>
+                <button
+                    onClick={resetGraph}
+                    className="px-3 py-2 bg-[#A52734] text-white border-none rounded-md cursor-pointer"
+                >
                     Reset workspace
                 </button>
             </div>
