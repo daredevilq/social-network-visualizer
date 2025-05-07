@@ -24,7 +24,7 @@ public class TweetService {
             throw new IllegalArgumentException("Page must be >= 1 and limit must be > 0");
         }
 
-        Author author = authorRepository.findAuthorByUSerName(userName)
+        Author author = authorRepository.findAuthorByUserName(userName)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Author %s not found", userName)));
 
         List<TweetWithStats> allTweets = tweetRepository.findTweetsWithRelationships(userName);

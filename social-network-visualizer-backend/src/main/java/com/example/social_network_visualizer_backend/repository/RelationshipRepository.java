@@ -72,4 +72,10 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String>{
        MERGE (t)-[:RETWEETED]->(p)
    """)
     void createRetweetRelationships();
+
+    @Query("""
+        CREATE INDEX author_community IF NOT EXISTS
+        FOR (a:Author) ON (a.community);
+    """)
+    void createIndexForCommunity();
 }

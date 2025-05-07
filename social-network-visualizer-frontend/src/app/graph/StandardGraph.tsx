@@ -77,6 +77,7 @@ export default function StandardGraph() {
                 }
                 linkDirectionalArrowLength={6}
                 linkDirectionalArrowRelPos={1}
+                nodeFoundId={nodeFoundId}
             />
         </div>
     );

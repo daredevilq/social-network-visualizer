@@ -13,7 +13,7 @@ export interface GraphProps {
     linkWidth: (link: LinkObject) => number;
     linkDirectionalArrowLength: number;
     linkDirectionalArrowRelPos: number;
-    onNodeClick: (node: NodeObject, event: MouseEvent) => void;
+    nodeFoundId: string;
 }
 
 export interface SelectionBox {

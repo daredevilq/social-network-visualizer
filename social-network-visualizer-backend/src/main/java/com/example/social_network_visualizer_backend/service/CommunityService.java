@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.ActivityPoint;
 import com.example.social_network_visualizer_backend.dto.CommunitySummary;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -8,10 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +21,7 @@ public class CommunityService {
         List<Author> authors = authorRepository.findAllWithCommunity();
 
         Map<Integer, List<Author>> groupedByCommunity = authors.stream()
-                .collect(Collectors.groupingBy(author -> author.getCommunity()));
+                .collect(Collectors.groupingBy(Author::getCommunity));
 
         List<CommunitySummary> summaries = new ArrayList<>();
 
@@ -35,6 +33,8 @@ public class CommunityService {
                     .max(Comparator.comparingDouble(Author::getPagerank))
                     .orElse(null);
 
+            List<String> tags = authorRepository.findTopHashtagsByCommunity(communityId);
+            List<ActivityPoint> communityActivity = authorRepository.getCommunityDailyActivity(communityId);
 
             CommunitySummary summary = new CommunitySummary(
                     communityId,
@@ -42,12 +42,24 @@ public class CommunityService {
                     topAuthor != null ? topAuthor.getUserName() : "unknown",
                     topAuthor != null
                             ? BigDecimal.valueOf(topAuthor.getPagerank()).setScale(2, RoundingMode.HALF_UP).doubleValue()
-                            : 0.0
+                            : 0.0,
+                    tags,
+                    communityActivity
             );
 
             summaries.add(summary);
         }
-
         return summaries;
     }
+
+    public List<CommunitySummary> listCommunities(int page, int size) {
+        List<CommunitySummary> all = listAllCommunities();
+        all.sort(Comparator.comparingInt(CommunitySummary::memberCount).reversed());
+        int from = page * size;
+        if (from >= all.size()) return Collections.emptyList();
+
+        int to = Math.min(from + size, all.size());
+        return all.subList(from, to);
+    }
+
 }

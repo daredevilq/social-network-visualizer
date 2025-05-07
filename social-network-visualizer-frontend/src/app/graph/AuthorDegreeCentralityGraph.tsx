@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
-    const {selected, loading, graphData, setGraphData, shortestPath} = useProject();
+    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -69,6 +69,7 @@ export default function AuthorPagerankGraph() {
             }
             linkDirectionalArrowLength={7}
             linkDirectionalArrowRelPos={1}
+            nodeFoundId={nodeFoundId}
         />
     );
 }
