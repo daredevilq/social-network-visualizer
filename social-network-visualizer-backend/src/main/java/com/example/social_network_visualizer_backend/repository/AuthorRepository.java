@@ -5,7 +5,6 @@ import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.model.Author;
-import com.example.social_network_visualizer_backend.model.Hashtag;
 import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -85,7 +84,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY t.publicationDate DESC
                 LIMIT 10
             """)
-    List<Tweet> findTop10TweetsByAuthorUsername(@Param("authorName") String authorName);
+    List<Tweet> findLast10TweetsByAuthorUsername(@Param("authorName") String authorName);
 
     @Query("""
             MATCH (a:Author)-[:POSTED]->(t:Tweet)

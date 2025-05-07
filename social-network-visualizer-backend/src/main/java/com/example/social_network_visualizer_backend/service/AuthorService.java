@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +22,10 @@ import java.util.stream.Collectors;
 public class AuthorService {
     private final AuthorRepository authorRepository;
 
-    public List<Tweet> findTop10TweetsByAuthor(String authorName) {
+    public List<Tweet> findLast10TweetsByAuthor(String authorName) {
         System.out.println("Trying to get from database tweets with Author name: " + authorName);
         try {
-            List<Tweet> top10ByAuthorName = authorRepository.findTop10TweetsByAuthorUsername(authorName);
+            List<Tweet> top10ByAuthorName = authorRepository.findLast10TweetsByAuthorUsername(authorName);
 
             for (Tweet tweet : top10ByAuthorName) {
                 System.out.println("Tweet: " + tweet);

@@ -1,5 +1,4 @@
 import { NodeObject, LinkObject } from 'force-graph';
-import { MouseEvent } from 'react';
 
 export interface GraphProps {
     graphData: {

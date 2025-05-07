@@ -64,9 +64,6 @@ const BaseGraph = forwardRef(({
     const handleDoubleNodeClick = (node: Node) => {
         if (!fgInstance.current) return;
 
-        setUseForceLayout(false);
-        setCooldownTicks(0);
-
         const currentGraphData = fgInstance.current.graphData();
         const currentNodeIds = new Set(currentGraphData.nodes.map(n => n.id));
 
@@ -104,11 +101,6 @@ const BaseGraph = forwardRef(({
             });
             setDisplayedNodes([...currentGraphData.nodes, ...newNodes]);
             setDisplayedLinks([...currentGraphData.links, ...newLinks]);
-
-            setTimeout(() => {
-                setUseForceLayout(true);
-                setCooldownTicks(100);
-            }, 1000);
         }
     }
 
@@ -160,6 +152,7 @@ const BaseGraph = forwardRef(({
         }
     }, [nodeFoundId]);
 
+
     useEffect(() => {
         if (fgInstance.current) {
             fgInstance.current
@@ -171,9 +164,6 @@ const BaseGraph = forwardRef(({
                 .linkDirectionalArrowLength(linkDirectionalArrowLength)
                 .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
                 .onNodeClick(handleNodeClick)
-                // .cooldownTicks(cooldownTicks)
-                // .d3AlphaDecay(useForceLayout ? 0.1 : 0.5)
-                // .d3VelocityDecay(useForceLayout ? 0.7 : 1)
                 .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
@@ -213,7 +203,6 @@ const BaseGraph = forwardRef(({
 
             setSelectedNodeIds([]);
         }
-
     };
 
     const resetGraph = () => {
@@ -248,14 +237,14 @@ const BaseGraph = forwardRef(({
         e.preventDefault();
         e.stopPropagation();
         setIsSelecting(true);
-        setSelectionBox({startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY});
+        setSelectionBox({ startX: e.clientX, startY: e.clientY, endX: e.clientX, endY: e.clientY });
     };
 
     const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
         if (isSelecting) {
-            setSelectionBox(prev => prev ? {...prev, endX: e.clientX, endY: e.clientY} : null);
+            setSelectionBox(prev => prev ? { ...prev, endX: e.clientX, endY: e.clientY } : null);
         }
     };
 
