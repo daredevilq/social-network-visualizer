@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class Neo4jService {
-    private final static int MAX_CONNECTION_ATTEMPTS = 50;
+    private final static int MAX_CONNECTION_ATTEMPTS = 10;
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
     private final HashtagRepository hashtagRepository;
