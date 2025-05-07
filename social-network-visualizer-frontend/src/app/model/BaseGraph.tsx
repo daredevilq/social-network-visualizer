@@ -171,9 +171,9 @@ const BaseGraph = forwardRef(({
                 .linkDirectionalArrowLength(linkDirectionalArrowLength)
                 .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
                 .onNodeClick(handleNodeClick)
-                .cooldownTicks(cooldownTicks)
-                .d3AlphaDecay(useForceLayout ? 0.1 : 0.5)
-                .d3VelocityDecay(useForceLayout ? 0.7 : 1)
+                // .cooldownTicks(cooldownTicks)
+                // .d3AlphaDecay(useForceLayout ? 0.1 : 0.5)
+                // .d3VelocityDecay(useForceLayout ? 0.7 : 1)
                 .nodeCanvasObject((node: NodeObject & { x: number; y: number }, ctx: any, globalScale: any) => {
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
