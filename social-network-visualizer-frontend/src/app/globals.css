@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 html, body, div, span, h1, h2, h3, p, a, ul, li {
     box-sizing: border-box;
@@ -7,4 +11,26 @@ html, body, div, span, h1, h2, h3, p, a, ul, li {
 
 body {
     background: #1B1B25;
+}
+
+@layer utilities {
+    .scrollbar-dark {
+        scrollbar-width: thin;
+        scrollbar-color: #7140F4 transparent;
+    }
+
+    .scrollbar-dark::-webkit-scrollbar {
+        width: 8px;
+    }
+    .scrollbar-dark::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-dark::-webkit-scrollbar-thumb {
+        background-color: #7140F4;
+        opacity: .4;
+        border-radius: 20%;
+    }
+    .scrollbar-dark:hover::-webkit-scrollbar-thumb {
+        background-color: #7140F4;
+    }
 }

@@ -1,6 +1,9 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
+import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.GraphDataDto;
 import com.example.social_network_visualizer_backend.model.GraphDefinition;
 import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.repository.AlgorithmRepository;
@@ -8,7 +11,10 @@ import com.example.social_network_visualizer_backend.repository.AuthorRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,4 +66,3 @@ public class GraphService {
         return new GraphDataDto(authorList, edgeList);
     }
 }
-

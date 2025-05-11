@@ -1,18 +1,12 @@
-import {useEffect, useState} from "react";
-import {GraphData, Link, Node} from "@/app/interface/GraphData";
+import {useEffect} from "react";
+import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 import dynamic from 'next/dynamic';
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
-
-interface GraphProps {
-    shortestPath: string[];
-}
-
-export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
-    const [graphData, setGraphData] = useState<GraphData>({nodes: [], links: []});
-    const {selected, loading} = useProject();
+export default function AuthorMentionsGraph() {
+    const {selected, loading, graphData, setGraphData, nodeFoundId} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -44,7 +38,7 @@ export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
     if (!selected)
         return (
             <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
-                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
+                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>
                 <p className="text-lg font-medium text-[#fafafa]/80">
                     Select a project to get started
                 </p>
@@ -64,6 +58,7 @@ export default function AuthorMentionsGraph({shortestPath}: GraphProps) {
             linkWidth={(link: any) => (link.type === "mention" ? 1 : 2)}
             linkDirectionalArrowLength={6}
             linkDirectionalArrowRelPos={1}
+            nodeFoundId={nodeFoundId}
         />
     );
 }
