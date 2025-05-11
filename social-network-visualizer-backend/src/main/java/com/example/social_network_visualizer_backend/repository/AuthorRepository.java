@@ -128,9 +128,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             """)
     List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
 
-    @Query("MATCH (a:Author) WHERE a.community IS NOT NULL RETURN a")
-    List<Author> findAllWithCommunity();
-
     @Query("""
                 MATCH (a1:Author)-[r]->(a2:Author)
                 WHERE type(r) IN $relations

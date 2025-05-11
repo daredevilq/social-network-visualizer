@@ -1,10 +1,10 @@
 "use client";
 import dynamic from "next/dynamic";
 import { Chart as ChartJS, LineElement, PointElement,
-    LinearScale, CategoryScale } from "chart.js";
+    LinearScale, CategoryScale, Tooltip } from "chart.js";
 import { ActivityPoint } from "@/app/interface/ActivityPoint";
 
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale);
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 
 const Line = dynamic(
     () => import("react-chartjs-2").then(m => m.Line),
@@ -15,19 +15,19 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
     if (data.length < 2) return null;
 
     const chartData = {
-        labels:   data.map(d => d.day),
+        labels: data.map(d => d.day),
         datasets: [{
-            data:        data.map(d => d.posts),
+            data: data.map(d => d.posts),
             borderColor: "#7140F4",
             borderWidth: 2,
             pointRadius: 0,
-            tension:     .3,
+            tension: .3,
         }],
     };
 
     const chartOpts = {
         maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
+        interaction: { mode: "index" as const, intersect: false },
         plugins: {
             legend:  { display: false },
             tooltip: {
@@ -37,8 +37,8 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
                 padding: 8,
                 displayColors: false,
                 callbacks: {
-                    title: ctx => ctx[0].label,
-                    label: ctx => `Posts: ${ctx.parsed.y}`,
+                    title: (ctx: { label: any; }[]) => ctx[0].label,
+                    label: (ctx: { parsed: { y: any; }; }) => `Posts: ${ctx.parsed.y}`,
                 },
             },
         },

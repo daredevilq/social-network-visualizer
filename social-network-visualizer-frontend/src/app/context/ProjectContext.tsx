@@ -1,3 +1,4 @@
+'use client';
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 
 const BASE_URL = `http://localhost:8080`;

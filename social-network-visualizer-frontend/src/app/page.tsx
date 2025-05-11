@@ -21,18 +21,14 @@ export default function Home() {
     return (
         <div className="min-h-screen flex">
             {loading && <LoadingOverlay/>}
-
             <LeftBar setIsLeftSideBarOpen={setIsLeftSidebarOpen}
-                     setSelectedLeftSideBarContent={setSelectedLeftSideBarContent}
-            />
-
+                     setSelectedLeftSideBarContent={setSelectedLeftSideBarContent}/>
             <LeftSidebar
                 isOpen={isLeftSidebarOpen}
                 selectedGraph={selectedGraph}
                 setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
-
             <SearchAndToggleModeContainer value={searchQuery} onSearchChange={(value) => setSearchQuery(value)}/>
             {isGraphMode ?
                 <GraphContainer selectedGraph={selectedGraph}/> :
