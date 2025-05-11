@@ -1,6 +1,9 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.ActivityPoint;
+import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
+import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.RelationType;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -90,9 +93,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                    COUNT(CASE WHEN t.objectType = 'TWEET' THEN 1 END) AS tweetsCount,
                    COUNT(CASE WHEN t.objectType = 'RETWEET' THEN 1 END) AS retweetsCount,
                    COUNT(CASE WHEN t.objectType = 'REPLY' THEN 1 END) AS repliesCount,
-                   AVG(t.repliesCount) AS averageRepliesCount,
-                   AVG(t.retweetsCount) AS averageRetweetsCount,
-                   AVG(t.likesCount) AS averageLikesCount
+                   COALESCE(AVG(t.repliesCount), 0) AS averageRepliesCount,
+                   COALESCE(AVG(t.retweetsCount), 0) AS averageRetweetsCount,
+                   COALESCE(AVG(t.likesCount), 0) AS averageLikesCount
+                                                         
             """)
     Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
@@ -123,9 +127,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             RETURN author.userName AS userNames
             """)
     List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
-
-    @Query("MATCH (a:Author) WHERE a.community IS NOT NULL RETURN a")
-    List<Author> findAllWithCommunity();
 
     @Query("""
                 MATCH (a1:Author)-[r]->(a2:Author)
@@ -169,6 +170,13 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             @Param("communityId") int communityId);
 
     @Query("""
+                MATCH (a:Author)
+                WHERE a.userName = $userName
+                RETURN a
+            """)
+    Optional<Author> findAuthorByUserName(String userName);
+
+    @Query("""
         MATCH (a:Author)-[:USES_HASHTAG]->(h:Hashtag)
         WHERE a.community = $communityId
         WITH h.hashtag AS tag, count(*) AS cnt
@@ -186,7 +194,5 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
         RETURN day AS day, posts AS posts
     """)
     List<ActivityPoint> getCommunityDailyActivity(@Param("communityId") int communityId);
-
-
 }
 

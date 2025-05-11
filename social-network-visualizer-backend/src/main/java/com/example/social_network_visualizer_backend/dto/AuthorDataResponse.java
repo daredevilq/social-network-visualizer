@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Builder
 public record AuthorDataResponse (
         String userName,
-        LocalDate dateOfFirstTweet,
+        String dateOfFirstTweet,
         long retweetsCount,
         long repliesCount,
         long tweetsCount,

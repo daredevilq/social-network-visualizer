@@ -169,6 +169,17 @@ export default function RightSidebar() {
                         </div>
                     )}
                 </div>
+
+                <div className="mt-auto">
+                    <hr className="border-gray-500 mb-4"/>
+                    <a
+                        href={`/tweet-analysis/${selectedUserName}`}
+                        className="w-full inline-block text-center px-4 py-2 bg-[#7140F4] text-white rounded-md hover:bg-[#5c32c3] transition-colors"
+                    >
+                        View Tweet Analysis
+                    </a>
+                </div>
+
             </div>
         </div>
     )

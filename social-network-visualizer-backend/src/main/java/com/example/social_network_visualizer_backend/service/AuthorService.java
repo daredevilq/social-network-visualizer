@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,9 +48,13 @@ public class AuthorService {
         BigDecimal averageLikes = new BigDecimal(authorStatsDto.averageLikesCount())
                 .setScale(2, RoundingMode.HALF_UP);
 
+        String dateOfFirstTweet = authorStatsDto.dateOfFirstTweet() != null
+                ? authorStatsDto.dateOfFirstTweet().toLocalDate().toString()
+                : "No data";
+
         return AuthorDataResponse.builder()
                 .userName(authorName)
-                .dateOfFirstTweet(authorStatsDto.dateOfFirstTweet().toLocalDate())
+                .dateOfFirstTweet(dateOfFirstTweet)
                 .tweetsCount(authorStatsDto.tweetsCount())
                 .retweetsCount(authorStatsDto.retweetsCount())
                 .repliesCount(authorStatsDto.repliesCount())

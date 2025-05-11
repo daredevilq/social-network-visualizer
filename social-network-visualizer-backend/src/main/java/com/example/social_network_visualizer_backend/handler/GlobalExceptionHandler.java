@@ -15,7 +15,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import jakarta.persistence.EntityNotFoundException;
 
 
-
 import java.util.Map;
 
 @Slf4j
@@ -69,6 +68,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(e.getStatus())
                 .body(Map.of("error", e.getMessage()));
     }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFoundExceptions(EntityNotFoundException e) {
         log.error("Entity Not Found Error: {}", e.getMessage());
