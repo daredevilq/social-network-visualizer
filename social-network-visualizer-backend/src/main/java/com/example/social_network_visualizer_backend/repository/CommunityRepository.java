@@ -84,4 +84,14 @@ public interface CommunityRepository  extends Neo4jRepository<Author, String> {
     """)
     List<CommunitySummary> findPagedCommunitySummaries(@Param("page") int page, @Param("size") int size);
 
+    @Query("""
+        MATCH (a:Author)
+        WHERE a.community IS NOT NULL
+        WITH a.community AS communityId, COUNT(*) AS memberCount
+        ORDER BY memberCount DESC
+        LIMIT $limit
+        RETURN communityId
+    """)
+    List<Integer> findTopCommunityIds(@Param("limit") int limit);
+
 }

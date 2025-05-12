@@ -31,4 +31,11 @@ public class CommunityController {
         List<CommunitySummary> slice = communityService.listCommunities(page, size);
         return ResponseEntity.ok(slice);
     }
+
+    @GetMapping("/top-ids")
+    public ResponseEntity<List<Integer>> getTopCommunityIds(
+            @RequestParam(defaultValue = "10") int limit) {
+
+        return ResponseEntity.ok(communityService.getTopCommunityIds(limit));
+    }
 }

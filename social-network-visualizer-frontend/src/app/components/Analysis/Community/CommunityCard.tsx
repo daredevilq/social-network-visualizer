@@ -11,9 +11,7 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
     const [open, setOpen] = useState(false);
 
     return (
-        <article className="w-full bg-[#262626] rounded-2xl p-5 md:p-6
-                        flex flex-col gap-4 ring-1 ring-neutral-700/40
-                        shadow-md shadow-neutral-950/40">
+        <article className="border p-4 rounded-lg shadow border-gray-700">
             <div className="flex flex-wrap justify-between gap-4 text-sm">
                 <div>
                     <span className="text-lg font-semibold">Community #{communityId}</span><br/>
@@ -28,11 +26,18 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
             <PageRankBar value={topPageRank} />
             <button
                 onClick={() => setOpen(o => !o)}
-                className="self-start text-xs mt-1 text-[#A0A0FF]/80 hover:underline"
+                className="self-start text-xs mt-1 text-indigo-300 hover:text-indigo-200 transition"
             >
                 {open ? "Hide details ▲" : "Show details ▼"}
             </button>
-            {open && <ActivityChart data={communityActivity} />}
+            {open &&
+                <>
+                    <ActivityChart data={communityActivity} />
+                    <div className="flex center-2 mt-2 bottom-1 text-[10px] text-[#B7B7BA]
+                       pointer-events-none select-none tracking-wide">
+                        community activity in time
+                    </div>
+                </>}
         </article>
     );
 }
