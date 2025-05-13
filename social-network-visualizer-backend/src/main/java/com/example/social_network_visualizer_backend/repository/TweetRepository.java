@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.TweetDto;
 import com.example.social_network_visualizer_backend.dto.TweetWithStats;
+import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -100,14 +100,35 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
     @Query("""
                 MATCH (a:Author)-[:POSTED]->(tAll:Tweet)
                 WHERE a.userName = $authorName
-                WITH avg(tAll.likesCount) AS avgLikes, 
-                     avg(tAll.retweetsCount) AS avgRetweets, 
-                     avg(tAll.repliesCount) AS avgReplies
+                WITH avg(coalesce(tAll.likesCount, 0)) AS avgLikes,
+                     avg(coalesce(tAll.retweetsCount, 0)) AS avgRetweets,
+                     avg(coalesce(tAll.repliesCount, 0)) AS avgReplies
             
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
-                WHERE a.userName = $authorName
+                WHERE a.userName = $authorName AND ($search IS NULL OR $search = "" OR toLower(t.content) CONTAINS toLower($search))
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-                WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies
+                
+                WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies,
+                         CASE $sortField
+                             WHEN 'DATE' THEN t.publicationDate
+                             WHEN 'LIKES' THEN t.likesCount
+                             WHEN 'RETWEETS' THEN t.retweetsCount
+                             WHEN 'REPLIES' THEN t.repliesCount
+                             ELSE t.publicationDate
+                         END AS sortField
+            
+                WHERE size($hashtags) = 0 OR any(tag IN $hashtags WHERE tag IN hashtags)
+                
+                WITH t, hashtags, avgLikes, avgRetweets, avgReplies,
+                         (t.likesCount + t.retweetsCount + t.repliesCount) AS totalEngagement,
+                         (t.likesCount + t.retweetsCount + t.repliesCount) / (avgLikes + avgRetweets + avgReplies) * 100 AS engagement,
+                         sortField
+            
+                WITH t, hashtags, totalEngagement, engagement, sortField,
+                     CASE WHEN engagement > 150 THEN true ELSE false END AS isHighEngagement
+                
+                WHERE $highEngagement = false OR isHighEngagement = true
+                
                 RETURN
                     t.id AS id,
                     t.publicationDate AS publicationDate,
@@ -118,17 +139,26 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.twitterId AS twitterId,
                     t.url AS url,
                     t.conversationId AS conversationId,
+                    t.photos AS photos,
+                    t.videos AS videos,
                     t.repliesCount AS repliesCount,
                     t.retweetsCount AS retweetsCount,
                     t.likesCount AS likesCount,
                     hashtags,
-                    avgLikes,
-                    avgRetweets,
-                    avgReplies,
-                    (t.likesCount / avgLikes) * 100 AS likesRatio,
-                    (t.retweetsCount / avgRetweets) * 100 AS retweetsRatio,
-                    (t.repliesCount / avgReplies) * 100 AS repliesRatio
-                ORDER BY t.publicationDate DESC
+                    engagement,
+                    isHighEngagement
+                
+                ORDER BY
+                    CASE WHEN $sortDirection = 'ASC' THEN sortField END ASC,
+                    CASE WHEN $sortDirection = 'DESC' THEN sortField END DESC
             """)
-    List<TweetWithStats> findTweetsWithRelationships(@Param("authorName") String authorName);
+    List<TweetWithStats> findTweetsWithRelationships(
+            @Param("authorName") String authorName,
+            @Param("search") String search,
+            @Param("sortField") TweetSortOption sortField,
+            @Param("sortDirection") String sortDirection,
+            @Param("hashtags") List<String> hashtags,
+            @Param("highEngagement") Boolean highEngagement);
+
+
 }

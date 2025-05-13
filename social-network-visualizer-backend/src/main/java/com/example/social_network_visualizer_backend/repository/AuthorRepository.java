@@ -5,7 +5,7 @@ import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.model.Author;
-import com.example.social_network_visualizer_backend.model.RelationType;
+import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;

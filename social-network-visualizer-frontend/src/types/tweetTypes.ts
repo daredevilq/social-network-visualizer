@@ -8,13 +8,14 @@ export interface Tweet {
     twitterId: string;
     url: string;
     conversationId: string;
+    photos: string[];
+    videos: string[];
     repliesCount: number;
     retweetsCount: number;
     likesCount: number;
     hashtags: string[];
-    avgLikes: number;
-    avgRetweets: number;
-    avgReplies: number;
+    engagement: number;
+    isHighEngagement: boolean;
 }
 
 export interface TweetResponse {

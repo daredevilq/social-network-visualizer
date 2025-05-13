@@ -13,15 +13,13 @@ public record TweetWithStats(
         String twitterId,
         String url,
         String conversationId,
+        List<String> photos,
+        List<String> videos,
         Long repliesCount,
         Long retweetsCount,
         Long likesCount,
         List<String> hashtags,
-        Double avgLikes,
-        Double avgRetweets,
-        Double avgReplies,
-        Double likesRatio,
-        Double retweetsRatio,
-        Double repliesRatio
+        Double engagement,
+        Boolean isHighEngagement
 ) {}
 

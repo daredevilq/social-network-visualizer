@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
-import com.example.social_network_visualizer_backend.model.GraphDefinition;
+import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
