@@ -1,4 +1,4 @@
-package com.example.social_network_visualizer_backend.model;
+package com.example.social_network_visualizer_backend.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

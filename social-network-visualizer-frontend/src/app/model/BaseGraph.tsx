@@ -15,7 +15,7 @@ const BaseGraph = forwardRef(({
                                   linkDirectionalArrowRelPos,
                                   nodeFoundId
                               }: GraphProps, ref) => {
-    const NODE_DISPLAY_LIMIT: number = 100;
+    const NODE_DISPLAY_LIMIT: number = 250;
     const [cooldownTicks, setCooldownTicks] = useState(100);
     const [useForceLayout, setUseForceLayout] = useState(true);
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -169,7 +169,12 @@ const BaseGraph = forwardRef(({
                     ctx.font = `${fontSize}px Sans-Serif`;
 
                     ctx.beginPath();
-                    ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
+
+                    // temp solution to change node size, it depends on pagerank node value
+                    const r = (node as any).pagerank ? Math.pow((node as any).pagerank, 0.5) * 10 : 6;
+                    ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+
+                    // ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
                     ctx.fillStyle = nodeColor ? nodeColor(node) : 'gray';
                     ctx.fill();
 

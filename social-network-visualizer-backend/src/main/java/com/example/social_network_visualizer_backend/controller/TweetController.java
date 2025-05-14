@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,8 +20,16 @@ public class TweetController {
     public ResponseEntity<PaginatedTweetsDto> getTenTweetsByAuthor(
             @PathVariable String userName,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer limit) {
+            @RequestParam(defaultValue = "10") Integer limit,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(required = false) List<String> hashtags,
+            @RequestParam(defaultValue = "false") Boolean highEngagement) {
 
-        return ResponseEntity.ok(tweetService.getRecentTweets(userName, page, limit));
+        if (hashtags == null) {
+            hashtags = new ArrayList<>();
+        }
+        return ResponseEntity.ok(tweetService.getRecentTweets(userName, page, limit, search, sortBy, order, hashtags, highEngagement));
     }
 }

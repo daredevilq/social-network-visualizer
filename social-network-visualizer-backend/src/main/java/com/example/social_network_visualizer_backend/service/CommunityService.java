@@ -20,4 +20,8 @@ public class CommunityService {
         return communityRepository.findPagedCommunitySummaries(page, size);
     }
 
+    public List<Integer> getTopCommunityIds(int limit) {
+        return communityRepository.findTopCommunityIds(limit);
+    }
+
 }

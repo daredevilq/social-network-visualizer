@@ -17,29 +17,52 @@ export default function CommunityGraph() {
         shortestPath
     } = useProject();
 
+    const NUMBER_OF_COMMUNITIES = 15;
+
     useEffect(() => {
         if (!selected || loading) return;
-        fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
-            .then((res) => res.json())
-            .then((data) => {
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
-                    console.error("Invalid data format:", data);
-                    return;
-                }
-                const nodes: Node[] = data.nodes.map((node: any) => ({
-                    id: node.name,
-                    label: node.name,
-                    pagerank: node.pagerank ?? 0,
-                    degreeCentrality: node.centrality ?? 0,
-                    community: node.community?.toString() ?? ""
-                }));
-
-                const links: Link[] = data.edges.map((link) => ({...link}));
-
-                setGraphData({nodes, links});
+        const fetchTopIds = fetch(
+            `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
+        )
+            .then(res => {
+                if (!res.ok) throw new Error(`top‑ids${res.status}`);
+                return res.text();
             })
-            .catch((err) => console.error("Fetch error:", err));
+            .then(txt => {
+                const parsed = JSON.parse(txt);
+                return Array.isArray(parsed) ? parsed as number[] : [];
+            });
+
+        const fetchGraph = fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
+            .then(res => {
+                if (!res.ok) throw new Error(`graph ${res.status}`);
+                return res.json();
+            });
+
+        Promise.all([fetchTopIds, fetchGraph])
+            .then(([topIds, data]) => {
+                const idSet = new Set(topIds.map(id => id.toString()));
+
+                const nodes: Node[] = (data.nodes ?? [])
+                    .filter((raw: any) => idSet.has(raw.community?.toString()))
+                    .map((raw: any) => ({
+                        id:          raw.name,
+                        label:       raw.name,
+                        pagerank:    raw.pagerank ?? 0,
+                        degreeCentrality: raw.centrality ?? 0,
+                        community:   raw.community?.toString() ?? ""
+                    }));
+
+                const nodeIds = new Set(nodes.map(n => n.id));
+                const links: Link[] = (data.edges ?? []).filter(
+                    (l: any) => nodeIds.has(l.source) && nodeIds.has(l.target)
+                );
+
+                setGraphData({ nodes, links });
+            })
+            .catch(err => console.error("Fetch error:", err.message));
     }, [selected, loading]);
+
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;

@@ -1,23 +1,16 @@
 import { Heart, Repeat, MessageCircle, Globe, Info } from 'lucide-react';
 import { Tweet } from "@/types/tweetTypes";
 
-
 interface TweetCardProps {
     tweet: Tweet;
 }
 
 const TweetCard = ({ tweet }: TweetCardProps) => {
-    const totalAvg = tweet.avgLikes + tweet.avgRetweets + tweet.avgReplies;
-    const totalCurrent = tweet.likesCount + tweet.retweetsCount + tweet.repliesCount;
-    const interactionRatio = totalAvg > 0 ? (totalCurrent / totalAvg) * 100 : 0;
-    const highlight = interactionRatio > 150;
+        const highlight = tweet.isHighEngagement;
+        const interactionRatio = tweet.engagement;
 
     return (
-        <div
-            className={`border p-4 rounded-lg shadow ${
-                highlight ? 'border-yellow-400 bg-yellow-900/20' : 'border-gray-700'
-            }`}
-        >
+        <div className={`border p-4 rounded-lg shadow ${highlight ? 'border-yellow-400 bg-yellow-900/20' : 'border-gray-700'}`}>
             <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-400">
                     {new Date(tweet.publicationDate).toLocaleString()}
@@ -42,6 +35,34 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
 
             <h2 className="font-bold text-lg mb-2">{tweet.contentPreview}</h2>
             <p className="mb-2">{tweet.content}</p>
+
+            {tweet.photos && tweet.photos.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+                    {tweet.photos.map((photo, idx) => (
+                        <img
+                            key={idx}
+                            src={photo}
+                            alt={`Tweet photo ${idx + 1}`}
+                            className="rounded-lg object-cover w-full h-48"
+                        />
+                    ))}
+                </div>
+            )}
+
+            {tweet.videos && tweet.videos.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+                    {tweet.videos.map((video, idx) => (
+                        <video
+                            key={idx}
+                            controls
+                            className="rounded-lg w-full max-w-lg max-h-80   mx-auto"
+                        >
+                            <source src={video} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    ))}
+                </div>
+            )}
 
             <div className="flex space-x-4 text-sm text-gray-300 mb-2">
                 <div className="relative flex items-center group">
@@ -75,10 +96,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
             {tweet.hashtags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                     {tweet.hashtags.map((tag) => (
-                        <span
-                            key={tag}
-                            className="flex items-center px-2 py-1 bg-gray-700 rounded-full text-xs"
-                        >
+                        <span key={tag} className="flex items-center px-2 py-1 bg-gray-700 rounded-full text-xs">
                             #{tag}
                         </span>
                     ))}

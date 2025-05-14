@@ -1,15 +1,14 @@
 "use client";
 import dynamic from "next/dynamic";
-import { Chart as ChartJS, LineElement, PointElement,
-    LinearScale, CategoryScale, Tooltip } from "chart.js";
+import {
+    Chart as ChartJS, LineElement, PointElement,
+    LinearScale, CategoryScale, Tooltip
+} from "chart.js";
 import { ActivityPoint } from "@/app/interface/ActivityPoint";
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 
-const Line = dynamic(
-    () => import("react-chartjs-2").then(m => m.Line),
-    { ssr: false }
-);
+const Line = dynamic(() => import("react-chartjs-2").then(m => m.Line), { ssr: false });
 
 export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
     if (data.length < 2) return null;
@@ -37,8 +36,8 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
                 padding: 8,
                 displayColors: false,
                 callbacks: {
-                    title: (ctx: { label: any; }[]) => ctx[0].label,
-                    label: (ctx: { parsed: { y: any; }; }) => `Posts: ${ctx.parsed.y}`,
+                    title:  (ctx: any[]) => ctx[0].label,
+                    label:  (ctx: any)  => `Posts: ${ctx.parsed.y}`,
                 },
             },
         },
@@ -46,8 +45,8 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
     };
 
     return (
-        <div className="w-full h-24 pt-2">
-            <Line data={chartData} options={chartOpts}/>
+        <div className="relative w-full h-24 pt-2">
+            <Line data={chartData} options={chartOpts} />
         </div>
     );
 }
