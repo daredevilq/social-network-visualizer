@@ -2,7 +2,7 @@
 
 import {FormEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {useProject} from "@/app/context/ProjectContext";
-import TweetCard from './TweetCard';
+import TweetList from './TweetList';
 import TweetFilters from './TweetFilters';
 import {Tweet, TweetAnalysisContainerProps, TweetResponse} from "@/types/tweetTypes";
 import Link from 'next/link';
@@ -42,7 +42,7 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
     const handleScroll = () => {
         if (tweetsContainerRef.current) {
             const scrollTop = tweetsContainerRef.current.scrollTop;
-            if (scrollTop > 300) { // Show the button after scrolling 300px down
+            if (scrollTop > 300) {
                 setShowScrollTop(true);
             } else {
                 setShowScrollTop(false);
@@ -116,8 +116,8 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
     return (
         <div className="flex flex-col h-screen w-full overflow-hidden text-[#FAFAFA]">
             <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
-                <div className="w-full flex justify-between pr-4 mb-4">
-                    <Link href="/">
+                <div className="relative w-full mb-4 px-4">
+                    <Link href="/" className="absolute left-0 top-0">
                         <button className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5a33c1] rounded text-sm">
                             <ArrowLeft size={16} />
                             Back to Graph
@@ -126,7 +126,7 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
 
                     <h1 className="text-3xl font-bold text-center">Tweet Analysis for @{userName}</h1>
 
-                    <Link href={`/user-details/${userName}`}>
+                    <Link href={`/user-details/${userName}`} className="absolute right-0 top-0">
                         <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-sm">
                             <UserSearch size={16} />
                             Analyze User
@@ -148,24 +148,18 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
                     hashtags={hashtags}
                     removeHashtag={handleHashtagRemove}
                     setHighEngagement={setHighEngagement}
+                    highEngagement={highEngagement}
                 />
 
-                <div
-                    className="flex flex-col gap-4 pb-10 pr-5 overflow-y-auto scrollbar-dark flex-1"
-                    ref={tweetsContainerRef}
-                >
-                    {tweets.length === 0 ? (
-                        <p className="text-center">No tweets found.</p>
-                    ) : (
-                        tweets.map((tweet) => (
-                            <TweetCard key={tweet.id} tweet={tweet} />
-                        ))
-                    )}
+                <TweetList
+                    tweets={tweets}
+                    hasMore={hasMore}
+                    inViewRef={inViewRef}
+                    showScrollTop={showScrollTop}
+                    scrollToTop={scrollToTop}
+                    tweetsContainerRef={tweetsContainerRef}
+                />
 
-                    {hasMore && (
-                        <div ref={inViewRef} className="h-1 w-full" />
-                    )}
-                </div>
                 {showScrollTop && (
                     <button
                         className="absolute top-12 right-12 bg-[#7140F4] hover:bg-[#5a33c1] text-white p-3 rounded-full shadow-lg transition"

@@ -19,21 +19,21 @@ interface TweetFiltersProps {
 }
 
 const TweetFilters = ({
-                          search,
-                          setSearch,
-                          handleSearchSubmit,
-                          sortBy,
-                          setSortBy,
-                          order,
-                          setOrder,
-                          hashtagInput,
-                          setHashtagInput,
-                          handleHashtagAdd,
-                          hashtags,
-                          removeHashtag,
-                          highEngagement,
-                          setHighEngagement,
-                      }: TweetFiltersProps) => {
+  search,
+  setSearch,
+  handleSearchSubmit,
+  sortBy,
+  setSortBy,
+  order,
+  setOrder,
+  hashtagInput,
+  setHashtagInput,
+  handleHashtagAdd,
+  hashtags,
+  removeHashtag,
+  highEngagement,
+  setHighEngagement,
+}: TweetFiltersProps) => {
     return (
         <form
             onSubmit={handleSearchSubmit}
@@ -87,7 +87,7 @@ const TweetFilters = ({
                     </div>
                 </div>
 
-                <div className="relative flex items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-gray-600 text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition">
+                <div className="relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-gray-600 text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow">
                     <input
                         type="checkbox"
                         id="highEngagement"
@@ -96,7 +96,7 @@ const TweetFilters = ({
                         className="appearance-none h-4 w-4 border border-gray-500 rounded-sm checked:bg-[#7140F4] checked:border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4] transition"
                     />
                     <label htmlFor="highEngagement" className="cursor-pointer select-none">
-                        Only high engagement
+                        Show only high engagement
                     </label>
                 </div>
             </div>
