@@ -37,29 +37,31 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
             <p className="mb-2">{tweet.content}</p>
 
             {tweet.photos && tweet.photos.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+                <div className="flex flex-wrap gap-2 mb-3">
                     {tweet.photos.map((photo, idx) => (
-                        <img
-                            key={idx}
-                            src={photo}
-                            alt={`Tweet photo ${idx + 1}`}
-                            className="rounded-lg object-cover w-full h-48"
-                        />
+                        <div key={idx} className="rounded-lg overflow-hidden bg-gray-700 p-1">
+                            <img
+                                src={photo}
+                                alt={`Tweet photo ${idx + 1}`}
+                                className="max-w-full max-h-[60vh] object-contain rounded"
+                            />
+                        </div>
                     ))}
                 </div>
             )}
 
             {tweet.videos && tweet.videos.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-2">
+                <div className="flex flex-wrap gap-2 mb-3">
                     {tweet.videos.map((video, idx) => (
-                        <video
-                            key={idx}
-                            controls
-                            className="rounded-lg w-full max-w-lg max-h-80   mx-auto"
-                        >
-                            <source src={video} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
+                        <div key={idx} className="rounded-lg overflow-hidden bg-gray-700 p-1">
+                            <video
+                                src={video}
+                                controls
+                                className="max-w-full max-h-[60vh] object-contain rounded"
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
                     ))}
                 </div>
             )}

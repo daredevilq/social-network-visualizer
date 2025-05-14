@@ -16,8 +16,6 @@ const BaseGraph = forwardRef(({
                                   nodeFoundId
                               }: GraphProps, ref) => {
     const NODE_DISPLAY_LIMIT: number = 250;
-    const [cooldownTicks, setCooldownTicks] = useState(100);
-    const [useForceLayout, setUseForceLayout] = useState(true);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const fgInstance = useRef<ForceGraphInstance | null>(null);
     const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
@@ -65,7 +63,7 @@ const BaseGraph = forwardRef(({
         if (!fgInstance.current) return;
 
         const currentGraphData = fgInstance.current.graphData();
-        const currentNodeIds = new Set(currentGraphData.nodes.map(n => n.id));
+        const currentNodeIds = new Set(currentGraphData.nodes.map((n: NodeObject) => n.id));
 
         const neighborLinks = graphData.links.filter(link => {
             const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
@@ -84,7 +82,7 @@ const BaseGraph = forwardRef(({
             if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
                 newNodes.push(neighborNode);
                 newLinks.push(link);
-            } else if (!currentGraphData.links.some(l => {
+            } else if (!currentGraphData.links.some((l: LinkObject) => {
                 const existingSourceId = typeof l.source === 'object' ? l.source.id : l.source;
                 const existingTargetId = typeof l.target === 'object' ? l.target.id : l.target;
                 return (existingSourceId === sourceId && existingTargetId === targetId) ||
@@ -143,7 +141,7 @@ const BaseGraph = forwardRef(({
     useEffect(() => {
         if (fgInstance.current && nodeFoundId) {
             const graphCurrentData = fgInstance.current.graphData();
-            const node = graphCurrentData.nodes.find(n => n.id === nodeFoundId);
+            const node = graphCurrentData.nodes.find((n: NodeObject) => n.id === nodeFoundId);
 
             if (node) {
                 fgInstance.current.centerAt(node.x, node.y, 1000);
