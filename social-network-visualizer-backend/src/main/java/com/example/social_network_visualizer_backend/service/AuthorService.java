@@ -2,7 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +35,10 @@ public class AuthorService {
             System.out.println("Error: " + e.getMessage());
         }
         return List.of();
+    }
+
+    public List<String> findLast3TweetUrlsByAuthor(String authorName) {
+        return authorRepository.findLast3TweetUrlsByAuthorUsername(authorName);
     }
 
     public AuthorDataResponse findAuthorById(String authorName) {
@@ -77,5 +81,29 @@ public class AuthorService {
 
     public List<String> findShortestPathBetweenAuthors(String sourceName, String targetName) {
         return authorRepository.findShortestPathAuthors(sourceName, targetName);
+    }
+
+    public List<Map<String, Object>> findTopHashtagsByAuthor(String authorName) {
+        return authorRepository.findTopHashtagsByAuthor(authorName);
+    }
+
+    public List<String> findMentionsUsersByAuthor(String authorName) {
+        return authorRepository.findMentionsUsersByAuthor(authorName);
+    }
+
+    public List<String> findAuthorRetweets(String authorName) {
+        return authorRepository.findAuthorRetweets(authorName);
+    }
+
+    public List<String> findRetweetsByUser(String authorName) {
+        return authorRepository.findRetweetsByUser(authorName);
+    }
+
+    public List<String> findTweetsContentByUser(String authorName) {
+        return authorRepository.findTweetsContentByUser(authorName);
+    }
+
+    public List<ViralTweetDto> findTheMostViralTweet(String authorName) {
+        return authorRepository.findTheMostViralTweet(authorName);
     }
 }

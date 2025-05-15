@@ -18,7 +18,7 @@ export default function TweetAnalysisPage() {
     const normalizedUserName = Array.isArray(userName) ? userName[0] : userName;
 
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex bg-[#262631]">
             {loading && <LoadingOverlay/>}
 
             <LeftBar setIsLeftSideBarOpen={setIsLeftSidebarOpen}

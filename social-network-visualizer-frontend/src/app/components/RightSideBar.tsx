@@ -3,13 +3,12 @@ import {useEffect, useState} from 'react'
 import {useProject} from "@/app/context/ProjectContext"
 import {useRouter} from 'next/navigation'
 import {ExternalLink, X} from 'lucide-react'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/'
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 export default function RightSidebar() {
     const router = useRouter()
     const [userData, setUserData] = useState<UserData | null>(null)
-    const [topPosts, setTopPosts] = useState<string[]>([])
+    const [lastPosts, setTopPosts] = useState<string[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserName} = useProject()
@@ -21,12 +20,12 @@ export default function RightSidebar() {
             setError(null)
 
             try {
-                const userDataRes = await fetch(`${API_BASE_URL}author/${selectedUserName}`)
+                const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserName}`)
                 const data = await userDataRes.json()
                 setUserData(data)
 
-                const topPostsRes = await fetch(`${API_BASE_URL}author/last-posts/${selectedUserName}`)
-                const posts = await topPostsRes.json()
+                const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserName}`)
+                const posts = await lastPostsRes.json()
                 setTopPosts(posts)
             } catch (err) {
                 setError('Failed to load user data. Please try again later.')
@@ -61,8 +60,8 @@ export default function RightSidebar() {
                 isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
             } border-l border-[#383845] rounded-tl-xl rounded-bl-xl bg-gradient-to-b from-[#262631] to-[#1E1E29]`}
         >
-            <div className="p-6 h-full flex flex-col overflow-y-auto text-white space-y-6">
-                <div className="flex items-center justify-between border-b border-[#3D3D4E] pb-4">
+            <div className="p-5 h-full flex flex-col text-white">
+                <div className="flex items-center justify-between border-b border-[#3D3D4E] pb-3 mb-4">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7140F4] to-[#9C6FFF] flex items-center justify-center text-lg font-semibold">
                             {selectedUserName?.charAt(0).toUpperCase() || "U"}
@@ -88,7 +87,7 @@ export default function RightSidebar() {
                     </div>
                 )}
 
-                <div className="bg-[#32323F] rounded-xl p-5 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50">
+                <div className="bg-[#32323F] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">User Statistics</h3>
                         <button
@@ -132,17 +131,8 @@ export default function RightSidebar() {
                     )}
                 </div>
 
-                <div className="mt-auto">
-                    <a
-                        href={`/tweet-analysis/${selectedUserName}`}
-                        className="w-full inline-block text-center px-4 py-3 bg-gradient-to-r from-[#7140F4] to-[#9C6FFF] text-white rounded-md hover:from-[#5c32c3] hover:to-[#8555FF] transition-all duration-600 shadow-lg hover:shadow-xl"
-                    >
-                        View Tweet Analysis
-                    </a>
-                </div>
-
-                <div className="bg-[#32323F] rounded-xl p-5 shadow-md flex-grow backdrop-blur-sm border border-[#3D3D4E]/50">
-                    <h3 className="text-lg font-semibold mb-4">Last Posts</h3>
+                <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50">
+                <h3 className="text-lg font-semibold mb-4">Last 3 Posts</h3>
 
                     {loading ? (
                         <div className="space-y-4">
@@ -150,9 +140,9 @@ export default function RightSidebar() {
                                 <div key={i} className="h-24 bg-[#3D3D4E] rounded-lg animate-pulse"/>
                             ))}
                         </div>
-                    ) : topPosts && topPosts.length > 0 ? (
+                    ) : lastPosts && lastPosts.length > 0 ? (
                         <div className="space-y-3">
-                            {topPosts.map((url, index) => (
+                            {lastPosts.map((url, index) => (
                                 <div
                                     key={index}
                                     onClick={() => window.open(url, '_blank')}
@@ -175,15 +165,18 @@ export default function RightSidebar() {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-48 text-center bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
-                            <svg className="w-12 h-12 text-gray-500 mb-3" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-                                      d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                            </svg>
                             <p className="text-gray-400 italic mb-1">No posts available</p>
                             <p className="text-xs text-gray-500">This user has no prominent posts</p>
                         </div>
                     )}
+                    <div className="mt-3">
+                        <button
+                            onClick={() => router.push(`/tweet-analysis/${selectedUserName}`)}
+                            className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                        >
+                            Show more posts
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

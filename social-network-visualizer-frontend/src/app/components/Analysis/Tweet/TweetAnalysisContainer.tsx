@@ -7,17 +7,19 @@ import TweetFilters from './TweetFilters';
 import {Tweet, TweetAnalysisContainerProps, TweetResponse} from "@/types/tweetTypes";
 import Link from 'next/link';
 import {useInView} from 'react-intersection-observer';
-import {ArrowLeft, ArrowUp, UserSearch} from 'lucide-react';
+import {ArrowUp, UserSearch} from 'lucide-react';
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import {useRouter} from 'next/navigation'
 
-const BASE_URL = "http://localhost:8080";
 const PAGE_SIZE = 10;
 
-const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
-    const { loading, runWithLoading } = useProject();
+const TweetAnalysisContainer = ({userName}: TweetAnalysisContainerProps) => {
+    const router = useRouter();
+    const {loading, runWithLoading} = useProject();
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const { ref: inViewRef, inView } = useInView({ rootMargin: "200px" });
+    const {ref: inViewRef, inView} = useInView({rootMargin: "200px"});
 
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState('date');
@@ -74,8 +76,9 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
         await runWithLoading(async () => {
             const hashtagQuery = hashtags.map(tag => `hashtags=${encodeURIComponent(tag)}`).join('&');
             const response = await fetch(
-                `${BASE_URL}/tweet/all/${userName}?page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
-            );            if (!response.ok) throw new Error('Failed to fetch tweets');
+                `${API_BASE_URL}/tweet/all/${userName}?page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
+            );
+            if (!response.ok) throw new Error('Failed to fetch tweets');
             const data: TweetResponse = await response.json();
 
             setTweets(prev => {
@@ -115,20 +118,24 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
 
     return (
         <div className="flex flex-col h-screen w-full overflow-hidden text-[#FAFAFA]">
-            <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
-                <div className="w-full flex justify-between pr-4 mb-4">
-                    <Link href="/">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5a33c1] rounded text-sm">
-                            <ArrowLeft size={16} />
-                            Back to Graph
-                        </button>
-                    </Link>
+            <div className="flex flex-col h-full pt-4 md:pt-8 pb-4 md:pb-8 max-w-5xl mx-auto w-full px-4">
+                <div className="flex items-center justify-between mb-8">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Back to Graph
+                    </button>
 
-                    <h1 className="text-3xl font-bold text-center">Tweet Analysis for @{userName}</h1>
+                    <h1 className="text-xl md:text-3xl font-bold text-center">Tweet Analysis for {userName}</h1>
 
                     <Link href={`/user-details/${userName}`}>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-sm">
-                            <UserSearch size={16} />
+                        <button
+                            className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer">
+                            <UserSearch size={16}/>
                             Analyze User
                         </button>
                     </Link>
@@ -158,12 +165,12 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
                         <p className="text-center">No tweets found.</p>
                     ) : (
                         tweets.map((tweet) => (
-                            <TweetCard key={tweet.id} tweet={tweet} />
+                            <TweetCard key={tweet.id} tweet={tweet}/>
                         ))
                     )}
 
                     {hasMore && (
-                        <div ref={inViewRef} className="h-1 w-full" />
+                        <div ref={inViewRef} className="h-1 w-full"/>
                     )}
                 </div>
                 {showScrollTop && (
@@ -171,7 +178,7 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
                         className="absolute top-12 right-12 bg-[#7140F4] hover:bg-[#5a33c1] text-white p-3 rounded-full shadow-lg transition"
                         onClick={scrollToTop}
                     >
-                        <ArrowUp size={32} />
+                        <ArrowUp size={32}/>
                     </button>
                 )}
             </div>
