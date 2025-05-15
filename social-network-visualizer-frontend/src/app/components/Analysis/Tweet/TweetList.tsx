@@ -15,7 +15,7 @@ interface TweetListProps {
 const TweetList: FC<TweetListProps> = ({ tweets, hasMore, inViewRef, showScrollTop, scrollToTop, tweetsContainerRef }) => {
     return (
         <div
-            className="flex flex-col gap-4 pb-10 pr-5 overflow-y-auto scrollbar-dark flex-1"
+            className="flex flex-col gap-4 pb-10 overflow-y-auto scrollbar-dark flex-1 px-1"
             ref={tweetsContainerRef}
         >
             {tweets.length === 0 ? (
