@@ -19,25 +19,25 @@ interface TweetFiltersProps {
 }
 
 const TweetFilters = ({
-                          search,
-                          setSearch,
-                          handleSearchSubmit,
-                          sortBy,
-                          setSortBy,
-                          order,
-                          setOrder,
-                          hashtagInput,
-                          setHashtagInput,
-                          handleHashtagAdd,
-                          hashtags,
-                          removeHashtag,
-                          highEngagement,
-                          setHighEngagement,
-                      }: TweetFiltersProps) => {
+  search,
+  setSearch,
+  handleSearchSubmit,
+  sortBy,
+  setSortBy,
+  order,
+  setOrder,
+  hashtagInput,
+  setHashtagInput,
+  handleHashtagAdd,
+  hashtags,
+  removeHashtag,
+  highEngagement,
+  setHighEngagement,
+}: TweetFiltersProps) => {
     return (
         <form
             onSubmit={handleSearchSubmit}
-            className="flex flex-col gap-4 mb-6"
+            className="flex flex-col gap-4 mb-6 px-1 pt-1"
         >
             <div className="flex flex-wrap gap-4 items-center">
                 <div className="relative w-full sm:w-1/2 md:w-1/3">
@@ -45,8 +45,10 @@ const TweetFilters = ({
                         type="text"
                         placeholder="Search tweets..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="px-4 py-2 pr-12 rounded bg-gray-800 text-white w-full"
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                        }}
+                        className="px-4 py-2 pr-12 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
                     />
                     <button
                         type="submit"
@@ -61,7 +63,7 @@ const TweetFilters = ({
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-gray-600 appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
                     >
                         <option value="date">Date</option>
                         <option value="likes">Likes</option>
@@ -77,7 +79,7 @@ const TweetFilters = ({
                     <select
                         value={order}
                         onChange={(e) => setOrder(e.target.value as 'asc' | 'desc')}
-                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-gray-600 appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
                     >
                         <option value="asc">Asc</option>
                         <option value="desc">Desc</option>
@@ -87,16 +89,16 @@ const TweetFilters = ({
                     </div>
                 </div>
 
-                <div className="relative flex items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-gray-600 text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition">
+                <div className="relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-[#7140F4] text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow">
                     <input
                         type="checkbox"
                         id="highEngagement"
                         checked={highEngagement}
                         onChange={(e) => setHighEngagement(e.target.checked)}
-                        className="appearance-none h-4 w-4 border border-gray-500 rounded-sm checked:bg-[#7140F4] checked:border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4] transition"
+                        className="appearance-none h-4 w-4 border border-[#7140F4] rounded-sm checked:bg-[#7140F4] checked:border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4] transition"
                     />
                     <label htmlFor="highEngagement" className="cursor-pointer select-none">
-                        Only high engagement
+                        Show only high engagement
                     </label>
                 </div>
             </div>
@@ -109,7 +111,7 @@ const TweetFilters = ({
                             placeholder="#hashtag"
                             value={hashtagInput}
                             onChange={(e) => setHashtagInput(e.target.value)}
-                            className="px-3 py-2 rounded bg-gray-800 text-white w-full"
+                            className="px-3 py-2 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
                         />
                         <button
                             type="button"
@@ -127,7 +129,7 @@ const TweetFilters = ({
                         {hashtags.map(tag => (
                             <div
                                 key={tag}
-                                className="flex items-center bg-[#333] text-white px-3 py-1 rounded"
+                                className="flex items-center bg-[#333] text-white px-3 py-1 rounded border border-[#7140F4]"
                             >
                                 #{tag}
                                 <button

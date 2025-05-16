@@ -7,7 +7,7 @@ import {useProject} from '@/app/context/ProjectContext';
 import LeftBar from "@/app/components/LeftBar";
 import LeftSideBar from "@/app/components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import TweetAnalysisContainer from "@/app/components/Analysis/Tweet/TweetAnalysisContainer";
+import UserTweetAnalysis from "@/app/components/Analysis/Tweet/UserTweetAnalysis";
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
@@ -34,10 +34,10 @@ export default function TweetAnalysisPage() {
 
             <div
                 className="flex-1 min-w-0 overflow-auto transition-all duration-300"
-                style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '4rem' }}
+                style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '2rem' }}
             >
                 <div className="max-w-full">
-                    <TweetAnalysisContainer userName={normalizedUserName} />
+                    <UserTweetAnalysis userName={normalizedUserName} />
                 </div>
             </div>
         </div>

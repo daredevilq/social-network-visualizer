@@ -5,16 +5,16 @@ import {useProject} from "@/app/context/ProjectContext";
 import {Node} from "@/app/interface/GraphData";
 
 const BaseGraph = forwardRef(({
-                                  graphData,
-                                  nodeVal,
-                                  nodeLabel,
-                                  nodeColor,
-                                  linkColor,
-                                  linkWidth,
-                                  linkDirectionalArrowLength,
-                                  linkDirectionalArrowRelPos,
-                                  nodeFoundId
-                              }: GraphProps, ref) => {
+  graphData,
+  nodeVal,
+  nodeLabel,
+  nodeColor,
+  linkColor,
+  linkWidth,
+  linkDirectionalArrowLength,
+  linkDirectionalArrowRelPos,
+  nodeFoundId
+}: GraphProps, ref) => {
     const NODE_DISPLAY_LIMIT: number = 250;
     const containerRef = useRef<HTMLDivElement | null>(null);
     const fgInstance = useRef<ForceGraphInstance | null>(null);
@@ -61,6 +61,7 @@ const BaseGraph = forwardRef(({
 
     const handleDoubleNodeClick = (node: Node) => {
         if (!fgInstance.current) return;
+        setIsSidebarOpen(false);
 
         const currentGraphData = fgInstance.current.graphData();
         const currentNodeIds = new Set(currentGraphData.nodes.map((n: NodeObject) => n.id));
@@ -189,6 +190,8 @@ const BaseGraph = forwardRef(({
     const getTargetId = (l: LinkObject): string => typeof l.target === 'object' ? l.target.id as string : l.target as string;
 
     const analyzeWorkspace = () => {
+        setIsSidebarOpen(false);
+
         if (selectedNodeIds.length !== 0) {
             if (fgInstance.current) {
                 const currZoom = fgInstance.current.zoom();
@@ -209,6 +212,7 @@ const BaseGraph = forwardRef(({
     };
 
     const resetGraph = () => {
+        setIsSidebarOpen(false);
         setWorkspaceNodes([]);
         setSelectedNodeIds([]);
         loadGraphData();
@@ -237,6 +241,7 @@ const BaseGraph = forwardRef(({
     };
 
     const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+        setIsSidebarOpen(false);
         e.preventDefault();
         e.stopPropagation();
         setIsSelecting(true);
