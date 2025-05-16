@@ -5,6 +5,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Map;
+
 public interface GraphRepository extends Neo4jRepository<Author, String> {
 
     @Query("""
@@ -17,32 +19,25 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
       CALL gds.graph.project(
         $graphName,
         'Author',
-        {
-          MENTIONS: { type: 'MENTIONS', orientation: 'NATURAL' }
-        }
+        $relations
       )
       YIELD graphName
       RETURN graphName
     """)
-    void createGraphMentions(@Param("graphName") String graphName);
-
-    @Query("""
-      CALL gds.graph.project(
-        $graphName,
-        'Author',
-        {
-          RETWEET: { type: 'RETWEETS', orientation: 'NATURAL' },
-          MENTIONS: { type: 'MENTIONS', orientation: 'NATURAL' }
-        }
-      )
-      YIELD graphName
-      RETURN graphName
-    """)
-    void createGraphRetweetsMentions(@Param("graphName") String graphName);
+    void createGraph(@Param("graphName") String graphName, @Param("relations") Map<String, Map<String, String>> relations);
 
     @Query("""
         CALL gds.graph.drop($graphName, false) YIELD graphName
         RETURN graphName
     """)
     void dropGdsGraph(@Param("graphName") String graphName);
+
+
+    @Query("""
+        CALL gds.graph.exists($graphName)
+        YIELD exists
+        RETURN exists
+    """)
+    Boolean checkIfGraphExists(@Param("graphName") String graphName);
+
 }

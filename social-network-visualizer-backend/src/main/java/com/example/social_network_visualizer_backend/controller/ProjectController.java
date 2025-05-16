@@ -24,14 +24,16 @@ public class ProjectController {
         return ResponseEntity.ok(projectSummaries);
     }
 
-    @GetMapping("/import/{projectName}")
-    public ResponseEntity<Map<String, String>> importProjectWithName(@PathVariable String projectName) {
-        projectService.loadProject(projectName);
+    @PostMapping("/{projectName}/import")
+    public ResponseEntity<Map<String, String>> importProjectWithGraph(
+            @PathVariable String projectName,
+            @RequestParam String graphType) {
+        projectService.loadProject(projectName, graphType);
         return ResponseEntity.ok(Map.of("message", "Project " + projectName + " imported successfully."));
     }
 
     @PostMapping("/{projectName}")
-    public ResponseEntity<Map<String, String>> createNewProject(@PathVariable String projectName, @RequestParam("files") MultipartFile[] files) {
+    public ResponseEntity<Map<String, String>> createNewProject(@PathVariable String projectName, @RequestParam(name = "files", required = true) MultipartFile[] files) {
         projectService.createProject(projectName, files);
         return ResponseEntity.ok(Map.of("message", "Project " + projectName + " created successfully."));
     }

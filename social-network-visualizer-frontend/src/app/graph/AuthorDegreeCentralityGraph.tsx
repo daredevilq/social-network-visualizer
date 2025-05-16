@@ -7,11 +7,11 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
-    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId} = useProject();
+    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId, graphType} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-        fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
+        fetch(`http://localhost:8080/graph/${graphType}`)
             .then((res) => res.json())
             .then((data) => {
                 console.log("PageRankGraph Fetched data:", data);

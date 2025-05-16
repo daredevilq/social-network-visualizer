@@ -1,11 +1,16 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,10 +59,10 @@ public class Neo4jService {
         throw new Neo4jUnavailableException("Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
     }
 
-    public void computeMetricsAndRelations(){
+    public void computeMetricsAndRelations(String graphType){
         createRelationsInGraph();
         createAllGraphs();
-        performAlgorithms(GraphDefinition.AUTHOR_MENTIONS.getGraphName());
+        performAlgorithms(GraphDefinition.fromUrlName(graphType).getGraphName());
     }
 
     private void createRelationsInGraph() {
@@ -77,17 +82,28 @@ public class Neo4jService {
 
     private void createAllGraphs() {
         for (GraphDefinition def : GraphDefinition.values()) {
-            switch (def.getType()) {
-                case MENTIONS -> graphRepository.createGraphMentions(def.getGraphName());
-                case RETWEETS_AND_MENTIONS -> graphRepository.createGraphRetweetsMentions(def.getGraphName());
-            }
+            Map<String, Map<String, String>> relationMap = toGdsRelationMap(def.getRelationTypes());
+            graphRepository.createGraph(def.getGraphName(), relationMap);
         }
     }
 
-    private void performAlgorithms(String graphName) {
-        algorithmRepository.computePageRank(graphName);
-        algorithmRepository.createCommunities(graphName);
-        algorithmRepository.computeAuthorDegree(graphName);
+    private Map<String, Map<String, String>> toGdsRelationMap(Set<RelationType> relationTypes) {
+        return relationTypes.stream().collect(Collectors.toMap(
+                RelationType::name,
+                rt -> Map.of(
+                        "type", rt.name(),
+                        "orientation", "NATURAL"
+                )
+        ));
+    }
+
+
+    public void performAlgorithms(String graphName) {
+        if (graphRepository.checkIfGraphExists(graphName)) {
+            algorithmRepository.computePageRank(graphName);
+            algorithmRepository.createCommunities(graphName);
+            algorithmRepository.computeAuthorDegree(graphName);
+        }
     }
 
     public void createConstraints() {

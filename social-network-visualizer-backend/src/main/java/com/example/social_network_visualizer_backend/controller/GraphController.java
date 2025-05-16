@@ -2,16 +2,15 @@ package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.BridgeDto;
 import com.example.social_network_visualizer_backend.dto.GraphDataDto;
+import com.example.social_network_visualizer_backend.dto.GraphTypeDto;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -23,9 +22,15 @@ public class GraphController {
     private final GraphService graphService;
 
     @GetMapping("/types")
-    public ResponseEntity<List<String>> getAllGraphTypes() {
-        List<String> types = graphService.getAllGraphTypes();
+    public ResponseEntity<List<GraphTypeDto>> getAllGraphTypes() {
+        List<GraphTypeDto> types = graphService.getAllGraphTypes();
         return ResponseEntity.ok(types);
+    }
+
+    @PostMapping("/{graphType}")
+    public ResponseEntity<Map<String, String>> setGraphType(@PathVariable String graphType) {
+        graphService.setGraphType(graphType);
+        return ResponseEntity.ok(Map.of("message", "Graph type changed successfuly"));
     }
 
     @GetMapping("/{graphType}")
