@@ -28,3 +28,12 @@ export interface TweetResponse {
 export interface TweetAnalysisContainerProps {
     userName: string | undefined;
 }
+
+export interface ViralTweet {
+    tweetUrl: string;
+    preview: string;
+    likes: number;
+    retweets: number;
+    replies: number;
+    engagementScore: number;
+}

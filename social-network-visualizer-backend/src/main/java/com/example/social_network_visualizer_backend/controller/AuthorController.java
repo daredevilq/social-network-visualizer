@@ -1,6 +1,8 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.service.AuthorService;
 import lombok.RequiredArgsConstructor;
@@ -40,19 +42,37 @@ public class AuthorController {
     }
 
     @GetMapping("/last-posts/{authorName}")
-    public List<String> getLastPosts(@PathVariable String authorName) {
-//        TODO Something wrong happens with data conversion ???
-        List<Tweet> last10Tweets = authorService.findLast10TweetsByAuthor(authorName);
-//        List<String> urls = last10Tweets.stream().map(Tweet::getUrl).toList();
-//        System.out.println("Urls: " + urls);
-//        return urls;
-        return List.of(
-                "https://x.com/elonmusk/status/1896011433592393791",
-                "https://x.com/i/grok/share/jnf4ETmvGA6e6yGq9fUyM3Ykl",
-                "https://x.com/elonmusk/status/1868822817611170207",
-                "https://x.com/elonmusk/status/1904274990150603135",
-                "https://x.com/elonmusk/status/1782202200703250805",
-                "https://x.com/elonmusk/status/1255380013488189440"
-        );
+    public List<String> getLast3TweetUrls(@PathVariable String authorName) {
+        return authorService.findLast3TweetUrlsByAuthor(authorName);
+    }
+
+    @GetMapping("/hashtags/{authorName}")
+    public List<HashtagFrequency> getTopHashtags(@PathVariable String authorName) {
+        return authorService.findTopHashtagsByAuthor(authorName);
+    }
+
+    @GetMapping("/mentions/{authorName}")
+    public List<String> getMentionedUsers(@PathVariable String authorName) {
+        return authorService.findMentionsUsersByAuthor(authorName);
+    }
+
+    @GetMapping("/tweets-content/{authorName}")
+    public List<String> getTweetsContent(@PathVariable String authorName) {
+        return authorService.findTweetsContentByUser(authorName);
+    }
+
+    @GetMapping("/retweets-by/{authorName}")
+    public List<String> getAuthorRetweets(@PathVariable String authorName) {
+        return authorService.findAuthorRetweets(authorName);
+    }
+
+    @GetMapping("/retweets-of/{authorName}")
+    public List<String> getRetweetsByUsers(@PathVariable String authorName) {
+        return authorService.findRetweetsByUser(authorName);
+    }
+
+    @GetMapping("/viral-tweets/{authorName}")
+    public List<ViralTweetDto> getViralTweets(@PathVariable String authorName) {
+        return authorService.findTheMostViralTweet(authorName);
     }
 }

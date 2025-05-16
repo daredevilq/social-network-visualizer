@@ -7,7 +7,6 @@ import {useProject} from '@/app/context/ProjectContext';
 import LeftBar from "@/app/components/LeftBar";
 import LeftSideBar from "@/app/components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import TweetAnalysisContainer from "@/app/components/Analysis/Tweet/TweetAnalysisContainer";
 import UserTweetAnalysis from "@/app/components/Analysis/Tweet/UserTweetAnalysis";
 
 export default function TweetAnalysisPage() {
@@ -19,7 +18,7 @@ export default function TweetAnalysisPage() {
     const normalizedUserName = Array.isArray(userName) ? userName[0] : userName;
 
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex bg-[#262631]">
             {loading && <LoadingOverlay/>}
 
             <LeftBar setIsLeftSideBarOpen={setIsLeftSidebarOpen}

@@ -2,13 +2,13 @@
 import {useEffect, useState} from 'react'
 import {useProject} from "@/app/context/ProjectContext"
 import {useRouter} from 'next/navigation'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/'
+import {ExternalLink, X} from 'lucide-react'
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 export default function RightSidebar() {
     const router = useRouter()
     const [userData, setUserData] = useState<UserData | null>(null)
-    const [topPosts, setTopPosts] = useState<string[]>([])
+    const [lastPosts, setTopPosts] = useState<string[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserName} = useProject()
@@ -20,12 +20,12 @@ export default function RightSidebar() {
             setError(null)
 
             try {
-                const userDataRes = await fetch(`${API_BASE_URL}author/${selectedUserName}`)
+                const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserName}`)
                 const data = await userDataRes.json()
                 setUserData(data)
 
-                const topPostsRes = await fetch(`${API_BASE_URL}author/last-posts/${selectedUserName}`)
-                const posts = await topPostsRes.json()
+                const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserName}`)
+                const posts = await lastPostsRes.json()
                 setTopPosts(posts)
             } catch (err) {
                 setError('Failed to load user data. Please try again later.')
@@ -54,47 +54,50 @@ export default function RightSidebar() {
         return `${start}...${end}`
     }
 
-
     return (
         <div
-            className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-40 transform transition-transform duration-300 ease-in-out rounded-l-xl ${
+            className={`fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-40 transform transition-transform duration-300 ease-in-out ${
                 isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
-            } border-l-[1px] border-[#FAFAFA] rounded-tr-2xl rounded-br-2xl bg-[#262631]`}
+            } border-l border-[#383845] rounded-tl-xl rounded-bl-xl bg-gradient-to-b from-[#262631] to-[#1E1E29]`}
         >
-            <div className="p-6 h-full flex flex-col overflow-y-auto text-white space-y-6">
-                <div className="flex items-center justify-between border-b border-gray-600 pb-4">
-                    <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold">{selectedUserName}</h1>
-                        <button
-                            onClick={showDetails}
-                            className="px-3 py-1 text-white rounded-md shadow-md hover:bg-[#5c32c3] transition-colors text-sm flex items-center justify-center h-8 self-center"
-                            aria-label="Show details"
-                        >
-                            <span className="whitespace-nowrap">Show details</span>
-                        </button>
+            <div className="p-5 h-full flex flex-col text-white">
+                <div className="flex items-center justify-between border-b border-[#3D3D4E] pb-3 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7140F4] to-[#9C6FFF] flex items-center justify-center text-lg font-semibold">
+                            {selectedUserName?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-bold">{selectedUserName}</h1>
+                            <p className="text-xs text-gray-400">Twitter User</p>
+                        </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 bg-[#7140F4] text-white rounded-full shadow-md hover:bg-[#5c32c3] transition-colors"
+                        className="p-2 bg-[#32323F] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
                         aria-label="Close sidebar"
                     >
-                        <span className="sr-only">Close</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                  d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
+                        <X size={18} />
                     </button>
                 </div>
 
                 {error && (
-                    <div className="p-4 bg-[#3A1717] border border-[#e05252] text-white rounded-lg">
+                    <div className="p-4 bg-[#3A1717] border border-[#e05252] text-white rounded-lg animate-pulse">
                         <p className="font-medium text-[#FF9494] mb-1">Error</p>
                         <p className="text-sm">{error}</p>
                     </div>
                 )}
 
-                <div className="bg-[#32323F] rounded-xl p-5 shadow-md">
-                    <h3 className="text-lg font-semibold mb-4">User Statistics</h3>
+                <div className="bg-[#32323F] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">User Statistics</h3>
+                        <button
+                            onClick={showDetails}
+                            className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer
+"
+                        >
+                            Show details
+                        </button>
+                    </div>
 
                     {loading ? (
                         <div className="grid grid-cols-2 gap-3">
@@ -104,30 +107,32 @@ export default function RightSidebar() {
                         </div>
                     ) : userData ? (
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-[#3D3D4E] p-3 rounded-lg">
+                            <div className="bg-gradient-to-r from-[#3D3D4E] to-[#454557] p-3 rounded-lg hover:shadow-lg transition-all duration-200 border border-[#3D3D4E]/70">
                                 <p className="text-xs text-gray-400 mb-1">Tweets</p>
                                 <p className="text-xl font-bold">{userData.tweetsCount}</p>
                             </div>
-                            <div className="bg-[#3D3D4E] p-3 rounded-lg">
+                            <div className="bg-gradient-to-r from-[#3D3D4E] to-[#454557] p-3 rounded-lg hover:shadow-lg transition-all duration-200 border border-[#3D3D4E]/70">
                                 <p className="text-xs text-gray-400 mb-1">Retweets</p>
                                 <p className="text-xl font-bold">{userData.retweetsCount}</p>
                             </div>
-                            <div className="bg-[#3D3D4E] p-3 rounded-lg">
+                            <div className="bg-gradient-to-r from-[#3D3D4E] to-[#454557] p-3 rounded-lg hover:shadow-lg transition-all duration-200 border border-[#3D3D4E]/70">
                                 <p className="text-xs text-gray-400 mb-1">Replies</p>
                                 <p className="text-xl font-bold">{userData.repliesCount}</p>
                             </div>
-                            <div className="bg-[#3D3D4E] p-3 rounded-lg">
+                            <div className="bg-gradient-to-r from-[#3D3D4E] to-[#454557] p-3 rounded-lg hover:shadow-lg transition-all duration-200 border border-[#3D3D4E]/70">
                                 <p className="text-xs text-gray-400 mb-1">Avg. Likes</p>
                                 <p className="text-xl font-bold">{userData.averageLikesCount}</p>
                             </div>
                         </div>
                     ) : (
-                        <p className="text-gray-400 italic text-center py-4">No user data available</p>
+                        <div className="flex flex-col items-center justify-center h-24 bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
+                            <p className="text-gray-400 italic text-center">No user data available</p>
+                        </div>
                     )}
                 </div>
 
-                <div className="bg-[#32323F] rounded-xl p-5 shadow-md flex-grow">
-                    <h3 className="text-lg font-semibold mb-4">Top Posts</h3>
+                <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50">
+                <h3 className="text-lg font-semibold mb-4">Last 3 Posts</h3>
 
                     {loading ? (
                         <div className="space-y-4">
@@ -135,51 +140,44 @@ export default function RightSidebar() {
                                 <div key={i} className="h-24 bg-[#3D3D4E] rounded-lg animate-pulse"/>
                             ))}
                         </div>
-                    ) : topPosts && topPosts.length > 0 ? (
-                        <div className="space-y-4">
-                            {topPosts.map((url, index) => (
+                    ) : lastPosts && lastPosts.length > 0 ? (
+                        <div className="space-y-3">
+                            {lastPosts.map((url, index) => (
                                 <div
                                     key={index}
                                     onClick={() => window.open(url, '_blank')}
-                                    className="block bg-[#3D3D4E] hover:bg-[#4D4D5E] p-4 rounded-lg transition-all duration-200 border border-transparent hover:border-[#7140F4] cursor-pointer"
+                                    className="block bg-gradient-to-r from-[#3D3D4E] to-[#454557] hover:from-[#454557] hover:to-[#505063] p-4 rounded-lg transition-all duration-200 border border-[#3D3D4E]/70 hover:border-[#7140F4]/70 cursor-pointer hover:shadow-lg"
                                 >
-                                    <p className="text-sm truncate" title={url}>
-                                        {url}
+                                    <p className="text-sm truncate mb-3" title={url}>
+                                        {truncateUrl(url)}
                                     </p>
-                                    <div className="mt-2 text-[#7140F4] text-xs flex items-center">
-                                        <span>View on Twitter</span>
-                                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor"
-                                             viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                        </svg>
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-[#9C6FFF] text-xs flex items-center">
+                                            <span>View on Twitter</span>
+                                            <ExternalLink className="w-3 h-3 ml-1" />
+                                        </div>
+                                        <span className="text-xs text-gray-400">
+                                            {`Post ${index + 1}`}
+                                        </span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-48 text-center">
-                            <svg className="w-12 h-12 text-gray-500 mb-3" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
-                                      d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                            </svg>
+                        <div className="flex flex-col items-center justify-center h-48 text-center bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
                             <p className="text-gray-400 italic mb-1">No posts available</p>
                             <p className="text-xs text-gray-500">This user has no prominent posts</p>
                         </div>
                     )}
+                    <div className="mt-3">
+                        <button
+                            onClick={() => router.push(`/tweet-analysis/${selectedUserName}`)}
+                            className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                        >
+                            Show more posts
+                        </button>
+                    </div>
                 </div>
-
-                <div className="mt-auto">
-                    <hr className="border-gray-500 mb-4"/>
-                    <a
-                        href={`/tweet-analysis/${selectedUserName}`}
-                        className="w-full inline-block text-center px-4 py-2 bg-[#7140F4] text-white rounded-md hover:bg-[#5c32c3] transition-colors"
-                    >
-                        View Tweet Analysis
-                    </a>
-                </div>
-
             </div>
         </div>
     )

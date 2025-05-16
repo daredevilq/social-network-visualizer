@@ -4,8 +4,10 @@ import com.example.social_network_visualizer_backend.dto.ActivityPoint;
 import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.enums.RelationType;
+import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -63,6 +65,17 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.userName = $authorName
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
                 OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
+                ORDER BY t.publicationDate DESC
+                RETURN t.url AS url
+                LIMIT 3
+            """)
+    List<String> findLast3TweetUrlsByAuthorUsername(@Param("authorName") String authorName);
+
+    @Query("""
+                MATCH (a:Author)-[:POSTED]->(t:Tweet)
+                WHERE a.userName = $authorName
+                OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+                OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
                 RETURN t.id AS id,
                        t.objectCreatedAt AS objectCreatedAt,
                        t.publicationDate AS publicationDate,
@@ -96,7 +109,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                    COALESCE(AVG(t.repliesCount), 0) AS averageRepliesCount,
                    COALESCE(AVG(t.retweetsCount), 0) AS averageRetweetsCount,
                    COALESCE(AVG(t.likesCount), 0) AS averageLikesCount
-                                                         
+            
             """)
     Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
@@ -107,12 +120,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY activityDate DESC
             """)
     List<ZonedDateTime> getUserActivity(@Param("authorName") String authorName);
-
-    @Query("""
-                MATCH (a1:Author)-[r:RETWEETS]->(a2:Author)
-                RETURN a1.userName AS source, a2.userName AS target
-            """)
-    List<AuthorLinkDto> findUserRetweets();
 
     @Query("""
                    MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
@@ -174,25 +181,63 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.userName = $userName
                 RETURN a
             """)
-    Optional<Author> findAuthorByUserName(String userName);
+    Optional<Author> findAuthorByUserName(@Param("userName") String userName);
 
     @Query("""
-        MATCH (a:Author)-[:USES_HASHTAG]->(h:Hashtag)
-        WHERE a.community = $communityId
-        WITH h.hashtag AS tag, count(*) AS cnt
-        ORDER BY cnt DESC
-        LIMIT 3
-        RETURN tag AS value
-    """)
-    List<String> findTopHashtagsByCommunity(@Param("communityId") int communityId);
+            MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
+                    WHERE a.userName=$authorName
+                    RETURN h.hashtag as name, count(*) AS frequency
+                    ORDER BY frequency DESC
+                    LIMIT 10
+            """)
+    List<HashtagFrequency> findTopHashtagsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
-        MATCH (a:Author)-[:POSTED]->(t:Tweet)
-        WHERE a.community = $communityId
-        WITH date(t.publicationDate) AS day, count(t) AS posts
-        ORDER BY day
-        RETURN day AS day, posts AS posts
-    """)
-    List<ActivityPoint> getCommunityDailyActivity(@Param("communityId") int communityId);
+            MATCH (a:Author)-[:MENTIONS]->(u:Author)
+            WHERE a.userName=$authorName
+            RETURN u.userName
+            """)
+    List<String> findMentionsUsersByAuthor(@Param("authorName") String authorName);
+
+    @Query("""
+                MATCH (a:Author)-[:POSTED]->(t:Tweet)
+                WHERE a.userName=$authorName AND size(t.content) > 1
+                RETURN t.content
+            """)
+    List<String> findTweetsContentByUser(@Param("authorName") String authorName);
+
+    @Query("""
+                MATCH (a:Author)-[r:RETWEETS]->(u:Author)
+                WHERE a.userName=$authorName
+                RETURN u.userName
+            """)
+    List<String> findAuthorRetweets(@Param("authorName") String authorName);
+
+    @Query("""
+                MATCH (u:Author)-[r:RETWEETS]->(a:Author)
+                WHERE a.userName=$authorName
+                RETURN u.userName
+            """)
+    List<String> findRetweetsByUser(@Param("authorName") String authorName);
+
+    @Query("""
+            MATCH (a:Author)-[:POSTED]->(t:Tweet)
+            WHERE a.userName=$authorName
+            WITH t,
+                 t.likesCount AS likes,
+                 t.retweetsCount AS retweets,
+                 t.repliesCount AS replies,
+                 (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
+            RETURN
+                t.contentPreview AS preview,
+                t.url AS tweetUrl,
+                likes,
+                retweets,
+                replies,
+                engagementScore
+            ORDER BY engagementScore DESC
+            LIMIT 5
+            """)
+    List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
 }
 

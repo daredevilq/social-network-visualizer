@@ -32,7 +32,7 @@ const SearchAndToggleModeContainer = ({searchValue, onSearchChange, searchPlaceh
     }
 
     return (
-        <div className="fixed top-4 left-1/4 right-0 w-full max-w-2xl px-4 z-30">
+        <div className="fixed top-5 left-1/20 w-full h-80% max-w-3xl px-4 z-30">
             <div className="rounded-lg shadow-lg p-3 flex items-center justify-between space-x-3 h-10">
 
                 <div className="w-32 flex flex-col items-center justify-center">
@@ -62,14 +62,14 @@ const SearchAndToggleModeContainer = ({searchValue, onSearchChange, searchPlaceh
                 </div>
 
                 <div className="relative flex-grow">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-black-400" />
+                    <Search className="absolute left-3 top-2 h-4 w-4 text-black-400" />
                     <input
                         type="text"
                         value={localSearchValue}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder={searchPlaceholder}
-                        className="w-full pl-10 pr-4 py-2 text-gray-800 dark:text-black-200 placeholder-white-500 dark:placeholder-black-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-[#FAFAFA]"
+                        className="w-full h-8 pl-10 pr-4 py-1 text-gray-800 dark:text-black-200 placeholder-white-500 dark:placeholder-black-400 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-[#FAFAFA]"
                     />
                 </div>
             </div>

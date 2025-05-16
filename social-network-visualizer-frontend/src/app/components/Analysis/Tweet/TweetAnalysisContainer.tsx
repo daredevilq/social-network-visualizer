@@ -19,7 +19,7 @@ const TweetAnalysisContainer = ({apiUrl}: TweetAnalysisContainerProps) => {
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const { ref: inViewRef, inView } = useInView({ rootMargin: "200px" });
+    const {ref: inViewRef, inView} = useInView({rootMargin: "200px"});
 
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState('date');
@@ -159,7 +159,6 @@ const TweetAnalysisContainer = ({apiUrl}: TweetAnalysisContainerProps) => {
                     <ArrowUp size={32} />
                 </button>
             )}
-
         </div>
     );
 };

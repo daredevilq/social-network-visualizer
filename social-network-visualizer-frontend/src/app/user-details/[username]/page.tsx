@@ -1,6 +1,6 @@
 'use client'
 
-import UserDetailsContainer from '@/app/components/UserDetailsContainer'
+import UserDetailsContainer from '@/app/components/UserAnalysis/UserDetailsContainer'
 import { useParams } from 'next/navigation'
 
 export default function UserDetailsPage() {
