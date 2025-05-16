@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.service.AuthorService;
@@ -46,7 +47,7 @@ public class AuthorController {
     }
 
     @GetMapping("/hashtags/{authorName}")
-    public List<Map<String, Object>> getTopHashtags(@PathVariable String authorName) {
+    public List<HashtagFrequency> getTopHashtags(@PathVariable String authorName) {
         return authorService.findTopHashtagsByAuthor(authorName);
     }
 
@@ -72,8 +73,6 @@ public class AuthorController {
 
     @GetMapping("/viral-tweets/{authorName}")
     public List<ViralTweetDto> getViralTweets(@PathVariable String authorName) {
-        List<ViralTweetDto> viralTweetDtos = authorService.findTheMostViralTweet(authorName);
-        System.out.println("Viral tweets: " + viralTweetDtos);
-        return viralTweetDtos;
+        return authorService.findTheMostViralTweet(authorName);
     }
 }

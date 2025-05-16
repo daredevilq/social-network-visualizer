@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.dto.ActivityPoint;
 import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
 import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -185,11 +186,11 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     @Query("""
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
-                    RETURN h.hashtag, count(*) AS count
-                    ORDER BY count DESC
+                    RETURN h.hashtag as name, count(*) AS frequency
+                    ORDER BY frequency DESC
                     LIMIT 10
             """)
-    List<Map<String, Object>> findTopHashtagsByAuthor(@Param("authorName") String authorName);
+    List<HashtagFrequency> findTopHashtagsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
             MATCH (a:Author)-[:MENTIONS]->(u:Author)

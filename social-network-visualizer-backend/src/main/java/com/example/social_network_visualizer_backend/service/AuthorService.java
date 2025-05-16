@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -83,7 +84,8 @@ public class AuthorService {
         return authorRepository.findShortestPathAuthors(sourceName, targetName);
     }
 
-    public List<Map<String, Object>> findTopHashtagsByAuthor(String authorName) {
+    public List<HashtagFrequency> findTopHashtagsByAuthor(String authorName) {
+        System.out.println(authorRepository.findTopHashtagsByAuthor(authorName));
         return authorRepository.findTopHashtagsByAuthor(authorName);
     }
 

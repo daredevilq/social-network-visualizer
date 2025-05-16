@@ -12,6 +12,7 @@ import {ActivityTimelineContainer} from "@/app/components/UserAnalysis/ActivityT
 import { TopHashtagsContainer } from "@/app/components/UserAnalysis/TopHashtagsContainer";
 import { RetweetsByContainer } from "@/app/components/UserAnalysis/RetweetsByContainer";
 import { RetweetsOfContainer } from "@/app/components/UserAnalysis/RetweetsOfContainer";
+import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
 
 ChartJS.register(
     CategoryScale,
@@ -26,6 +27,11 @@ interface UserActivity {
     [month: string]: number;
 }
 
+interface HashtagActivity {
+    name: string;
+    frequency: number;
+}
+
 const CHART_BACKGROUND_COLOR = 'rgba(92, 55, 230, 0.8)';
 const CHART_BORDER_COLOR = 'rgba(92, 55, 230, 1)';
 
@@ -35,7 +41,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [userActivity, setUserActivity] = useState<UserActivity | null>(null)
     const [userMentions, setUserMentions] = useState<string[]>([])
     const [viralTweets, setViralTweets] = useState<ViralTweet[]>([])
-    const [topHashtags, setTopHashtags] = useState<string[]>([]);
+    const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
     const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null)
@@ -134,7 +140,6 @@ export default function UserDetailsContainer({username}: { username: string }) {
                 const viralTweetsRes = await fetch(`${API_BASE_URL}/author/viral-tweets/${username}`)
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
-                console.log(viralTweetsData);
             } catch (err) {
                 setError('Failed to load user data. Please try again later.');
                 console.error('Error fetching user data:', err);
@@ -202,6 +207,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                         <UsersMentionedContainer userMentions={userMentions} />
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
                         <RetweetsOfContainer retweetingUsers={retweetingUsers} />
+                        <HashtagActivityContainer topHashtags={topHashtags}/>
                         <ViralTweetsContainer username={username} viralTweets={viralTweets}/>
                     </div>
                 )}
