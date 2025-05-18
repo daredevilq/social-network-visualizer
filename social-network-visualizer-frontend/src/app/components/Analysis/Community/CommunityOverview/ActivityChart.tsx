@@ -5,6 +5,7 @@ import {
     LinearScale, CategoryScale, Tooltip
 } from "chart.js";
 import { ActivityPoint } from "@/app/interface/ActivityPoint";
+import React from "react";
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 
@@ -47,6 +48,9 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
     return (
         <div className="relative w-full h-24 pt-2">
             <Line data={chartData} options={chartOpts} />
+            <p className="mt-2 text-[10px] text-center text-gray-400 tracking-wide select-none">
+                community&nbsp;activity&nbsp;in&nbsp;time
+            </p>
         </div>
     );
 }

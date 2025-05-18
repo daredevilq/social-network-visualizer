@@ -204,7 +204,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                         <UserProfileContainer userData={userData} animatedStats={animatedStats}/>
                         <ActivityTimelineContainer userActivity={userActivity} chartData={chartData}/>
                         <TopHashtagsContainer topHashtags={topHashtags} />
-                        <UsersMentionedContainer userMentions={userMentions} />
+                        <UsersMentionedContainer userMentions={userMentions} message={"Users Mentioned by this User"}/>
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
                         <RetweetsOfContainer retweetingUsers={retweetingUsers} />
                         <HashtagActivityContainer topHashtags={topHashtags}/>

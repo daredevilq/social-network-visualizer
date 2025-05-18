@@ -1,15 +1,15 @@
 package com.example.social_network_visualizer_backend.controller;
 
-import com.example.social_network_visualizer_backend.dto.CommunitySummary;
+import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
+import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
+import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/community")
@@ -38,4 +38,24 @@ public class CommunityController {
 
         return ResponseEntity.ok(communityService.getTopCommunityIds(limit));
     }
+
+    @GetMapping("/overview")
+    public ResponseEntity<CommunityOverview> getCommunityOverview(){
+        return ResponseEntity.ok(communityService.getCommunityOverview());
+    }
+
+    @GetMapping("/summary/{communityId}")
+    public ResponseEntity<CommunitySummary> getCommunitySummaryById(
+            @PathVariable("communityId") int communityId) {
+        CommunitySummary summary = communityService.getCommunitySummary(communityId);
+        return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/{communityId}/authors")
+    public ResponseEntity<List<Author>> getAuthorsWithGivenCommunityId(
+            @PathVariable("communityId") int communityId) {
+        List<Author> authors = communityService.getAuthorsWithCommunityId(communityId);
+        return ResponseEntity.ok(authors);
+    }
+
 }

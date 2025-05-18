@@ -1,7 +1,8 @@
 'use client';
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 
-const BASE_URL = `http://localhost:8080`;
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
+
 
 interface Context {
     selected: string | null;
@@ -81,7 +82,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${BASE_URL}/project/import/${name}`);
+            await fetch(`${API_BASE_URL}/project/import/${name}`);
             setSelected(name);
             window.location.href = "/";
         });
@@ -89,7 +90,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const refresh = async () =>
         runWithLoading(async () => {
             if (!selected) return;
-            await fetch(`${BASE_URL}/project/import/${selected}`);
+            await fetch(`${API_BASE_URL}/project/import/${selected}`);
         });
 
     return (
