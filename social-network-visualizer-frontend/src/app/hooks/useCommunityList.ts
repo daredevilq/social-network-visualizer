@@ -9,11 +9,11 @@ const PAGE_SIZE = 10;
 export function useCommunityList() {
     const { runWithLoading } = useProject();
 
-    const [list,     setList    ] = useState<CommunitySummary[]>([]);
-    const [page,     setPage    ] = useState(0);
-    const [hasMore,  setHasMore ] = useState(true);
-    const [loading,  setLoading ] = useState(false);
-    const [error,    setError   ] = useState<string | null>(null);
+    const [list, setList] = useState<CommunitySummary[]>([]);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchPage = useCallback(async (p: number) => {
         if (loading || !hasMore) return;

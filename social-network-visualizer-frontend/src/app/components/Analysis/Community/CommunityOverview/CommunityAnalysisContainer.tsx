@@ -4,11 +4,11 @@ import React from "react";
 import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
 import { useCommunityOverview } from "@/app/hooks/useCommunityOverview";
-import { useCommunityList }     from "@/app/hooks/useCommunityList";
-import LoadingOverlay           from "@/app/components/Loading/LoadingOverlay";
-import OverviewSection          from "@/app/components/Analysis/Community/CommunityOverview/OverviewSection";
-import HistogramChartCard       from "@/app/components/Analysis/Community/CommunityOverview/HistogramChartCard";
-import CommunityCard            from "@/app/components/Analysis/Community/CommunityOverview/CommunityCard";
+import { useCommunityList } from "@/app/hooks/useCommunityList";
+import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
+import OverviewSection from "@/app/components/Analysis/Community/CommunityOverview/OverviewSection";
+import HistogramChartCard from "@/app/components/Analysis/Community/CommunityOverview/HistogramChartCard";
+import CommunityCard from "@/app/components/Analysis/Community/CommunityOverview/CommunityCard";
 
 export default function CommunityAnalysisContainer() {
     const { data: overview, loading: loadOv, error: errOv } = useCommunityOverview();
