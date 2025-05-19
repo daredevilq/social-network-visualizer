@@ -1,5 +1,5 @@
 'use client'
-import {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {useRouter} from 'next/navigation'
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js'
 import {useProject} from "@/app/context/ProjectContext"
@@ -13,6 +13,8 @@ import { TopHashtagsContainer } from "@/app/components/UserAnalysis/TopHashtagsC
 import { RetweetsByContainer } from "@/app/components/UserAnalysis/RetweetsByContainer";
 import { RetweetsOfContainer } from "@/app/components/UserAnalysis/RetweetsOfContainer";
 import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
+import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
+import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
 
 ChartJS.register(
     CategoryScale,
@@ -42,6 +44,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [userMentions, setUserMentions] = useState<string[]>([])
     const [viralTweets, setViralTweets] = useState<ViralTweet[]>([])
     const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
+    const [userHeatMap, setUserHeatMap] = useState<ActivityHeatmap[]>([])
     const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null)
@@ -140,6 +143,10 @@ export default function UserDetailsContainer({username}: { username: string }) {
                 const viralTweetsRes = await fetch(`${API_BASE_URL}/author/viral-tweets/${username}`)
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
+
+                const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`)
+                const userHeatMapData: ActivityHeatmap[] = await userHeatMapRes.json() as ActivityHeatmap[]
+                setUserHeatMap(userHeatMapData)
             } catch (err) {
                 setError('Failed to load user data. Please try again later.');
                 console.error('Error fetching user data:', err);
@@ -203,6 +210,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <UserProfileContainer userData={userData} animatedStats={animatedStats}/>
                         <ActivityTimelineContainer userActivity={userActivity} chartData={chartData}/>
+                        <HeatMapChartCard heat={userHeatMap}/>
                         <TopHashtagsContainer topHashtags={topHashtags} />
                         <UsersMentionedContainer userMentions={userMentions} message={"Users Mentioned by this User"}/>
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
