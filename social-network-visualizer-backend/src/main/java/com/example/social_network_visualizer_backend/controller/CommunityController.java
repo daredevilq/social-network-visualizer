@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.controller;
 
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -56,6 +57,13 @@ public class CommunityController {
             @PathVariable("communityId") int communityId) {
         List<Author> authors = communityService.getAuthorsWithCommunityId(communityId);
         return ResponseEntity.ok(authors);
+    }
+
+    @GetMapping("/{communityId}/heatmap")
+    public ResponseEntity<List<ActivityHeatmap>> getCommunityActivityHeatMap(
+            @PathVariable("communityId") int communityId) {
+        List<ActivityHeatmap> results = communityService.getCommunityActivityHeatmap(communityId);
+        return ResponseEntity.ok(results);
     }
 
 }

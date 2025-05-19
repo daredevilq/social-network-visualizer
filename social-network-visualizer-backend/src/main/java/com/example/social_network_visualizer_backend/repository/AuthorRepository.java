@@ -6,6 +6,7 @@ import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -239,5 +240,17 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             LIMIT 5
             """)
     List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
+
+    @Query("""
+        UNWIND range(0,23) AS h
+        UNWIND range(1,7) AS d
+        OPTIONAL MATCH (a:Author {userName:$username})-[:POSTED]->(t:Tweet)
+           WHERE t.publicationDate.hour = h
+           AND t.publicationDate.dayOfWeek = d
+        WITH  h, d, count(t)   AS posts
+        RETURN h AS hour, d AS dayOfWeek, posts
+        ORDER  BY d, h;
+    """)
+    List<ActivityHeatmap> getUserActivityHeatMap(@Param("username") String username);
 }
 

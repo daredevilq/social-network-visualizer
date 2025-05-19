@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -215,5 +216,17 @@ public interface CommunityRepository  extends Neo4jRepository<Author, String> {
       RETURN a
     """)
     List<Author> findAuthorsByCommunityId(@Param("communityId") int communityId);
+
+    @Query("""
+        UNWIND range(0,23) AS h
+        UNWIND range(1,7) AS d
+        OPTIONAL MATCH (a:Author {community:$communityId})-[:POSTED]->(t:Tweet)
+           WHERE t.publicationDate.hour = h
+           AND t.publicationDate.dayOfWeek = d
+        WITH  h, d, count(t)   AS posts
+        RETURN h AS hour, d AS dayOfWeek, posts
+        ORDER  BY d, h;
+    """)
+    List<ActivityHeatmap> getCommunityActivityHeatMap(@Param("communityId") int communityId);
 
 }

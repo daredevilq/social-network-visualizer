@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.dto.community.SizeCount;
@@ -37,6 +38,10 @@ public class CommunityService {
 
     public List<Author> getAuthorsWithCommunityId(int communityId){
         return communityRepository.findAuthorsByCommunityId(communityId);
+    }
+
+    public List<ActivityHeatmap> getCommunityActivityHeatmap(int communityId){
+        return communityRepository.getCommunityActivityHeatMap(communityId);
     }
 
 

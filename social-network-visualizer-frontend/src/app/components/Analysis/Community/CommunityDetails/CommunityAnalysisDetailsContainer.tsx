@@ -8,6 +8,9 @@ import LoadingOverlay from '@/app/components/Loading/LoadingOverlay';
 import ActivityChart from '@/app/components/Analysis/Community/CommunityOverview/ActivityChart';
 import { TopHashtagsContainer } from '@/app/components/UserAnalysis/TopHashtagsContainer';
 import {UsersMentionedContainer} from "@/app/components/UserAnalysis/UsersMentionedContainer";
+import {useActivityHeatmap} from "@/app/hooks/useActivityHeatmap";
+import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
+import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
 
 export default function CommunityAnalysisDetailsContainer(
     { communityId }: { communityId: string }
@@ -15,10 +18,12 @@ export default function CommunityAnalysisDetailsContainer(
     const id = Number(communityId);
     const { data: summary, loading: loadingSummary, error: errorSummary } = useCommunitySummary(id);
     const { data: authors, loading: loadingAuthors, error: errorAuthors } = useCommunityAuthors(id);
+    const {data: communityHeatMap, loading: loadingHeatMap, error: errorHeatMap} = useActivityHeatmap({communityId: id});
+
     const router = useRouter();
 
-    const loading = loadingSummary || loadingAuthors;
-    const error = errorSummary ?? errorAuthors;
+    const loading = loadingSummary || loadingAuthors || loadingHeatMap;
+    const error = errorSummary ?? errorAuthors ?? errorHeatMap;
 
     if (loading) return <LoadingOverlay />;
     if (error)  return <p className="text-red-400">Error: {error}</p>;
@@ -48,16 +53,12 @@ export default function CommunityAnalysisDetailsContainer(
                 </header>
 
                 <div className="grid grid-cols-1 gap-8">
-                    <div className="bg-[#32323F] rounded-xl p-6 shadow-lg w-full">
-                        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2">
-                            Community activity chart
-                        </h2>
-                        <ActivityChart data={summary.communityActivity}/>
-                    </div>
+                    <ActivityChartCard activity={summary.communityActivity} />
                     <UsersMentionedContainer
                         userMentions={[summary.topAuthor]}
                         message={`User ${summary.topAuthor} has highest pagerank: ${summary.topPageRank.toFixed(2)}`}
                     />
+                    <HeatMapChartCard heat={communityHeatMap ?? []}/>
                     <TopHashtagsContainer topHashtags={hashtagActivities} />
 
                     <UsersMentionedContainer

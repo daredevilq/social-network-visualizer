@@ -53,6 +53,7 @@ export default function HistogramChart({ data }: { data: SizeCount[] }) {
                             beginAtZero: false,
                             grid: {
                                 drawTicks: true,
+                                // @ts-expect-error
                                 drawBorder: false,
                                 color: (ctx) =>
                                     ctx.tick.value % 1 === 0
