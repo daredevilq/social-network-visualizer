@@ -30,6 +30,7 @@ export interface TweetAnalysisContainerProps {
 }
 
 export interface ViralTweet {
+    userName: string;
     tweetUrl: string;
     preview: string;
     likes: number;

@@ -1,11 +1,7 @@
 import {ViralTweet} from "@/types/tweetTypes"
 
-interface ViralTweetsContainerProps {
-    username: string,
-    viralTweets: ViralTweet[]
-}
 
-export function ViralTweetsContainer({username, viralTweets}: ViralTweetsContainerProps) {
+export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[] }) {
 
     return (
         <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
@@ -23,12 +19,12 @@ export function ViralTweetsContainer({username, viralTweets}: ViralTweetsContain
                             <div className="p-5">
                                 <div className="flex items-center mb-3">
                                     <div
-                                        className="w-10 h-10 rounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-sm">
-                                        {username.substring(0, 1).toUpperCase()}
+                                        className="w-10 h-10 rgounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-sm">
+                                        {tweet.userName.substring(0, 1).toUpperCase()}
                                     </div>
                                     <div className="ml-3">
-                                        <div className="font-semibold text-white">{username}</div>
-                                        <div className="text-xs text-gray-400">@{username.toLowerCase()}</div>
+                                        <div className="font-semibold text-white">{tweet.userName}</div>
+                                        <div className="text-xs text-gray-400">@{tweet.userName.toLowerCase()}</div>
                                     </div>
                                 </div>
 
