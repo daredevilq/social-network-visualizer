@@ -2,11 +2,12 @@
 
 import '@/app/globals.css';
 import {useState} from 'react';
+import { useParams } from 'next/navigation';
 import {useProject} from '@/app/context/ProjectContext';
 import LeftBar from "@/app/components/LeftBar";
 import LeftSideBar from "@/app/components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import Dashboard from "@/app/components/dashboard/Dashboard";
+import TweetAnalysisList from "@/app/components/Analysis/Tweet/TweetAnalysisList";
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
@@ -34,7 +35,7 @@ export default function TweetAnalysisPage() {
                 style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '2rem' }}
             >
                 <div className="max-w-full">
-                    <Dashboard />
+                    <TweetAnalysisList userName={undefined} />
                 </div>
             </div>
         </div>

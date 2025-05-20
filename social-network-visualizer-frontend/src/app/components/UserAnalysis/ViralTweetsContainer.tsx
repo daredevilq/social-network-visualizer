@@ -1,5 +1,5 @@
+import Link from 'next/link';
 import {ViralTweet} from "@/types/tweetTypes"
-
 
 export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[] }) {
 
@@ -9,23 +9,24 @@ export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[
 
             {viralTweets && viralTweets.length > 0 ? (
                 <div className="space-y-4">
-
                     {viralTweets.map((tweet) => (
                         <div
                             key={tweet.tweetUrl}
                             className="bg-[#3D3D4E] rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:translate-y-[-2px] cursor-pointer group"
-                            onClick={() => window.open(tweet.tweetUrl, '_blank', 'noopener,noreferrer')}
                         >
-                            <div className="p-5">
+                            <div className="p-5" onClick={() => window.open(tweet.tweetUrl, '_blank', 'noopener,noreferrer')}>
                                 <div className="flex items-center mb-3">
-                                    <div
-                                        className="w-10 h-10 rgounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-sm">
-                                        {tweet.userName.substring(0, 1).toUpperCase()}
-                                    </div>
-                                    <div className="ml-3">
-                                        <div className="font-semibold text-white">{tweet.userName}</div>
-                                        <div className="text-xs text-gray-400">@{tweet.userName.toLowerCase()}</div>
-                                    </div>
+                                    <Link href={`/user-details/${tweet.userName}`} className="flex items-center group/avatar-nick" onClick={(e) => e.stopPropagation()}>
+                                        <div
+                                            className="w-10 h-10 rounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-sm"
+                                        >
+                                            {tweet.userName.substring(0, 1).toUpperCase()}
+                                        </div>
+                                        <div className="ml-3 text-left">
+                                            <div className="font-semibold text-white hover:underline">{tweet.userName}</div>
+                                            <div className="text-xs text-gray-400">@{tweet.userName.toLowerCase()}</div>
+                                        </div>
+                                    </Link>
                                 </div>
 
                                 <p className="text-sm leading-relaxed text-gray-100 mb-3">{tweet.preview}</p>

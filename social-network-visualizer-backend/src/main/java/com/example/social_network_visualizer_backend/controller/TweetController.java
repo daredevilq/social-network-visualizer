@@ -16,9 +16,9 @@ import java.util.List;
 public class TweetController {
     private final TweetService tweetService;
 
-    @GetMapping("/all/{userName}")
+    @GetMapping("/list/all")
     public ResponseEntity<PaginatedTweetsDto> getTenTweetsByAuthor(
-            @PathVariable String userName,
+            @RequestParam(required = false) String userName,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(defaultValue = "") String search,

@@ -6,8 +6,8 @@ import {TopHashtagsContainer} from "@/app/components/UserAnalysis/TopHashtagsCon
 import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
 import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsContainer";
 import {ProjectStatsContainer} from "@/app/components/dashboard/ProjectStatsContainer";
-import ActivityChart from "@/app/components/Analysis/Community/ActivityChart";
 import {ActivityPoint} from "@/app/interface/ActivityPoint";
+import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
 
 interface ProjectData {
     tweetsCount: number;
@@ -76,7 +76,7 @@ const Dashboard = () => {
                     </button>
 
                     <button
-                        onClick={() => console.log()}
+                        onClick={() => router.push('/tweet-analysis')}
                         className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -89,20 +89,18 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                {loading ? (
-                    <div className="space-y-6">
-                        <div className="h-64 bg-gray-700 rounded-md animate-pulse"></div>
-                        <div className="h-96 bg-gray-700 rounded-md animate-pulse"></div>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <ProjectStatsContainer projectData={projectData} />
-                        <ActivityChart data={projectActivity} />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <ProjectStatsContainer projectData={projectData} />
+                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-8">
                         <TopHashtagsContainer topHashtags={topHashtags} />
-                        <HashtagActivityContainer topHashtags={topHashtags}/>
-                        <ViralTweetsContainer viralTweets={viralTweets}/>
                     </div>
-                )}
+                    {/*<HeatMapChartCard heat={[]} />*/}
+                    <ActivityChartCard activity={projectActivity} />
+                    <HashtagActivityContainer topHashtags={topHashtags}/>
+                    <ViralTweetsContainer viralTweets={viralTweets}/>
+                </div>
+
+
             </div>
         </div>
     );

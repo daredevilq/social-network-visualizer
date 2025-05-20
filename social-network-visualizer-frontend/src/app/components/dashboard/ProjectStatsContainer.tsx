@@ -14,7 +14,7 @@ export function ProjectStatsContainer({ projectData }: Props) {
     }
 
     return (
-        <div className="bg-[#32323F] rounded-xl p-6 shadow-lg w-1/2">
+        <div className="bg-[#32323F] rounded-xl p-6 shadow-w">
             <h1 className="text-2xl font-bold mb-6 border-b border-gray-600 pb-2 text-white">
                 Project Statistics
             </h1>

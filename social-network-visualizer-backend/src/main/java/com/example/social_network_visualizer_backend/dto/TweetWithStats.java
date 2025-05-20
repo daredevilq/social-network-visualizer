@@ -5,6 +5,7 @@ import java.util.List;
 
 public record TweetWithStats(
         String id,
+        String authorName,
         LocalDateTime publicationDate,
         String objectType,
         String language,

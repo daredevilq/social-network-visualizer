@@ -7,7 +7,7 @@ import {useProject} from '@/app/context/ProjectContext';
 import LeftBar from "@/app/components/LeftBar";
 import LeftSideBar from "@/app/components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import UserTweetAnalysis from "@/app/components/Analysis/Tweet/UserTweetAnalysis";
+import TweetAnalysisList from "@/app/components/Analysis/Tweet/TweetAnalysisList";
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function TweetAnalysisPage() {
                 style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '2rem' }}
             >
                 <div className="max-w-full">
-                    <UserTweetAnalysis userName={normalizedUserName} />
+                    <TweetAnalysisList userName={normalizedUserName} />
                 </div>
             </div>
         </div>
