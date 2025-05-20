@@ -8,6 +8,8 @@ import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsCon
 import {ProjectStatsContainer} from "@/app/components/dashboard/ProjectStatsContainer";
 import {ActivityPoint} from "@/app/interface/ActivityPoint";
 import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
+import {ProjectStatsChart} from "@/app/components/dashboard/ProjectStatsChart";
+import {TopMentionsContainer} from "@/app/components/dashboard/TopMentionsContainer";
 
 interface ProjectData {
     tweetsCount: number;
@@ -26,6 +28,7 @@ const Dashboard = () => {
     const [projectActivity, setProjectActivity] = useState<ActivityPoint[]>([]);
     const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
     const [viralTweets, setViralTweets] = useState<ViralTweet[]>([])
+    const [topMentions, setTopMentions] = useState<{ username: string; count: number }[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
 
@@ -50,6 +53,10 @@ const Dashboard = () => {
                 const viralTweetsRes = await fetch(`${API_BASE_URL}/dashboard/viral-tweets`)
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
+
+                const mentionsRes = await fetch(`${API_BASE_URL}/dashboard/top-mentions`);
+                const mentionsData = await mentionsRes.json();
+                setTopMentions(mentionsData);
             } catch (err) {
                 setError('Failed to load project data. Please try again later.');
                 console.error('Error fetching project data:', err);
@@ -63,7 +70,7 @@ const Dashboard = () => {
 
     return (
         <div className="w-full min-h-screen bg-[#262631] text-white p-6">
-            <div className="max-w-6xl mx-auto">
+            <div className="mx-auto pl-6">
                 <div className="flex items-center justify-between mb-8">
                     <button
                         onClick={() => router.push('/')}
@@ -89,18 +96,25 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-4 lg:grid-cols-4 gap-8">
                     <ProjectStatsContainer projectData={projectData} />
-                    <div className="grid grid-cols-2 lg:grid-cols-2 gap-8">
+                    <ProjectStatsChart projectData={projectData} />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <TopHashtagsContainer topHashtags={topHashtags} />
                     </div>
-                    {/*<HeatMapChartCard heat={[]} />*/}
+
+                    <TopMentionsContainer mentions={topMentions} />
+
                     <ActivityChartCard activity={projectActivity} />
                     <HashtagActivityContainer topHashtags={topHashtags}/>
+                    <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
+                        {/*<ActivityChartCard activity={projectActivity} />*/}
+
+                        {/*    <HeatMapChartCard heat={[]} />*/}
+                    </div>
                     <ViralTweetsContainer viralTweets={viralTweets}/>
                 </div>
-
-
             </div>
         </div>
     );

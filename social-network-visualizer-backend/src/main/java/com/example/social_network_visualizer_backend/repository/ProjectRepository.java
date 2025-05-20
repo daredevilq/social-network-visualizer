@@ -1,9 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.ActivityPoint;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.ProjectStatsDto;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -57,4 +54,14 @@ public interface ProjectRepository extends Neo4jRepository<Author, String> {
         LIMIT 10
     """)
     List<ViralTweetDto> findTheMostViralTweets();
+
+    @Query("""
+        MATCH (t:Tweet)-[:MENTION]->(a:Author)
+        RETURN
+            a.userName AS username,
+            COUNT(*) AS count
+        ORDER BY count DESC
+        LIMIT 5
+    """)
+    List<TopMentionsDto> findTopMentions();
 }

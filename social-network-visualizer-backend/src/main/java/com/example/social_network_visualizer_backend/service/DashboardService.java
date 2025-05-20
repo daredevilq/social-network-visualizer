@@ -1,9 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.ActivityPoint;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.ProjectStatsDto;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,5 +27,9 @@ public class DashboardService {
 
     public List<ViralTweetDto> getViralTweetStats() {
         return projectRepository.findTheMostViralTweets();
+    }
+
+    public List<TopMentionsDto> getTopMentions() {
+        return projectRepository.findTopMentions();
     }
 }
