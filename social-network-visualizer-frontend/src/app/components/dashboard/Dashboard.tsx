@@ -10,11 +10,16 @@ import {ActivityPoint} from "@/app/interface/ActivityPoint";
 import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
 import {ProjectStatsChart} from "@/app/components/dashboard/ProjectStatsChart";
 import {TopMentionsContainer} from "@/app/components/dashboard/TopMentionsContainer";
+import {TopAuthorsContainer} from "@/app/components/dashboard/TopAuthorsContainer";
+import {HashtagActivityChartContainer} from "@/app/components/dashboard/HashtagActivityChartContainer";
 
 interface ProjectData {
     tweetsCount: number;
     usersCount: number;
     hashtagsCount: number;
+    relationsCount: number;
+    communitiesCount: number;
+    retweetCount: number;
 }
 
 interface HashtagActivity {
@@ -28,6 +33,7 @@ const Dashboard = () => {
     const [projectActivity, setProjectActivity] = useState<ActivityPoint[]>([]);
     const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
     const [viralTweets, setViralTweets] = useState<ViralTweet[]>([])
+    const [topAuthors, setTopAuthors] = useState<{ username: string; count: number }[]>([]);
     const [topMentions, setTopMentions] = useState<{ username: string; count: number }[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
@@ -38,7 +44,7 @@ const Dashboard = () => {
             setError(null)
 
             try {
-                const userDataRes = await fetch(`${API_BASE_URL}/dashboard/project-data`)
+                const userDataRes = await fetch(`${API_BASE_URL}/dashboard/project-stats`)
                 const data = await userDataRes.json()
                 setProjectData(data)
 
@@ -53,6 +59,10 @@ const Dashboard = () => {
                 const viralTweetsRes = await fetch(`${API_BASE_URL}/dashboard/viral-tweets`)
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
+
+                const authorsRes = await fetch(`${API_BASE_URL}/dashboard/top-authors`);
+                const authorsData = await authorsRes.json();
+                setTopAuthors(authorsData);
 
                 const mentionsRes = await fetch(`${API_BASE_URL}/dashboard/top-mentions`);
                 const mentionsData = await mentionsRes.json();
@@ -99,21 +109,25 @@ const Dashboard = () => {
                 <div className="grid grid-cols-4 lg:grid-cols-4 gap-8">
                     <ProjectStatsContainer projectData={projectData} />
                     <ProjectStatsChart projectData={projectData} />
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <TopHashtagsContainer topHashtags={topHashtags} />
-                    </div>
-
+                    <TopAuthorsContainer authors={topAuthors} />
                     <TopMentionsContainer mentions={topMentions} />
 
                     <ActivityChartCard activity={projectActivity} />
-                    <HashtagActivityContainer topHashtags={topHashtags}/>
+                    <HashtagActivityContainer topHashtags={topHashtags.slice(0, 10)} />
+
                     <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
+                        <p>Heat Map </p>
                         {/*<ActivityChartCard activity={projectActivity} />*/}
 
                         {/*    <HeatMapChartCard heat={[]} />*/}
                     </div>
-                    <ViralTweetsContainer viralTweets={viralTweets}/>
+
+                    <HashtagActivityChartContainer data={topHashtags} />
+
+                    <div className="lg:col-span-4">
+                        <ViralTweetsContainer viralTweets={viralTweets}/>
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -29,7 +29,11 @@ public class DashboardService {
         return projectRepository.findTheMostViralTweets();
     }
 
-    public List<TopMentionsDto> getTopMentions() {
+    public List<TopUsersDto> getTopMentions() {
         return projectRepository.findTopMentions();
+    }
+
+    public List<TopUsersDto> getTopAuthors() {
+        return projectRepository.findTopAuthors();
     }
 }

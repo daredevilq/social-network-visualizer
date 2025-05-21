@@ -9,13 +9,31 @@ import java.util.List;
 
 public interface ProjectRepository extends Neo4jRepository<Author, String> {
     @Query("""
-        OPTIONAL MATCH (a:Author)
-        OPTIONAL MATCH (a)-[:POSTED]->(t:Tweet)
-        OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+        MATCH (a:Author)-[r1:POSTED]->(t:Tweet)
+        OPTIONAL MATCH (t)-[r2:HAS_HASHTAG]->(h:Hashtag)
+        OPTIONAL MATCH (t)-[r3:MENTIONS]->(:Author)
+        OPTIONAL MATCH (t)-[r4:REPLY_TO]->(:Tweet)
+        OPTIONAL MATCH (t)-[r5:PARENT]->(:Tweet)
+        
+        WITH
+            collect(DISTINCT t) AS tweets,
+            collect(DISTINCT a) AS authors,
+            collect(DISTINCT h) AS hashtags,
+            count(r1) AS authorRelationsCount,
+            count(r2) AS hashtagRelationsCount,
+            count(r3) AS mentionsCount,
+            count(r4) AS repliesCount,
+            count(r5) AS parentRelationsCount,
+            collect(DISTINCT a.community) AS communityIds,
+            sum(CASE WHEN t.objectType = "RETWEET" THEN 1 ELSE 0 END) AS retweetCount
+        
         RETURN
-            coalesce(count(DISTINCT t), 0) AS tweetsCount,
-            coalesce(count(DISTINCT a), 0) AS usersCount,
-            coalesce(count(DISTINCT h), 0) AS hashtagsCount
+            size(tweets) AS tweetsCount,
+            size(authors) AS usersCount,
+            size(hashtags) AS hashtagsCount,
+            (mentionsCount + repliesCount + parentRelationsCount + hashtagRelationsCount + authorRelationsCount) AS relationsCount,
+            size([c IN communityIds WHERE c IS NOT NULL]) AS communitiesCount,
+            retweetCount
     """)
     ProjectStatsDto getProjectStats();
 
@@ -31,7 +49,7 @@ public interface ProjectRepository extends Neo4jRepository<Author, String> {
         MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
         RETURN h.hashtag AS name, count(*) AS frequency
         ORDER BY frequency DESC
-        LIMIT 10
+        LIMIT 20
     """)
     List<HashtagFrequency> findTopHashtags();
 
@@ -63,5 +81,15 @@ public interface ProjectRepository extends Neo4jRepository<Author, String> {
         ORDER BY count DESC
         LIMIT 5
     """)
-    List<TopMentionsDto> findTopMentions();
+    List<TopUsersDto> findTopMentions();
+
+    @Query("""
+        MATCH (a:Author)-[:POSTED]->(t:Tweet)
+        RETURN
+            a.userName AS username,
+            COUNT(*) AS count
+        ORDER BY count DESC
+        LIMIT 5
+    """)
+    List<TopUsersDto> findTopAuthors();
 }

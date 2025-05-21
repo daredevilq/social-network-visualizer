@@ -19,7 +19,7 @@ import java.util.List;
 public class DashboardController {
     private final DashboardService dashboardService;
 
-    @GetMapping("/project-data")
+    @GetMapping("/project-stats")
     public ResponseEntity<ProjectStatsDto> getProjectData() {
         return ResponseEntity.ok(dashboardService.getProjectStats());
     }
@@ -40,7 +40,12 @@ public class DashboardController {
     }
 
     @GetMapping("/top-mentions")
-    public ResponseEntity<List<TopMentionsDto>> getProjectTopMentionsUsers() {
+    public ResponseEntity<List<TopUsersDto>> getProjectTopMentionsUsers() {
         return ResponseEntity.ok(dashboardService.getTopMentions());
+    }
+
+    @GetMapping("/top-authors")
+    public ResponseEntity<List<TopUsersDto>> getProjectTopAuthors() {
+        return ResponseEntity.ok(dashboardService.getTopAuthors());
     }
 }
