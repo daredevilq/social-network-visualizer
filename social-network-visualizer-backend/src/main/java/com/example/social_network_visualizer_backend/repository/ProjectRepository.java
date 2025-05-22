@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -92,4 +93,16 @@ public interface ProjectRepository extends Neo4jRepository<Author, String> {
         LIMIT 5
     """)
     List<TopUsersDto> findTopAuthors();
+
+    @Query("""
+        UNWIND range(0,23) AS h
+        UNWIND range(1,7) AS d
+        OPTIONAL MATCH (a:Author)-[:POSTED]->(t:Tweet)
+           WHERE t.publicationDate.hour = h
+           AND t.publicationDate.dayOfWeek = d
+        WITH  h, d, count(t)   AS posts
+        RETURN h AS hour, d AS dayOfWeek, posts
+        ORDER  BY d, h;
+    """)
+    List<ActivityHeatmap> getProjectHeatMap();
 }

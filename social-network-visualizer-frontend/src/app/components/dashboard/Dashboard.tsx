@@ -1,8 +1,7 @@
-import {FormEvent, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {useRouter} from "next/navigation";
 import {ViralTweet} from "@/types/tweetTypes";
-import {TopHashtagsContainer} from "@/app/components/UserAnalysis/TopHashtagsContainer";
 import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
 import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsContainer";
 import {ProjectStatsContainer} from "@/app/components/dashboard/ProjectStatsContainer";
@@ -12,6 +11,8 @@ import {ProjectStatsChart} from "@/app/components/dashboard/ProjectStatsChart";
 import {TopMentionsContainer} from "@/app/components/dashboard/TopMentionsContainer";
 import {TopAuthorsContainer} from "@/app/components/dashboard/TopAuthorsContainer";
 import {HashtagActivityChartContainer} from "@/app/components/dashboard/HashtagActivityChartContainer";
+import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
+import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 
 interface ProjectData {
     tweetsCount: number;
@@ -35,6 +36,7 @@ const Dashboard = () => {
     const [viralTweets, setViralTweets] = useState<ViralTweet[]>([])
     const [topAuthors, setTopAuthors] = useState<{ username: string; count: number }[]>([]);
     const [topMentions, setTopMentions] = useState<{ username: string; count: number }[]>([]);
+    const [heatMap, setHeatMap] = useState<ActivityHeatmap[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
 
@@ -67,6 +69,11 @@ const Dashboard = () => {
                 const mentionsRes = await fetch(`${API_BASE_URL}/dashboard/top-mentions`);
                 const mentionsData = await mentionsRes.json();
                 setTopMentions(mentionsData);
+
+                const heatRes = await fetch(`${API_BASE_URL}/dashboard/heat-map`);
+                const heatMapData = await heatRes.json();
+                setHeatMap(heatMapData);
+                console.log(heatMap);
             } catch (err) {
                 setError('Failed to load project data. Please try again later.');
                 console.error('Error fetching project data:', err);
@@ -115,13 +122,7 @@ const Dashboard = () => {
                     <ActivityChartCard activity={projectActivity} />
                     <HashtagActivityContainer topHashtags={topHashtags.slice(0, 10)} />
 
-                    <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
-                        <p>Heat Map </p>
-                        {/*<ActivityChartCard activity={projectActivity} />*/}
-
-                        {/*    <HeatMapChartCard heat={[]} />*/}
-                    </div>
-
+                    <HeatMapChartCard heat={heatMap} />
                     <HashtagActivityChartContainer data={topHashtags} />
 
                     <div className="lg:col-span-4">

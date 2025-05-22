@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,9 @@ public class DashboardService {
 
     public List<TopUsersDto> getTopAuthors() {
         return projectRepository.findTopAuthors();
+    }
+
+    public List<ActivityHeatmap> getHeatMap() {
+        return projectRepository.getProjectHeatMap();
     }
 }

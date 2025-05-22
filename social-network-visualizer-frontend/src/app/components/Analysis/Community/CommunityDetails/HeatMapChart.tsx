@@ -26,12 +26,13 @@ ChartJS.register(
 export default function HeatmapChart({ data }: { data: ActivityHeatmap[] }) {
     const hours= Array.from({ length: 24 }, (_, i) => i);  // 0-23
     const daysLabels= ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]; // 1-7
-    const maxPosts= Math.max(...data.map(c => c.posts));
+    const safeData = Array.isArray(data) ? data : [];
+    const maxPosts = safeData.length > 0 ? Math.max(...safeData.map(c => c.posts)) : 0;
 
-    const matrixData = data.map(c => ({
+    const matrixData = safeData.map(c => ({
         x: c.hour,
-        y: daysLabels[c.dayOfWeek-1],
-        v: c.posts
+        y: daysLabels[c.dayOfWeek - 1],
+        v: c.posts,
     }));
 
     const scale = chroma.scale(["#2A1A63", "#7140F4", "#D2C5FF"]).mode("lch");
@@ -42,8 +43,11 @@ export default function HeatmapChart({ data }: { data: ActivityHeatmap[] }) {
                 label: "posts",
                 data : matrixData,
                 backgroundColor: (ctx: any) => {
-                    const v= ctx.dataset.data[ctx.dataIndex].v;
-                    return v === 0 ? "rgba(0,0,0,0)" : scale(v / maxPosts).hex();
+                    const dataPoint = ctx?.dataset?.data?.[ctx.dataIndex];
+                    const v = dataPoint?.v;
+
+                    if (v == null || isNaN(v)) return "rgba(0,0,0,0)";
+                    return scale(v / maxPosts).hex();
                 },
                 width : (ctx: any) => {
                     const area = ctx.chart.chartArea;
