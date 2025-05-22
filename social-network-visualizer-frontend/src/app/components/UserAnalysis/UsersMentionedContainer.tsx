@@ -3,15 +3,16 @@ import {useRouter} from "next/navigation";
 
 interface UsersMentionedContainerProps {
     userMentions: string[];
+    message: string
 }
 
 
-export function UsersMentionedContainer({userMentions}: UsersMentionedContainerProps) {
+export function UsersMentionedContainer({userMentions, message}: UsersMentionedContainerProps) {
     const router = useRouter();
 
     return (
         <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
-            <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2">Users Mentioned by this User</h2>
+            <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2">{message}</h2>
 
             {userMentions && userMentions.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

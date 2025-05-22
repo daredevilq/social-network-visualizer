@@ -1,4 +1,6 @@
-package com.example.social_network_visualizer_backend.dto;
+package com.example.social_network_visualizer_backend.dto.community;
+
+import com.example.social_network_visualizer_backend.dto.ActivityPoint;
 
 import java.util.List;
 

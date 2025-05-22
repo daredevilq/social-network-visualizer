@@ -3,6 +3,7 @@
 
 import {useState} from "react";
 import {useProject} from "@/app/context/ProjectContext";
+import { useRouter } from 'next/navigation';
 
 export default function FunctionsContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,7 +11,7 @@ export default function FunctionsContent() {
     const [target, setTarget] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const {setShortestPath} = useProject();
-
+    const router = useRouter();
 
     const handleSearch = () => {
         if (!source || !target) {
@@ -34,6 +35,16 @@ export default function FunctionsContent() {
         <div className="h-full w-full box-border flex flex-col space-y-8 text-white rounded-lg shadow-md">
             <div className="min-h-[40px] w-full border-b-2 border-white flex items-center py-2">
                 <h1 className="text-2xl font-bold">Functions</h1>
+            </div>
+            <div className="w-full">
+                <div className="flex flex-col w-full">
+                    <button
+                        className="flex items-center pl-[5%] py-2 border-b border-[#D3D3D3] cursor-pointer w-full hover:text-[#7140F4]"
+                        onClick={() => router.push('/community-analysis')}
+                    >
+                        <span>Community analysis</span>
+                    </button>
+                </div>
             </div>
             <div className="w-full">
                 <div className="flex flex-col w-full">
