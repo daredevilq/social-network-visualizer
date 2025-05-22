@@ -57,20 +57,20 @@ export default function ProjectsContent() {
 	}, [selected]);
 
 	return (
-		<div className="relative h-full flex flex-col text-white">
-			<h1 className="text-2xl font-bold border-b border-white py-2">Projects</h1>
+		<div className="relative h-full flex flex-col text-white px-4 pt-4">
+			<h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Projects</h1>
 
-			<div className="flex-1 overflow-y-auto">
+			<div className="flex-1 overflow-y-auto divide-y divide-gray-700">
 				{projects.map(p => (
 					<div
 						key={p.name}
-						className={`flex items-center justify-between w-full py-3 border-b border-gray-500
-									${selected === p.name ? 'text-[#7140F4]' : 'hover:text-[#7140F4]'}`}
+						className={`py-3 flex items-center justify-between
+                        ${selected === p.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'}`}
 					>
 						<button
 							disabled={loading}
 							onClick={() => select(p.name)}
-							className="flex items-center flex-1 text-left"
+							className="flex items-center text-left w-full"
 						>
 							<img
 								src={
@@ -78,8 +78,8 @@ export default function ProjectsContent() {
 										? '/icons/leftSideBar/current_project_icon.png'
 										: '/icons/leftSideBar/project_icon.png'
 								}
-								className="w-7 h-7 mr-2"
-								alt=""
+								className="w-5 h-5 mr-2"
+								alt="Project"
 							/>
 							<span className="truncate">{p.name}</span>
 						</button>
@@ -92,22 +92,27 @@ export default function ProjectsContent() {
 					</div>
 				))}
 
-				{/* upload */}
-				<button
-					disabled={loading}
-					onClick={() => setCreateModalOpen(true)}
-					className="flex items-center w-full py-3 hover:text-[#7140F4]"
-				>
-					<img src="/icons/leftSideBar/plus_icon.png" className="w-7 h-7 mr-2" alt="" />
-					<span>Upload project</span>
-				</button>
+				<div className="py-3">
+					<button
+						disabled={loading}
+						onClick={() => setCreateModalOpen(true)}
+						className="flex items-center w-full hover:text-[#7140F4]"
+					>
+						<img
+							src="/icons/leftSideBar/plus_icon.png"
+							className="w-5 h-5 mr-2"
+							alt="Add"
+						/>
+						<span>Upload project</span>
+					</button>
+				</div>
 			</div>
 
 			{status && !loading && (
 				<p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
 			)}
 
-			{/* new project */}
+			{/* Modals here */}
 			<ProjectUploadModal
 				API={API}
 				open={createModalOpen}
@@ -122,19 +127,17 @@ export default function ProjectsContent() {
 					showStatus('Project uploaded successfully');
 				}}
 			/>
-			
-			{/* editing existing project */}
+
 			<ProjectEditModal
 				API={API}
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
-				onSuccess={ async () =>{
+				onSuccess={async () => {
 					await refresh();
-					await refreshProjects()}
-				}			
+					await refreshProjects();
+				}}
 			/>
 
-			{/* delete project confirmation */}
 			<ConfirmModal
 				open={deleteTarget !== null}
 				title="Delete project?"

@@ -3,6 +3,7 @@
 import { useProject } from "@/app/context/ProjectContext";
 import { useEffect, useRef, useState } from "react";
 import { Network } from "lucide-react";
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 interface GraphType {
     value: string;
@@ -13,7 +14,6 @@ export default function FiltersContent() {
     const {
         graphType,
         setGraphType,
-        BASE_URL,
         runWithLoading,
         loading,
     } = useProject();
@@ -30,7 +30,7 @@ export default function FiltersContent() {
 
     const refreshTypes = async () => {
         try {
-            const res = await fetch(`${BASE_URL}/graph/types`);
+            const res = await fetch(`${API_BASE_URL}/graph/types`);
             const data = await res.json();
             setTypes(data);
         } catch (err) {
@@ -40,7 +40,7 @@ export default function FiltersContent() {
 
     const selectGraphType = async (type: GraphType) => {
         await runWithLoading(async () => {
-            const res = await fetch(`${BASE_URL}/graph/${type.value}`, { method: "POST" });
+            const res = await fetch(`${API_BASE_URL}/graph/${type.value}`, { method: "POST" });
             if (!res.ok) throw new Error("Graph computation failed");
 
             showStatus(`Relations "${type.label}" recomputed.`);
