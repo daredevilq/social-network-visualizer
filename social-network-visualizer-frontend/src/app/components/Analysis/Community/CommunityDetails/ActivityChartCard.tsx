@@ -1,7 +1,7 @@
 "use client";
 
 import {ActivityPoint} from "@/app/interface/ActivityPoint";
-import ActivityChart from "@/app/components/Analysis/Community/ActivityChart"
+import ActivityChart from "@/app/components/Analysis/Community/CommunityOverview/ActivityChart";
 import { LineChart } from 'lucide-react';
 import React from "react";
 
@@ -15,5 +15,4 @@ export default function ActivityChartCard({ activity }: { activity: ActivityPoin
             <ActivityChart data={activity}/>
         </div>
     );
-
 }

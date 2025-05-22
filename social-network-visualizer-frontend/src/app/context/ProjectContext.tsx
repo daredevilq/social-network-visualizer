@@ -1,7 +1,8 @@
 'use client';
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 
-const BASE_URL = `http://localhost:8080`;
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
+
 
 interface Context {
     selected: string | null;
@@ -23,7 +24,6 @@ interface Context {
     setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
     graphType: string;
     setGraphType: React.Dispatch<React.SetStateAction<string>>;
-    BASE_URL: string;
 }
 
 const ProjectContext = createContext<Context>({
@@ -46,7 +46,6 @@ const ProjectContext = createContext<Context>({
     setSelectedUserName: () => {},
     graphType: "mentions",
     setGraphType: () => {},
-    BASE_URL: "http://localhost:8080"
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -97,7 +96,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
                 method: "POST",
             });
             setSelected(name);
@@ -107,7 +106,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const refresh = async () =>
         runWithLoading(async () => {
             if (!selected) return;
-            await fetch(`${BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
                 method: "POST",
             });
         });
@@ -134,7 +133,6 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setSelectedUserName,
                 graphType,
                 setGraphType,
-                BASE_URL
             }}>
             {children}
         </ProjectContext.Provider>

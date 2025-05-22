@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
 import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -106,5 +107,9 @@ public class AuthorService {
 
     public List<ViralTweetDto> findTheMostViralTweet(String authorName) {
         return authorRepository.findTheMostViralTweet(authorName);
+    }
+
+    public List<ActivityHeatmap> getUserActivityHeatmap(String authorName) {
+        return authorRepository.getUserActivityHeatMap(authorName);
     }
 }

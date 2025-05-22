@@ -5,6 +5,7 @@ import {
     LinearScale, CategoryScale, Tooltip
 } from "chart.js";
 import { ActivityPoint } from "@/app/interface/ActivityPoint";
+import React from "react";
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip);
 

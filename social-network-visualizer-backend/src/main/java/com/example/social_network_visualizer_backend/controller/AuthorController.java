@@ -3,6 +3,7 @@ package com.example.social_network_visualizer_backend.controller;
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.service.AuthorService;
 import lombok.RequiredArgsConstructor;
@@ -74,5 +75,10 @@ public class AuthorController {
     @GetMapping("/viral-tweets/{authorName}")
     public List<ViralTweetDto> getViralTweets(@PathVariable String authorName) {
         return authorService.findTheMostViralTweet(authorName);
+    }
+
+    @GetMapping("/heatmap/{authorName}")
+    public List<ActivityHeatmap> getUserActivityHeatmap(@PathVariable String authorName) {
+        return authorService.getUserActivityHeatmap(authorName);
     }
 }
