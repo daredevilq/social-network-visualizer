@@ -14,8 +14,6 @@ export default function TweetAnalysisPage() {
     const [selectedGraph, setSelectedGraph] = useState("standardGraph");
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const {loading} = useProject();
-    const { userName } = useParams<{ userName: string | string[] }>();
-    const normalizedUserName = Array.isArray(userName) ? userName[0] : userName;
 
     return (
         <div className="min-h-screen flex bg-[#262631]">
@@ -37,7 +35,7 @@ export default function TweetAnalysisPage() {
                 style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '2rem' }}
             >
                 <div className="max-w-full">
-                    <TweetAnalysisList userName={normalizedUserName} />
+                    <TweetAnalysisList userName={undefined} />
                 </div>
             </div>
         </div>

@@ -55,7 +55,7 @@ public class ProjectService {
         return projects;
     }
 
-    public void loadProject(String projectName) {
+    public void loadProject(String projectName, String graphType) {
         neo4jService.waitForNeo4jToBeAvailable();
         neo4jService.handleDatabaseDrop();
 
@@ -66,7 +66,7 @@ public class ProjectService {
         }
 
         tweetsFolderParser.parseDirectory(projectPath);
-        neo4jService.computeMetricsAndRelations();
+        neo4jService.computeMetricsAndRelations(graphType);
         log.info(String.format("Project %s imported successfully",projectName));
     }
 

@@ -10,11 +10,12 @@ import {ArrowUp} from 'lucide-react';
 
 interface TweetAnalysisContainerProps {
     apiUrl: string;
+    userName: string | undefined;
 }
 
 const PAGE_SIZE = 10;
 
-const TweetAnalysisContainer = ({apiUrl}: TweetAnalysisContainerProps) => {
+const TweetAnalysisContainer = ({apiUrl, userName}: TweetAnalysisContainerProps) => {
     const { loading, runWithLoading } = useProject();
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [page, setPage] = useState(1);
@@ -75,9 +76,11 @@ const TweetAnalysisContainer = ({apiUrl}: TweetAnalysisContainerProps) => {
 
         await runWithLoading(async () => {
             const hashtagQuery = hashtags.map(tag => `hashtags=${encodeURIComponent(tag)}`).join('&');
+            const userPrefix = userName ? `userName=${encodeURIComponent(userName)}&` : '';
             const response = await fetch(
-                `${apiUrl}?page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
-            );            if (!response.ok) throw new Error('Failed to fetch tweets');
+                `${apiUrl}?${userPrefix}page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
+            );
+            if (!response.ok) throw new Error('Failed to fetch tweets');
             const data: TweetResponse = await response.json();
 
             setTweets(prev => {

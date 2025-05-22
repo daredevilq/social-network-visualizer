@@ -24,7 +24,7 @@ export default function LeftSidebar({
     const renderLeftSideBarContent = () => {
         switch (selectedLeftSideBarContent) {
             case "home":
-                return <HomeContent/>;
+                return null
             case "graph":
                 return <GraphTypeContent selectedGraph={selectedGraph} setSelectedGraph={setSelectedGraph}/>
             case "functions":

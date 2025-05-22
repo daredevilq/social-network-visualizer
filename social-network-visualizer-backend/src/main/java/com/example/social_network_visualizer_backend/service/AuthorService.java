@@ -86,7 +86,6 @@ public class AuthorService {
     }
 
     public List<HashtagFrequency> findTopHashtagsByAuthor(String authorName) {
-        System.out.println(authorRepository.findTopHashtagsByAuthor(authorName));
         return authorRepository.findTopHashtagsByAuthor(authorName);
     }
 

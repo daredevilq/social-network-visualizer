@@ -12,11 +12,23 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
     return (
         <div className={`border p-4 rounded-lg shadow ${highlight ? 'border-yellow-400 bg-yellow-900/20' : 'border-gray-700'}`}>
             <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-400">
+                <div className="flex flex-col">
+                    <span className="text-xs text-purple-400 font-semibold mb-1 uppercase tracking-wide">
+                        Author:
+                    </span>
+                    <a
+                        href={`/user-details/${tweet.authorName}`}
+                        className="text-base font-bold text-white hover:underline hover:text-indigo-400 transition cursor-pointer"
+                        aria-label={`Go to ${tweet.authorName} profile`}
+                    >
+                        {tweet.authorName}
+                    </a>
+                        <span className="text-xs text-gray-400 mt-1">
                     {new Date(tweet.publicationDate).toLocaleString()}
-                </span>
+                    </span>
+                </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex justify-between items-center mb-4">
                     <span className="flex items-center text-xs px-2 py-1 rounded bg-gray-700">
                         <Info className="w-4 h-4 mr-1" />
                         {tweet.objectType}
@@ -33,7 +45,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
                 </div>
             </div>
 
-            <h2 className="font-bold text-lg mb-2">{tweet.contentPreview}</h2>
+            <h2 className="font-bold text-lg mb-4">{tweet.contentPreview}</h2>
             <p className="mb-2">{tweet.content}</p>
 
             {tweet.photos && tweet.photos.length > 0 && (
@@ -68,21 +80,21 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
 
             <div className="flex space-x-4 text-sm text-gray-300 mb-2">
                 <div className="relative flex items-center group">
-                    <Heart className="w-4 h-4 mr-1 text-pink-400" />
+                    <Heart className="w-4 h-4 mr-1 text-pink-400 hover:scale-110 transition-transform duration-200" />
                     {tweet.likesCount}
                     <span className="absolute bottom-full mb-1 w-max px-2 py-1 rounded bg-gray-700 text-xs opacity-0 group-hover:opacity-100 transition">
                         Likes
                     </span>
                 </div>
                 <div className="relative flex items-center group">
-                    <Repeat className="w-4 h-4 mr-1 text-green-400" />
+                    <Repeat className="w-4 h-4 mr-1 text-green-400 hover:scale-110 transition-transform duration-200" />
                     {tweet.retweetsCount}
                     <span className="absolute bottom-full mb-1 w-max px-2 py-1 rounded bg-gray-700 text-xs opacity-0 group-hover:opacity-100 transition">
                         Retweets
                     </span>
                 </div>
                 <div className="relative flex items-center group">
-                    <MessageCircle className="w-4 h-4 mr-1 text-blue-400" />
+                    <MessageCircle className="w-4 h-4 mr-1 text-blue-400 hover:scale-110 transition-transform duration-200" />
                     {tweet.repliesCount}
                     <span className="absolute bottom-full mb-1 w-max px-2 py-1 rounded bg-gray-700 text-xs opacity-0 group-hover:opacity-100 transition">
                         Replies

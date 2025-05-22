@@ -224,12 +224,13 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     @Query("""
             MATCH (a:Author)-[:POSTED]->(t:Tweet)
             WHERE a.userName=$authorName
-            WITH t,
+            WITH a, t,
                  t.likesCount AS likes,
                  t.retweetsCount AS retweets,
                  t.repliesCount AS replies,
                  (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
             RETURN
+                a.userName as userName,
                 t.contentPreview AS preview,
                 t.url AS tweetUrl,
                 likes,

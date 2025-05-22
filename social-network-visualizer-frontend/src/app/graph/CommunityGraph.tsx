@@ -14,7 +14,8 @@ export default function CommunityGraph() {
         graphData,
         setGraphData,
         nodeFoundId,
-        shortestPath
+        shortestPath,
+        graphType
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
@@ -33,7 +34,7 @@ export default function CommunityGraph() {
                 return Array.isArray(parsed) ? parsed as number[] : [];
             });
 
-        const fetchGraph = fetch("http://localhost:8080/graph/AUTHOR_MENTIONS")
+        const fetchGraph = fetch(`http://localhost:8080/graph/${graphType}`)
             .then(res => {
                 if (!res.ok) throw new Error(`graph ${res.status}`);
                 return res.json();

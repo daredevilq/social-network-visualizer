@@ -1,5 +1,6 @@
 export interface Tweet {
     id: string;
+    authorName: string;
     publicationDate: string;
     objectType: string;
     language: string | null;
@@ -30,6 +31,7 @@ export interface TweetAnalysisContainerProps {
 }
 
 export interface ViralTweet {
+    userName: string;
     tweetUrl: string;
     preview: string;
     likes: number;

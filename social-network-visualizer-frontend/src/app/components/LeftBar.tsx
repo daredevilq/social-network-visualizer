@@ -1,6 +1,7 @@
 'use client';
 
 import {useCallback, useState} from 'react';
+import { useRouter } from "next/navigation";
 
 const icons = [
     {
@@ -62,8 +63,14 @@ interface LeftBarProps {
 export default function LeftBar({setIsLeftSideBarOpen, setSelectedLeftSideBarContent}: LeftBarProps) {
     const [activeIcon, setActiveIcon] = useState<string | null>(null);
     const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+    const router = useRouter();
 
     const handleIconClick = useCallback((id: string) => {
+        if (id === "home") {
+            router.push("/dashboard");
+            return;
+        }
+
         const isSame = activeIcon === id;
         if (!isSame) {
             setSelectedLeftSideBarContent(id);

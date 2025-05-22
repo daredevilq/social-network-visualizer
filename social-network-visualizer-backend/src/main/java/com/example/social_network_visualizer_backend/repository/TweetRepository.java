@@ -99,16 +99,16 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
 
     @Query("""
                 MATCH (a:Author)-[:POSTED]->(tAll:Tweet)
-                WHERE a.userName = $authorName
+                WHERE $authorName IS NULL OR a.userName = $authorName
                 WITH avg(coalesce(tAll.likesCount, 0)) AS avgLikes,
                      avg(coalesce(tAll.retweetsCount, 0)) AS avgRetweets,
                      avg(coalesce(tAll.repliesCount, 0)) AS avgReplies
             
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
-                WHERE a.userName = $authorName AND ($search IS NULL OR $search = "" OR toLower(t.content) CONTAINS toLower($search))
+                WHERE ($authorName IS NULL OR a.userName = $authorName) AND ($search IS NULL OR $search = "" OR toLower(t.content) CONTAINS toLower($search))
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
                 
-                WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies,
+                WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies, a,
                          CASE $sortField
                              WHEN 'DATE' THEN t.publicationDate
                              WHEN 'LIKES' THEN t.likesCount
@@ -119,18 +119,19 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
             
                 WHERE size($hashtags) = 0 OR any(tag IN $hashtags WHERE tag IN hashtags)
                 
-                WITH t, hashtags, avgLikes, avgRetweets, avgReplies,
+                WITH t, hashtags, avgLikes, avgRetweets, avgReplies, a,
                          (t.likesCount + t.retweetsCount + t.repliesCount) AS totalEngagement,
                          (t.likesCount + t.retweetsCount + t.repliesCount) / (avgLikes + avgRetweets + avgReplies) * 100 AS engagement,
                          sortField
             
-                WITH t, hashtags, totalEngagement, engagement, sortField,
+                WITH t, hashtags, totalEngagement, engagement, sortField, a,
                      CASE WHEN engagement > 150 THEN true ELSE false END AS isHighEngagement
                 
                 WHERE $highEngagement = false OR isHighEngagement = true
                 
                 RETURN
                     t.id AS id,
+                    a.userName AS authorName,
                     t.publicationDate AS publicationDate,
                     t.objectType AS objectType,
                     t.language AS language,

@@ -8,37 +8,33 @@ interface GraphContentProps {
 
 export default function GraphTypeContent({ selectedGraph, setSelectedGraph }: GraphContentProps) {
     return (
-        <div className="h-full w-full box-border flex flex-col space-y-8 text-white rounded-lg shadow-md">
-            <div className="min-h-[40px] w-full border-b-2 border-white flex items-center py-2">
-                <h1 className="text-2xl font-bold">Graph Type</h1>
-            </div>
-            <div className="space-y-6">
-                <div className="mt-4">
-                    <p className="text-sm text-gray-300">
-                        Current visualization:{" "}
-                        <span className="font-semibold">
-                            {selectedGraph
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                        </span>
-                    </p>
-                </div>
+        <div className="relative h-full flex flex-col text-white px-4 pt-4">
+            <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Graph Type</h1>
 
-                <div className="space-y-2">
-                    <select
-                        value={selectedGraph}
-                        onChange={(e) => setSelectedGraph(e.target.value)}
-                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="standardGraph">Standard Graph</option>
-                        <option value="mentionsGraph">Mentions Graph</option>
-                        <option value="degreeCentralityGraph">Degree Centrality Graph</option>
-                        <option value="communityGraph">Community Graph</option>
-                    </select>
-                </div>
+            <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
+                {[
+                    { value: "standardGraph", label: "Standard Graph" },
+                    { value: "mentionsGraph", label: "Mentions Graph" },
+                    { value: "degreeCentralityGraph", label: "Degree Centrality Graph" },
+                    { value: "communityGraph", label: "Community Graph" },
+                ].map((item) => (
+                    <div key={item.value} className="py-3">
+                        <button
+                            onClick={() => setSelectedGraph(item.value)}
+                            disabled={selectedGraph === item.value}
+                            className={`w-full text-left flex items-center gap-2 transition-colors
+                            ${selectedGraph === item.value
+                                ? 'text-[#7140F4] font-semibold'
+                                : 'text-white hover:text-[#7140F4]'}`}
+                        >
+                            <span className="truncate">{item.label}</span>
+                        </button>
+                    </div>
+                ))}
             </div>
         </div>
     );
+
 }
 
 

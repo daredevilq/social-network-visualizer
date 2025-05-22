@@ -216,7 +216,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
                         <RetweetsOfContainer retweetingUsers={retweetingUsers} />
                         <HashtagActivityContainer topHashtags={topHashtags}/>
-                        <ViralTweetsContainer username={username} viralTweets={viralTweets}/>
+                        <ViralTweetsContainer viralTweets={viralTweets}/>
                     </div>
                 )}
             </div>

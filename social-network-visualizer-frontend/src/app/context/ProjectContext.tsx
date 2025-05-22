@@ -22,6 +22,8 @@ interface Context {
     setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
     selectedUserName: string | null;
     setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
+    graphType: string;
+    setGraphType: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ProjectContext = createContext<Context>({
@@ -42,6 +44,8 @@ const ProjectContext = createContext<Context>({
     setIsSidebarOpen: () => {},
     selectedUserName: null,
     setSelectedUserName: () => {},
+    graphType: "mentions",
+    setGraphType: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -55,11 +59,17 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
+    const [graphType, setGraphType] = useState<string>("mentions");
 
     useEffect(() => {
         const stored = localStorage.getItem('selectedProject');
         if (stored) {
             setSelected(JSON.parse(stored));
+        }
+
+        const storedGraphType = localStorage.getItem('graphType');
+        if (storedGraphType) {
+            setGraphType(storedGraphType);
         }
     }, []);
 
@@ -67,7 +77,11 @@ export function ProjectProvider({children}: { children: ReactNode }) {
         if (selected) {
             localStorage.setItem('selectedProject', JSON.stringify(selected));
         }
-    }, [selected]);
+
+        if (graphType) {
+            localStorage.setItem('graphType', graphType);
+        }
+    }, [selected, graphType]);
 
     const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
         if (loading) return fn();
@@ -82,7 +96,9 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${API_BASE_URL}/project/import/${name}`);
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+                method: "POST",
+            });
             setSelected(name);
             window.location.href = "/";
         });
@@ -90,7 +106,9 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const refresh = async () =>
         runWithLoading(async () => {
             if (!selected) return;
-            await fetch(`${API_BASE_URL}/project/import/${selected}`);
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+                method: "POST",
+            });
         });
 
     return (
@@ -112,7 +130,9 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 isSidebarOpen,
                 setIsSidebarOpen,
                 selectedUserName,
-                setSelectedUserName
+                setSelectedUserName,
+                graphType,
+                setGraphType,
             }}>
             {children}
         </ProjectContext.Provider>
