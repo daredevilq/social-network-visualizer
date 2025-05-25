@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.enums.NodeLabel;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,8 +84,9 @@ public class Neo4jService {
 
     private void createAllGraphs() {
         for (GraphDefinition def : GraphDefinition.values()) {
+            List<String> nodeLabels = def.getNodeLabels().stream().map(NodeLabel::getLabel).toList();
             Map<String, Map<String, String>> relationMap = toGdsRelationMap(def.getRelationTypes());
-            graphRepository.createGraph(def.getGraphName(), relationMap);
+            graphRepository.createGraph(def.getGraphName(), nodeLabels, relationMap);
         }
     }
 

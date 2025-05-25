@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Map;
 
 public interface GraphRepository extends Neo4jRepository<Author, String> {
@@ -18,13 +19,13 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
     @Query("""
       CALL gds.graph.project(
         $graphName,
-        'Author',
+        $nodeLabels,
         $relations
       )
       YIELD graphName
       RETURN graphName
     """)
-    void createGraph(@Param("graphName") String graphName, @Param("relations") Map<String, Map<String, String>> relations);
+    void createGraph(@Param("graphName") String graphName, @Param("nodeLabels") List<String> nodeLabels, @Param("relations") Map<String, Map<String, String>> relations);
 
     @Query("""
         CALL gds.graph.drop($graphName, false) YIELD graphName
