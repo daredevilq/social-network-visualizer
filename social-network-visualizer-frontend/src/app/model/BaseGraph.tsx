@@ -1,4 +1,5 @@
 import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
+// @ts-ignore
 import ForceGraph, {ForceGraphInstance, LinkObject, NodeObject} from 'force-graph';
 import {GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";

@@ -19,7 +19,7 @@ export default function AuthorMentionsGraph() {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const links: Link[] = data.edges.map(link => ({
+                const links: Link[] = data.edges.map((link: { source: any; target: any; }) => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));
