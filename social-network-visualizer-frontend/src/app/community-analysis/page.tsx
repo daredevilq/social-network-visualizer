@@ -10,7 +10,6 @@ import CommunityAnalysisContainer from '@/app/components/Analysis/Community/Comm
 
 export default function CommunityAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState('communityGraph');
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState('');
     const { loading } = useProject();
 
@@ -24,8 +23,6 @@ export default function CommunityAnalysisPage() {
 
             <LeftSideBar
                 isOpen={isLeftSidebarOpen}
-                selectedGraph={selectedGraph}
-                setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
 

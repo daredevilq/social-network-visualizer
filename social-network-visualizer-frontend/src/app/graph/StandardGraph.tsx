@@ -15,12 +15,12 @@ export default function StandardGraph() {
         setGraphData,
         nodeFoundId,
         shortestPath,
-        graphType
+        graphRelationType
     } = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-        fetch(`http://localhost:8080/graph/${graphType}`)
+        fetch(`http://localhost:8080/graph/${graphRelationType}`)
             .then((res) => res.json())
             .then((data) => {
                 if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {

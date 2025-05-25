@@ -15,13 +15,15 @@ export default function CommunityGraph() {
         setGraphData,
         nodeFoundId,
         shortestPath,
-        graphType
+        graphRelationType,
+        focusedCommunityId,
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
 
     useEffect(() => {
         if (!selected || loading) return;
+
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
         )
@@ -34,7 +36,7 @@ export default function CommunityGraph() {
                 return Array.isArray(parsed) ? parsed as number[] : [];
             });
 
-        const fetchGraph = fetch(`http://localhost:8080/graph/${graphType}`)
+        const fetchGraph = fetch(`http://localhost:8080/graph/${graphRelationType}`)
             .then(res => {
                 if (!res.ok) throw new Error(`graph ${res.status}`);
                 return res.json();
@@ -45,7 +47,10 @@ export default function CommunityGraph() {
                 const idSet = new Set(topIds.map(id => id.toString()));
 
                 const nodes: Node[] = (data.nodes ?? [])
-                    .filter((raw: any) => idSet.has(raw.community?.toString()))
+                    .filter((raw: any) => focusedCommunityId
+                          ? raw.community?.toString() === focusedCommunityId
+                              : idSet.has(raw.community?.toString())
+                          )
                     .map((raw: any) => ({
                         id:          raw.name,
                         label:       raw.name,
@@ -62,7 +67,7 @@ export default function CommunityGraph() {
                 setGraphData({ nodes, links });
             })
             .catch(err => console.error("Fetch error:", err.message));
-    }, [selected, loading]);
+    }, [selected, loading, focusedCommunityId]);
 
 
     const getNodeColor = (node: any) => {

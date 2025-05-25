@@ -2,11 +2,13 @@
 
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import {GraphType} from "@/app/interface/GraphType";
 
 
 interface Context {
     selected: string | null;
     loading: boolean;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     select: (name: string) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
     refresh: () => Promise<void>;
@@ -22,13 +24,18 @@ interface Context {
     setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
     selectedUserName: string | null;
     setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
-    graphType: string;
-    setGraphType: React.Dispatch<React.SetStateAction<string>>;
+    graphRelationType: string;
+    setGraphRelationType: React.Dispatch<React.SetStateAction<string>>;
+    focusedCommunityId?: string;
+    setFocusedCommunityId: (id?: string) => void;
+    selectedGraphType: GraphType;
+    setSelectedGraphType: (g: GraphType) => void;
 }
 
 const ProjectContext = createContext<Context>({
     selected: null,
     loading: false,
+    setLoading: () => {},
     select: async () => {},
     runWithLoading: async (fn) => fn(),
     refresh: async () => {},
@@ -44,8 +51,13 @@ const ProjectContext = createContext<Context>({
     setIsSidebarOpen: () => {},
     selectedUserName: null,
     setSelectedUserName: () => {},
-    graphType: "mentions",
-    setGraphType: () => {},
+    graphRelationType: "mentions",
+    setGraphRelationType: () => {},
+    focusedCommunityId: undefined,
+    setFocusedCommunityId: () => {},
+    selectedGraphType: GraphType.STANDARD,
+    setSelectedGraphType: () => {},
+
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -59,7 +71,9 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
-    const [graphType, setGraphType] = useState<string>("mentions");
+    const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
+    const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
+    const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
 
     useEffect(() => {
         const stored = localStorage.getItem('selectedProject');
@@ -69,7 +83,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
         const storedGraphType = localStorage.getItem('graphType');
         if (storedGraphType) {
-            setGraphType(storedGraphType);
+            setGraphRelationType(storedGraphType);
         }
     }, []);
 
@@ -78,10 +92,21 @@ export function ProjectProvider({children}: { children: ReactNode }) {
             localStorage.setItem('selectedProject', JSON.stringify(selected));
         }
 
-        if (graphType) {
-            localStorage.setItem('graphType', graphType);
+        if (graphRelationType) {
+            localStorage.setItem('graphType', graphRelationType);
         }
-    }, [selected, graphType]);
+    }, [selected, graphRelationType]);
+
+    useEffect(() => {
+        const stored = localStorage.getItem('graphUiType');
+        if (stored && Object.values<string>(GraphType).includes(stored))
+            setSelectedGraphType(stored as GraphType);
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('graphUiType', selectedGraphType);
+    }, [selectedGraphType]);
+
 
     const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
         if (loading) return fn();
@@ -96,7 +121,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphRelationType}`, {
                 method: "POST",
             });
             setSelected(name);
@@ -106,7 +131,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const refresh = async () =>
         runWithLoading(async () => {
             if (!selected) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphRelationType}`, {
                 method: "POST",
             });
         });
@@ -116,6 +141,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
             value={{
                 selected,
                 loading,
+                setLoading,
                 select,
                 runWithLoading,
                 refresh,
@@ -131,8 +157,12 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setIsSidebarOpen,
                 selectedUserName,
                 setSelectedUserName,
-                graphType,
-                setGraphType,
+                graphRelationType,
+                setGraphRelationType,
+                focusedCommunityId,
+                setFocusedCommunityId,
+                selectedGraphType,
+                setSelectedGraphType
             }}>
             {children}
         </ProjectContext.Provider>

@@ -11,6 +11,8 @@ import {UsersMentionedContainer} from "@/app/components/UserAnalysis/UsersMentio
 import {useActivityHeatmap} from "@/app/hooks/useActivityHeatmap";
 import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
 import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
+import {useProject} from "@/app/context/ProjectContext";
+import {GraphType} from "@/app/interface/GraphType";
 
 export default function CommunityAnalysisDetailsContainer(
     { communityId }: { communityId: string }
@@ -19,6 +21,13 @@ export default function CommunityAnalysisDetailsContainer(
     const { data: summary, loading: loadingSummary, error: errorSummary } = useCommunitySummary(id);
     const { data: authors, loading: loadingAuthors, error: errorAuthors } = useCommunityAuthors(id);
     const {data: communityHeatMap, loading: loadingHeatMap, error: errorHeatMap} = useActivityHeatmap({communityId: id});
+    const { setFocusedCommunityId, setSelectedGraphType } = useProject();
+
+    const openGraph = () => {
+        setFocusedCommunityId(communityId);
+        setSelectedGraphType(GraphType.COMMUNITY);
+        router.push("/");
+    };
 
     const router = useRouter();
 
@@ -36,20 +45,27 @@ export default function CommunityAnalysisDetailsContainer(
         <section className="flex flex-col h-max w-full text-[#FAFAFA]">
             <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
 
-                <header className="relative flex items-center w-full mb-6">
+                <header className="mb-6 flex items-center justify-between gap-4 w-full">
                     <button
                         onClick={() => router.push('/community-analysis')}
                         className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                         </svg>
                         Back to overview
                     </button>
 
-                    <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-bold">
+                    <h1 className="flex-1 text-center text-2xl md:text-3xl font-bold">
                         Community #{communityId}
                     </h1>
+
+                    <button
+                        onClick={openGraph}
+                        className="ml-auto shrink-0 text-white bg-[#7140F4] hover:bg-indigo-500 px-4 py-1.5 rounded-md transition-colors duration-200"
+                    >
+                        Show community graph
+                    </button>
                 </header>
 
                 <div className="grid grid-cols-1 gap-8">
