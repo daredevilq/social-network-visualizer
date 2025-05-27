@@ -5,14 +5,14 @@ import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title,
 import {useProject} from "@/app/context/ProjectContext"
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {ViralTweet} from "@/types/tweetTypes"
-import {UsersMentionedContainer} from "@/app/components/UserAnalysis/UsersMentionedContainer";
-import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsContainer";
-import {UserProfileContainer} from "@/app/components/UserAnalysis/UserProfileContainer";
-import {ActivityTimelineContainer} from "@/app/components/UserAnalysis/ActivityTimelineContainer";
-import { TopHashtagsContainer } from "@/app/components/UserAnalysis/TopHashtagsContainer";
-import { RetweetsByContainer } from "@/app/components/UserAnalysis/RetweetsByContainer";
-import { RetweetsOfContainer } from "@/app/components/UserAnalysis/RetweetsOfContainer";
-import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
+import {UsersMentionedContainer} from "@/app/components/Analysis/User/UsersMentionedContainer";
+import {ViralTweetsContainer} from "@/app/components/Analysis/User/ViralTweetsContainer";
+import {UserProfileContainer} from "@/app/components/Analysis/User/UserProfileContainer";
+import {ActivityTimelineContainer} from "@/app/components/Analysis/User/ActivityTimelineContainer";
+import { TopHashtagsContainer } from "@/app/components/Analysis/User/TopHashtagsContainer";
+import { RetweetsByContainer } from "@/app/components/Analysis/User/RetweetsByContainer";
+import { RetweetsOfContainer } from "@/app/components/Analysis/User/RetweetsOfContainer";
+import {HashtagActivityContainer} from "@/app/components/Analysis/User/HashtagActivityContainer";
 import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
 

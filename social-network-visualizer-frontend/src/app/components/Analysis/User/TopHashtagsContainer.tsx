@@ -1,5 +1,6 @@
 
 import { Tag } from 'lucide-react';
+import {useRouter} from "next/navigation";
 
 interface HashtagActivity {
     name: string;
@@ -11,6 +12,7 @@ interface TopHashtagsContainerProps {
 }
 
 export function TopHashtagsContainer({ topHashtags }: TopHashtagsContainerProps) {
+    const router = useRouter();
     const getSubtleVariantColor = (index: number) => {
         const baseR = 92;
         const baseG = 55;
@@ -18,7 +20,6 @@ export function TopHashtagsContainer({ topHashtags }: TopHashtagsContainerProps)
 
         const alphas = [0.4, 0.5, 0.6, 0.7, 0.8];
 
-        // Delikatne różnice w odcieniu
         const variations = [
             { r: baseR, g: baseG, b: baseB },
             { r: baseR - 10, g: baseG, b: baseB + 10 },
@@ -51,6 +52,7 @@ export function TopHashtagsContainer({ topHashtags }: TopHashtagsContainerProps)
             {topHashtags && topHashtags.length > 0 ? (
                 <div className="flex flex-wrap gap-3">
                     {topHashtags.map((hashtag, index) => (
+                        <button onClick={() => router.push(`/hashtag-details/${hashtag.name}`)}>
                         <div
                             key={index}
                             className="px-4 py-2 rounded-full text-white font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 hover:cursor-pointer"
@@ -58,6 +60,7 @@ export function TopHashtagsContainer({ topHashtags }: TopHashtagsContainerProps)
                         >
                             {hashtag.name}
                         </div>
+                        </button>
                     ))}
                 </div>
             ) : (
