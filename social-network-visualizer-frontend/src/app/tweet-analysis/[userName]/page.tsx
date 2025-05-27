@@ -27,8 +27,6 @@ export default function TweetAnalysisPage() {
 
             <LeftSideBar
                 isOpen={isLeftSidebarOpen}
-                selectedGraph={selectedGraph}
-                setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
 

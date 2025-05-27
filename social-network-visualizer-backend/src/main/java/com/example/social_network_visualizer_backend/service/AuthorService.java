@@ -1,9 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
-import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -39,7 +36,7 @@ public class AuthorService {
         return List.of();
     }
 
-    public List<String> findLast3TweetUrlsByAuthor(String authorName) {
+    public List<TweetPreviewDto> findLast3TweetUrlsByAuthor(String authorName) {
         return authorRepository.findLast3TweetUrlsByAuthorUsername(authorName);
     }
 

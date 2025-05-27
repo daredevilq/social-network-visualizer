@@ -15,19 +15,19 @@ export default function StandardGraph() {
         setGraphData,
         nodeFoundId,
         shortestPath,
-        graphType
+        graphRelationType
     } = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-        fetch(`http://localhost:8080/graph/${graphType}`)
+        fetch(`http://localhost:8080/graph/${graphRelationType}`)
             .then((res) => res.json())
             .then((data) => {
                 if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const links: Link[] = data.edges.map(link => ({
+                const links: Link[] = data.edges.map((link: { source: any; target: any; }) => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));
@@ -66,12 +66,12 @@ export default function StandardGraph() {
                 }
                 nodeColor={node => {
                     if (node.id === nodeFoundId) return "red";
-                    return shortestPath.includes(node.id)
+                    return shortestPath.includes(String(node.id))
                         ? "rgba(255, 159, 64, 0.95)"
                         : "rgba(92, 55, 230, 0.95)";
                 }}
                 linkColor={link => {
-                    return shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa";
+                    return shortestPath.includes(String(link.source)) && shortestPath.includes(String(link.target)) ? "red" : "#fafafa";
                 }}
                 linkWidth={(link: any) =>
                     shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 4 : 2

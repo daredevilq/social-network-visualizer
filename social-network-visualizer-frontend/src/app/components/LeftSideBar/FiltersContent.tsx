@@ -12,8 +12,8 @@ interface GraphType {
 
 export default function FiltersContent() {
     const {
-        graphType,
-        setGraphType,
+        graphRelationType,
+        setGraphRelationType,
         runWithLoading,
         loading,
     } = useProject();
@@ -45,7 +45,7 @@ export default function FiltersContent() {
 
             showStatus(`Relations "${type.label}" recomputed.`);
 
-            setGraphType(type.value);
+            setGraphRelationType(type.value);
         });
     };
 
@@ -59,10 +59,10 @@ export default function FiltersContent() {
                 {types.map((type) => (
                     <div key={type.value} className="py-3">
                         <button
-                            disabled={graphType === type.value}
+                            disabled={graphRelationType === type.value}
                             onClick={() => selectGraphType(type)}
                             className={`flex items-center gap-2 w-full text-left transition-colors
-                                ${graphType === type.value
+                                ${graphRelationType === type.value
                                 ? 'text-[#7140F4] font-semibold'
                                 : 'text-white hover:text-[#7140F4]'
                             }`}

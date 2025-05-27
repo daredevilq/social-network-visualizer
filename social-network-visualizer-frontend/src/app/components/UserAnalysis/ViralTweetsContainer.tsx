@@ -87,7 +87,7 @@ export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[
 
                 </div>
             ) : (
-                <p>No viral tweets available.</p>
+                <p className="text-gray-400">No viral tweets available.</p>
             )}
         </div>
     )

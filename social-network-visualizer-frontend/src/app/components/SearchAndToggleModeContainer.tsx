@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
 import { BarChart2, Search } from "lucide-react";
 import {useProject} from "@/app/context/ProjectContext";
 import {GraphData} from "@/app/interface/GraphData";
 
-const SearchAndToggleModeContainer = ({searchValue, onSearchChange, searchPlaceholder = "Search graph data...",}) => {
+interface SearchAndToggleModeContainerProps {
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    searchPlaceholder?: string;
+}
+
+const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> = ({
+                                                                                       searchValue,
+                                                                                       onSearchChange,
+                                                                                       searchPlaceholder = "Search graph data...",
+                                                                                   }) => {
     const [localSearchValue, setLocalSearchValue] = useState(searchValue || '');
     const {isGraphMode, setIsGraphMode, graphData, setNodeIdFound} = useProject();
     const handleDisplayModeToggle = () => {
@@ -11,11 +21,11 @@ const SearchAndToggleModeContainer = ({searchValue, onSearchChange, searchPlaceh
         setIsGraphMode(newValue);
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setLocalSearchValue(e.target.value);
     };
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             onSearchChange(localSearchValue);
             const node = findNodeById(graphData, localSearchValue);

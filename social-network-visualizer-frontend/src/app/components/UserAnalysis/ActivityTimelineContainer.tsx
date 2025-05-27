@@ -50,7 +50,7 @@ export function ActivityTimelineContainer({userActivity, chartData}: { userActiv
                     />
                 </div>
             ) : (
-                <p>No activity data available.</p>
+                <p className="text-gray-400">No activity data available.</p>
             )}
         </div>
     )

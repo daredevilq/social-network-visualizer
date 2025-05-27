@@ -4,11 +4,12 @@ import {useProject} from "@/app/context/ProjectContext"
 import {useRouter} from 'next/navigation'
 import {ExternalLink, X} from 'lucide-react'
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import {TweetPreview} from "@/app/interface/TweetPreview";
 
 export default function RightSidebar() {
     const router = useRouter()
     const [userData, setUserData] = useState<UserData | null>(null)
-    const [lastPosts, setTopPosts] = useState<string[]>([])
+    const [lastPosts, setLastPosts] = useState<TweetPreview[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserName} = useProject()
@@ -25,8 +26,8 @@ export default function RightSidebar() {
                 setUserData(data)
 
                 const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserName}`)
-                const posts = await lastPostsRes.json()
-                setTopPosts(posts)
+                const posts: TweetPreview[] = await lastPostsRes.json()
+                setLastPosts(posts)
             } catch (err) {
                 setError('Failed to load user data. Please try again later.')
                 console.error('Error fetching user data:', err)
@@ -47,7 +48,7 @@ export default function RightSidebar() {
         }
     }
 
-    const truncateUrl = (url: string, maxLength: number = 35) => {
+    const truncatePreview = (url: string, maxLength: number = 35) => {
         if (url.length <= maxLength) return url
         const start = url.substring(0, maxLength / 2)
         const end = url.substring(url.length - maxLength / 2)
@@ -131,51 +132,52 @@ export default function RightSidebar() {
                     )}
                 </div>
 
-                <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50">
-                <h3 className="text-lg font-semibold mb-4">Last 3 Posts</h3>
-
-                    {loading ? (
-                        <div className="space-y-4">
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className="h-24 bg-[#3D3D4E] rounded-lg animate-pulse"/>
-                            ))}
-                        </div>
-                    ) : lastPosts && lastPosts.length > 0 ? (
-                        <div className="space-y-3">
-                            {lastPosts.map((url, index) => (
-                                <div
-                                    key={index}
-                                    onClick={() => window.open(url, '_blank')}
-                                    className="block bg-gradient-to-r from-[#3D3D4E] to-[#454557] hover:from-[#454557] hover:to-[#505063] p-4 rounded-lg transition-all duration-200 border border-[#3D3D4E]/70 hover:border-[#7140F4]/70 cursor-pointer hover:shadow-lg"
-                                >
-                                    <p className="text-sm truncate mb-3" title={url}>
-                                        {truncateUrl(url)}
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-[#9C6FFF] text-xs flex items-center">
-                                            <span>View on Twitter</span>
-                                            <ExternalLink className="w-3 h-3 ml-1" />
+                <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50 flex flex-col min-h-0">
+                    <h3 className="text-lg font-semibold mb-4">Last 3 Posts</h3>
+                        <div className="flex-1 overflow-y-auto space-y-3 scrollbar-dark">
+                        {loading ? (
+                            <div className="space-y-4">
+                                {[...Array(3)].map((_, i) => (
+                                    <div key={i} className="h-24 bg-[#3D3D4E] rounded-lg animate-pulse"/>
+                                ))}
+                            </div>
+                        ) : lastPosts && lastPosts.length > 0 ? (
+                            <div className="space-y-3">
+                                {lastPosts.map(({url, contentPreview},index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => window.open(url, '_blank')}
+                                        className="block bg-gradient-to-r from-[#3D3D4E] to-[#454557] hover:from-[#454557] hover:to-[#505063] p-4 rounded-lg transition-all duration-200 border border-[#3D3D4E]/70 hover:border-[#7140F4]/70 cursor-pointer hover:shadow-lg"
+                                    >
+                                        <p className="text-sm truncate mb-3" title={contentPreview || ''}>
+                                            { contentPreview ? truncatePreview(contentPreview) : "no preview available"}
+                                        </p>
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-[#9C6FFF] text-xs flex items-center">
+                                                <span>View on Twitter</span>
+                                                <ExternalLink className="w-3 h-3 ml-1" />
+                                            </div>
+                                            <span className="text-xs text-gray-400">
+                                                {`Post ${index + 1}`}
+                                            </span>
                                         </div>
-                                        <span className="text-xs text-gray-400">
-                                            {`Post ${index + 1}`}
-                                        </span>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-48 text-center bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
+                                <p className="text-gray-400 italic mb-1">No posts available</p>
+                                <p className="text-xs text-gray-500">This user has no prominent posts</p>
+                            </div>
+                        )}
+                        <div className="mt-3">
+                            <button
+                                onClick={() => router.push(`/tweet-analysis/${selectedUserName}`)}
+                                className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                            >
+                                Show more posts
+                            </button>
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-48 text-center bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
-                            <p className="text-gray-400 italic mb-1">No posts available</p>
-                            <p className="text-xs text-gray-500">This user has no prominent posts</p>
-                        </div>
-                    )}
-                    <div className="mt-3">
-                        <button
-                            onClick={() => router.push(`/tweet-analysis/${selectedUserName}`)}
-                            className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
-                        >
-                            Show more posts
-                        </button>
                     </div>
                 </div>
             </div>

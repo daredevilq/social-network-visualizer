@@ -2,7 +2,6 @@
 
 import '@/app/globals.css';
 import {useState} from 'react';
-import { useParams } from 'next/navigation';
 import {useProject} from '@/app/context/ProjectContext';
 import LeftBar from "@/app/components/LeftBar";
 import LeftSideBar from "@/app/components/LeftSideBar";
@@ -11,7 +10,6 @@ import TweetAnalysisList from "@/app/components/Analysis/Tweet/TweetAnalysisList
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState("standardGraph");
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const {loading} = useProject();
 
@@ -25,8 +23,6 @@ export default function TweetAnalysisPage() {
 
             <LeftSideBar
                 isOpen={isLeftSidebarOpen}
-                selectedGraph={selectedGraph}
-                setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
 

@@ -7,19 +7,18 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
-    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId, graphType} = useProject();
+    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId, graphRelationType} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-        fetch(`http://localhost:8080/graph/${graphType}`)
+        fetch(`http://localhost:8080/graph/${graphRelationType}`)
             .then((res) => res.json())
             .then((data) => {
-                console.log("PageRankGraph Fetched data:", data);
                 if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;
                 }
-                const links: Link[] = data.edges.map(link => ({
+                const links: Link[] = data.edges.map((link: { source: any; target: any; }) => ({
                     ...link,
                     type: link.source === link.target ? "mention" : "retweet",
                 }));

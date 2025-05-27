@@ -73,7 +73,6 @@ const Dashboard = () => {
                 const heatRes = await fetch(`${API_BASE_URL}/dashboard/heat-map`);
                 const heatMapData = await heatRes.json();
                 setHeatMap(heatMapData);
-                console.log(heatMap);
             } catch (err) {
                 setError('Failed to load project data. Please try again later.');
                 console.error('Error fetching project data:', err);

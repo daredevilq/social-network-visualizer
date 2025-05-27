@@ -1,10 +1,11 @@
 import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
+// @ts-ignore
 import ForceGraph, {ForceGraphInstance, LinkObject, NodeObject} from 'force-graph';
 import {GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {Node} from "@/app/interface/GraphData";
 
-const BaseGraph = forwardRef(({
+const BaseGraph  = forwardRef(({
   graphData,
   nodeVal,
   nodeLabel,
@@ -27,7 +28,7 @@ const BaseGraph = forwardRef(({
     const [displayedNodes, setDisplayedNodes] = useState<NodeObject[]>([]);
     const [displayedLinks, setDisplayedLinks] = useState<LinkObject[]>([]);
 
-    const {setIsSidebarOpen, setSelectedUserName} = useProject();
+    const {setIsSidebarOpen, setSelectedUserName, setFocusedCommunityId, setLoading} = useProject();
 
     const clickedNodeRef = useRef<Node | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -121,7 +122,6 @@ const BaseGraph = forwardRef(({
         if (fgInstance.current && graphData.nodes.length > 0) {
             const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
             const topNodesIds = new Set(topNodes.map(node => node.id));
-            fgInstance.current.graphData(graphData);
             const relevantLinks = graphData.links.filter(link => {
                 const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
                 const targetId = typeof link.target === 'object' ? link.target.id : link.target;
@@ -216,6 +216,7 @@ const BaseGraph = forwardRef(({
         setWorkspaceNodes([]);
         setSelectedNodeIds([]);
         loadGraphData();
+        setFocusedCommunityId(undefined);
     };
 
 

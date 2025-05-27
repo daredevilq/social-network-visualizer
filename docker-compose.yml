@@ -35,3 +35,4 @@ services:
       - backend_service
     environment:
       - WATCHPACK_POLLING=true
+      

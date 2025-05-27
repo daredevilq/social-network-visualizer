@@ -35,7 +35,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
                     </span>
 
                     {highlight && (
-                        <div className="relative flex items-center group">
+                        <div className="relative flex items-center group pl-2">
                             <Info className="w-5 h-5 text-yellow-400 cursor-pointer" />
                             <span className="absolute right-0 top-full mt-1 w-max px-2 py-1 rounded bg-gray-700 text-xs opacity-0 group-hover:opacity-100 transition z-10">
                                 High engagement ({interactionRatio.toFixed(1)}% above average)

@@ -10,23 +10,21 @@ import HomeContent from "@/app/components/LeftSideBar/HomeContent";
 
 interface LeftSidebarProps {
     isOpen: boolean;
-    selectedGraph: string;
-    setSelectedGraph: (graph: string) => void;
     selectedLeftSideBarContent: string;
 }
 
 export default function LeftSidebar({
                                         isOpen,
-                                        selectedGraph,
-                                        setSelectedGraph,
                                         selectedLeftSideBarContent,
                                     }: LeftSidebarProps) {
+
     const renderLeftSideBarContent = () => {
+
         switch (selectedLeftSideBarContent) {
             case "home":
                 return null
             case "graph":
-                return <GraphTypeContent selectedGraph={selectedGraph} setSelectedGraph={setSelectedGraph}/>
+                return <GraphTypeContent/>
             case "functions":
                 return <FunctionsContent/>
             case "filters":

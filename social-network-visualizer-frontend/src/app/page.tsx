@@ -13,7 +13,6 @@ import AnalysisContainer from "@/app/components/Analysis/AnalysisContainer";
 
 export default function Home() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState("standardGraph")
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const [searchQuery, setSearchQuery] = useState("");
     const {loading, isGraphMode} = useProject();
@@ -25,13 +24,14 @@ export default function Home() {
                      setSelectedLeftSideBarContent={setSelectedLeftSideBarContent}/>
             <LeftSidebar
                 isOpen={isLeftSidebarOpen}
-                selectedGraph={selectedGraph}
-                setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
-            <SearchAndToggleModeContainer value={searchQuery} onSearchChange={(value) => setSearchQuery(value)}/>
+            <SearchAndToggleModeContainer
+                searchValue={searchQuery}
+                onSearchChange={(value) => setSearchQuery(value)}
+            />
             {isGraphMode ?
-                <GraphContainer selectedGraph={selectedGraph}/> :
+                <GraphContainer/> :
                 <AnalysisContainer></AnalysisContainer>
             }
             <RightSidebar/>

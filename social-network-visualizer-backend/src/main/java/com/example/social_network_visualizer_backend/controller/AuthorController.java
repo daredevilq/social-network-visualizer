@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
 import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -43,7 +44,7 @@ public class AuthorController {
     }
 
     @GetMapping("/last-posts/{authorName}")
-    public List<String> getLast3TweetUrls(@PathVariable String authorName) {
+    public List<TweetPreviewDto> getLast3TweetUrls(@PathVariable String authorName) {
         return authorService.findLast3TweetUrlsByAuthor(authorName);
     }
 

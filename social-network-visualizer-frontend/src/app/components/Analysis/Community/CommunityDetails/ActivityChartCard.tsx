@@ -12,7 +12,11 @@ export default function ActivityChartCard({ activity }: { activity: ActivityPoin
                 <LineChart className="w-5 h-5 mr-2" />
                 Activity Over Time
             </h2>
-            <ActivityChart data={activity}/>
+            {activity && activity.length > 0 ? (
+                <ActivityChart data={activity}/>
+            ) : (
+                <p className="text-gray-400">No activity data available.</p>
+            )}
         </div>
     );
 }

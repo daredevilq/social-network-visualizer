@@ -1,11 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.ActivityPoint;
-import com.example.social_network_visualizer_backend.dto.AuthorLinkDto;
-import com.example.social_network_visualizer_backend.dto.AuthorNodeDto;
-import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -67,10 +62,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
                 OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
                 ORDER BY t.publicationDate DESC
-                RETURN t.url AS url
+                RETURN t.url AS url, t.contentPreview AS contentPreview
                 LIMIT 3
             """)
-    List<String> findLast3TweetUrlsByAuthorUsername(@Param("authorName") String authorName);
+    List<TweetPreviewDto> findLast3TweetUrlsByAuthorUsername(@Param("authorName") String authorName);
 
     @Query("""
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)

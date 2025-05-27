@@ -5,7 +5,11 @@ import { CommunitySummary } from "@/app/interface/CommunitySummary";
 import CommunityMetrics from "./CommunityMetrics";
 import ActivityChart from "./ActivityChart";
 import PageRankBar from "./PageRankBar";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {useProject} from "@/app/context/ProjectContext";
+import {GraphType} from "@/app/interface/GraphType";
+
 
 export default function CommunityCard({ data }: { data: CommunitySummary }) {
     const {
@@ -16,7 +20,17 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
         topHashtags,
         communityActivity,
     } = data;
+
+    const { setFocusedCommunityId, setSelectedGraphType } = useProject();
+
+    const openGraph = () => {
+        setFocusedCommunityId(data.communityId.toString());
+        setSelectedGraphType(GraphType.COMMUNITY);
+        router.push("/");
+    };
+
     const [open, setOpen] = useState(false);
+    const router = useRouter();
 
     return (
         <article className="w-full max-w-5xl bg-[#32323F] rounded-xl p-6 shadow-lg">
@@ -53,6 +67,11 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
                 >
                     Analyse
                 </Link>
+                <button
+                    onClick={openGraph}
+                    className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition">
+                    Show graph
+                </button>
             </div>
 
             {open && (

@@ -31,7 +31,7 @@ export function UsersMentionedContainer({userMentions, message}: UsersMentionedC
                     ))}
                 </div>
             ) : (
-                <p>No connection data available.</p>
+                <p className="text-gray-400">No connection data available.</p>
             )}
         </div>
     )
