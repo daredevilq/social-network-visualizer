@@ -5,7 +5,7 @@ import {GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {Node} from "@/app/interface/GraphData";
 
-const BaseGraph = forwardRef(({
+const BaseGraph  = forwardRef(({
   graphData,
   nodeVal,
   nodeLabel,

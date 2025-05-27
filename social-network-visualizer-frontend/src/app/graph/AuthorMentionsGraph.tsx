@@ -14,7 +14,6 @@ export default function AuthorMentionsGraph() {
         fetch(`http://localhost:8080/graph/${graphRelationType}`)
             .then((res) => res.json())
             .then((data) => {
-                console.log("AuthorMentions Fetched data:", data);
                 if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
                     console.error("Invalid data format:", data);
                     return;

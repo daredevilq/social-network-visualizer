@@ -11,7 +11,6 @@ import {useParams} from "next/navigation";
 
 export default function CommunityAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState('communityGraph');
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState('');
     const { communityId } = useParams<{ communityId: string}>();
     const { loading } = useProject();
@@ -26,8 +25,6 @@ export default function CommunityAnalysisPage() {
 
             <LeftSideBar
                 isOpen={isLeftSidebarOpen}
-                selectedGraph={selectedGraph}
-                setSelectedGraph={setSelectedGraph}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
 

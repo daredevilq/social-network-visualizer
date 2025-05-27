@@ -26,7 +26,10 @@ export default function Home() {
                 isOpen={isLeftSidebarOpen}
                 selectedLeftSideBarContent={selectedLeftSideBarContent}
             />
-            <SearchAndToggleModeContainer value={searchQuery} onSearchChange={(value) => setSearchQuery(value)}/>
+            <SearchAndToggleModeContainer
+                searchValue={searchQuery}
+                onSearchChange={(value) => setSearchQuery(value)}
+            />
             {isGraphMode ?
                 <GraphContainer/> :
                 <AnalysisContainer></AnalysisContainer>

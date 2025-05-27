@@ -51,7 +51,7 @@ export function UserProfileContainer({userData, animatedStats}: { userData: any,
                     </div>
                 </div>
             ) : (
-                <p>No user data available.</p>
+                <p className="text-gray-400">No user data available.</p>
             )}
         </div>
     )
