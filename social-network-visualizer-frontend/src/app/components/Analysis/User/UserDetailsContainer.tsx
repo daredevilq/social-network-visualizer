@@ -15,6 +15,7 @@ import { RetweetsOfContainer } from "@/app/components/Analysis/User/RetweetsOfCo
 import {HashtagActivityContainer} from "@/app/components/Analysis/User/HashtagActivityContainer";
 import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
+import { MostCommonWordsContainer } from './MostCommonWordsContainer'
 
 ChartJS.register(
     CategoryScale,
@@ -46,6 +47,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
     const [userHeatMap, setUserHeatMap] = useState<ActivityHeatmap[]>([])
     const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
+    const [mostCommonWords, setMostCommonWords] = useState<string[]>([]);
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
@@ -144,6 +146,10 @@ export default function UserDetailsContainer({username}: { username: string }) {
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
 
+                const mostCommonWordsRes = await fetch(`${API_BASE_URL}/author/most-common-words/${username}`)
+                const mostCommonWordsData = await mostCommonWordsRes.json()
+                setMostCommonWords(mostCommonWordsData)
+
                 const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`)
                 const userHeatMapData: ActivityHeatmap[] = await userHeatMapRes.json() as ActivityHeatmap[]
                 setUserHeatMap(userHeatMapData)
@@ -216,6 +222,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
                         <RetweetsOfContainer retweetingUsers={retweetingUsers} />
                         <HashtagActivityContainer topHashtags={topHashtags}/>
+                        <MostCommonWordsContainer words={mostCommonWords}/>
                         <ViralTweetsContainer viralTweets={viralTweets}/>
                     </div>
                 )}

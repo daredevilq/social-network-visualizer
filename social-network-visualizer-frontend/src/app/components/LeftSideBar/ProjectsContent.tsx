@@ -70,7 +70,7 @@ export default function ProjectsContent() {
 						<button
 							disabled={loading}
 							onClick={() => select(p.name)}
-							className="flex items-center text-left w-full"
+							className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
 						>
 							<img
 								src={
@@ -96,7 +96,7 @@ export default function ProjectsContent() {
 					<button
 						disabled={loading}
 						onClick={() => setCreateModalOpen(true)}
-						className="flex items-center w-full hover:text-[#7140F4]"
+						className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
 					>
 						<img
 							src="/icons/leftSideBar/plus_icon.png"

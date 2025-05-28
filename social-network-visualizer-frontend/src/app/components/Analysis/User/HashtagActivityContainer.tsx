@@ -13,7 +13,6 @@ interface TopHashtagsContainerProps {
 
 export function HashtagActivityContainer({topHashtags}: TopHashtagsContainerProps) {
     const router = useRouter();
-    const [expanded, setExpanded] = useState(true);
 
     return (
         <div className="bg-[#32323F] rounded-xl p-6 shadow-lg lg:col-span-2">
@@ -26,18 +25,17 @@ export function HashtagActivityContainer({topHashtags}: TopHashtagsContainerProp
                 <>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {topHashtags.map((hashtag, index) => (
-                            <button onClick={() => router.push(`/hashtag-details/${hashtag.name}`)}>
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between bg-[#3D3D4E] px-3 py-2 rounded-lg text-sm hover:bg-[#4D4D5E] transition-colors hover:cursor-pointer"
-                                >
-                                    <div className="flex items-center mr-2 max-w-[70%]">
-                                        <span className="text-[#7140F4] mr-1">#</span>
-                                        <span className="truncate">{hashtag.name}</span>
-                                    </div>
-                                    <span className="text-gray-300 font-medium ml-auto">{hashtag.frequency}</span>
+                            <div
+                                key={index}
+                                onClick={() => router.push(`/hashtag-details/${hashtag.name}`)}
+                                className="flex items-center justify-between bg-[#3D3D4E] px-3 py-2 rounded-lg text-sm hover:bg-[#4D4D5E] transition-colors hover:cursor-pointer"
+                            >
+                                <div className="flex items-center mr-2 max-w-[70%]">
+                                    <span className="text-[#7140F4] mr-1">#</span>
+                                    <span className="truncate">{hashtag.name}</span>
                                 </div>
-                            </button>
+                                <span className="text-gray-300 font-medium ml-auto">{hashtag.frequency}</span>
+                            </div>
                         ))}
                     </div>
                 </>

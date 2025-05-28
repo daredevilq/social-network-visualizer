@@ -1,10 +1,42 @@
 import {useRouter} from "next/navigation";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 
 
 export default function HashtagAnalysisContainer({hashtagName}: { hashtagName: string }) {
-    const [loading, setLoading] = useState<boolean>(true)
     const router = useRouter();
+    const [loading, setLoading] = useState<boolean>(true)
+    const [error, setError] = useState<string | null>(null)
+    const [selectedHashTagName, setSelectedHashTagName] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!hashtagName) {
+            router.push('/');
+            return;
+        }
+
+        setSelectedHashTagName(hashtagName);
+
+        const fetchData = async () => {
+            setLoading(true)
+            setError(null)
+
+            try {
+                // const userDataRes = await fetch(`${API_BASE_URL}/hashtag/${hashtagName}`)
+                // const data = await userDataRes.json()
+                // setUserData(data)
+
+            } catch (err) {
+                setError('Failed to load hashtag data. Please try again later.');
+                console.error('Error fetching hashtag data:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData()
+    }, [router, setSelectedHashTagName])
 
     return (
         <div className="w-full min-h-screen bg-[#262631] text-white p-6">
