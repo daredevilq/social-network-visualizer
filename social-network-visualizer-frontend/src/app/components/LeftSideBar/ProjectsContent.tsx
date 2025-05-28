@@ -43,7 +43,7 @@ export default function ProjectsContent() {
 			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
 			if (selected === name) await select('');
-			await refreshProjects();
+			await refresh(name);
 			showStatus(`Project “${name}” deleted`);
 		}).catch(err => {
 			console.error(err);
@@ -132,10 +132,6 @@ export default function ProjectsContent() {
 				API={API}
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
-				onSuccess={async () => {
-					await refresh();
-					await refreshProjects();
-				}}
 			/>
 
 			<ConfirmModal

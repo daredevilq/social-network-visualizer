@@ -6,7 +6,7 @@ interface LoadingOverlayProps {
 
 export default function LoadingOverlay({ color = '#7140F4' }: LoadingOverlayProps) {
 	return (
-		<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+		<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-100">
 			<svg
 				className="animate-spin w-10 h-10"
 				viewBox="0 0 24 24"

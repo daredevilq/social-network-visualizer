@@ -3,6 +3,7 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
+import {Link, Node} from "@/app/interface/GraphData";
 
 
 interface Context {
@@ -11,7 +12,8 @@ interface Context {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     select: (name: string) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
-    refresh: () => Promise<void>;
+    refresh: (name: string) => Promise<void>;
+    fetchGraphData: () => Promise<void>;
     isGraphMode: true | false;
     setIsGraphMode: React.Dispatch<React.SetStateAction<true | false>>;
     graphData: {nodes: any[], links: any[]};
@@ -39,6 +41,7 @@ const ProjectContext = createContext<Context>({
     select: async () => {},
     runWithLoading: async (fn) => fn(),
     refresh: async () => {},
+    fetchGraphData: async () => {},
     isGraphMode: true,
     setIsGraphMode: () => {},
     graphData: {nodes: [], links: []},
@@ -121,20 +124,60 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphRelationType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
                 method: "POST",
             });
             setSelected(name);
             window.location.href = "/";
         });
 
-    const refresh = async () =>
+    const refresh = async (name: string) =>
         runWithLoading(async () => {
             if (!selected) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphRelationType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
                 method: "POST",
             });
         });
+
+    const fetchGraphData = async () =>
+        runWithLoading(async () => {
+            if (!selected) return;
+
+            try {
+                const res = await fetch(`http://localhost:8080/graph/${graphRelationType}`);
+
+                if (!res.ok) {
+                    console.error("Fetch failed:", res.statusText);
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (!Array.isArray(data?.nodes) || !Array.isArray(data?.edges)) {
+                    console.error("Invalid data format:", data);
+                    return;
+                }
+
+                const links: Link[] = data.edges.map((edge: any) => ({
+                    source: edge.source,
+                    target: edge.target,
+                    relation: edge.relation ?? "unknown",
+                }));
+
+                const nodes: Node[] = data.nodes.map((node: any) => ({
+                    id: node.name,
+                    label: node.name,
+                    pagerank: node.pagerank ?? 0,
+                    degreeCentrality: node.centrality ?? 0,
+                    community: node.community?.toString() ?? "",
+                }));
+
+                setGraphData({ nodes, links });
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        });
+
 
     return (
         <ProjectContext.Provider
@@ -145,6 +188,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 select,
                 runWithLoading,
                 refresh,
+                fetchGraphData,
                 isGraphMode,
                 setIsGraphMode,
                 graphData,

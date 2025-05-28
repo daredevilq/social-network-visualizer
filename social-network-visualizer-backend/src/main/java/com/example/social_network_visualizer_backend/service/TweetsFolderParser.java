@@ -4,13 +4,19 @@ import com.example.social_network_visualizer_backend.dto.AuthorDto;
 import com.example.social_network_visualizer_backend.dto.MentionDto;
 import com.example.social_network_visualizer_backend.dto.ReplyDto;
 import com.example.social_network_visualizer_backend.dto.TweetDto;
+import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.json.JsonParseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +27,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,7 +39,8 @@ public class TweetsFolderParser {
     private final HashtagRepository hashtagRepository;
     private final TweetRelationService tweetRelationService;
 
-    public void parseDirectory(Path folderPath) {
+    @Transactional
+    public int parseDirectory(Path folderPath) {
         List<Path> jsonFiles;
 
         try (Stream<Path> files = Files.list(folderPath)) {
@@ -43,23 +49,29 @@ public class TweetsFolderParser {
                     .collect(Collectors.toList());
 
         } catch (IOException e) {
-            throw new RuntimeException("Error reading directory: " + folderPath, e);
+            throw new ProjectException("An error occurred while reading the directory: " + folderPath, e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        importFilesToDatabse(jsonFiles, true);
+        if (jsonFiles.isEmpty()) {
+            throw new ProjectException("No .json files found in the directory: " + folderPath, HttpStatus.BAD_REQUEST);
+        }
+
+        return importFilesToDatabase(jsonFiles, true);
     }
 
-    public void importFilesToDatabse(List<Path> jsonFiles, boolean createAllNodes) {
-        List<TweetDto> allTweetDtos = loadAllJsonFiles(jsonFiles);
-        addAllParentsToTweetsList(allTweetDtos);
+    public int importFilesToDatabase(List<Path> jsonFiles, boolean createAllNodes) {
+        List<TweetDto> tweetDtoList = loadAllJsonFiles(jsonFiles);
+        addAllParentsToTweetsList(tweetDtoList);
 
         Map<String, TweetDto> tweetsMap = new HashMap<>();
 
-        buildNodes(allTweetDtos, tweetsMap, createAllNodes);
+        buildNodes(tweetDtoList, tweetsMap, createAllNodes);
         log.info("All nodes added to database");
 
         createRelationships(tweetsMap);
         log.info("All relations added to database");
+
+        return tweetDtoList.size();
     }
 
     private void addAllParentsToTweetsList(List<TweetDto> tweetsList) {
@@ -78,12 +90,12 @@ public class TweetsFolderParser {
     }
 
     private List<TweetDto> loadAllJsonFiles(List<Path> files) {
-        List<TweetDto> allTweetDtos = new ArrayList<>();
+        List<TweetDto> tweetDtoList = new ArrayList<>();
         for (Path filePath : files) {
             try {
-                List<TweetDto> tweetDtosFromFile = readFile(filePath.toFile());
-                if (tweetDtosFromFile != null) {
-                    allTweetDtos.addAll(tweetDtosFromFile);
+                List<TweetDto> tweetListFromFile = readFile(filePath.toFile());
+                if (tweetListFromFile != null) {
+                    tweetDtoList.addAll(tweetListFromFile);
                 }
             } catch (JsonParseException e) {
                 log.error("JSON parsing error for file {}: {}", filePath.getFileName(), e.getMessage());
@@ -93,15 +105,28 @@ public class TweetsFolderParser {
                 log.error("Unexpected error while processing file {}: {}", filePath.getFileName(), e.getMessage());
             }
         }
-        return allTweetDtos;
+        return tweetDtoList;
     }
 
     private List<TweetDto> readFile(File file) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(file, mapper.getTypeFactory().constructCollectionType(List.class, TweetDto.class));
+        mapper.enable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+
+        List<TweetDto> allTweets = mapper.readValue(
+                file,
+                mapper.getTypeFactory().constructCollectionType(List.class, TweetDto.class)
+        );
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        return allTweets.stream()
+                .filter(tweet -> validator.validate(tweet).isEmpty())
+                .collect(Collectors.toList());
     }
 
-    @Transactional
     public void buildNodes(
             List<TweetDto> tweetDtosList,
             Map<String, TweetDto> tweetsMap,
@@ -230,7 +255,6 @@ public class TweetsFolderParser {
         return map;
     }
 
-    @Transactional
     public void createRelationships(Map<String, TweetDto> tweetsMap) {
         tweetRelationService.createAuthorTweetRelations(tweetsMap);
         tweetRelationService.createTweetMentionsRelations(tweetsMap);

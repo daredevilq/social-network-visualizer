@@ -33,14 +33,14 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
     @Query("""
                 UNWIND $authors AS author
-                MERGE (a:Author {
-                    id: author.id,
-                    userName: author.userName,
-                    displayName: author.displayName,
-                    name: author.name,
-                    foreignId: author.foreignId,
-                    bot: author.bot
-                })
+                MERGE (a:Author { userName: author.userName })
+                SET
+                    a.id = CASE WHEN a.id IS NULL AND author.id IS NOT NULL THEN author.id ELSE a.id END,
+                    a.displayName = CASE WHEN a.displayName IS NULL AND author.displayName IS NOT NULL THEN author.displayName ELSE a.displayName END,
+                    a.name = CASE WHEN a.name IS NULL AND author.name IS NOT NULL THEN author.name ELSE a.name END,
+                    a.foreignId = CASE WHEN a.foreignId IS NULL AND author.foreignId IS NOT NULL THEN author.foreignId ELSE a.foreignId END,
+                    a.bot = CASE WHEN a.bot IS NULL AND author.bot IS NOT NULL THEN author.bot ELSE a.bot END
+                  
             """)
     void mergeAll(@Param("authors") List<Map<String, Object>> authors);
 
