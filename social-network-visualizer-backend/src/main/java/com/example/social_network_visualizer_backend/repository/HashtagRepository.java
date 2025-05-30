@@ -10,19 +10,17 @@ import java.util.Map;
 
 public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
     @Query("""
-        UNWIND $hashtags AS hashtag
-        CREATE (h:Hashtag {
-            hashtag: hashtag.hashtag
-        })
-    """)
+                UNWIND $hashtags AS hashtag
+                CREATE (h:Hashtag {
+                    hashtag: hashtag.hashtag
+                })
+            """)
     void createAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 
     @Query("""
-        UNWIND $hashtags AS hashtag
-        MERGE (h:Hashtag {
-            hashtag: hashtag.hashtag
-        })
-    """)
+                UNWIND $hashtags AS hashtag
+                MERGE (h:Hashtag { hashtag: hashtag.hashtag })
+            """)
     void mergeAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 
     @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (h:Hashtag) REQUIRE h.hashtag IS UNIQUE")

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 
-import ProjectNameModal   from '@/app/components/Popups/ProjectNameModal';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
@@ -43,7 +42,7 @@ export default function ProjectsContent() {
 			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
 			if (selected === name) await select('');
-			await refreshProjects();
+			await refresh(name);
 			showStatus(`Project “${name}” deleted`);
 		}).catch(err => {
 			console.error(err);
@@ -132,10 +131,6 @@ export default function ProjectsContent() {
 				API={API}
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
-				onSuccess={async () => {
-					await refresh();
-					await refreshProjects();
-				}}
 			/>
 
 			<ConfirmModal

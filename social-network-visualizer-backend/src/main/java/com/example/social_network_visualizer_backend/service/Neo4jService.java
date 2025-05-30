@@ -33,7 +33,7 @@ public class Neo4jService {
         log.info("Database cleared successfully.");
     }
 
-    private void dropAllGdsGraphs() {
+    public void dropAllGdsGraphs() {
         for (GraphDefinition def : GraphDefinition.values()) {
             String graphName = def.getGraphName();
             graphRepository.dropGdsGraph(graphName);

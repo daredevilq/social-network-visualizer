@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -55,7 +56,7 @@ public class ProjectService {
         return projects;
     }
 
-    public void loadProject(String projectName, String graphType) {
+    public int loadProject(String projectName, String graphType) {
         neo4jService.waitForNeo4jToBeAvailable();
         neo4jService.handleDatabaseDrop();
 
@@ -65,50 +66,56 @@ public class ProjectService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project " + projectName + " not found");
         }
 
-        tweetsFolderParser.parseDirectory(projectPath);
+        int importedTweets = tweetsFolderParser.parseDirectory(projectPath);
         neo4jService.computeMetricsAndRelations(graphType);
         log.info(String.format("Project %s imported successfully",projectName));
+
+        return importedTweets;
     }
 
-    public void createProject(String projectName, MultipartFile[] files) {
+    public List<String> createProject(String projectName, MultipartFile[] files) {
         Path projectDir = basePath.resolve(projectName);
 
         if (Files.exists(projectDir)) {
             throw new ProjectException("Project with name '" + projectName + "' already exists", HttpStatus.BAD_REQUEST);
         }
 
+        List<String> skippedFiles;
         try {
             Files.createDirectories(projectDir);
             log.info("Created new directory: {}", projectDir);
 
-            addFilesToProject(projectName, files, projectDir);
+            skippedFiles = addFilesToProject(projectName, files, projectDir, new ArrayList<>());
         } catch (IOException e) {
             log.error("Error while creating project directory or saving files.", e);
             throw new ProjectException("Error while creating project '" + projectName + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        return skippedFiles;
     }
 
-    public void updateProjectWithFiles(String projectName, MultipartFile[] files) {
+    public List<String> updateProjectWithFiles(String projectName, MultipartFile[] files) {
         Path projectDir = basePath.resolve(projectName);
 
         if (!Files.exists(projectDir)) {
             throw new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
         }
 
-        addFilesToProject(projectName, files, projectDir);
+        return addFilesToProject(projectName, files, projectDir, new ArrayList<>());
     }
 
-    private List<Path> addFilesToProject(String projectName, MultipartFile[] files, Path projectDir) {
-        List<Path> jsonFiles = new ArrayList<>();
+    private List<String> addFilesToProject(String projectName, MultipartFile[] files, Path projectDir, List<Path> addedFiles) {
+        List<String> skippedFiles = new ArrayList<>();
         try {
             for (MultipartFile file : files) {
                 String filename = file.getOriginalFilename();
-                if (filename == null || filename.isBlank()) {
-                    throw new IllegalArgumentException("Filename cannot be null or empty");
+                if (filename.isBlank()) {
+                    throw new IllegalArgumentException("Filename cannot be empty");
                 }
 
                 if (file.isEmpty() || !filename.endsWith(".json")) {
                     log.warn("Skipped file: {}", filename);
+                    skippedFiles.add(filename);
                     continue;
                 }
 
@@ -125,7 +132,7 @@ public class ProjectService {
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                jsonFiles.add(filePath);
+                addedFiles.add(filePath);
             }
 
         } catch (IOException | IllegalArgumentException e) {
@@ -133,7 +140,7 @@ public class ProjectService {
             throw new ProjectException("Failed to add files to project '" + projectName + "': " + e.getMessage(), e, HttpStatus.BAD_REQUEST);
         }
 
-        return jsonFiles;
+        return skippedFiles;
     }
 
     public void deleteProject(String projectName) {
@@ -176,17 +183,20 @@ public class ProjectService {
         }
     }
 
-    public void updateOpenedProject(String projectName, MultipartFile[] files) {
+    public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
         Path projectDir = basePath.resolve(projectName);
 
         if (!Files.exists(projectDir)) {
             throw new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
         }
 
-        //List<Path> jsonFiles = addFilesToProject(projectName, files, projectDir);
-        addFilesToProject(projectName, files, projectDir);
-        //tweetsFolderParser.importFilesToDatabse(jsonFiles, false);
-        //loadProject(projectName);
+        List<Path> addedFiles = new ArrayList<>();
+        List<String> skippedFiles = addFilesToProject(projectName, files, projectDir, addedFiles);
+        tweetsFolderParser.importFilesToDatabase(addedFiles, false);
+        neo4jService.dropAllGdsGraphs();
+        neo4jService.computeMetricsAndRelations(graphType);
+
+        return skippedFiles;
     }
 
     public void deleteFileFromProject(String projectName, String fileName) {
@@ -206,7 +216,7 @@ public class ProjectService {
             if (!deleted) {
                 throw new ProjectException("Failed to delete file '" + fileName + "' from project '" + projectName + "'", HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            // loadProject(projectName);
+
         } catch (IOException e) {
             throw new ProjectException("Error while deleting file '" + fileName + "' from project '" + projectName + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
