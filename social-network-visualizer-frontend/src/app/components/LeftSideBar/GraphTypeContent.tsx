@@ -20,7 +20,7 @@ export default function GraphTypeContent() {
                             className={`w-full text-left transition-colors ${
                                 selectedGraphType === value
                                     ? "text-[#7140F4] font-semibold"
-                                    : "text-white hover:text-[#7140F4]"
+                                    : "text-white hover:text-[#7140F4] cursor-pointer"
                             }`}
                         >
                             {label}

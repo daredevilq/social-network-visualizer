@@ -5,16 +5,17 @@ import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title,
 import {useProject} from "@/app/context/ProjectContext"
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {ViralTweet} from "@/types/tweetTypes"
-import {UsersMentionedContainer} from "@/app/components/UserAnalysis/UsersMentionedContainer";
-import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsContainer";
-import {UserProfileContainer} from "@/app/components/UserAnalysis/UserProfileContainer";
-import {ActivityTimelineContainer} from "@/app/components/UserAnalysis/ActivityTimelineContainer";
-import { TopHashtagsContainer } from "@/app/components/UserAnalysis/TopHashtagsContainer";
-import { RetweetsByContainer } from "@/app/components/UserAnalysis/RetweetsByContainer";
-import { RetweetsOfContainer } from "@/app/components/UserAnalysis/RetweetsOfContainer";
-import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
+import {UsersMentionedContainer} from "@/app/components/Analysis/User/UsersMentionedContainer";
+import {ViralTweetsContainer} from "@/app/components/Analysis/User/ViralTweetsContainer";
+import {UserProfileContainer} from "@/app/components/Analysis/User/UserProfileContainer";
+import {ActivityTimelineContainer} from "@/app/components/Analysis/User/ActivityTimelineContainer";
+import { TopHashtagsContainer } from "@/app/components/Analysis/User/TopHashtagsContainer";
+import { RetweetsByContainer } from "@/app/components/Analysis/User/RetweetsByContainer";
+import { RetweetsOfContainer } from "@/app/components/Analysis/User/RetweetsOfContainer";
+import {HashtagActivityContainer} from "@/app/components/Analysis/User/HashtagActivityContainer";
 import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
+import { MostCommonWordsContainer } from './MostCommonWordsContainer'
 
 ChartJS.register(
     CategoryScale,
@@ -46,10 +47,11 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
     const [userHeatMap, setUserHeatMap] = useState<ActivityHeatmap[]>([])
     const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
+    const [mostCommonWords, setMostCommonWords] = useState<string[]>([]);
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
-    const {setSelectedUserName} = useProject();
+    const {setSelectedUserData} = useProject();
     const [animatedStats, setAnimatedStats] = useState({
         tweetsCount: 0,
         retweetsCount: 0,
@@ -109,7 +111,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
             return;
         }
 
-        setSelectedUserName(username);
+        setSelectedUserData(username);
 
         const fetchData = async () => {
             setLoading(true)
@@ -144,6 +146,10 @@ export default function UserDetailsContainer({username}: { username: string }) {
                 const viralTweetsData = await viralTweetsRes.json()
                 setViralTweets(viralTweetsData)
 
+                const mostCommonWordsRes = await fetch(`${API_BASE_URL}/author/most-common-words/${username}`)
+                const mostCommonWordsData = await mostCommonWordsRes.json()
+                setMostCommonWords(mostCommonWordsData)
+
                 const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`)
                 const userHeatMapData: ActivityHeatmap[] = await userHeatMapRes.json() as ActivityHeatmap[]
                 setUserHeatMap(userHeatMapData)
@@ -156,7 +162,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
         }
 
         fetchData()
-    }, [username, router, setSelectedUserName])
+    }, [username, router, setSelectedUserData])
 
     const chartData = {
         labels: userActivity ? Object.keys(userActivity) : [],
@@ -216,6 +222,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
                         <RetweetsByContainer retweetedUsers={retweetedUsers} />
                         <RetweetsOfContainer retweetingUsers={retweetingUsers} />
                         <HashtagActivityContainer topHashtags={topHashtags}/>
+                        <MostCommonWordsContainer words={mostCommonWords}/>
                         <ViralTweetsContainer viralTweets={viralTweets}/>
                     </div>
                 )}

@@ -34,7 +34,7 @@ export default function FunctionsContent() {
             <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
                 <div className="py-3">
                     <button
-                        className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] transition-colors"
+                        className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] cursor-pointer transition-colors"
                         onClick={() => router.push('/community-analysis')}
                     >
                         <span>Community analysis</span>
@@ -43,7 +43,7 @@ export default function FunctionsContent() {
 
                 <div className="py-3">
                     <button
-                        className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] transition-colors"
+                        className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] cursor-pointer transition-colors"
                         onClick={() => setIsModalOpen(true)}
                     >
                         <span>Find the best path between users</span>

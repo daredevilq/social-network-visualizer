@@ -14,8 +14,8 @@ interface Context {
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
     refresh: (name: string) => Promise<void>;
     fetchGraphData: () => Promise<void>;
-    isGraphMode: true | false;
-    setIsGraphMode: React.Dispatch<React.SetStateAction<true | false>>;
+    isLabelsMode: true | false;
+    setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
     graphData: {nodes: any[], links: any[]};
     setGraphData: React.Dispatch<React.SetStateAction<{nodes: any[], links: any[]}>>;
     nodeFoundId: string | null;
@@ -24,14 +24,16 @@ interface Context {
     setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
     isSidebarOpen: boolean;
     setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    selectedUserName: string | null;
-    setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedUserData: BasicUserData | null;
+    setSelectedUserData: React.Dispatch<React.SetStateAction<BasicUserData | null>>;
     graphRelationType: string;
     setGraphRelationType: React.Dispatch<React.SetStateAction<string>>;
     focusedCommunityId?: string;
     setFocusedCommunityId: (id?: string) => void;
     selectedGraphType: GraphType;
     setSelectedGraphType: (g: GraphType) => void;
+    showLabels: boolean;
+    setShowLabels: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProjectContext = createContext<Context>({
@@ -42,8 +44,8 @@ const ProjectContext = createContext<Context>({
     runWithLoading: async (fn) => fn(),
     refresh: async () => {},
     fetchGraphData: async () => {},
-    isGraphMode: true,
-    setIsGraphMode: () => {},
+    isLabelsMode: true,
+    setIsLabelsMode: () => {},
     graphData: {nodes: [], links: []},
     setGraphData: () => {},
     nodeFoundId: null,
@@ -52,14 +54,16 @@ const ProjectContext = createContext<Context>({
     setShortestPath: () => {},
     isSidebarOpen: false,
     setIsSidebarOpen: () => {},
-    selectedUserName: null,
-    setSelectedUserName: () => {},
+    selectedUserData: null,
+    setSelectedUserData: () => {},
     graphRelationType: "mentions",
     setGraphRelationType: () => {},
     focusedCommunityId: undefined,
     setFocusedCommunityId: () => {},
     selectedGraphType: GraphType.STANDARD,
     setSelectedGraphType: () => {},
+    showLabels: false,
+    setShowLabels: () => {},
 
 });
 
@@ -68,15 +72,16 @@ export const useProject = () => useContext(ProjectContext);
 export function ProjectProvider({children}: { children: ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
-    const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
+    const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
-    const [isGraphMode, setIsGraphMode] = useState(true);
+    const [isLabelsMode, setIsLabelsMode] = useState(false);
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
     const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
     const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
+    const [showLabels, setShowLabels] = useState(false);
 
     useEffect(() => {
         const stored = localStorage.getItem('selectedProject');
@@ -189,8 +194,8 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 runWithLoading,
                 refresh,
                 fetchGraphData,
-                isGraphMode,
-                setIsGraphMode,
+                isLabelsMode,
+                setIsLabelsMode,
                 graphData,
                 setGraphData,
                 nodeFoundId,
@@ -199,14 +204,16 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setShortestPath,
                 isSidebarOpen,
                 setIsSidebarOpen,
-                selectedUserName,
-                setSelectedUserName,
+                selectedUserData,
+                setSelectedUserData,
                 graphRelationType,
                 setGraphRelationType,
                 focusedCommunityId,
                 setFocusedCommunityId,
                 selectedGraphType,
-                setSelectedGraphType
+                setSelectedGraphType,
+                showLabels,
+                setShowLabels
             }}>
             {children}
         </ProjectContext.Provider>

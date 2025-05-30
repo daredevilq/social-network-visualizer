@@ -64,7 +64,7 @@ export default function FiltersContent() {
                             className={`flex items-center gap-2 w-full text-left transition-colors
                                 ${graphRelationType === type.value
                                 ? 'text-[#7140F4] font-semibold'
-                                : 'text-white hover:text-[#7140F4]'
+                                : 'text-white hover:text-[#7140F4] cursor-pointer'
                             }`}
                         >
                             <Network className="w-4 h-4 shrink-0" />

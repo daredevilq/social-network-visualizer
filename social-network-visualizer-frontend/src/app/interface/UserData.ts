@@ -9,3 +9,7 @@ interface UserData {
     averageRetweetsCount: number;
 }
 
+interface BasicUserData {
+    name: string;
+    community: string;
+}
