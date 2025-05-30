@@ -1,6 +1,5 @@
 'use client'
 
-import UserDetailsContainer from '@/app/components/Analysis/User/UserDetailsContainer'
 import {useParams} from 'next/navigation'
 import HashtagAnalysisContainer from "@/app/components/Analysis/Hashtag/HashtagAnalysisContainer";
 

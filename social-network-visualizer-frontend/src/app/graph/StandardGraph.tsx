@@ -61,9 +61,7 @@ export default function StandardGraph() {
             <BaseGraph
                 graphData={graphData}
                 nodeVal={(node: any) => (node.pagerank ? node.pagerank * 5 : 1)}
-                nodeLabel={(node: any) =>
-                    `User: ${node.id}\nPR: ${node.pagerank?.toFixed(2)}\nComm: ${node.community}`
-                }
+                nodeLabel={(node: any) => `${node.id}`}
                 nodeColor={node => {
                     if (node.id === nodeFoundId) return "red";
                     return shortestPath.includes(String(node.id))

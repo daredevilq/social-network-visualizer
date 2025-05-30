@@ -91,10 +91,7 @@ export default function CommunityGraph() {
         <BaseGraph
             graphData={graphData}
             nodeVal={(node: any) => node.pagerank ? node.pagerank * 7 : 10}
-            nodeLabel={(node: any) =>
-                `User: ${node.id}\n` +
-                `Community: ${node.community}`
-            }
+            nodeLabel={(node: any) => `${node.id}` + ` || Community: ${node.community}`}
             nodeColor={node => {
                 if (node.id === nodeFoundId) return "red";
                 return getNodeColor(node);

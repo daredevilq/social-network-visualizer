@@ -51,9 +51,7 @@ export default function AuthorPagerankGraph() {
         <BaseGraph
             graphData={graphData}
             nodeVal={(node: any) => (node.degreeCentrality ? node.degreeCentrality * 5 : 1)}
-            nodeLabel={(node: any) =>
-                `User: ${node.id}\n Degree Centrality: ${node.degreeCentrality}`
-            }
+            nodeLabel={(node: any) => `${node.id}`}
             nodeColor={(node: any) => {
                 const baseHue = 240;
                 const degreeHue = node.pagerank * 80;

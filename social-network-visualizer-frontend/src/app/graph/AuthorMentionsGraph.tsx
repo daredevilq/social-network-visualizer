@@ -51,7 +51,7 @@ export default function AuthorMentionsGraph() {
         <BaseGraph
             graphData={graphData}
             nodeVal={(node: any) => (node.degreeCentrality ? node.degreeCentrality : 0)}
-            nodeLabel={(node: any) => `User: ${node.id}\nDC: ${node.degreeCentrality}`}
+            nodeLabel={(node: any) => `${node.id}`}
             nodeColor={(node: any) => `hsl(${node.degreeCentrality * 40}, 100%, 50%)`}
             linkColor={(link: any) => (link.type === "mention" ? "red" : "#fafafa")}
             linkWidth={(link: any) => (link.type === "mention" ? 1 : 2)}

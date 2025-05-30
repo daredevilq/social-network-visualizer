@@ -28,7 +28,7 @@ const BaseGraph  = forwardRef(({
     const [displayedNodes, setDisplayedNodes] = useState<NodeObject[]>([]);
     const [displayedLinks, setDisplayedLinks] = useState<LinkObject[]>([]);
 
-    const {setIsSidebarOpen, setSelectedUserName, setFocusedCommunityId, setLoading} = useProject();
+    const {setIsSidebarOpen, setSelectedUserName, setFocusedCommunityId, setLoading, showLabels} = useProject();
 
     const clickedNodeRef = useRef<Node | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -169,18 +169,25 @@ const BaseGraph  = forwardRef(({
 
                     ctx.beginPath();
 
-                    // temp solution to change node size, it depends on pagerank node value
                     const r = (node as any).pagerank ? Math.pow((node as any).pagerank, 0.5) * 10 : 6;
-                    ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                    ctx.arc(node.x, node.y, r, 0, 5 * Math.PI, false);
 
-                    // ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = nodeColor ? nodeColor(node) : 'gray';
+                    ctx.fillStyle = nodeColor ? nodeColor(node) : '#888';
                     ctx.fill();
 
                     if (selectedNodeIds.includes(node.id as string)) {
                         ctx.lineWidth = 1;
                         ctx.strokeStyle = 'white';
                         ctx.stroke();
+                    }
+
+                    if (showLabels) {
+                        const label = nodeLabel(node);
+                        ctx.font = `1000 Sans-Serif`;
+                        ctx.fillStyle = '#bbb';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top';
+                        ctx.fillText(label, node.x, node.y + r + 2);
                     }
                 });
         }

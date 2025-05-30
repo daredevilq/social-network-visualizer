@@ -12,8 +12,8 @@ interface Context {
     select: (name: string) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
     refresh: () => Promise<void>;
-    isGraphMode: true | false;
-    setIsGraphMode: React.Dispatch<React.SetStateAction<true | false>>;
+    isLabelsMode: true | false;
+    setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
     graphData: {nodes: any[], links: any[]};
     setGraphData: React.Dispatch<React.SetStateAction<{nodes: any[], links: any[]}>>;
     nodeFoundId: string | null;
@@ -30,6 +30,8 @@ interface Context {
     setFocusedCommunityId: (id?: string) => void;
     selectedGraphType: GraphType;
     setSelectedGraphType: (g: GraphType) => void;
+    showLabels: boolean;
+    setShowLabels: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProjectContext = createContext<Context>({
@@ -39,8 +41,8 @@ const ProjectContext = createContext<Context>({
     select: async () => {},
     runWithLoading: async (fn) => fn(),
     refresh: async () => {},
-    isGraphMode: true,
-    setIsGraphMode: () => {},
+    isLabelsMode: true,
+    setIsLabelsMode: () => {},
     graphData: {nodes: [], links: []},
     setGraphData: () => {},
     nodeFoundId: null,
@@ -57,6 +59,8 @@ const ProjectContext = createContext<Context>({
     setFocusedCommunityId: () => {},
     selectedGraphType: GraphType.STANDARD,
     setSelectedGraphType: () => {},
+    showLabels: false,
+    setShowLabels: () => {},
 
 });
 
@@ -67,13 +71,14 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [selected, setSelected] = useState<string | null>(null);
     const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [isGraphMode, setIsGraphMode] = useState(true);
+    const [isLabelsMode, setIsLabelsMode] = useState(false);
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
     const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
     const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
+    const [showLabels, setShowLabels] = useState(false);
 
     useEffect(() => {
         const stored = localStorage.getItem('selectedProject');
@@ -145,8 +150,8 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 select,
                 runWithLoading,
                 refresh,
-                isGraphMode,
-                setIsGraphMode,
+                isLabelsMode,
+                setIsLabelsMode,
                 graphData,
                 setGraphData,
                 nodeFoundId,
@@ -162,7 +167,9 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 focusedCommunityId,
                 setFocusedCommunityId,
                 selectedGraphType,
-                setSelectedGraphType
+                setSelectedGraphType,
+                showLabels,
+                setShowLabels
             }}>
             {children}
         </ProjectContext.Provider>
