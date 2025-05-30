@@ -129,14 +129,14 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const select = async (name: string) =>
         runWithLoading(async () => {
             if (selected === name) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graphType=${graphRelationType}`, {
+            await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
                 method: "POST",
             });
             setSelected(name);
             window.location.href = "/";
         });
 
-    const refresh = async () =>
+    const refresh = async (name: string) =>
         runWithLoading(async () => {
             if (!selected) return;
             await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
