@@ -6,33 +6,12 @@ import dynamic from 'next/dynamic';
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 export default function AuthorMentionsGraph() {
-    const {selected, loading, graphData, setGraphData, nodeFoundId, graphRelationType, shortestPath} = useProject();
+    const {selected, loading, graphData, setGraphData, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
-
-        fetch(`http://localhost:8080/graph/${graphRelationType}`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (!data.nodes || !Array.isArray(data.nodes) || !data.edges || !Array.isArray(data.edges)) {
-                    console.error("Invalid data format:", data);
-                    return;
-                }
-                const links: Link[] = data.edges.map((link: { source: any; target: any; }) => ({
-                    ...link,
-                    type: link.source === link.target ? "mention" : "retweet",
-                }));
-                const nodes: Node[] = data.nodes.map((node: any) => ({
-                    id: node.name,
-                    label: node.name,
-                    pagerank: node.pagerank ?? 0,
-                    degreeCentrality: node.centrality ?? 0,
-                    community: node.community?.toString() ?? ""
-                }));
-                setGraphData({nodes, links});
-            })
-            .catch((err) => console.error("Fetch error:", err));
-    }, [selected, loading]);
+        fetchGraphData();
+    }, [selected, graphRelationType]);
 
     if (!selected)
         return (

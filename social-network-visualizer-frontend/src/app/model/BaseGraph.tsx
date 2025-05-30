@@ -120,13 +120,13 @@ const BaseGraph  = forwardRef(({
 
     useEffect(() => {
         if (fgInstance.current && graphData.nodes.length > 0) {
-            const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
+            const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT).map(n => ({ ...n }));
             const topNodesIds = new Set(topNodes.map(node => node.id));
             const relevantLinks = graphData.links.filter(link => {
                 const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
                 const targetId = typeof link.target === 'object' ? link.target.id : link.target;
                 return topNodesIds.has(sourceId) && topNodesIds.has(targetId);
-            });
+            }).map(l => ({ ...l }));
 
             setDisplayedNodes(topNodes);
             setDisplayedLinks(relevantLinks);
