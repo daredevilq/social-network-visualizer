@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 
-import ProjectNameModal   from '@/app/components/Popups/ProjectNameModal';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
@@ -70,7 +69,7 @@ export default function ProjectsContent() {
 						<button
 							disabled={loading}
 							onClick={() => select(p.name)}
-							className="flex items-center text-left w-full"
+							className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
 						>
 							<img
 								src={
@@ -96,7 +95,7 @@ export default function ProjectsContent() {
 					<button
 						disabled={loading}
 						onClick={() => setCreateModalOpen(true)}
-						className="flex items-center w-full hover:text-[#7140F4]"
+						className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
 					>
 						<img
 							src="/icons/leftSideBar/plus_icon.png"

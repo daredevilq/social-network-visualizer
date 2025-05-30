@@ -9,13 +9,12 @@ import LeftSidebar from "./components/LeftSideBar";
 import LoadingOverlay from "@/app/components/Loading/LoadingOverlay"
 import {useProject} from '@/app/context/ProjectContext';
 import SearchAndToggleModeContainer from "@/app/components/SearchAndToggleModeContainer";
-import AnalysisContainer from "@/app/components/Analysis/AnalysisContainer";
 
 export default function Home() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const [searchQuery, setSearchQuery] = useState("");
-    const {loading, isGraphMode} = useProject();
+    const {loading} = useProject();
 
     return (
         <div className="min-h-screen flex">
@@ -30,10 +29,7 @@ export default function Home() {
                 searchValue={searchQuery}
                 onSearchChange={(value) => setSearchQuery(value)}
             />
-            {isGraphMode ?
-                <GraphContainer/> :
-                <AnalysisContainer></AnalysisContainer>
-            }
+            <GraphContainer/>
             <RightSidebar/>
         </div>
     );

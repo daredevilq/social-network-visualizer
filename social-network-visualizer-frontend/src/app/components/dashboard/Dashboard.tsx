@@ -2,8 +2,8 @@ import {useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {useRouter} from "next/navigation";
 import {ViralTweet} from "@/types/tweetTypes";
-import {HashtagActivityContainer} from "@/app/components/UserAnalysis/HashtagActivityContainer";
-import {ViralTweetsContainer} from "@/app/components/UserAnalysis/ViralTweetsContainer";
+import {HashtagActivityContainer} from "@/app/components/Analysis/User/HashtagActivityContainer";
+import {ViralTweetsContainer} from "@/app/components/Analysis/User/ViralTweetsContainer";
 import {ProjectStatsContainer} from "@/app/components/dashboard/ProjectStatsContainer";
 import {ActivityPoint} from "@/app/interface/ActivityPoint";
 import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
@@ -85,7 +85,7 @@ const Dashboard = () => {
     }, [router])
 
     return (
-        <div className="w-full min-h-screen bg-[#262631] text-white p-6">
+        <div className="w-full min-h-screen bg-[#262631] text-white p-10">
             <div className="mx-auto pl-6">
                 <div className="flex items-center justify-between mb-8">
                     <button

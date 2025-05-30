@@ -1,6 +1,10 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
+import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
+import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -11,9 +15,15 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,8 +108,29 @@ public class AuthorService {
         return authorRepository.findRetweetsByUser(authorName);
     }
 
-    public List<String> findTweetsContentByUser(String authorName) {
-        return authorRepository.findTweetsContentByUser(authorName);
+    public List<String> findMostCommonWords(String authorName) {
+        List<String> tweetsContent = Optional.ofNullable(authorRepository.findTweetsContentByUser(authorName))
+                .orElse(Collections.emptyList());
+
+        Set<String> stopWords = Set.of(
+                "the", "and", "is", "in", "at", "of", "a", "an", "to", "with", "on", "for", "as", "by", "that",
+                "this", "these", "those", "are", "was", "were", "be", "been", "being", "or", "but", "so", "if",
+                "then", "there", "their", "they", "them", "he", "she", "it", "we", "you", "i", "me", "my", "your",
+                "his", "her", "its", "our", "us", "do", "does", "did", "from", "about", "into", "up", "down",
+                "out", "over", "under", "again", "further", "here", "when", "where", "why", "how", "all", "any",
+                "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "only", "own",
+                "same", "than", "too", "very", "can", "will", "just"
+        );
+
+        return tweetsContent.stream()
+                .flatMap(tweet -> Arrays.stream(tweet.toLowerCase().split("\\W+")))
+                .filter(word -> !word.isEmpty() && !stopWords.contains(word) && word.length() > 2)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder()))
+                .limit(10)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     public List<ViralTweetDto> findTheMostViralTweet(String authorName) {

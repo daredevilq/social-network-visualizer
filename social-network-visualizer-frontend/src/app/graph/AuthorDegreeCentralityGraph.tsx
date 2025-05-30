@@ -1,5 +1,4 @@
 import {useEffect} from "react";
-import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 import dynamic from 'next/dynamic';
@@ -7,7 +6,7 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
-    const {selected, loading, graphData, setGraphData, shortestPath, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
+    const {selected, loading, graphData, shortestPath, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
 
     useEffect(() => {
         if (!selected || loading) return;
@@ -31,9 +30,7 @@ export default function AuthorPagerankGraph() {
         <BaseGraph
             graphData={graphData}
             nodeVal={(node: any) => (node.degreeCentrality ? node.degreeCentrality * 5 : 1)}
-            nodeLabel={(node: any) =>
-                `User: ${node.id}\n Degree Centrality: ${node.degreeCentrality}`
-            }
+            nodeLabel={(node: any) => `${node.id}`}
             nodeColor={(node: any) => {
                 const baseHue = 240;
                 const degreeHue = node.pagerank * 80;

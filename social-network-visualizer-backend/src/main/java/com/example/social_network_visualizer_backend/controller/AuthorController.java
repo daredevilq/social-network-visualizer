@@ -58,9 +58,9 @@ public class AuthorController {
         return authorService.findMentionsUsersByAuthor(authorName);
     }
 
-    @GetMapping("/tweets-content/{authorName}")
+    @GetMapping("/most-common-words/{authorName}")
     public List<String> getTweetsContent(@PathVariable String authorName) {
-        return authorService.findTweetsContentByUser(authorName);
+        return authorService.findMostCommonWords(authorName);
     }
 
     @GetMapping("/retweets-by/{authorName}")

@@ -4,11 +4,12 @@ import {
     CategoryScale,
     LinearScale,
     Tooltip,
-    Legend,
+    Legend, ChartEvent, ActiveElement, Chart,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { ChartData, ChartOptions } from "chart.js";
 import { ChartColumnDecreasing  } from "lucide-react";
+import {useRouter} from "next/navigation";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -22,6 +23,7 @@ interface HashtagActivityProps {
 }
 
 export function HashtagActivityChartContainer({ data }: HashtagActivityProps) {
+    const router = useRouter();
     const hasData = Array.isArray(data) && data.length > 0;
 
     const chartData: ChartData<"bar"> = {
@@ -62,6 +64,19 @@ export function HashtagActivityChartContainer({ data }: HashtagActivityProps) {
                 grid: { color: "rgba(255, 255, 255, 0.1)" },
                 ticks: { color: "rgba(255, 255, 255, 0.7)" },
             },
+        },
+        onClick(event: ChartEvent, elements: ActiveElement[], chart: Chart) {
+            if (elements.length > 0) {
+                const elementIndex = elements[0].index;
+                const clickedItem = data[elementIndex];
+                router.push(`/hashtag-details/${clickedItem.name}`);
+            }
+        },
+        onHover: (event, elements) => {
+            const canvas = event.native?.target as HTMLCanvasElement;
+            if (canvas) {
+                canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+            }
         },
     };
 
