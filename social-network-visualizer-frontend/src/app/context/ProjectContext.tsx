@@ -22,8 +22,8 @@ interface Context {
     setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
     isSidebarOpen: boolean;
     setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    selectedUserName: string | null;
-    setSelectedUserName: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedUserData: BasicUserData | null;
+    setSelectedUserData: React.Dispatch<React.SetStateAction<BasicUserData | null>>;
     graphRelationType: string;
     setGraphRelationType: React.Dispatch<React.SetStateAction<string>>;
     focusedCommunityId?: string;
@@ -51,8 +51,8 @@ const ProjectContext = createContext<Context>({
     setShortestPath: () => {},
     isSidebarOpen: false,
     setIsSidebarOpen: () => {},
-    selectedUserName: null,
-    setSelectedUserName: () => {},
+    selectedUserData: null,
+    setSelectedUserData: () => {},
     graphRelationType: "mentions",
     setGraphRelationType: () => {},
     focusedCommunityId: undefined,
@@ -69,7 +69,7 @@ export const useProject = () => useContext(ProjectContext);
 export function ProjectProvider({children}: { children: ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
-    const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
+    const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
     const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
@@ -160,8 +160,8 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setShortestPath,
                 isSidebarOpen,
                 setIsSidebarOpen,
-                selectedUserName,
-                setSelectedUserName,
+                selectedUserData,
+                setSelectedUserData,
                 graphRelationType,
                 setGraphRelationType,
                 focusedCommunityId,

@@ -51,7 +51,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
-    const {setSelectedUserName} = useProject();
+    const {setSelectedUserData} = useProject();
     const [animatedStats, setAnimatedStats] = useState({
         tweetsCount: 0,
         retweetsCount: 0,
@@ -111,7 +111,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
             return;
         }
 
-        setSelectedUserName(username);
+        setSelectedUserData(username);
 
         const fetchData = async () => {
             setLoading(true)
@@ -162,7 +162,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
         }
 
         fetchData()
-    }, [username, router, setSelectedUserName])
+    }, [username, router, setSelectedUserData])
 
     const chartData = {
         labels: userActivity ? Object.keys(userActivity) : [],

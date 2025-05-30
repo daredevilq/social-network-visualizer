@@ -28,14 +28,17 @@ const BaseGraph  = forwardRef(({
     const [displayedNodes, setDisplayedNodes] = useState<NodeObject[]>([]);
     const [displayedLinks, setDisplayedLinks] = useState<LinkObject[]>([]);
 
-    const {setIsSidebarOpen, setSelectedUserName, setFocusedCommunityId, setLoading, showLabels} = useProject();
+    const {setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, setLoading, showLabels} = useProject();
 
     const clickedNodeRef = useRef<Node | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 
     const handleSingleNodeClick = (node: Node) => {
-        setSelectedUserName(node.id);
+        setSelectedUserData({
+            name: node.id,
+            community: node.community
+        } as BasicUserData);
         setIsSidebarOpen(true);
     }
 

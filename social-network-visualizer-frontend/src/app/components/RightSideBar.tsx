@@ -12,20 +12,20 @@ export default function RightSidebar() {
     const [lastPosts, setLastPosts] = useState<TweetPreview[]>([])
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const {isSidebarOpen, setIsSidebarOpen, selectedUserName} = useProject()
+    const {isSidebarOpen, setIsSidebarOpen, selectedUserData} = useProject()
 
     useEffect(() => {
-        if (!isSidebarOpen || !selectedUserName) return
+        if (!isSidebarOpen || !selectedUserData?.name) return
         const fetchData = async () => {
             setLoading(true)
             setError(null)
 
             try {
-                const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserName}`)
+                const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserData.name}`)
                 const data = await userDataRes.json()
                 setUserData(data)
 
-                const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserName}`)
+                const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserData.name}`)
                 const posts: TweetPreview[] = await lastPostsRes.json()
                 setLastPosts(posts)
             } catch (err) {
@@ -36,21 +36,21 @@ export default function RightSidebar() {
             }
         }
         fetchData()
-    }, [isSidebarOpen, selectedUserName])
+    }, [isSidebarOpen, selectedUserData])
 
     const onClose = () => {
         setIsSidebarOpen(false)
     }
 
     const showDetails = () => {
-        if (selectedUserName) {
-            router.push(`/user-details/${selectedUserName}`)
+        if (selectedUserData) {
+            router.push(`/user-details/${selectedUserData.name}`)
         }
     }
 
     const showUserCommunity = () => {
-        if (selectedUserName) {
-            // router.push(`/community/${node.community}`)
+        if (selectedUserData) {
+            router.push(`/community-analysis/${selectedUserData.community}`)
         }
     }
 
@@ -72,10 +72,10 @@ export default function RightSidebar() {
                     <div className="flex items-center gap-3">
                         <div
                             className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7140F4] to-[#9C6FFF] flex items-center justify-center text-lg font-semibold">
-                            {selectedUserName?.charAt(0).toUpperCase() || "U"}
+                            {selectedUserData?.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold">{selectedUserName}</h1>
+                            <h1 className="text-xl font-bold">{selectedUserData?.name}</h1>
                             <p className="text-xs text-gray-400">Twitter User</p>
                         </div>
                     </div>
@@ -195,7 +195,7 @@ export default function RightSidebar() {
                         )}
                         <div className="mt-3">
                             <button
-                                onClick={() => router.push(`/tweet-analysis/${selectedUserName}`)}
+                                onClick={() => router.push(`/tweet-analysis/${selectedUserData}`)}
                                 className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                             >
                                 Show more posts
