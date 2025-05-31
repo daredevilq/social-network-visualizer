@@ -195,7 +195,7 @@ export default function RightSidebar() {
                         )}
                         <div className="mt-3">
                             <button
-                                onClick={() => router.push(`/tweet-analysis/${selectedUserData}`)}
+                                onClick={() => router.push(`/tweet-analysis/${selectedUserData?.name}`)}
                                 className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                             >
                                 Show more posts
