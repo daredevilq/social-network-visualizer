@@ -37,7 +37,7 @@ const TweetFilters = ({
     return (
         <form
             onSubmit={handleSearchSubmit}
-            className="flex flex-col gap-4 mb-6 px-1 pt-1"
+            className="flex flex-col gap-4 mb-4 pt-1 px-1"
         >
             <div className="flex flex-wrap gap-4 items-center">
                 <div className="relative w-full sm:w-1/2 md:w-1/3">
@@ -48,7 +48,7 @@ const TweetFilters = ({
                         onChange={(e) => {
                             setSearch(e.target.value);
                         }}
-                        className="px-4 py-2 pr-12 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                        className="h-10 px-4 py-2 pr-10 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-1 focus:ring-[#7140F4]"
                     />
                     <button
                         type="submit"
@@ -63,7 +63,7 @@ const TweetFilters = ({
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                        className="h-10 px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-1 focus:ring-[#7140F4]"
                     >
                         <option value="date">Date</option>
                         <option value="likes">Likes</option>
@@ -79,7 +79,7 @@ const TweetFilters = ({
                     <select
                         value={order}
                         onChange={(e) => setOrder(e.target.value as 'asc' | 'desc')}
-                        className="px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                        className="h-10 px-4 py-2 pr-10 rounded-md bg-gray-800 text-white border border-[#7140F4] appearance-none text-sm w-full focus:outline-none focus:ring-1 focus:ring-[#7140F4]"
                     >
                         <option value="asc">Asc</option>
                         <option value="desc">Desc</option>
@@ -89,13 +89,13 @@ const TweetFilters = ({
                     </div>
                 </div>
 
-                <div className="relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-[#7140F4] text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow">
+                <div className="h-10 relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-[#7140F4] text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow sm:w-1/4 md:w-1/6">
                     <input
                         type="checkbox"
                         id="highEngagement"
                         checked={highEngagement}
                         onChange={(e) => setHighEngagement(e.target.checked)}
-                        className="appearance-none h-4 w-4 border border-[#7140F4] rounded-sm checked:bg-[#7140F4] checked:border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4] transition"
+                        className="appearance-none h-4 w-4 border border-[#7140F4] rounded-sm checked:bg-[#7140F4] checked:border-[#7140F4] focus:outline-none focus:ring-1 focus:ring-[#7140F4] transition"
                     />
                     <label htmlFor="highEngagement" className="cursor-pointer select-none">
                         Show only high engagement
@@ -104,19 +104,19 @@ const TweetFilters = ({
             </div>
 
             <div className="flex flex-wrap sm:flex-nowrap w-full gap-2 items-center">
-                <div className="relative w-full sm:w-1/2 md:w-1/3">
+                <div className="relative w-full sm:w-1/2 md:w-1/3 flex-shrink-0">
                     <div className="flex items-center gap-2 w-full">
                         <input
                             type="text"
                             placeholder="#hashtag"
                             value={hashtagInput}
                             onChange={(e) => setHashtagInput(e.target.value)}
-                            className="px-3 py-2 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-2 focus:ring-[#7140F4]"
+                            className="h-10 px-3 py-2 rounded bg-gray-800 text-white w-full border border-[#7140F4] focus:outline-none focus:ring-1 focus:ring-[#7140F4]"
                         />
                         <button
                             type="button"
                             onClick={handleHashtagAdd}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5a33c1] rounded text-sm whitespace-nowrap"
+                            className="h-10 flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5a33c1] rounded text-sm whitespace-nowrap"
                         >
                             <Plus size={12} strokeWidth={2.5} />
                             Add Hashtag
