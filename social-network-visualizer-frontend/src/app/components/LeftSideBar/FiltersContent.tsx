@@ -13,7 +13,7 @@ interface GraphType {
 export default function FiltersContent() {
     const {
         graphRelationType,
-        setGraphRelationType,
+        updateGraphType,
         runWithLoading,
         loading,
     } = useProject();
@@ -45,7 +45,7 @@ export default function FiltersContent() {
 
             showStatus(`Relations "${type.label}" recomputed.`);
 
-            setGraphRelationType(type.value);
+            await updateGraphType(type.value);
         });
     };
 

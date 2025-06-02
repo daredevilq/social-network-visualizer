@@ -123,6 +123,15 @@ export default function ProjectUploadModal({
 			onClose={onCancel}
 			className="fixed inset-0 z-50 flex items-center justify-center"
 		>
+
+			{open && (
+				<div
+					className="fixed inset-0 bg-black/50"
+					aria-hidden="true"
+					onClick={onCancel}
+				/>
+			)}
+
 			<div
 				className="fixed inset-0 bg-black/50"
 				aria-hidden="true"

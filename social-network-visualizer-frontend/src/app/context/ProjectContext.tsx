@@ -4,15 +4,15 @@ import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {Link, Node} from "@/app/interface/GraphData";
+import {getProjectName, setProjectName, getGraphType, setGraphType, getGraphUiType} from "@/app/project-state";
 
 
 interface Context {
-    selected: string | null;
+    loadedProjectName: string | null;
     loading: boolean;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    select: (name: string) => Promise<void>;
+    loadProject: (name: string) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
-    refresh: (name: string) => Promise<void>;
     fetchGraphData: () => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
@@ -27,7 +27,7 @@ interface Context {
     selectedUserData: BasicUserData | null;
     setSelectedUserData: React.Dispatch<React.SetStateAction<BasicUserData | null>>;
     graphRelationType: string;
-    setGraphRelationType: React.Dispatch<React.SetStateAction<string>>;
+    updateGraphType: (name: string) => Promise<void>;
     focusedCommunityId?: string;
     setFocusedCommunityId: (id?: string) => void;
     selectedGraphType: GraphType;
@@ -37,12 +37,11 @@ interface Context {
 }
 
 const ProjectContext = createContext<Context>({
-    selected: null,
+    loadedProjectName: null,
     loading: false,
     setLoading: () => {},
-    select: async () => {},
+    loadProject: async () => {},
     runWithLoading: async (fn) => fn(),
-    refresh: async () => {},
     fetchGraphData: async () => {},
     isLabelsMode: true,
     setIsLabelsMode: () => {},
@@ -57,7 +56,7 @@ const ProjectContext = createContext<Context>({
     selectedUserData: null,
     setSelectedUserData: () => {},
     graphRelationType: "mentions",
-    setGraphRelationType: () => {},
+    updateGraphType: async () => {},
     focusedCommunityId: undefined,
     setFocusedCommunityId: () => {},
     selectedGraphType: GraphType.STANDARD,
@@ -71,7 +70,7 @@ export const useProject = () => useContext(ProjectContext);
 
 export function ProjectProvider({children}: { children: ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [selected, setSelected] = useState<string | null>(null);
+    const [loadedProjectName, setLoadedProjectName] = useState<string | null>(null)
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
@@ -84,37 +83,23 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [showLabels, setShowLabels] = useState(false);
 
     useEffect(() => {
-        const stored = localStorage.getItem('selectedProject');
-        if (stored) {
-            setSelected(JSON.parse(stored));
+        const fetchProjectState = async () => {
+            const name = await getProjectName()
+            const type = await getGraphType();
+            const uiType = await getGraphUiType();
+
+            setLoadedProjectName(name);
+            setGraphRelationType(type);
+            setSelectedGraphType(uiType);
         }
 
-        const storedGraphType = localStorage.getItem('graphType');
-        if (storedGraphType) {
-            setGraphRelationType(storedGraphType);
-        }
-    }, []);
+        fetchProjectState();
+    }, [])
 
-    useEffect(() => {
-        if (selected) {
-            localStorage.setItem('selectedProject', JSON.stringify(selected));
-        }
-
-        if (graphRelationType) {
-            localStorage.setItem('graphType', graphRelationType);
-        }
-    }, [selected, graphRelationType]);
-
-    useEffect(() => {
-        const stored = localStorage.getItem('graphUiType');
-        if (stored && Object.values<string>(GraphType).includes(stored))
-            setSelectedGraphType(stored as GraphType);
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('graphUiType', selectedGraphType);
-    }, [selectedGraphType]);
-
+    const updateGraphType = async (graphType: string) => {
+        await setGraphType(graphType);
+        setGraphRelationType(graphType);
+    };
 
     const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
         if (loading) return fn();
@@ -126,27 +111,21 @@ export function ProjectProvider({children}: { children: ReactNode }) {
         }
     };
 
-    const select = async (name: string) =>
+    const loadProject = async (name: string) =>
         runWithLoading(async () => {
-            if (selected === name) return;
+            if (loadedProjectName === name) return;
             await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
                 method: "POST",
             });
-            setSelected(name);
-            window.location.href = "/";
-        });
+            setLoadedProjectName(name);
+            await setProjectName(name);
 
-    const refresh = async (name: string) =>
-        runWithLoading(async () => {
-            if (!selected) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
-                method: "POST",
-            });
+            window.location.href = "/";
         });
 
     const fetchGraphData = async () =>
         runWithLoading(async () => {
-            if (!selected) return;
+            if (!loadedProjectName) return;
 
             try {
                 const res = await fetch(`http://localhost:8080/graph/${graphRelationType}`);
@@ -187,12 +166,11 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     return (
         <ProjectContext.Provider
             value={{
-                selected,
+                loadedProjectName,
                 loading,
                 setLoading,
-                select,
+                loadProject,
                 runWithLoading,
-                refresh,
                 fetchGraphData,
                 isLabelsMode,
                 setIsLabelsMode,
@@ -207,7 +185,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 selectedUserData,
                 setSelectedUserData,
                 graphRelationType,
-                setGraphRelationType,
+                updateGraphType,
                 focusedCommunityId,
                 setFocusedCommunityId,
                 selectedGraphType,

@@ -13,6 +13,7 @@ import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetai
 import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
 import {useProject} from "@/app/context/ProjectContext";
 import {GraphType} from "@/app/interface/GraphType";
+import {setGraphUiType} from "@/app/project-state";
 
 export default function CommunityAnalysisDetailsContainer(
     {communityId}: { communityId: string }
@@ -25,11 +26,11 @@ export default function CommunityAnalysisDetailsContainer(
         loading: loadingHeatMap,
         error: errorHeatMap
     } = useActivityHeatmap({communityId: id});
-    const {setFocusedCommunityId, setSelectedGraphType} = useProject();
+    const {setFocusedCommunityId} = useProject();
 
     const openGraph = () => {
         setFocusedCommunityId(communityId);
-        setSelectedGraphType(GraphType.COMMUNITY);
+        setGraphUiType(GraphType.COMMUNITY);
         router.push("/");
     };
 
@@ -65,7 +66,7 @@ export default function CommunityAnalysisDetailsContainer(
                     </h1>
 
                     <button
-                        onClick={openGraph}
+                        onClick={async () => openGraph}
                         className="ml-auto shrink-0 text-white bg-[#7140F4] hover:bg-indigo-500 cursor-pointer px-4 py-1.5 rounded-md transition-colors duration-200"
                     >
                         Show community graph

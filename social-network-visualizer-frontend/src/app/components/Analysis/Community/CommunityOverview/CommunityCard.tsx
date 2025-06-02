@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {useProject} from "@/app/context/ProjectContext";
 import {GraphType} from "@/app/interface/GraphType";
-
+import {setGraphUiType} from "@/app/project-state";
 
 export default function CommunityCard({ data }: { data: CommunitySummary }) {
     const {
@@ -23,8 +23,9 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
 
     const { setFocusedCommunityId, setSelectedGraphType } = useProject();
 
-    const openGraph = () => {
+    const openGraph = async () => {
         setFocusedCommunityId(data.communityId.toString());
+        await setGraphUiType(GraphType.COMMUNITY);
         setSelectedGraphType(GraphType.COMMUNITY);
         router.push("/");
     };

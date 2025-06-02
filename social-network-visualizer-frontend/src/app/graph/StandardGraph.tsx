@@ -8,7 +8,7 @@ const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 
 export default function StandardGraph() {
     const {
-        selected,
+        loadedProjectName,
         loading,
         graphData,
         nodeFoundId,
@@ -18,11 +18,11 @@ export default function StandardGraph() {
     } = useProject();
 
     useEffect(() => {
-        if (!selected || loading) return;
+        if (!loadedProjectName || loading) return;
         fetchGraphData();
-    }, [selected, graphRelationType]);
+    }, [loadedProjectName, graphRelationType]);
 
-    if (!selected)
+    if (!loadedProjectName)
         return (
             <div className="h-full w-full flex flex-col items-center justify-center text-[#fafafa]">
                 <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>
