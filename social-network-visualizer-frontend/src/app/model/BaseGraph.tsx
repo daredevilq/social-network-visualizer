@@ -116,8 +116,21 @@ const BaseGraph  = forwardRef(({
 
         fgInstance.current = new ForceGraph<NodeObject, LinkObject>(containerRef.current);
 
+        const handleResize = () => {
+            if (fgInstance.current && containerRef.current) {
+                const { offsetWidth, offsetHeight } = containerRef.current;
+                fgInstance.current
+                    .width(offsetWidth)
+                    .height(offsetHeight);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
         return () => {
             fgInstance.current = null;
+            window.removeEventListener('resize', handleResize);
         };
     }, []);
 
