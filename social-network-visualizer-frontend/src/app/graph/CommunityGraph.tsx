@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
     const {
-        selected,
+        loadedProjectName,
         loading,
         graphData,
         setGraphData,
@@ -22,7 +22,7 @@ export default function CommunityGraph() {
     const NUMBER_OF_COMMUNITIES = 15;
 
     useEffect(() => {
-        if (!selected || loading) return;
+        if (!loadedProjectName || loading) return;
 
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
@@ -67,14 +67,14 @@ export default function CommunityGraph() {
                 setGraphData({ nodes, links });
             })
             .catch(err => console.error("Fetch error:", err.message));
-    }, [selected, loading, focusedCommunityId]);
+    }, [loadedProjectName, loading, focusedCommunityId]);
 
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
     };
 
-    if (!selected)
+    if (!loadedProjectName)
         return (
             <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
                 <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>

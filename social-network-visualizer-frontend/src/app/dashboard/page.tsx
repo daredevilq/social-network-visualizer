@@ -10,7 +10,6 @@ import Dashboard from "@/app/components/dashboard/Dashboard";
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState("standardGraph");
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const {loading} = useProject();
 
