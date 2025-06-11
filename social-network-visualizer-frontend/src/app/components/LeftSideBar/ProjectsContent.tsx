@@ -8,11 +8,12 @@ import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
+import {resetProjectName} from "@/app/project-state";
 
 const API = 'http://localhost:8080';
 
 export default function ProjectsContent() {
-	const { selected, loading, select, runWithLoading, refresh } = useProject();
+	const { loadedProjectName, loading, loadProject, runWithLoading } = useProject();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
 	const [status, setStatus] = useState<string | null>(null);
 	const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -35,14 +36,15 @@ export default function ProjectsContent() {
 		setProjects(await res.json());
 	};
 
-
 	const runDeleteProject = async (name: string) => {
 		await runWithLoading(async () => {
 			const res = await fetch(`${API}/project/${encodeURIComponent(name)}`, { method: 'DELETE' });
 			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
-			if (selected === name) await select('');
-			await refresh(name);
+			if (loadedProjectName === name) {
+				await resetProjectName();
+				window.location.href = "/";
+			}
 			showStatus(`Project “${name}” deleted`);
 		}).catch(err => {
 			console.error(err);
@@ -52,8 +54,8 @@ export default function ProjectsContent() {
 
 	useEffect(() => { refreshProjects().catch(console.error); }, []);
 	useEffect(() => {
-		if (selected) showStatus(`Project “${selected}” loaded`);
-	}, [selected]);
+		if (loadedProjectName) showStatus(`Project “${loadedProjectName}” loaded`);
+	}, [loadedProjectName]);
 
 	return (
 		<div className="relative h-full flex flex-col text-white px-4 pt-4">
@@ -64,16 +66,16 @@ export default function ProjectsContent() {
 					<div
 						key={p.name}
 						className={`py-3 flex items-center justify-between
-                        ${selected === p.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'}`}
+                        ${loadedProjectName === p.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'}`}
 					>
 						<button
 							disabled={loading}
-							onClick={() => select(p.name)}
+							onClick={() => loadProject(p.name)}
 							className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
 						>
 							<img
 								src={
-									selected === p.name
+									loadedProjectName === p.name
 										? '/icons/leftSideBar/current_project_icon.png'
 										: '/icons/leftSideBar/project_icon.png'
 								}
@@ -115,14 +117,14 @@ export default function ProjectsContent() {
 			<ProjectUploadModal
 				API={API}
 				open={createModalOpen}
-				defaultName={selected ?? ''}
+				defaultName={loadedProjectName ?? ''}
 				pendingFiles={pendingFiles}
 				onFilesChange={setPendingFiles}
 				onCancel={cancelCreateModal}
 				onSuccess={async (name) => {
 					cancelCreateModal();
 					await refreshProjects();
-					await select(name);
+					await loadProject(name);
 					showStatus('Project uploaded successfully');
 				}}
 			/>
@@ -140,8 +142,8 @@ export default function ProjectsContent() {
 				confirmLabel="Delete"
 				cancelLabel="Cancel"
 				onCancel={() => setDeleteTarget(null)}
-				onConfirm={() => {
-					if (deleteTarget) runDeleteProject(deleteTarget);
+				onConfirm={async () => {
+					if (deleteTarget) await runWithLoading(() => runDeleteProject(deleteTarget));
 					setDeleteTarget(null);
 				}}
 			/>

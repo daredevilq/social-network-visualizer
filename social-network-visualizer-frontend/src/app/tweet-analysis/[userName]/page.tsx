@@ -11,7 +11,6 @@ import TweetAnalysisList from "@/app/components/Analysis/Tweet/TweetAnalysisList
 
 export default function TweetAnalysisPage() {
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-    const [selectedGraph, setSelectedGraph] = useState("standardGraph");
     const [selectedLeftSideBarContent, setSelectedLeftSideBarContent] = useState("home");
     const {loading} = useProject();
     const { userName } = useParams<{ userName: string | string[] }>();

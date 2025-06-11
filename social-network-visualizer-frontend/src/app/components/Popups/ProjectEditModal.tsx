@@ -22,7 +22,7 @@ export default function ProjectEditModal({
 	const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [status, setStatus] = useState<string | null>(null);
-	const { selected, graphRelationType, fetchGraphData, refresh, runWithLoading } = useProject();
+	const { loadedProjectName, graphRelationType, fetchGraphData, runWithLoading } = useProject();
 
 	const showStatus = (msg: string) => {
 		setStatus(msg);
@@ -41,10 +41,10 @@ export default function ProjectEditModal({
 		setLoading(true);
 
 		await runWithLoading(() => deleteFiles());
-		if (projectName && projectName === selected) {
+		if (projectName && projectName === loadedProjectName) {
 			await runWithLoading(() => uploadToOpenedProject());
-			await refresh(projectName);
 			await fetchGraphData();
+			window.location.href = "/";
 
 		} else {
 			await uploadFiles();

@@ -2,10 +2,11 @@
 
 import {graphTypeItems} from "@/app/interface/GraphType";
 import {useProject} from "@/app/context/ProjectContext";
+import {setGraphUiType} from "@/app/project-state";
 
 
 export default function GraphTypeContent() {
-    const { setSelectedGraphType, selectedGraphType } = useProject();
+    const { selectedGraphType } = useProject();
 
     return (
         <div className="relative h-full flex flex-col text-white px-4 pt-4">
@@ -15,7 +16,10 @@ export default function GraphTypeContent() {
                 {graphTypeItems.map(({ value, label }) => (
                     <div key={value} className="py-3">
                         <button
-                            onClick={() => setSelectedGraphType(value)}
+                            onClick={async () => {
+                                await setGraphUiType(value);
+                                window.location.href = "/";
+                            }}
                             disabled={selectedGraphType === value}
                             className={`w-full text-left transition-colors ${
                                 selectedGraphType === value

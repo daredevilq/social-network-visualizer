@@ -28,13 +28,13 @@ export default function ConfirmModal({
             className="fixed inset-0 z-50 flex items-center justify-center"
         >
             {/* darken the background */}
-            open && (
+            {open && (
             <div
                 className="fixed inset-0 bg-black/50"
                 aria-hidden="true"
                 onClick={onCancel}
             />
-            )
+            )}
 
             <div
                 className="bg-[#262631] rounded-xl shadow-xl w-[90%] max-w-sm p-6 space-y-6 z-50 relative"
