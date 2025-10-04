@@ -47,13 +47,12 @@ public class TweetsFolderParser {
             jsonFiles = files
                     .filter(path -> path.toString().endsWith(".json"))
                     .collect(Collectors.toList());
-
         } catch (IOException e) {
             throw new ProjectException("An error occurred while reading the directory: " + folderPath, e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (jsonFiles.isEmpty()) {
-            throw new ProjectException("No .json files found in the directory: " + folderPath, HttpStatus.BAD_REQUEST);
+            return 0;
         }
 
         return importFilesToDatabase(jsonFiles, true);
@@ -225,6 +224,7 @@ public class TweetsFolderParser {
         map.put("name", authorDto.getName());
         map.put("foreignId", authorDto.getForeignId());
         map.put("bot", authorDto.getBot());
+        map.put("analysisActive", false);
         return map;
     }
 

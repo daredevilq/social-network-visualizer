@@ -6,11 +6,14 @@ import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
 import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
+import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -139,5 +142,16 @@ public class AuthorService {
 
     public List<ActivityHeatmap> getUserActivityHeatmap(String authorName) {
         return authorRepository.getUserActivityHeatMap(authorName);
+    }
+
+    public Author updateAuthorActiveStatus(String authorName, boolean isActive) {
+        Author author = authorRepository.findById(authorName)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Author with name '" + authorName + "' not found"
+                ));
+
+        author.setAnalysisActive(isActive);
+        return authorRepository.save(author);
     }
 }

@@ -20,7 +20,7 @@ public class Author {
     private String name;
     private String foreignId;
     private Boolean bot;
-
+    private Boolean analysisActive;
     private Double pagerank;
     private Double degreeCentrality;
     private Integer community;

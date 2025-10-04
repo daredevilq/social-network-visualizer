@@ -111,8 +111,6 @@ export default function UserDetailsContainer({username}: { username: string }) {
             return;
         }
 
-        setSelectedUserData(username);
-
         const fetchData = async () => {
             setLoading(true)
             setError(null)
@@ -121,6 +119,11 @@ export default function UserDetailsContainer({username}: { username: string }) {
                 const userDataRes = await fetch(`${API_BASE_URL}/author/${username}`)
                 const data = await userDataRes.json()
                 setUserData(data)
+
+                setSelectedUserData({
+                    name: data.name,
+                    community: data.community
+                });
 
                 const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`)
                 const activity = await activityRes.json()

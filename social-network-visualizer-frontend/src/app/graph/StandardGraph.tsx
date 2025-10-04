@@ -9,7 +9,6 @@ const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function StandardGraph() {
     const {
         loadedProjectName,
-        loading,
         graphData,
         nodeFoundId,
         shortestPath,
@@ -18,7 +17,7 @@ export default function StandardGraph() {
     } = useProject();
 
     useEffect(() => {
-        if (!loadedProjectName || loading) return;
+        if (!loadedProjectName) return;
         fetchGraphData();
     }, [loadedProjectName, graphRelationType]);
 

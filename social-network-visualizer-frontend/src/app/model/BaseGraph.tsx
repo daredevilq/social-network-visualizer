@@ -4,6 +4,7 @@ import ForceGraph, {ForceGraphInstance, LinkObject, NodeObject} from 'force-grap
 import {GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {Node} from "@/app/interface/GraphData";
+import {useNotification} from "@/app/context/NotificationProvider";
 
 const BaseGraph  = forwardRef(({
   graphData,
@@ -32,7 +33,7 @@ const BaseGraph  = forwardRef(({
 
     const clickedNodeRef = useRef<Node | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+    const { showNotification } = useNotification();
 
     const handleSingleNodeClick = (node: Node) => {
         setSelectedUserData({
@@ -135,25 +136,21 @@ const BaseGraph  = forwardRef(({
     }, []);
 
     useEffect(() => {
-        if (fgInstance.current && graphData.nodes.length > 0) {
-            const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT).map(n => ({ ...n }));
-            const topNodesIds = new Set(topNodes.map(node => node.id));
-            const relevantLinks = graphData.links.filter(link => {
-                const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-                const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-                return topNodesIds.has(sourceId) && topNodesIds.has(targetId);
-            }).map(l => ({ ...l }));
+        if (!fgInstance.current) return;
 
-            setDisplayedNodes(topNodes);
-            setDisplayedLinks(relevantLinks);
+        const topNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT).map(n => ({ ...n }));
+        const topNodesIds = new Set(topNodes.map(n => n.id));
+        const relevantLinks = graphData.links.filter(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            return topNodesIds.has(sourceId) && topNodesIds.has(targetId);
+        }).map(l => ({ ...l }));
 
-            fgInstance.current.graphData({
-                nodes: topNodes,
-                links: relevantLinks
-            });
-        }
+        setDisplayedNodes(topNodes);
+        setDisplayedLinks(relevantLinks);
+
+        fgInstance.current.graphData({ nodes: topNodes, links: relevantLinks });
     }, [graphData]);
-
 
     useEffect(() => {
         if (fgInstance.current && nodeFoundId) {
@@ -240,6 +237,8 @@ const BaseGraph  = forwardRef(({
         setSelectedNodeIds([]);
         loadGraphData();
         setFocusedCommunityId(undefined);
+
+        showNotification("Graph has been reset.", "info");
     };
 
 

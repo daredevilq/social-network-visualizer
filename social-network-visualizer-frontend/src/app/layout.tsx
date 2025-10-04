@@ -2,14 +2,17 @@
 
 import './globals.css'
 import { ProjectProvider } from './context/ProjectContext'
+import {NotificationProvider} from "@/app/context/NotificationProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body suppressHydrationWarning>
-				<ProjectProvider>
-					{children}
-				</ProjectProvider>
+				<NotificationProvider>
+					<ProjectProvider>
+						{children}
+					</ProjectProvider>
+				</NotificationProvider>
 			</body>
 		</html>
 	);
