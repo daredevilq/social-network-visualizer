@@ -1,9 +1,11 @@
 'use client';
 
-import { useProject } from "@/app/context/ProjectContext";
-import { useEffect, useRef, useState } from "react";
-import { Network } from "lucide-react";
-import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import {useProject} from "@/app/context/ProjectContext";
+import {useEffect, useState} from "react";
+import {Network} from "lucide-react";
+import {API_BASE_URL} from '@/app/configuration/urlConfig';
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 interface GraphType {
     value: string;
@@ -15,41 +17,38 @@ export default function FiltersContent() {
         graphRelationType,
         updateGraphType,
         runWithLoading,
-        loading,
     } = useProject();
-
     const [types, setTypes] = useState<GraphType[]>([]);
-    const [status, setStatus] = useState<string | null>(null);
-    const hideTimer = useRef<NodeJS.Timeout | null>(null);
-
-    const showStatus = (msg: string) => {
-        if (hideTimer.current) clearTimeout(hideTimer.current);
-        setStatus(msg);
-        hideTimer.current = setTimeout(() => setStatus(null), 3000);
-    };
+    const { showNotification } = useNotification();
 
     const refreshTypes = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/graph/types`);
+            if (!res.ok) throw new Error("Failed to fetch graph types");
             const data = await res.json();
             setTypes(data);
-        } catch (err) {
-            console.error("Failed to fetch graph types", err);
+        } catch (err: any) {
+            showNotification(`Error fetching graph types: ${err.message}`, BannerType.ERROR);
         }
     };
 
     const selectGraphType = async (type: GraphType) => {
         await runWithLoading(async () => {
-            const res = await fetch(`${API_BASE_URL}/graph/${type.value}`, { method: "POST" });
-            if (!res.ok) throw new Error("Graph computation failed");
+            try {
+                const res = await fetch(`${API_BASE_URL}/graph/${type.value}`, { method: "POST" });
+                if (!res.ok) throw new Error("Graph computation failed");
 
-            showStatus(`Relations "${type.label}" recomputed.`);
-
-            await updateGraphType(type.value);
+                await updateGraphType(type.value);
+                showNotification(`Relations "${type.label}" recomputed.`, BannerType.INFO);
+            } catch (err: any) {
+                showNotification(`Error updating graph: ${err.message || err}`, BannerType.ERROR);
+            }
         });
     };
 
-    useEffect(() => { refreshTypes(); }, []);
+    useEffect(() => {
+        refreshTypes();
+    }, []);
 
     return (
         <div className="relative h-full flex flex-col text-white px-4 pt-4">
@@ -73,10 +72,6 @@ export default function FiltersContent() {
                     </div>
                 ))}
             </div>
-
-            {status && !loading && (
-                <p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
-            )}
         </div>
     );
 }

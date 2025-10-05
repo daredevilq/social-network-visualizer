@@ -4,8 +4,9 @@ import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {Link, Node} from "@/app/interface/GraphData";
-import {getProjectName, setProjectName, getGraphType, setGraphType, getGraphUiType} from "@/app/project-state";
+import {getGraphType, getGraphUiType, getProjectName, setGraphType, setProjectName} from "@/app/project-state";
 import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 
 interface Context {
@@ -128,11 +129,11 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setLoadedProjectName(name);
                 await setProjectName(name);
 
-                showNotification(`Project "${name}" loaded successfully.`, "success");
+                showNotification(`Project "${name}" loaded successfully.`, BannerType.SUCCESS);
 
                 if (fetchData) await fetchGraphData();
             } catch (err) {
-                showNotification(`Error loading project "${name}".`, "error");
+                showNotification(`Error loading project "${name}".`, BannerType.ERROR);
             }
         });
     };
@@ -145,7 +146,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
                 if (!res.ok) {
                     const message = `Failed to fetch graph data: ${res.status} ${res.statusText}`;
-                    showNotification(message, "error");
+                    showNotification(message, BannerType.ERROR);
                     return;
                 }
 
@@ -153,12 +154,12 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 try {
                     data = await res.json();
                 } catch (parseErr) {
-                    showNotification("Invalid response format from server.", "error");
+                    showNotification("Invalid response format from server.", BannerType.ERROR);
                     return;
                 }
 
                 if (!Array.isArray(data?.nodes) || !Array.isArray(data?.edges)) {
-                    showNotification("Graph data format is invalid.", "error");
+                    showNotification("Graph data format is invalid.", BannerType.ERROR);
                     return;
                 }
 
@@ -178,7 +179,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
                 setGraphData({ nodes, links });
             } catch (err) {
-                showNotification("Unexpected error while fetching graph data.", "error");
+                showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }
         });
 

@@ -5,6 +5,7 @@ import {GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {Node} from "@/app/interface/GraphData";
 import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 const BaseGraph  = forwardRef(({
   graphData,
@@ -238,7 +239,7 @@ const BaseGraph  = forwardRef(({
         loadGraphData();
         setFocusedCommunityId(undefined);
 
-        showNotification("Graph has been reset.", "info");
+        showNotification("Graph has been reset.", BannerType.INFO);
     };
 
 

@@ -6,10 +6,10 @@ import dynamic from 'next/dynamic';
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 
 export default function AuthorPagerankGraph() {
-    const {loadedProjectName, loading, graphData, shortestPath, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
+    const {loadedProjectName, graphData, shortestPath, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
 
     useEffect(() => {
-        if (!loadedProjectName || loading) return;
+        if (!loadedProjectName) return;
         fetchGraphData();
     }, [loadedProjectName, graphRelationType]);
 
