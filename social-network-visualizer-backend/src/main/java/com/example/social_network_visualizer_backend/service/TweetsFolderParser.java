@@ -224,7 +224,6 @@ public class TweetsFolderParser {
         map.put("name", authorDto.getName());
         map.put("foreignId", authorDto.getForeignId());
         map.put("bot", authorDto.getBot());
-        map.put("analysisActive", false);
         return map;
     }
 

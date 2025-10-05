@@ -72,7 +72,6 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
                 </div>
 
                 <TweetAnalysisContainer
-                    apiUrl={`http://localhost:8080/tweet/list/all`}
                     userName={userName}
                     tweetsContainerRef={tweetsContainerRef}
                 />

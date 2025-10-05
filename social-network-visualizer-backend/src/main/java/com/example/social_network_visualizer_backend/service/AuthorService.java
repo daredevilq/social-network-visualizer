@@ -143,15 +143,4 @@ public class AuthorService {
     public List<ActivityHeatmap> getUserActivityHeatmap(String authorName) {
         return authorRepository.getUserActivityHeatMap(authorName);
     }
-
-    public Author updateAuthorActiveStatus(String authorName, boolean isActive) {
-        Author author = authorRepository.findById(authorName)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Author with name '" + authorName + "' not found"
-                ));
-
-        author.setAnalysisActive(isActive);
-        return authorRepository.save(author);
-    }
 }

@@ -7,17 +7,20 @@ import TweetFilters from './TweetFilters';
 import {Tweet, TweetResponse} from "@/types/tweetTypes";
 import {useInView} from 'react-intersection-observer';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import {BannerType} from "@/app/components/Popups/Banner";
+import {useNotification} from "@/app/context/NotificationProvider";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 
 interface TweetAnalysisContainerProps {
-    apiUrl: string;
     userName: string | undefined;
     tweetsContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const PAGE_SIZE = 10;
 
-const TweetAnalysisContainer = ({apiUrl, userName, tweetsContainerRef}: TweetAnalysisContainerProps) => {
+const TweetAnalysisContainer = ({userName, tweetsContainerRef}: TweetAnalysisContainerProps) => {
     const { loading, runWithLoading } = useProject();
+    const { showNotification } = useNotification();
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -43,29 +46,30 @@ const TweetAnalysisContainer = ({apiUrl, userName, tweetsContainerRef}: TweetAna
     }, [loading]);
 
     const fetchTweets = useCallback(async (currentPage: number, reset = false) => {
-        if (!apiUrl || (!hasMore && !reset)) return;
+        if ((!hasMore && !reset)) return;
 
         await runWithLoading(async () => {
-            const hashtagQuery = hashtags.map(tag => `hashtags=${encodeURIComponent(tag)}`).join('&');
-            const userPrefix = userName ? `userName=${encodeURIComponent(userName)}&` : '';
-            const response = await fetch(
-                `${apiUrl}?${userPrefix}page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
-            );
-            if (!response.ok) throw new Error('Failed to fetch tweets');
-            const data: TweetResponse = await response.json();
+            try {
+                const hashtagQuery = hashtags.map(tag => `hashtags=${encodeURIComponent(tag)}`).join('&');
+                const userPrefix = userName ? `userName=${encodeURIComponent(userName)}&` : '';
+                const response = await fetch(
+                    `${API_BASE_URL}/tweet/list/all?${userPrefix}page=${currentPage}&limit=${PAGE_SIZE}&search=${search}&sortBy=${sortBy}&order=${order}&highEngagement=${highEngagement}&${hashtagQuery}`
+                );
+                if (!response.ok) throw new Error(`Failed to fetch tweets`);
+                const data: TweetResponse = await response.json();
 
-            setTweets(prev => {
-                return reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.id === t.id))];
-            });
-
-            setPage(currentPage + 1);
-            setHasMore(data.tweets.length === PAGE_SIZE);
-        })
-    }, [apiUrl, hasMore, runWithLoading, search, sortBy, order, hashtags, highEngagement]);
+                setTweets(prev => reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.id === t.id))]);
+                setPage(currentPage + 1);
+                setHasMore(data.tweets.length === PAGE_SIZE);
+            } catch (err: any) {
+                showNotification(err.message || 'Failed to fetch tweets', BannerType.ERROR);
+            }
+        });
+    }, [hasMore, runWithLoading, search, sortBy, order, hashtags, highEngagement, userName, showNotification]);
 
     useEffect(() => {
         fetchTweets(1, true);
-    }, [apiUrl, sortBy, order, hashtags, highEngagement]);
+    }, [sortBy, order, hashtags, highEngagement]);
 
     useEffect(() => {
         if (inView && hasMore && !loading) {

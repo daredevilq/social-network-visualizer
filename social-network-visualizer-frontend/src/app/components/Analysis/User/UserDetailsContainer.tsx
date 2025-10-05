@@ -9,13 +9,15 @@ import {UsersMentionedContainer} from "@/app/components/Analysis/User/UsersMenti
 import {ViralTweetsContainer} from "@/app/components/Analysis/User/ViralTweetsContainer";
 import {UserProfileContainer} from "@/app/components/Analysis/User/UserProfileContainer";
 import {ActivityTimelineContainer} from "@/app/components/Analysis/User/ActivityTimelineContainer";
-import { TopHashtagsContainer } from "@/app/components/Analysis/User/TopHashtagsContainer";
-import { RetweetsByContainer } from "@/app/components/Analysis/User/RetweetsByContainer";
-import { RetweetsOfContainer } from "@/app/components/Analysis/User/RetweetsOfContainer";
+import {TopHashtagsContainer} from "@/app/components/Analysis/User/TopHashtagsContainer";
+import {RetweetsByContainer} from "@/app/components/Analysis/User/RetweetsByContainer";
+import {RetweetsOfContainer} from "@/app/components/Analysis/User/RetweetsOfContainer";
 import {HashtagActivityContainer} from "@/app/components/Analysis/User/HashtagActivityContainer";
 import {ActivityHeatmap} from "@/app/interface/ActivityHeatmap";
 import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
-import { MostCommonWordsContainer } from './MostCommonWordsContainer'
+import {MostCommonWordsContainer} from './MostCommonWordsContainer'
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 ChartJS.register(
     CategoryScale,
@@ -49,7 +51,6 @@ export default function UserDetailsContainer({username}: { username: string }) {
     const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
     const [mostCommonWords, setMostCommonWords] = useState<string[]>([]);
     const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
-    const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(true)
     const {setSelectedUserData} = useProject();
     const [animatedStats, setAnimatedStats] = useState({
@@ -61,7 +62,7 @@ export default function UserDetailsContainer({username}: { username: string }) {
         averageRetweetsCount: 0
     });
     const animationStarted = useRef(false);
-
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         if (userData && !loading && !animationStarted.current) {
@@ -111,61 +112,70 @@ export default function UserDetailsContainer({username}: { username: string }) {
             return;
         }
 
-        const fetchData = async () => {
-            setLoading(true)
-            setError(null)
-
-            try {
-                const userDataRes = await fetch(`${API_BASE_URL}/author/${username}`)
-                const data = await userDataRes.json()
-                setUserData(data)
-
-                setSelectedUserData({
-                    name: data.name,
-                    community: data.community
-                });
-
-                const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`)
-                const activity = await activityRes.json()
-                setUserActivity(activity)
-
-                const mentionsRes = await fetch(`${API_BASE_URL}/author/mentions/${username}`)
-                const mentions = await mentionsRes.json()
-                setUserMentions(mentions)
-
-                const topHashtagsRes = await fetch(`${API_BASE_URL}/author/hashtags/${username}`)
-                const topHashtagsData = await topHashtagsRes.json()
-                setTopHashtags(topHashtagsData)
-
-                const retweetsByRes = await fetch(`${API_BASE_URL}/author/retweets-by/${username}`)
-                const retweetsByData = await retweetsByRes.json()
-                setRetweetedUsers(retweetsByData)
-
-                const retweetsOfRes = await fetch(`${API_BASE_URL}/author/retweets-of/${username}`)
-                const retweetsOfData = await retweetsOfRes.json()
-                setRetweetingUsers(retweetsOfData)
-
-                const viralTweetsRes = await fetch(`${API_BASE_URL}/author/viral-tweets/${username}`)
-                const viralTweetsData = await viralTweetsRes.json()
-                setViralTweets(viralTweetsData)
-
-                const mostCommonWordsRes = await fetch(`${API_BASE_URL}/author/most-common-words/${username}`)
-                const mostCommonWordsData = await mostCommonWordsRes.json()
-                setMostCommonWords(mostCommonWordsData)
-
-                const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`)
-                const userHeatMapData: ActivityHeatmap[] = await userHeatMapRes.json() as ActivityHeatmap[]
-                setUserHeatMap(userHeatMapData)
-            } catch (err) {
-                setError('Failed to load user data. Please try again later.');
-                console.error('Error fetching user data:', err);
-            } finally {
-                setLoading(false);
-            }
-        }
-
         fetchData()
     }, [username, router, setSelectedUserData])
+
+    const fetchData = async () => {
+        setLoading(true)
+
+        try {
+            const userDataRes = await fetch(`${API_BASE_URL}/author/${username}`)
+            if (!userDataRes.ok) throw new Error("Failed to fetch user data");
+            const data = await userDataRes.json()
+            setUserData(data)
+
+            setSelectedUserData({
+                name: data.name,
+                community: data.community
+            });
+
+            const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`)
+            if (!activityRes.ok) throw new Error("Failed to load user data");
+            const activity = await activityRes.json()
+            setUserActivity(activity)
+
+            const mentionsRes = await fetch(`${API_BASE_URL}/author/mentions/${username}`)
+            if (!mentionsRes.ok) throw new Error("Failed to load user data");
+            const mentions = await mentionsRes.json()
+            setUserMentions(mentions)
+
+            const topHashtagsRes = await fetch(`${API_BASE_URL}/author/hashtags/${username}`)
+            if (!topHashtagsRes.ok) throw new Error("Failed to load user data");
+            const topHashtagsData = await topHashtagsRes.json()
+            setTopHashtags(topHashtagsData)
+
+            const retweetsByRes = await fetch(`${API_BASE_URL}/author/retweets-by/${username}`)
+            if (!retweetsByRes.ok) throw new Error("Failed to load user data");
+            const retweetsByData = await retweetsByRes.json()
+            setRetweetedUsers(retweetsByData)
+
+            const retweetsOfRes = await fetch(`${API_BASE_URL}/author/retweets-of/${username}`)
+            if (!retweetsOfRes.ok) throw new Error("Failed to load user data");
+            const retweetsOfData = await retweetsOfRes.json()
+            setRetweetingUsers(retweetsOfData)
+
+            const viralTweetsRes = await fetch(`${API_BASE_URL}/author/viral-tweets/${username}`)
+            if (!viralTweetsRes.ok) throw new Error("Failed to load user data");
+            const viralTweetsData = await viralTweetsRes.json()
+            setViralTweets(viralTweetsData)
+
+            const mostCommonWordsRes = await fetch(`${API_BASE_URL}/author/most-common-words/${username}`)
+            if (!mostCommonWordsRes.ok) throw new Error("Failed to load user data");
+            const mostCommonWordsData = await mostCommonWordsRes.json()
+            setMostCommonWords(mostCommonWordsData)
+
+            const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`)
+            if (!userHeatMapRes.ok) throw new Error("Failed to load user data");
+            const userHeatMapData: ActivityHeatmap[] = await userHeatMapRes.json() as ActivityHeatmap[]
+            setUserHeatMap(userHeatMapData)
+
+        } catch (err: any) {
+            const message = err?.message || "Unexpected error occurred while fetching user data";
+            showNotification(message, BannerType.ERROR);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const chartData = {
         labels: userActivity ? Object.keys(userActivity) : [],

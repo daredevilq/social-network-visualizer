@@ -88,11 +88,4 @@ public class AuthorController {
     public ResponseEntity<List<ActivityHeatmap>> getUserActivityHeatmap(@PathVariable String authorName) {
         return ResponseEntity.ok(authorService.getUserActivityHeatmap(authorName));
     }
-
-    @PutMapping("/{authorName}/status")
-    public ResponseEntity<Author> updateAuthorStatus(
-            @PathVariable("authorName") String authorName,
-            @RequestParam boolean isActive) {
-        return ResponseEntity.ok(authorService.updateAuthorActiveStatus(authorName, isActive));
-    }
 }
