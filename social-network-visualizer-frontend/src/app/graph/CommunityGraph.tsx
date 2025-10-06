@@ -5,6 +5,8 @@ import {Link, Node} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 import dynamic from 'next/dynamic';
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
@@ -20,9 +22,10 @@ export default function CommunityGraph() {
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
+    const { showNotification } = useNotification();
 
     useEffect(() => {
-        if (!loadedProjectName || loading) return;
+        if (!loadedProjectName) return;
 
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
@@ -66,7 +69,9 @@ export default function CommunityGraph() {
 
                 setGraphData({ nodes, links });
             })
-            .catch(err => console.error("Fetch error:", err.message));
+            .catch(err => {
+                showNotification("Failed to load community graph data." ,BannerType.ERROR);
+            });
     }, [loadedProjectName, loading, focusedCommunityId]);
 
 

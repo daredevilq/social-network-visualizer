@@ -19,12 +19,11 @@ export default function CommunityAnalysisDetailsContainer(
     {communityId}: { communityId: string }
 ) {
     const id = Number(communityId);
-    const {data: summary, loading: loadingSummary, error: errorSummary} = useCommunitySummary(id);
-    const {data: authors, loading: loadingAuthors, error: errorAuthors} = useCommunityAuthors(id);
+    const {data: summary, loading: loadingSummary} = useCommunitySummary(id);
+    const {data: authors, loading: loadingAuthors} = useCommunityAuthors(id);
     const {
         data: communityHeatMap,
         loading: loadingHeatMap,
-        error: errorHeatMap
     } = useActivityHeatmap({communityId: id});
     const {setFocusedCommunityId} = useProject();
 
@@ -37,10 +36,8 @@ export default function CommunityAnalysisDetailsContainer(
     const router = useRouter();
 
     const loading = loadingSummary || loadingAuthors || loadingHeatMap;
-    const error = errorSummary ?? errorAuthors ?? errorHeatMap;
 
     if (loading) return <LoadingOverlay/>;
-    if (error) return <p className="text-red-400">Error: {error}</p>;
     if (!summary) return <p>No summary found.</p>;
 
     const hashtagActivities = summary.topHashtags.map(name => ({name, frequency: 0}));

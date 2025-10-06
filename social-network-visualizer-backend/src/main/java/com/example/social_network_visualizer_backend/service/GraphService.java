@@ -29,7 +29,6 @@ public class GraphService {
         GraphDefinition definition = getGraphDefinition(graphType);
         Set<RelationType> relations = definition.getRelationTypes();
 
-
         if (communityId.isPresent()) {
             return buildGraphUsingRelationsWithCommunity(relations, communityId.get());
         } else {

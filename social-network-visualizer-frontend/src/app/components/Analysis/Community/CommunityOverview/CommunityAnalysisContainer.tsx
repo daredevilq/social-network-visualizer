@@ -14,7 +14,7 @@ export default function CommunityAnalysisContainer() {
     const { data: overview, loading: loadOv, error: errOv } = useCommunityOverview();
 
     const {
-        list, error: errList, loading: loadList, hasMore, fetchPage, page
+        list, loading: loadList, hasMore, fetchPage, page
     } = useCommunityList();
 
     const { ref, inView } = useInView({ rootMargin: "200px" });
@@ -49,9 +49,6 @@ export default function CommunityAnalysisContainer() {
 
                 <OverviewSection overview={overview}/>
                 <HistogramChartCard histogram={overview.sizeHistogram}/>
-
-                {errList && <p className="text-center text-red-400">{errList}</p>}
-
                 <main className="flex-1 overflow-y-auto flex flex-col items-center gap-4 scrollbar-dark">
                     {list.map(c => <CommunityCard key={c.communityId} data={c} />)}
                     {hasMore && <div ref={ref} className="h-1 w-full" />}

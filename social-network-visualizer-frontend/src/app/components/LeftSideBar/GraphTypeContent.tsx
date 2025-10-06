@@ -3,10 +3,13 @@
 import {graphTypeItems} from "@/app/interface/GraphType";
 import {useProject} from "@/app/context/ProjectContext";
 import {setGraphUiType} from "@/app/project-state";
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 
 export default function GraphTypeContent() {
-    const { selectedGraphType } = useProject();
+    const { selectedGraphType, setSelectedGraphType } = useProject();
+    const { showNotification } = useNotification();
 
     return (
         <div className="relative h-full flex flex-col text-white px-4 pt-4">
@@ -18,7 +21,8 @@ export default function GraphTypeContent() {
                         <button
                             onClick={async () => {
                                 await setGraphUiType(value);
-                                window.location.href = "/";
+                                setSelectedGraphType(value);
+                                showNotification(`Graph type has been changed to ${label}.`, BannerType.INFO);
                             }}
                             disabled={selectedGraphType === value}
                             className={`w-full text-left transition-colors ${

@@ -30,7 +30,7 @@ public class GraphController {
     @PostMapping("/{graphType}")
     public ResponseEntity<Map<String, String>> setGraphType(@PathVariable String graphType) {
         graphService.setGraphType(graphType);
-        return ResponseEntity.ok(Map.of("message", "Graph type changed successfuly"));
+        return ResponseEntity.ok(Map.of("message", "Graph type changed successfully"));
     }
 
     @GetMapping("/{graphType}")
