@@ -5,6 +5,7 @@ import {FolderPlus} from "lucide-react";
 import dynamic from 'next/dynamic';
 import {GraphLink, GraphNode} from "@/types/GraphTypes";
 import { getSourceId, getTargetId } from "../utils/graphUtils";
+import nodeStrategy from "../model/strategies/NodeStrategy";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 
@@ -44,9 +45,11 @@ export default function StandardGraph() {
                 nodeLabel={(node: GraphNode) => `${node.id}`}
                 nodeColor={(node: GraphNode) => {
                     if (node.id === nodeFoundId) return "red";
-                    return shortestPath.includes(String(node.id))
-                        ? "rgba(255, 159, 64, 0.95)"
-                        : "rgba(92, 55, 230, 0.95)";
+
+                    if (shortestPath.includes(String(node.id))) {
+                        return "rgba(255, 159, 64, 0.95)";
+                    }
+                    return nodeStrategy.getColor(node);
                 }}
                 linkColor={(link: GraphLink) => {
                     return shortestPath.includes(getSourceId(link)) && shortestPath.includes(getTargetId(link)) ? "red" : "#fafafa";
