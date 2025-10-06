@@ -9,8 +9,8 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 public enum GraphDefinition {
-    MENTIONS("mentions", "g_author_mentions", Set.of(NodeLabel.AUTHOR) ,  Set.of(RelationType.MENTIONS)),
-    RETWEETS_AND_MENTIONS("retweets-and-mentions", "g_author_importance", Set.of(NodeLabel.AUTHOR), Set.of(RelationType.MENTIONS, RelationType.RETWEETS));
+    MENTIONS("mentions", "g_author_mentions", Set.of(NodeLabel.AUTHOR) ,  Set.of(RelationType.MENTIONS));
+//    RETWEETS_AND_MENTIONS("retweets-and-mentions", "g_author_importance", Set.of(NodeLabel.AUTHOR), Set.of(RelationType.MENTIONS, RelationType.RETWEETS));
 
     private final String urlName;
     private final String graphName;

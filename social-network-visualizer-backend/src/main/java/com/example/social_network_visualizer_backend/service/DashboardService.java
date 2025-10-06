@@ -2,7 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.*;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
-import com.example.social_network_visualizer_backend.repository.ProjectRepository;
+import com.example.social_network_visualizer_backend.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,33 +12,33 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final ProjectRepository projectRepository;
+    private final DashboardRepository dashboardRepository;
 
     public ProjectStatsDto getProjectStats() {
-        return projectRepository.getProjectStats();
+        return dashboardRepository.getProjectStats();
     }
 
     public List<ActivityPoint> getProjectActivity() {
-        return projectRepository.getProjectActivity();
+        return dashboardRepository.getProjectActivity();
     }
 
     public List<HashtagFrequency> getProjectHashtagStats() {
-        return projectRepository.findTopHashtags();
+        return dashboardRepository.findTopHashtags();
     }
 
     public List<ViralTweetDto> getViralTweetStats() {
-        return projectRepository.findTheMostViralTweets();
+        return dashboardRepository.findTheMostViralTweets();
     }
 
     public List<TopUsersDto> getTopMentions() {
-        return projectRepository.findTopMentions();
+        return dashboardRepository.findTopMentions();
     }
 
     public List<TopUsersDto> getTopAuthors() {
-        return projectRepository.findTopAuthors();
+        return dashboardRepository.findTopAuthors();
     }
 
     public List<ActivityHeatmap> getHeatMap() {
-        return projectRepository.getProjectHeatMap();
+        return dashboardRepository.getProjectHeatMap();
     }
 }

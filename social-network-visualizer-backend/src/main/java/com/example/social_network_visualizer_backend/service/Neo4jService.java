@@ -2,7 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.enums.NodeLabel;
 import com.example.social_network_visualizer_backend.enums.RelationType;
-import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
+import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.repository.*;
 import lombok.AllArgsConstructor;
@@ -58,7 +58,7 @@ public class Neo4jService {
                 }
             }
         }
-        throw new Neo4jUnavailableException("Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
+        throw new DatabaseUnavailableException("Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
     }
 
     public void computeMetricsAndRelations(String graphType){

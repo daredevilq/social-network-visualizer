@@ -11,6 +11,19 @@ services:
       - '7687:7687'
       - '7474:7474'
 
+  mongodb:
+    container_name: mongo-database
+    image: mongo:6.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_DATABASE=socialdb
+  
   backend_service:
     build: ./social-network-visualizer-backend
     container_name: backend_container_inz
@@ -19,6 +32,7 @@ services:
     volumes:
       - ./social-network-visualizer-backend:/app
     depends_on:
+      - mongodb
       - neo4j
 
   frontend_service:
@@ -35,4 +49,6 @@ services:
       - backend_service
     environment:
       - WATCHPACK_POLLING=true
-      
+
+volumes:
+  mongo_data:

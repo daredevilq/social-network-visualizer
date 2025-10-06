@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.config;
 
-import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
+import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
+import com.example.social_network_visualizer_backend.service.MongodbService;
 import com.example.social_network_visualizer_backend.service.Neo4jService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializationConfig {
-
+    private final MongodbService mongodbService;
     private final Neo4jService neo4jService;
     @Value("${drop.mode:true}")
     private String dropMode;
@@ -21,8 +22,14 @@ public class DataInitializationConfig {
     public void init() {
         try {
             neo4jService.waitForNeo4jToBeAvailable();
-        } catch (Neo4jUnavailableException e) {
+        } catch (DatabaseUnavailableException e) {
             throw new RuntimeException("Neo4j is not available, cannot proceed with database operations.", e);
+        }
+
+        try {
+            mongodbService.waitForMongoDBToBeAvailable();
+        } catch (DatabaseUnavailableException e) {
+            throw new RuntimeException("MongoDB is not available, cannot proceed with database operations.", e);
         }
 
         if (Boolean.parseBoolean(dropMode)) {
