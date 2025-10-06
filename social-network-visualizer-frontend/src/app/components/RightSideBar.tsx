@@ -5,38 +5,42 @@ import {useRouter} from 'next/navigation'
 import {ExternalLink, X} from 'lucide-react'
 import {API_BASE_URL} from '@/app/configuration/urlConfig';
 import {TweetPreview} from "@/app/interface/TweetPreview";
+import { useNotification } from '../context/NotificationProvider'
+import {BannerType} from "@/app/components/Popups/Banner";
 
 export default function RightSidebar() {
     const router = useRouter()
     const [userData, setUserData] = useState<UserData | null>(null)
     const [lastPosts, setLastPosts] = useState<TweetPreview[]>([])
-    const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserData} = useProject()
+    const { showNotification } = useNotification()
 
     useEffect(() => {
-        if (!isSidebarOpen || !selectedUserData?.name) return
-        const fetchData = async () => {
-            setLoading(true)
-            setError(null)
-
-            try {
-                const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserData.name}`)
-                const data = await userDataRes.json()
-                setUserData(data)
-
-                const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserData.name}`)
-                const posts: TweetPreview[] = await lastPostsRes.json()
-                setLastPosts(posts)
-            } catch (err) {
-                setError('Failed to load user data. Please try again later.')
-                console.error('Error fetching user data:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
         fetchData()
     }, [isSidebarOpen, selectedUserData])
+
+    const fetchData = async () => {
+        setLoading(true)
+        if (!isSidebarOpen || !selectedUserData?.name) return
+
+        try {
+            const userDataRes = await fetch(`${API_BASE_URL}/author/${selectedUserData.name}`)
+            if (!userDataRes.ok) throw new Error("Failed to load user data")
+            const data = await userDataRes.json()
+            setUserData(data)
+
+            const lastPostsRes = await fetch(`${API_BASE_URL}/author/last-posts/${selectedUserData.name}`)
+            if (!lastPostsRes.ok) throw new Error("Failed to load user posts")
+            const posts: TweetPreview[] = await lastPostsRes.json()
+            setLastPosts(posts)
+
+        } catch (err) {
+            showNotification('Failed to load user data.', BannerType.ERROR)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const onClose = () => {
         setIsSidebarOpen(false)
@@ -87,14 +91,6 @@ export default function RightSidebar() {
                         <X size={18}/>
                     </button>
                 </div>
-
-                {error && (
-                    <div className="p-4 bg-[#3A1717] border border-[#e05252] text-white rounded-lg animate-pulse">
-                        <p className="font-medium text-[#FF9494] mb-1">Error</p>
-                        <p className="text-sm">{error}</p>
-                    </div>
-                )}
-
                 <div className="bg-[#32323F] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">User Statistics</h3>

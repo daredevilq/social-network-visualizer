@@ -4,14 +4,16 @@ import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {Link, Node} from "@/app/interface/GraphData";
-import {getProjectName, setProjectName, getGraphType, setGraphType, getGraphUiType} from "@/app/project-state";
+import {getGraphType, getGraphUiType, getProjectName, setGraphType, setProjectName} from "@/app/project-state";
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 
 interface Context {
     loadedProjectName: string | null;
     loading: boolean;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    loadProject: (name: string) => Promise<void>;
+    loadProject: (name: string, fetchData: boolean) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
     fetchGraphData: () => Promise<void>;
     isLabelsMode: true | false;
@@ -81,6 +83,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
     const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
     const [showLabels, setShowLabels] = useState(false);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchProjectState = async () => {
@@ -111,34 +114,52 @@ export function ProjectProvider({children}: { children: ReactNode }) {
         }
     };
 
-    const loadProject = async (name: string) =>
+    const loadProject = async (name: string, fetchData: boolean = false) => {
         runWithLoading(async () => {
-            if (loadedProjectName === name) return;
-            await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
-                method: "POST",
-            });
-            setLoadedProjectName(name);
-            await setProjectName(name);
+            try {
 
-            window.location.href = "/";
+                const res = await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
+                    method: "POST",
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Failed to import project: ${res.statusText}`);
+                }
+
+                setLoadedProjectName(name);
+                await setProjectName(name);
+
+                showNotification(`Project "${name}" loaded successfully.`, BannerType.SUCCESS);
+
+                if (fetchData) await fetchGraphData();
+            } catch (err) {
+                showNotification(`Error loading project "${name}".`, BannerType.ERROR);
+            }
         });
+    };
 
     const fetchGraphData = async () =>
         runWithLoading(async () => {
             if (!loadedProjectName) return;
-
             try {
                 const res = await fetch(`http://localhost:8080/graph/${graphRelationType}`);
 
                 if (!res.ok) {
-                    console.error("Fetch failed:", res.statusText);
+                    const message = `Failed to fetch graph data: ${res.status} ${res.statusText}`;
+                    showNotification(message, BannerType.ERROR);
                     return;
                 }
 
-                const data = await res.json();
+                let data: any;
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    showNotification("Invalid response format from server.", BannerType.ERROR);
+                    return;
+                }
 
                 if (!Array.isArray(data?.nodes) || !Array.isArray(data?.edges)) {
-                    console.error("Invalid data format:", data);
+                    showNotification("Graph data format is invalid.", BannerType.ERROR);
                     return;
                 }
 
@@ -158,7 +179,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
                 setGraphData({ nodes, links });
             } catch (err) {
-                console.error("Fetch error:", err);
+                showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }
         });
 

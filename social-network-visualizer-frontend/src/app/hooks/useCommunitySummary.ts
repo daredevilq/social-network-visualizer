@@ -3,18 +3,19 @@
 import { useEffect, useState } from 'react';
 import { CommunitySummary } from '@/app/interface/CommunitySummary';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 export function useCommunitySummary(communityId: number | string) {
     const [data, setData] = useState<CommunitySummary | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const { showNotification } = useNotification()
 
     useEffect(() => {
         if (communityId == null) return;
 
         let isMounted = true;
         setLoading(true);
-        setError(null);
 
         fetch(`${API_BASE_URL}/community/summary/${communityId}`)
             .then(res => {
@@ -25,16 +26,16 @@ export function useCommunitySummary(communityId: number | string) {
                 if (isMounted) setData(summary);
             })
             .catch(err => {
-                if (isMounted) setError(err.message);
+                if (isMounted) {
+                    showNotification(`Failed to load community summary: ${err.message}`, BannerType.ERROR);
+                }
             })
             .finally(() => {
                 if (isMounted) setLoading(false);
             });
 
-        return () => {
-            isMounted = false;
-        };
-    }, [communityId]);
+        return () => { isMounted = false; };
+    }, [communityId, showNotification]);
 
-    return { data, loading, error };
+    return { data, loading };
 }

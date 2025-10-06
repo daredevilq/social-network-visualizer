@@ -5,10 +5,10 @@ import dynamic from 'next/dynamic';
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), { ssr: false });
 export default function AuthorMentionsGraph() {
-    const {loadedProjectName, loading, graphData, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
+    const {loadedProjectName, graphData, nodeFoundId, graphRelationType, fetchGraphData} = useProject();
 
     useEffect(() => {
-        if (!loadedProjectName || loading) return;
+        if (!loadedProjectName) return;
         fetchGraphData();
     }, [loadedProjectName, graphRelationType]);
 

@@ -70,7 +70,7 @@ export default function ProjectsContent() {
 					>
 						<button
 							disabled={loading}
-							onClick={() => loadProject(p.name)}
+							onClick={() => loadProject(p.name, true)}
 							className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
 						>
 							<img
@@ -124,7 +124,7 @@ export default function ProjectsContent() {
 				onSuccess={async (name) => {
 					cancelCreateModal();
 					await refreshProjects();
-					await loadProject(name);
+					await loadProject(name, true);
 					showStatus('Project uploaded successfully');
 				}}
 			/>

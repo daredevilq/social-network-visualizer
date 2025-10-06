@@ -6,7 +6,6 @@ import FiltersContent from "@/app/components/LeftSideBar/FiltersContent";
 import HelpContent from "@/app/components/LeftSideBar/HelpContent";
 import SettingsContent from "@/app/components/LeftSideBar/SettingsContent";
 import ProjectsContent from "@/app/components/LeftSideBar/ProjectsContent";
-import HomeContent from "@/app/components/LeftSideBar/HomeContent";
 
 interface LeftSidebarProps {
     isOpen: boolean;
@@ -36,7 +35,7 @@ export default function LeftSidebar({
             case "settings":
                 return <SettingsContent/>
             default:
-                return <HomeContent/>;
+                return null;
         }
     };
     return (
