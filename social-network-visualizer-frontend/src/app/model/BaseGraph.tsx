@@ -1,11 +1,12 @@
 import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
 // @ts-ignore
 import ForceGraph, {ForceGraphInstance, LinkObject, NodeObject} from 'force-graph';
-import {GraphLink, GraphNode, GraphProps, SelectionBox} from '@/types/GraphTypes';
+import {generateMockGraphData, GraphLink, GraphNode, GraphProps, SelectionBox} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import { getSourceId, getTargetId } from "../utils/graphUtils";
+import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const {
@@ -142,7 +143,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     useEffect(() => {
         if (!fgInstance.current) return;
-
+        const graphData = generateMockGraphData();
         const topNodes = graphData.nodes
             .slice(0, NODE_DISPLAY_LIMIT)
             .map(n => ({...n}));
@@ -157,7 +158,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
         setDisplayedNodes(topNodes);
         setDisplayedLinks(relevantLinks);
-
         fgInstance.current.graphData({nodes: topNodes, links: relevantLinks});
     }, [graphData]);
 
@@ -191,13 +191,13 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
                 ctx.beginPath();
 
-                const r = node.pagerank ? Math.pow(node.pagerank, 0.5) * 10 : 6;
+                const r = nodeStrategy.getRadius(node);
                 ctx.arc(node.x, node.y, r, 0, 5 * Math.PI, false);
 
                 ctx.fillStyle = nodeColor ? nodeColor(node) : '#888';
                 ctx.fill();
 
-                if (selectedNodeIds.includes(node.id)) {
+                if (selectedNodeIds.includes(node.id as string)) {
                     ctx.lineWidth = 2 / globalScale;
                     ctx.strokeStyle = 'white';
                     ctx.stroke();
@@ -322,7 +322,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         });
 
 
-        setSelectedNodeIds(selectedNodes.map(n => n.id));
+        setSelectedNodeIds(selectedNodes.map(n => n.id as string));
         setWorkspaceNodes(selectedNodes);
     };
 
