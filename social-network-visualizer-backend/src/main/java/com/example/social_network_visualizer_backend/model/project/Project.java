@@ -12,4 +12,5 @@ public class Project {
     private String id;
     private String name;
     private List<ProjectFile> files;
+    private List<Workspace> workspaces;
 }

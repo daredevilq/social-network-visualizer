@@ -33,4 +33,8 @@ public class MongodbService {
         }
         throw new DatabaseUnavailableException("MongoDB is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
     }
+
+    public void dropMongo() {
+        mongoTemplate.getDb().drop();
+    }
 }
