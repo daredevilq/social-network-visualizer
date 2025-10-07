@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import {useProject} from "@/app/context/ProjectContext";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { BannerType } from "@/app/components/Popups/Banner";
 
 interface Props {
 	API: string;
@@ -21,12 +24,11 @@ export default function ProjectEditModal({
 	const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 	const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
 	const [loading, setLoading] = useState(false);
-	const [status, setStatus] = useState<string | null>(null);
 	const { loadedProjectName, graphRelationType, loadProject, runWithLoading } = useProject();
+    const { showNotification } = useNotification();
 
-	const showStatus = (msg: string) => {
-		setStatus(msg);
-		setTimeout(() => setStatus(null), 3_000);
+	const showStatus = (msg: string, type: BannerType = BannerType.INFO) => {
+		showNotification(msg, type);
 	};
 
 	const loadFileList = async () => {
@@ -68,11 +70,11 @@ export default function ProjectEditModal({
 			if (!res.ok) throw new Error('Failed to upload to current project');
 
 			const data = await res.json();
-			showStatus(data.message);
+			showStatus(data.message, BannerType.SUCCESS);
 
 			setFilesToUpload([]);
 		} catch (err: any) {
-			showStatus(err.message || 'Failed to upload files');
+			showStatus(err.message || 'Failed to upload files', BannerType.ERROR);
 		}
 	};
 
@@ -82,7 +84,8 @@ export default function ProjectEditModal({
 		try {
 			const fd = new FormData();
 			filesToUpload.forEach((f) => fd.append('files', f));
-
+			console.log(`<<method uploadFiles>> ${API}/project/${encodeURIComponent(projectName)}`)
+			console.log(`<<method uploadFiles>> from data: ${fd}`)
 			const res = await fetch(
 				`${API}/project/${encodeURIComponent(projectName)}`,
 				{ method: 'PUT', body: fd }
@@ -90,11 +93,11 @@ export default function ProjectEditModal({
 
 			if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
 			const data = await res.json();
-			showStatus(data.message);
+			showStatus(data.message, BannerType.SUCCESS);
 
 			setFilesToUpload([]);
 		} catch (err: any) {
-			showStatus(err.message || 'Failed to upload files');
+			showStatus(err.message || 'Failed to upload files', BannerType.ERROR);
 		}
 	};
 
@@ -109,10 +112,10 @@ export default function ProjectEditModal({
 				);
 				if (!res.ok) throw new Error(`Failed to delete ${fileName}`);
 			}
-			showStatus('Marked files deleted');
+			showStatus('Marked files deleted', BannerType.SUCCESS);
 			setFilesToDelete([]);
 		} catch (err: any) {
-			showStatus(err.message || 'Failed to delete files');
+			showStatus(err.message || 'Failed to delete files', BannerType.ERROR);
 		}
 	};
 
@@ -223,10 +226,6 @@ export default function ProjectEditModal({
 						Reload changes
 					</button>
 				</div>
-
-				{status && (
-					<p className="text-center text-sm text-[#7140F4] pt-2">{status}</p>
-				)}
 			</div>
 		</Dialog>
 	);

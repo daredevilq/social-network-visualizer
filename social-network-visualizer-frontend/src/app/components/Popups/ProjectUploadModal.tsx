@@ -2,6 +2,8 @@
 
 import { useRef, useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { BannerType } from "@/app/components/Popups/Banner";
 
 interface ProjectUploadModalProps {
 	API: string;
@@ -28,6 +30,7 @@ export default function ProjectUploadModal({
 	const [isFileError, setIsFileError] = useState(false);
 	const [nameErrorMessage, setNameErrorMessage] = useState("");
 	const [fileErrorMessage, setFileErrorMessage] = useState("");
+    const { showNotification } = useNotification();
 
 	useEffect(() => {
 		if (open) {
@@ -105,9 +108,10 @@ export default function ProjectUploadModal({
 			onSuccess(trimmedName);
 			setProjectName("");
 			onFilesChange([]);
+			showNotification(`Project '${trimmedName}' uploaded successfully.`, BannerType.SUCCESS);
 		} catch (err: any) {
 			console.error("Upload error:", err);
-			alert(err.message); // to delete probably
+			showNotification(err.message || 'Upload failed.', BannerType.ERROR);
 		}
 	};
 
@@ -156,17 +160,17 @@ export default function ProjectUploadModal({
 						setNameErrorMessage("");
 					}}
 					placeholder="Project name"
-					className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
+					className={`w-full mb-4 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
 						isNameError ? "border-red-500" : "border-gray-600"
 					}`}
 				/>
 				{isNameError && (
-					<p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>
+					<p className="text-red-400 text-sm mb-2">{nameErrorMessage}</p>
 				)}
 
 				{/* files list */}
 				<div
-					className={`mb-1 p-2 rounded ${
+					className={`mb-4 p-2 rounded ${
 						isFileError ? "border-2 border-red-300" : "border-2 border-gray-600"
 					}`}
 				>
