@@ -9,11 +9,12 @@ interface SearchAndToggleModeContainerProps {
     searchPlaceholder?: string;
 }
 
-const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> = ({
-                                                                                       searchValue,
-                                                                                       onSearchChange,
-                                                                                       searchPlaceholder = "Search graph data...",
-                                                                                   }) => {
+const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> = (searchAndToggleModeContainer: SearchAndToggleModeContainerProps) => {
+    const {
+        searchValue,
+        onSearchChange,
+        searchPlaceholder = "Search graph data...",
+    } = searchAndToggleModeContainer;
     const [localSearchValue, setLocalSearchValue] = useState(searchValue || '');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -111,7 +112,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
     return (
         <div className="fixed top-5 left-[5%] w-full max-w-3xl px-4 z-30" ref={containerRef}>
-            <div className="rounded-lg shadow-lg p-3 flex items-center justify-between space-x-3 h-10">
+            <div className="rounded-lg p-3 flex items-center justify-between space-x-3 h-10">
                 <div className="w-32 flex flex-col items-center justify-center">
                     <span className="text-xs text-[#FAFAFA] text-center whitespace-nowrap">
                         {isLabelsMode ? "Labels Mode" : "No Labels Mode"}
@@ -126,11 +127,11 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
                                 isLabelsMode ? "bg-indigo-500" : "bg-gray-300"
                             } relative`}
                         >
-            <span
-                className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${
-                    isLabelsMode ? "translate-x-6" : ""
-                }`}
-            />
+                            <span
+                                className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${
+                                    isLabelsMode ? "translate-x-6" : ""
+                                }`}
+                            />
                         </div>
                         <div className="flex sm:hidden ml-1">
                             {isLabelsMode ? (
@@ -156,7 +157,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
                     {/* Dropdown z suggestions */}
                     {isDropdownVisible && (
-                        <ul className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-lg max-h-60 overflow-auto">
+                        <ul className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
                             {filteredSuggestions.map((suggestion, index) => {
                                 const query = localSearchValue.trim().toLowerCase();
                                 const lowerName = suggestion.toLowerCase();
