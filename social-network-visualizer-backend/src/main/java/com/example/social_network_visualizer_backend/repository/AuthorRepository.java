@@ -1,7 +1,12 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
+import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
+import com.example.social_network_visualizer_backend.dto.graph.graphLink.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -40,7 +45,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     a.name = CASE WHEN a.name IS NULL AND author.name IS NOT NULL THEN author.name ELSE a.name END,
                     a.foreignId = CASE WHEN a.foreignId IS NULL AND author.foreignId IS NOT NULL THEN author.foreignId ELSE a.foreignId END,
                     a.bot = CASE WHEN a.bot IS NULL AND author.bot IS NOT NULL THEN author.bot ELSE a.bot END
-                  
+            
             """)
     void mergeAll(@Param("authors") List<Map<String, Object>> authors);
 
@@ -132,17 +137,11 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
 
     @Query("""
-                MATCH (a1:Author)-[r]->(a2:Author)
-                WHERE type(r) IN $relations
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
-            """)
-    List<AuthorLinkDto> findAuthorRelations(@Param("relations") Set<RelationType> relations);
-
-    @Query("""
                 MATCH (a:Author)
                 ORDER BY a.pagerank DESC
                 RETURN
                     a.userName AS name,
+                    'AUTHOR' AS nodeType,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
@@ -168,7 +167,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                   AND a2.community = $communityId
                 RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
             """)
-    List<AuthorLinkDto> findAuthorRelationsWithinCommunity(
+    List<LinkDto> findAuthorRelationsWithinCommunity(
             @Param("relations") Set<RelationType> relations,
             @Param("communityId") int communityId);
 
@@ -238,15 +237,15 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
 
     @Query("""
-        UNWIND range(0,23) AS h
-        UNWIND range(1,7) AS d
-        OPTIONAL MATCH (a:Author {userName:$username})-[:POSTED]->(t:Tweet)
-           WHERE t.publicationDate.hour = h
-           AND t.publicationDate.dayOfWeek = d
-        WITH  h, d, count(t)   AS posts
-        RETURN h AS hour, d AS dayOfWeek, posts
-        ORDER  BY d, h;
-    """)
+                UNWIND range(0,23) AS h
+                UNWIND range(1,7) AS d
+                OPTIONAL MATCH (a:Author {userName:$username})-[:POSTED]->(t:Tweet)
+                   WHERE t.publicationDate.hour = h
+                   AND t.publicationDate.dayOfWeek = d
+                WITH  h, d, count(t)   AS posts
+                RETURN h AS hour, d AS dayOfWeek, posts
+                ORDER  BY d, h;
+            """)
     List<ActivityHeatmap> getUserActivityHeatMap(@Param("username") String username);
 }
 
