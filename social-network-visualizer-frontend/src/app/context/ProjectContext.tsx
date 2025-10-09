@@ -3,10 +3,10 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
-import {Link, Node} from "@/app/interface/GraphData";
 import {getGraphType, getGraphUiType, getProjectName, setGraphType, setProjectName} from "@/app/project-state";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
+import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode} from "@/types/GraphTypes";
 
 
 interface Context {
@@ -18,8 +18,8 @@ interface Context {
     fetchGraphData: () => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
-    graphData: {nodes: any[], links: any[]};
-    setGraphData: React.Dispatch<React.SetStateAction<{nodes: any[], links: any[]}>>;
+    graphData: { nodes: any[], links: any[] };
+    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: any[], links: any[] }>>;
     nodeFoundId: string | null;
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
@@ -41,30 +41,43 @@ interface Context {
 const ProjectContext = createContext<Context>({
     loadedProjectName: null,
     loading: false,
-    setLoading: () => {},
-    loadProject: async () => {},
+    setLoading: () => {
+    },
+    loadProject: async () => {
+    },
     runWithLoading: async (fn) => fn(),
-    fetchGraphData: async () => {},
+    fetchGraphData: async () => {
+    },
     isLabelsMode: true,
-    setIsLabelsMode: () => {},
+    setIsLabelsMode: () => {
+    },
     graphData: {nodes: [], links: []},
-    setGraphData: () => {},
+    setGraphData: () => {
+    },
     nodeFoundId: null,
-    setNodeIdFound: () => {},
+    setNodeIdFound: () => {
+    },
     shortestPath: [],
-    setShortestPath: () => {},
+    setShortestPath: () => {
+    },
     isSidebarOpen: false,
-    setIsSidebarOpen: () => {},
+    setIsSidebarOpen: () => {
+    },
     selectedUserData: null,
-    setSelectedUserData: () => {},
+    setSelectedUserData: () => {
+    },
     graphRelationType: "mentions",
-    updateGraphType: async () => {},
+    updateGraphType: async () => {
+    },
     focusedCommunityId: undefined,
-    setFocusedCommunityId: () => {},
+    setFocusedCommunityId: () => {
+    },
     selectedGraphType: GraphType.STANDARD,
-    setSelectedGraphType: () => {},
+    setSelectedGraphType: () => {
+    },
     showLabels: false,
-    setShowLabels: () => {},
+    setShowLabels: () => {
+    },
 
 });
 
@@ -76,14 +89,14 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
-    const [graphData, setGraphData] = useState<{nodes: any[], links: any[]}>({nodes: [], links: []});
+    const [graphData, setGraphData] = useState<{ nodes: any[], links: any[] }>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
     const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
     const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
     const [showLabels, setShowLabels] = useState(false);
-    const { showNotification } = useNotification();
+    const {showNotification} = useNotification();
 
     useEffect(() => {
         const fetchProjectState = async () => {
@@ -163,21 +176,57 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                     return;
                 }
 
-                const links: Link[] = data.edges.map((edge: any) => ({
+                const links: GraphLink[] = data.edges.map((edge: GraphLink) => ({
                     source: edge.source,
                     target: edge.target,
                     relation: edge.relation ?? "unknown",
                 }));
 
-                const nodes: Node[] = data.nodes.map((node: any) => ({
-                    id: node.name,
-                    label: node.name,
-                    pagerank: node.pagerank ?? 0,
-                    degreeCentrality: node.centrality ?? 0,
-                    community: node.community?.toString() ?? "",
-                }));
+                const nodes: GraphNode[] = (data.nodes ?? [])
+                    .map((raw: any) => {
+                        const baseNode: GraphNode = {
+                            id: raw.name,
+                            nodeType: raw.nodeType
+                        };
 
-                setGraphData({ nodes, links });
+                        switch (raw.nodeType) {
+                            case NodeType.AUTHOR:
+                                return {
+                                    ...baseNode,
+                                    nodeType: NodeType.AUTHOR,
+                                    community: raw.community?.toString() ?? "",
+                                    pagerank: raw.pagerank ?? 0,
+                                    centrality: raw.centrality ?? 0
+                                } as AuthorNode;
+
+                            case NodeType.TWEET:
+                                return {
+                                    ...baseNode,
+                                    nodeType: NodeType.TWEET,
+                                    content: raw.content ?? "",
+                                    authorName: raw.authorName ?? "",
+                                    likesCount: raw.likesCount ?? 0,
+                                    retweetsCount: raw.retweetsCount ?? 0,
+                                    community: raw.community?.toString() ?? ""
+                                } as TweetNode;
+
+                            case NodeType.HASHTAG:
+                                return {
+                                    ...baseNode,
+                                    nodeType: NodeType.HASHTAG,
+                                } as HashtagNode;
+
+                            default:
+                                console.error(`Unknown node type encountered: ${raw.nodeType}`, raw);
+                                return {
+                                    ...baseNode,
+                                    nodeType: NodeType.HASHTAG,
+                                } as HashtagNode;
+
+
+                        }
+                    })
+                setGraphData({nodes, links});
             } catch (err) {
                 showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }

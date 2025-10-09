@@ -4,8 +4,8 @@ import {FolderPlus} from "lucide-react";
 
 import dynamic from 'next/dynamic';
 import {GraphLink, GraphNode} from "@/types/GraphTypes";
-import { getSourceId, getTargetId } from "../utils/graphUtils";
 import nodeStrategy from "../model/strategies/NodeStrategy";
+import NodeColors from "@/app/model/NodeColors";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 
@@ -21,7 +21,8 @@ export default function StandardGraph() {
 
     useEffect(() => {
         if (!loadedProjectName) return;
-        fetchGraphData();
+        fetchGraphData().then(r => {
+        });
     }, [loadedProjectName, graphRelationType]);
 
     if (!loadedProjectName)
@@ -44,18 +45,18 @@ export default function StandardGraph() {
                 nodeVal={(node: GraphNode) => ((node as any).pagerank ? (node as any).pagerank * 5 : 1)}
                 nodeLabel={(node: GraphNode) => `${node.id}`}
                 nodeColor={(node: GraphNode) => {
-                    if (node.id === nodeFoundId) return "red";
+                    if (node.id === nodeFoundId) return NodeColors.getRedColor();
 
                     if (shortestPath.includes(String(node.id))) {
-                        return "rgba(255, 159, 64, 0.95)";
+                        return NodeColors.getGoldColor();
                     }
                     return nodeStrategy.getColor(node);
                 }}
                 linkColor={(link: GraphLink) => {
-                    return shortestPath.includes(getSourceId(link)) && shortestPath.includes(getTargetId(link)) ? "red" : "#fafafa";
+                    return shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : NodeColors.getWhiteColor();
                 }}
                 linkWidth={(link: GraphLink) =>
-                    shortestPath.includes(getSourceId(link)) && shortestPath.includes(getTargetId(link)) ? 4 : 2
+                    shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 4 : 2
                 }
                 linkDirectionalArrowLength={6}
                 linkDirectionalArrowRelPos={1}

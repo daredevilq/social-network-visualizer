@@ -6,7 +6,7 @@ import TweetList from './TweetList';
 import TweetFilters from './TweetFilters';
 import {Tweet, TweetResponse} from "@/types/tweetTypes";
 import {useInView} from 'react-intersection-observer';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import {ChevronUp, ChevronDown} from 'lucide-react';
 import {BannerType} from "@/app/components/Popups/Banner";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
@@ -19,8 +19,8 @@ interface TweetAnalysisContainerProps {
 const PAGE_SIZE = 10;
 
 const TweetAnalysisContainer = ({userName, tweetsContainerRef}: TweetAnalysisContainerProps) => {
-    const { loading, runWithLoading } = useProject();
-    const { showNotification } = useNotification();
+    const {loading, runWithLoading} = useProject();
+    const {showNotification} = useNotification();
     const [tweets, setTweets] = useState<Tweet[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -58,7 +58,7 @@ const TweetAnalysisContainer = ({userName, tweetsContainerRef}: TweetAnalysisCon
                 if (!response.ok) throw new Error(`Failed to fetch tweets`);
                 const data: TweetResponse = await response.json();
 
-                setTweets(prev => reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.id === t.id))]);
+                setTweets(prev => reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.name === t.name))]);
                 setPage(currentPage + 1);
                 setHasMore(data.tweets.length === PAGE_SIZE);
             } catch (err: any) {
@@ -109,14 +109,15 @@ const TweetAnalysisContainer = ({userName, tweetsContainerRef}: TweetAnalysisCon
                     className="w-8 h-6 rounded-b-full bg-[#7140F4] hover:bg-[#5c32c3] cursor-pointer flex items-center justify-center"
                 >
                     {filtersVisible ? (
-                        <ChevronUp className="w-4 h-4 text-white" />
+                        <ChevronUp className="w-4 h-4 text-white"/>
                     ) : (
-                        <ChevronDown className="w-4 h-4 text-white" />
+                        <ChevronDown className="w-4 h-4 text-white"/>
                     )}
                 </div>
             </div>
 
-            <div className={`transition-all duration-300 overflow-hidden ${filtersVisible ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'} md:max-h-none md:opacity-100`}>
+            <div
+                className={`transition-all duration-300 overflow-hidden ${filtersVisible ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'} md:max-h-none md:opacity-100`}>
                 <TweetFilters
                     search={search}
                     setSearch={setSearch}
