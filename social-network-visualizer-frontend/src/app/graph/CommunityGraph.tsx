@@ -1,12 +1,14 @@
 "use client";
 
 import {useEffect} from "react";
-import {Link, Node} from "@/app/interface/GraphData";
+import {Link} from "@/app/interface/GraphData";
 import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 import dynamic from 'next/dynamic';
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
+import {AuthorNode, GraphLink, GraphNode} from "@/types/GraphTypes";
+import NodeColors from "../model/NodeColors";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
@@ -22,7 +24,7 @@ export default function CommunityGraph() {
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
-    const { showNotification } = useNotification();
+    const {showNotification} = useNotification();
 
     useEffect(() => {
         if (!loadedProjectName) return;
@@ -49,28 +51,28 @@ export default function CommunityGraph() {
             .then(([topIds, data]) => {
                 const idSet = new Set(topIds.map(id => id.toString()));
 
-                const nodes: Node[] = (data.nodes ?? [])
-                    .filter((raw: any) => focusedCommunityId
-                          ? raw.community?.toString() === focusedCommunityId
-                              : idSet.has(raw.community?.toString())
-                          )
-                    .map((raw: any) => ({
-                        id:          raw.name,
-                        label:       raw.name,
-                        pagerank:    raw.pagerank ?? 0,
+                const nodes: AuthorNode[] = (data.nodes ?? [])
+                    .filter((raw: AuthorNode) => focusedCommunityId
+                        ? raw.community?.toString() === focusedCommunityId
+                        : idSet.has(raw.community?.toString())
+                    )
+                    .map((raw: AuthorNode) => ({
+                        id: raw.id,
+                        label: raw.id,
+                        pagerank: raw.pagerank ?? 0,
                         degreeCentrality: raw.centrality ?? 0,
-                        community:   raw.community?.toString() ?? ""
+                        community: raw.community?.toString() ?? ""
                     }));
 
-                const nodeIds = new Set(nodes.map(n => n.id));
+                const nodeNames = new Set(nodes.map((n: AuthorNode) => n.id));
                 const links: Link[] = (data.edges ?? []).filter(
-                    (l: any) => nodeIds.has(l.source) && nodeIds.has(l.target)
+                    (l: any) => nodeNames.has(l.source) && nodeNames.has(l.target)
                 );
 
-                setGraphData({ nodes, links });
+                setGraphData({nodes, links});
             })
             .catch(err => {
-                showNotification("Failed to load community graph data." ,BannerType.ERROR);
+                showNotification("Failed to load community graph data.", BannerType.ERROR);
             });
     }, [loadedProjectName, loading, focusedCommunityId]);
 
@@ -95,17 +97,20 @@ export default function CommunityGraph() {
     return (
         <BaseGraph
             graphData={graphData}
-            nodeVal={(node: any) => node.pagerank ? node.pagerank * 7 : 10}
-            nodeLabel={(node: any) => `${node.id}` + ` || Community: ${node.community}`}
-            nodeColor={node => {
-                if (node.id === nodeFoundId) return "red";
-                return getNodeColor(node);
+            nodeVal={(node: GraphNode) => {
+                // TODO: Add a strategy pattern for node sizing depends on pagerank or other metrics in community graph
+                const authorNode = node as AuthorNode;
+                return authorNode.pagerank ? authorNode.pagerank * 7 : 10
             }}
-            linkColor={(link: any) =>
-                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
+            nodeLabel={(node: GraphNode) => `${node.id}` + ` || Community: ${node.community}`}
+            nodeColor={node =>
+                node.id === nodeFoundId ? NodeColors.getRedColor() : getNodeColor(node)
             }
-            linkWidth={(link: any) =>
-                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 4 : 2
+            linkColor={(link: GraphLink) =>
+                shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : NodeColors.getWhiteColor()
+            }
+            linkWidth={(link: GraphLink) =>
+                shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 4 : 2
             }
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={1}

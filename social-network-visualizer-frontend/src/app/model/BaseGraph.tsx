@@ -1,11 +1,16 @@
 import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
 // @ts-ignore
-import ForceGraph, {ForceGraphInstance, LinkObject, NodeObject} from 'force-graph';
-import {generateMockGraphData, GraphLink, GraphNode, GraphProps, SelectionBox} from '@/types/GraphTypes';
+import ForceGraph, {ForceGraphInstance, LinkObject} from 'force-graph';
+import {
+    AuthorNode, GraphLink,
+    GraphNode,
+    GraphProps,
+    NodeType,
+    SelectionBox
+} from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
-import { getSourceId, getTargetId } from "../utils/graphUtils";
 import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
@@ -61,11 +66,14 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     };
 
     const handleSingleNodeClick = (node: GraphNode) => {
-        setSelectedUserData({
-            name: node.id,
-            community: node.community
-        } as BasicUserData);
-        setIsSidebarOpen(true);
+        if (node.nodeType === NodeType.AUTHOR) {
+            const authorNode = node as AuthorNode;
+            setSelectedUserData({
+                name: authorNode.id,
+                community: authorNode.community
+            } as BasicUserData);
+            setIsSidebarOpen(true);
+        }
     }
 
     const handleDoubleNodeClick = (node: GraphNode) => {
@@ -76,27 +84,23 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         const currentNodeIds = new Set(currentGraphData.nodes.map((n: GraphNode) => n.id));
 
         const neighborLinks = graphData.links.filter(link => {
-            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-            return sourceId === node.id || targetId === node.id;
+            return link.source === node.id || link.target === node.id;
         })
 
         const newNodes: GraphNode[] = [];
         const newLinks: LinkObject[] = [];
 
         neighborLinks.forEach(link => {
-            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-            const neighborId = sourceId === node.id ? targetId : sourceId;
+            const neighborId = link.source === node.id ? link.target : link.source;
             const neighborNode = graphData.nodes.find(n => n.id === neighborId);
             if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
                 newNodes.push(neighborNode);
                 newLinks.push(link);
             } else if (!currentGraphData.links.some((l: LinkObject) => {
-                const existingSourceId = typeof l.source === 'object' ? l.source.id : l.source;
-                const existingTargetId = typeof l.target === 'object' ? l.target.id : l.target;
-                return (existingSourceId === sourceId && existingTargetId === targetId) ||
-                    (existingSourceId === targetId && existingTargetId === sourceId);
+                const existingSourceId = l.source;
+                const existingTargetId = l.target;
+                return (existingSourceId === link.source && existingTargetId === link.target) ||
+                    (existingSourceId === link.target && existingTargetId === link.source);
             })) {
                 newLinks.push(link);
             }
@@ -143,7 +147,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     useEffect(() => {
         if (!fgInstance.current) return;
-        const graphData = generateMockGraphData();
         const topNodes = graphData.nodes
             .slice(0, NODE_DISPLAY_LIMIT)
             .map(n => ({...n}));
@@ -151,9 +154,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         const topNodesIds = new Set(topNodes.map(n => n.id));
         const relevantLinks = graphData.links
             .filter((link: GraphLink) => {
-                const sourceId = getSourceId(link);
-                const targetId = getTargetId(link)
-                return topNodesIds.has(sourceId) && topNodesIds.has(targetId);
+                return topNodesIds.has(link.source) && topNodesIds.has(link.target);
             }).map(link => ({...link}));
 
         setDisplayedNodes(topNodes);
@@ -197,7 +198,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 ctx.fillStyle = nodeColor ? nodeColor(node) : '#888';
                 ctx.fill();
 
-                if (selectedNodeIds.includes(node.id as string)) {
+                if (selectedNodeIds.includes(node.id)) {
                     ctx.lineWidth = 2 / globalScale;
                     ctx.strokeStyle = 'white';
                     ctx.stroke();
@@ -232,8 +233,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 fgInstance.current.graphData({
                     nodes: workspaceNodes,
                     links: graphData.links.filter(l =>
-                        workspaceNodes.find(n => n.id === getSourceId(l)) &&
-                        workspaceNodes.find(n => n.id === getTargetId(l))
+                        workspaceNodes.find(n => n.id === l.source) &&
+                        workspaceNodes.find(n => n.id === l.target)
                     )
                 });
 
@@ -259,11 +260,9 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         if (fgInstance.current && graphData.nodes.length > 0) {
             const top5Nodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
             const nodeIds = new Set(top5Nodes.map(node => node.id));
-
+            console.log("Node Ids:", nodeIds);
             const relevantLinks = graphData.links.filter((link: GraphLink) => {
-                const sourceId = getSourceId(link)
-                const targetId = getTargetId(link)
-                return nodeIds.has(sourceId) && nodeIds.has(targetId);
+                return nodeIds.has(link.source) && nodeIds.has(link.target);
             });
 
             setDisplayedNodes(top5Nodes);
@@ -322,7 +321,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         });
 
 
-        setSelectedNodeIds(selectedNodes.map(n => n.id as string));
+        setSelectedNodeIds(selectedNodes.map(n => n.id));
         setWorkspaceNodes(selectedNodes);
     };
 

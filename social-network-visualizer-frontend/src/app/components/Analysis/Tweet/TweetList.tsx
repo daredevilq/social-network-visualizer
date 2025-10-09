@@ -1,5 +1,5 @@
-import React, { FC } from 'react';
-import { Tweet } from '@/types/tweetTypes';
+import React, {FC} from 'react';
+import {Tweet} from '@/types/tweetTypes';
 import TweetCard from './TweetCard';
 
 interface TweetListProps {
@@ -9,7 +9,7 @@ interface TweetListProps {
     tweetsContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const TweetList: FC<TweetListProps> = ({ tweets, hasMore, inViewRef, tweetsContainerRef }) => {
+const TweetList: FC<TweetListProps> = ({tweets, hasMore, inViewRef, tweetsContainerRef}) => {
 
     return (
         <div
@@ -20,12 +20,12 @@ const TweetList: FC<TweetListProps> = ({ tweets, hasMore, inViewRef, tweetsConta
                 <p className="text-center">No tweets found.</p>
             ) : (
                 tweets.map((tweet) => (
-                    <TweetCard key={tweet.id} tweet={tweet} />
+                    <TweetCard key={tweet.name} tweet={tweet}/>
                 ))
             )}
 
             {hasMore && (
-                <div ref={inViewRef} className="h-1 w-full" />
+                <div ref={inViewRef} className="h-1 w-full"/>
             )}
         </div>
     );

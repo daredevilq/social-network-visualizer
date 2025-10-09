@@ -1,4 +1,4 @@
-import {AuthorNode, GraphNode, HashtagNode, NodeType, TweetNode} from "@/types/GraphTypes";
+import {AuthorNode, GraphNode, NodeType} from "@/types/GraphTypes";
 import NodeColors from "@/app/model/NodeColors";
 
 export interface INodeStrategy {
@@ -9,32 +9,32 @@ export interface INodeStrategy {
 
 
 class AuthorNodeStrategy implements INodeStrategy {
-    getColor(node: GraphNode): string {
+    getColor(): string {
         return NodeColors.getDefaultAuthorColor();
     }
     getRadius(node:GraphNode): number {
         const authorNode = node as AuthorNode;
-        return authorNode.pagerank ? Math.pow(authorNode.pagerank, 0.5) * 10 + 15 : 6;
+        return authorNode.pagerank ? Math.pow(authorNode.pagerank, 0.5) * 3 + 15 : 6;
     }
 }
 
 class TweetNodeStrategy implements INodeStrategy {
-    getColor(node: GraphNode): string {
+    getColor(): string {
         return NodeColors.getDefaultTweetColor();
     }
 
-    getRadius(node: GraphNode): number {
+    getRadius(): number {
         return 8;
     }
 }
 
 
 class HashtagNodeStrategy implements INodeStrategy {
-    getColor(node: GraphNode): string {
+    getColor(): string {
         return NodeColors.getDefaultHashtagColor();
     }
 
-    getRadius(node: GraphNode): number {
+    getRadius(): number {
         return 6;
     }
 }
