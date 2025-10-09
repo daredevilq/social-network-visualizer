@@ -20,24 +20,36 @@ public class WorkspaceService {
     private final ProjectRepository projectRepository;
 
     public List<String> getAllWorkspaces(String projectName) {
+        log.info("Fetching all workspaces for project '{}'", projectName);
+
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project with name '{}' does not exist", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getWorkspaces() == null || project.getWorkspaces().isEmpty()) {
+            log.warn("Project '{}' has no workspaces", projectName);
             return Collections.emptyList();
         }
 
-        return project.getWorkspaces()
+        List<String> workspaces = project.getWorkspaces()
                 .stream()
                 .map(Workspace::getName)
                 .toList();
+
+        log.info("Found {} workspaces for project '{}'", workspaces.size(), projectName);
+        return workspaces;
     }
 
     public void saveWorkspace(String projectName, Workspace workspaceData) {
+        log.info("Saving workspace '{}' in project '{}'", workspaceData.getName(), projectName);
+
         if (workspaceData.getName() == null || workspaceData.getName().isBlank()) {
+            log.error("Workspace name is null or blank for project '{}'", projectName);
             throw new ProjectException(
                     "Workspace name cannot be null or empty",
                     HttpStatus.BAD_REQUEST
@@ -45,10 +57,13 @@ public class WorkspaceService {
         }
 
         Project project = projectRepository.findByName(projectName)
-            .orElseThrow(() -> new ProjectException(
-                    "Project with name '" + projectName + "' does not exist",
-                    HttpStatus.NOT_FOUND
-            ));
+                .orElseThrow(() -> {
+                    log.error("Project with name '{}' does not exist", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getWorkspaces() == null) {
             project.setWorkspaces(new ArrayList<>());
@@ -59,6 +74,7 @@ public class WorkspaceService {
         for (int i = 0; i < workspaces.size(); i++) {
             Workspace ws = workspaces.get(i);
             if (ws.getName() != null && ws.getName().equalsIgnoreCase(workspaceData.getName())) {
+                log.info("Updating existing workspace '{}' in project '{}'", workspaceData.getName(), projectName);
                 workspaces.set(i, workspaceData);
                 updated = true;
                 break;
@@ -66,6 +82,7 @@ public class WorkspaceService {
         }
 
         if (!updated) {
+            log.info("Adding new workspace '{}' to project '{}'", workspaceData.getName(), projectName);
             workspaces.add(workspaceData);
         }
 
@@ -73,24 +90,38 @@ public class WorkspaceService {
     }
 
     public Workspace loadWorkspace(String projectName, String workspaceName) {
-        Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+        log.info("Loading workspace '{}' from project '{}'", workspaceName, projectName);
 
-        return project.getWorkspaces()
+        Project project = projectRepository.findByName(projectName)
+                .orElseThrow(() -> {
+                    log.error("Project with name '{}' does not exist", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
+
+        Workspace workspace = project.getWorkspaces()
                 .stream()
                 .filter(ws -> ws.getName().equalsIgnoreCase(workspaceName))
                 .findFirst()
-                .orElseThrow(() -> new ProjectException(
-                        "Workspace with name '" + workspaceName + "' not found in project '" + projectName + "'",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Workspace '{}' not found in project '{}'", workspaceName, projectName);
+                    return new ProjectException(
+                            "Workspace with name '" + workspaceName + "' not found in project '" + projectName + "'",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
+
+        log.info("Workspace '{}' loaded successfully from project '{}'", workspaceName, projectName);
+        return workspace;
     }
 
     public void deleteWorkspace(String projectName, String workspaceName) {
+        log.info("Deleting workspace '{}' from project '{}'", workspaceName, projectName);
+
         if (workspaceName == null || workspaceName.isBlank()) {
+            log.error("Workspace name is null or blank for project '{}'", projectName);
             throw new ProjectException(
                     "Workspace name cannot be null or empty",
                     HttpStatus.BAD_REQUEST
@@ -98,12 +129,16 @@ public class WorkspaceService {
         }
 
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project with name '{}' does not exist", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getWorkspaces() == null || project.getWorkspaces().isEmpty()) {
+            log.warn("Project '{}' has no workspaces to delete", projectName);
             throw new ProjectException(
                     "Project '" + projectName + "' has no workspaces",
                     HttpStatus.NOT_FOUND
@@ -117,11 +152,13 @@ public class WorkspaceService {
             if (workspace.getName() != null && workspace.getName().equalsIgnoreCase(workspaceName)) {
                 deletedWorkspace = workspace;
                 project.getWorkspaces().remove(i);
+                log.info("Workspace '{}' deleted from project '{}'", workspaceName, projectName);
                 break;
             }
         }
 
         if (deletedWorkspace == null) {
+            log.error("Workspace '{}' does not exist in project '{}'", workspaceName, projectName);
             throw new ProjectException(
                     "Workspace with name '" + workspaceName + "' does not exist in project '" + projectName + "'",
                     HttpStatus.NOT_FOUND

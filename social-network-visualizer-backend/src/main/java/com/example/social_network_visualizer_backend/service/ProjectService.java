@@ -29,28 +29,36 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     public List<ProjectSummary> getAllProjects() {
-        return projectRepository.findAll()
+        log.info("Fetching all projects summary");
+        List<ProjectSummary> summaries = projectRepository.findAll()
                 .stream()
                 .map(project -> new ProjectSummary(
                         project.getName(),
                         project.getFiles() != null ? project.getFiles().size() : 0
                 ))
                 .collect(Collectors.toList());
+
+        log.info("Found {} projects", summaries.size());
+        return summaries;
     }
 
     public int loadProject(String projectName, String graphType) {
+        log.info("Loading project '{}' with graph type '{}'", projectName, graphType);
+
         neo4jService.waitForNeo4jToBeAvailable();
         neo4jService.handleDatabaseDrop();
         mongodbService.waitForMongoDBToBeAvailable();
 
         int importedTweets = projectParser.parseDirectory(projectName);
         neo4jService.computeMetricsAndRelations(graphType);
-        log.info(String.format("Project %s imported successfully",projectName));
 
+        log.info("Project '{}' imported successfully with {} tweets", projectName, importedTweets);
         return importedTweets;
     }
 
     public List<String> createProject(String projectName, MultipartFile[] files) {
+        log.info("Creating new project '{}'", projectName);
+
         Project project = new Project();
         project.setName(projectName);
         project.setFiles(new ArrayList<>());
@@ -61,7 +69,10 @@ public class ProjectService {
 
         try {
             projectRepository.save(project);
+            log.info("Project '{}' created successfully with {} files ({} skipped)",
+                    projectName, files.length - skippedFiles.size(), skippedFiles.size());
         } catch (Exception e) {
+            log.error("Error while saving new project '{}'", projectName, e);
             throw new ProjectException(
                     "Failed to save project '" + projectName + "' after adding files: " + e.getMessage(),
                     e, HttpStatus.INTERNAL_SERVER_ERROR
@@ -72,11 +83,16 @@ public class ProjectService {
     }
 
     public List<String> updateProjectWithFiles(String projectName, MultipartFile[] files) {
+        log.info("Updating project '{}' with new files", projectName);
+
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project '{}' does not exist", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getFiles() == null) {
             project.setFiles(new ArrayList<>());
@@ -86,7 +102,8 @@ public class ProjectService {
 
         try {
             projectRepository.save(project);
-            log.info("Added {} new files to project '{}'", files.length - skippedFiles.size(), projectName);
+            log.info("Added {} new files to project '{}' ({} skipped)",
+                    files.length - skippedFiles.size(), projectName, skippedFiles.size());
         } catch (Exception e) {
             log.error("Error while saving project '{}' to MongoDB", projectName, e);
             throw new ProjectException(
@@ -116,7 +133,7 @@ public class ProjectService {
             }
 
             if (file.isEmpty() || !filename.endsWith(".json")) {
-                log.warn("Skipped file: {}", filename);
+                log.warn("Skipped file '{}' (empty or invalid type)", filename);
                 skippedFiles.add(filename);
                 continue;
             }
@@ -146,9 +163,11 @@ public class ProjectService {
     }
 
     public void deleteProject(String projectName) {
+        log.info("Deleting project '{}'", projectName);
         Optional<Project> projectOpt = projectRepository.findByName(projectName);
 
         if (projectOpt.isEmpty()) {
+            log.error("Project '{}' not found for deletion", projectName);
             throw new ProjectException(
                     "Project '" + projectName + "' not found",
                     HttpStatus.NOT_FOUND
@@ -169,28 +188,42 @@ public class ProjectService {
     }
 
     public List<String> getProjectFileNames(String projectName) {
+        log.info("Fetching file names from project '{}'", projectName);
+
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getFiles() == null || project.getFiles().isEmpty()) {
+            log.warn("Project '{}' has no files", projectName);
             return Collections.emptyList();
         }
 
-        return project.getFiles()
+        List<String> filenames = project.getFiles()
                 .stream()
                 .map(ProjectFile::getFilename)
                 .toList();
+
+        log.info("Project '{}' has {} files", projectName, filenames.size());
+        return filenames;
     }
 
     public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
+        log.info("Updating opened project '{}' with files and graph type '{}'", projectName, graphType);
+
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getFiles() == null) {
             project.setFiles(new ArrayList<>());
@@ -214,17 +247,24 @@ public class ProjectService {
         neo4jService.dropAllGdsGraphs();
         neo4jService.computeMetricsAndRelations(graphType);
 
+        log.info("Opened project '{}' updated successfully ({} skipped files)", projectName, skippedFiles.size());
         return skippedFiles;
     }
 
     public void deleteFileFromProject(String projectName, String fileName) {
+        log.info("Deleting file '{}' from project '{}'", fileName, projectName);
+
         Project project = projectRepository.findByName(projectName)
-                .orElseThrow(() -> new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND
-                ));
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException(
+                            "Project with name '" + projectName + "' does not exist",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         if (project.getFiles() == null || project.getFiles().isEmpty()) {
+            log.error("File '{}' not found in empty project '{}'", fileName, projectName);
             throw new ProjectException(
                     "File '" + fileName + "' does not exist in project '" + projectName + "'",
                     HttpStatus.NOT_FOUND
@@ -234,6 +274,7 @@ public class ProjectService {
         boolean removed = project.getFiles().removeIf(file -> file.getFilename().equals(fileName));
 
         if (!removed) {
+            log.error("File '{}' not found in project '{}'", fileName, projectName);
             throw new ProjectException(
                     "File '" + fileName + "' does not exist in project '" + projectName + "'",
                     HttpStatus.NOT_FOUND
@@ -242,7 +283,7 @@ public class ProjectService {
 
         try {
             projectRepository.save(project);
-            log.info("File '{}' deleted from project '{}'", fileName, projectName);
+            log.info("File '{}' deleted successfully from project '{}'", fileName, projectName);
         } catch (Exception e) {
             log.error("Error while deleting file '{}' from project '{}'", fileName, projectName, e);
             throw new ProjectException(
