@@ -96,6 +96,10 @@ export default function ProjectsContent() {
 			const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, { method: 'DELETE' });
 			if (!res.ok) throw new Error("Failed to delete workspace");
 
+			if (workspaceName === loadedProjectName) {
+				setWorkspaces([]);
+			}
+			refreshWorkspaces(loadedProjectName!);
 			showNotification(`Workspace “${workspaceName}” deleted`, BannerType.INFO);
 		}).catch((err: any) => {
 			showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
@@ -147,7 +151,7 @@ export default function ProjectsContent() {
 							/>
 						</div>
 
-						{loadedProjectName === project.name && workspaces.length > 0 && !loading && (
+						{loadedProjectName === project.name && !loading && (
 							<div className="ml-7 space-y-2 mb-3">
 								{workspaces.map((workspace) => (
 									<div
