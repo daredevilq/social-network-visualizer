@@ -1,6 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
 import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;

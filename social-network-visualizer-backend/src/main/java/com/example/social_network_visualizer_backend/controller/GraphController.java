@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
-import com.example.social_network_visualizer_backend.dto.BridgeDto;
-import com.example.social_network_visualizer_backend.dto.GraphTypeDto;
+import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import lombok.RequiredArgsConstructor;

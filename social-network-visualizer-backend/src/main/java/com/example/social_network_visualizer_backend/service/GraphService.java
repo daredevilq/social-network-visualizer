@@ -1,9 +1,9 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.BridgeDto;
-import com.example.social_network_visualizer_backend.dto.GraphTypeDto;
+import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
-import com.example.social_network_visualizer_backend.dto.graph.graphLink.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.enums.RelationType;
@@ -59,28 +59,7 @@ public class GraphService {
         List<NodeDto> graphNodes = getNodes();
         List<LinkDto> graphLinks = getLinks();
 
-        System.out.println("Nodes: " + graphNodes);
-        System.out.println("Links: " + graphLinks);
-
         return new GraphDataDto(graphNodes, graphLinks);
-    }
-
-    private List<NodeDto> getNodes() {
-        return Stream.of(
-                        authorRepository.findAuthors(),
-                        tweetRepository.findTweets(),
-                        hashtagRepository.findHashtag()
-                )
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
-
-    private List<LinkDto> getLinks() {
-        return Stream.of(
-                        graphRepository.findAllRelations()
-                )
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
     }
 
     public List<GraphTypeDto> getAllGraphTypes() {
@@ -109,5 +88,23 @@ public class GraphService {
         GraphDefinition definition = GraphDefinition.fromUrlName(graphType);
 
         neo4jService.performAlgorithms(definition.getGraphName());
+    }
+
+    private List<NodeDto> getNodes() {
+        return Stream.of(
+                        authorRepository.findAuthors(),
+                        tweetRepository.findTweets(),
+                        hashtagRepository.findHashtag()
+                )
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    private List<LinkDto> getLinks() {
+        return Stream.of(
+                        graphRepository.findAllRelations()
+                )
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

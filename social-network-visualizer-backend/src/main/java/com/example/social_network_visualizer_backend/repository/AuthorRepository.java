@@ -1,11 +1,11 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.author.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.author.TweetPreviewDto;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
-import com.example.social_network_visualizer_backend.dto.graph.graphLink.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -120,7 +120,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN datetime(t.publicationDate) AS activityDate
                 ORDER BY activityDate DESC
             """)
-    List<ZonedDateTime> getUserActivity(@Param("authorName") String authorName);
+    List<ZonedDateTime> getAuthorActivity(@Param("authorName") String authorName);
 
     @Query("""
                    MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
@@ -192,14 +192,14 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
             WHERE a.userName=$authorName
             RETURN u.userName
             """)
-    List<String> findMentionsUsersByAuthor(@Param("authorName") String authorName);
+    List<String> findMentionsAuthorsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName=$authorName AND size(t.content) > 1
                 RETURN t.content
             """)
-    List<String> findTweetsContentByUser(@Param("authorName") String authorName);
+    List<String> findTweetsContentByAuthor(@Param("authorName") String authorName);
 
     @Query("""
                 MATCH (a:Author)-[r:RETWEETS]->(u:Author)
@@ -213,7 +213,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.userName=$authorName
                 RETURN u.userName
             """)
-    List<String> findRetweetsByUser(@Param("authorName") String authorName);
+    List<String> findRetweetsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
             MATCH (a:Author)-[:POSTED]->(t:Tweet)
@@ -246,6 +246,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN h AS hour, d AS dayOfWeek, posts
                 ORDER  BY d, h;
             """)
-    List<ActivityHeatmap> getUserActivityHeatMap(@Param("username") String username);
+    List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
 }
 

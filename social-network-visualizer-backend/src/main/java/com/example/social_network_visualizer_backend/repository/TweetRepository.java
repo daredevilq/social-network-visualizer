@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.TweetWithStats;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -187,4 +188,23 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
             """)
     List<TweetNodeDto> findTweets();
 
+    @Query("""
+        MATCH (a:Author)-[:POSTED]->(t:Tweet)
+        WITH a, t,
+             t.likesCount AS likes,
+             t.retweetsCount AS retweets,
+             t.repliesCount AS replies,
+             (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
+        RETURN
+            a.userName as userName,
+            t.contentPreview AS preview,
+            t.url AS tweetUrl,
+            likes,
+            retweets,
+            replies,
+            engagementScore
+        ORDER BY engagementScore DESC
+        LIMIT 10
+    """)
+    List<ViralTweetDto> findTheMostViralTweets();
 }

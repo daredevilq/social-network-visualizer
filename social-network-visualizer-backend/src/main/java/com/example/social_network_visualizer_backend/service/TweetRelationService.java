@@ -1,6 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.TweetDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetDto;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import lombok.RequiredArgsConstructor;

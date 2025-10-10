@@ -8,10 +8,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TweetNodeDto extends NodeDto {
     private String name;
@@ -22,3 +22,6 @@ public class TweetNodeDto extends NodeDto {
     private Long retweetsCount;
     private String community;
 }
+
+
+

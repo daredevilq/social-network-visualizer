@@ -1,4 +1,4 @@
-package com.example.social_network_visualizer_backend.dto.graph.graphLink;
+package com.example.social_network_visualizer_backend.dto.graph;
 
 import com.example.social_network_visualizer_backend.enums.RelationType;
 

@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -68,7 +67,7 @@ public class ProjectService {
 
         int importedTweets = tweetsFolderParser.parseDirectory(projectPath);
         neo4jService.computeMetricsAndRelations(graphType);
-        log.info(String.format("Project %s imported successfully",projectName));
+        log.info("Project {} imported successfully", projectName);
 
         return importedTweets;
     }
