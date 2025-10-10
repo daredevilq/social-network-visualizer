@@ -74,7 +74,7 @@ export default function LeftBar({setIsLeftSideBarOpen, setSelectedLeftSideBarCon
 
     return (
         <div
-            className="fixed top-0 left-0 h-screen w-[60] z-50 flex flex-col items-center"
+            className="fixed top-0 left-0 h-screen w-[60px] z-50 flex flex-col items-center"
             style={{backgroundColor: '#262626'}}
         >
             {icons.slice(0, 5).map((icon) => (
