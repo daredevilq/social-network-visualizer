@@ -49,6 +49,7 @@ public class GraphController {
     }
 
     @GetMapping("/{graphType}/community/{communityId}")
+//    TODO Check if this endpoint is used in the frontend, if not remove it
     public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType, @PathVariable Integer communityId) {
         GraphDataDto graph = graphService.getGraph(graphType, Optional.ofNullable(communityId));
         return ResponseEntity.ok(graph);

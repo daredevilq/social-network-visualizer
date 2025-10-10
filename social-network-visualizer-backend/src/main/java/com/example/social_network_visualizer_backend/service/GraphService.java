@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.enums.RelationType;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -92,11 +94,12 @@ public class GraphService {
 
     private List<NodeDto> getNodes() {
         return Stream.of(
-                        authorRepository.findAuthors(),
-                        tweetRepository.findTweets(),
-                        hashtagRepository.findHashtag()
+                        authorRepository.findAuthors().stream()
+                                .sorted(Comparator.comparingDouble(AuthorNodeDto::getPagerank).reversed()),
+                        tweetRepository.findTweets().stream(),
+                        hashtagRepository.findHashtag().stream()
                 )
-                .flatMap(List::stream)
+                .flatMap(s -> s)
                 .collect(Collectors.toList());
     }
 

@@ -18,8 +18,8 @@ interface Context {
     fetchGraphData: () => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
-    graphData: { nodes: any[], links: any[] };
-    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: any[], links: any[] }>>;
+    graphData: { nodes: GraphNode[], links: GraphLink[] };
+    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[], links: GraphLink[] }>>;
     nodeFoundId: string | null;
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
@@ -89,7 +89,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
-    const [graphData, setGraphData] = useState<{ nodes: any[], links: any[] }>({nodes: [], links: []});
+    const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
@@ -222,7 +222,6 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                                     ...baseNode,
                                     nodeType: NodeType.HASHTAG,
                                 } as HashtagNode;
-
 
                         }
                     })

@@ -5,16 +5,31 @@ export interface INodeStrategy {
     getColor: (node: GraphNode) => string;
 
     getRadius(node: GraphNode): number;
+
+    handleSingleNodeClick(
+        node: GraphNode,
+        setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void,
+        setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void): any;
 }
 
 
 class AuthorNodeStrategy implements INodeStrategy {
+
     getColor(): string {
         return NodeColors.getDefaultAuthorColor();
     }
-    getRadius(node:GraphNode): number {
+
+    getRadius(node: GraphNode): number {
         const authorNode = node as AuthorNode;
-        return authorNode.pagerank ? Math.pow(authorNode.pagerank, 0.5) * 3 + 15 : 6;
+        return authorNode.pagerank ? Math.pow(authorNode.pagerank, 3) + 10 : 10;
+    }
+
+    handleSingleNodeClick(node: GraphNode, setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void, setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void) {
+        setSelectedUserData({
+            name: node.id,
+            community: node.community
+        } as BasicUserData);
+        setIsSidebarOpen(true);
     }
 }
 
@@ -24,7 +39,11 @@ class TweetNodeStrategy implements INodeStrategy {
     }
 
     getRadius(): number {
-        return 8;
+        return 7;
+    }
+
+    handleSingleNodeClick(node: GraphNode, setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void, setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void) {
+        console.log("SingleNodeClick Method not implemented for: TWEET nodes.");
     }
 }
 
@@ -35,12 +54,16 @@ class HashtagNodeStrategy implements INodeStrategy {
     }
 
     getRadius(): number {
-        return 6;
+        return 4;
+    }
+
+    handleSingleNodeClick(node: GraphNode, setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void, setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void) {
+        console.log("SingleNodeClick Method not implemented for: Hashtag nodes.");
     }
 }
 
 class NodeStrategy {
-    private  strategies: Map<NodeType, INodeStrategy>;
+    private strategies: Map<NodeType, INodeStrategy>;
 
     constructor() {
         this.strategies = new Map([
@@ -56,7 +79,7 @@ class NodeStrategy {
     }
 
     getRadius(node: GraphNode): number {
-        const strategy= this.resolveStrategy(node);
+        const strategy = this.resolveStrategy(node);
         return strategy.getRadius(node);
     }
 
@@ -68,6 +91,14 @@ class NodeStrategy {
             throw new Error(`No strategy found for node type: ${node.nodeType}`);
         }
         return strategy;
+    }
+
+    handleSingleNodeClick(
+        node: GraphNode,
+        setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void,
+        setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void) {
+        const strategy = this.resolveStrategy(node);
+        return strategy.handleSingleNodeClick(node, setSelectedUserData, setIsSidebarOpen);
     }
 }
 

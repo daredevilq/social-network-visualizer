@@ -2,7 +2,7 @@ import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState
 // @ts-ignore
 import ForceGraph, {ForceGraphInstance, LinkObject} from 'force-graph';
 import {
-    AuthorNode, GraphLink,
+    GraphLink,
     GraphNode,
     GraphProps,
     NodeType,
@@ -44,81 +44,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const {showNotification} = useNotification();
 
-    const handleNodeClick = (node: GraphNode) => {
-        if (clickedNodeRef.current && clickedNodeRef.current.id === node.id && clickTimeoutRef.current) {
-            clearTimeout(clickTimeoutRef.current);
-            clickTimeoutRef.current = null;
-            clickedNodeRef.current = null;
-
-            handleDoubleNodeClick(node);
-        } else {
-            if (clickTimeoutRef.current) {
-                clearTimeout(clickTimeoutRef.current);
-            }
-
-            clickedNodeRef.current = node;
-            clickTimeoutRef.current = setTimeout(() => {
-                handleSingleNodeClick(node);
-                clickedNodeRef.current = null;
-                clickTimeoutRef.current = null;
-            }, 300);
-        }
-    };
-
-    const handleSingleNodeClick = (node: GraphNode) => {
-        if (node.nodeType === NodeType.AUTHOR) {
-            const authorNode = node as AuthorNode;
-            setSelectedUserData({
-                name: authorNode.id,
-                community: authorNode.community
-            } as BasicUserData);
-            setIsSidebarOpen(true);
-        }
-    }
-
-    const handleDoubleNodeClick = (node: GraphNode) => {
-        if (!fgInstance.current) return;
-        setIsSidebarOpen(false);
-
-        const currentGraphData = fgInstance.current.graphData();
-        const currentNodeIds = new Set(currentGraphData.nodes.map((n: GraphNode) => n.id));
-
-        const neighborLinks = graphData.links.filter(link => {
-            return link.source === node.id || link.target === node.id;
-        })
-
-        const newNodes: GraphNode[] = [];
-        const newLinks: LinkObject[] = [];
-
-        neighborLinks.forEach(link => {
-            const neighborId = link.source === node.id ? link.target : link.source;
-            const neighborNode = graphData.nodes.find(n => n.id === neighborId);
-            if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
-                newNodes.push(neighborNode);
-                newLinks.push(link);
-            } else if (!currentGraphData.links.some((l: LinkObject) => {
-                const existingSourceId = l.source;
-                const existingTargetId = l.target;
-                return (existingSourceId === link.source && existingTargetId === link.target) ||
-                    (existingSourceId === link.target && existingTargetId === link.source);
-            })) {
-                newLinks.push(link);
-            }
-        });
-
-        if (newNodes.length > 0 || newLinks.length > 0) {
-            fgInstance.current.graphData({
-                nodes: [...currentGraphData.nodes, ...newNodes],
-                links: [...currentGraphData.links, ...newLinks]
-            });
-            setDisplayedNodes([...currentGraphData.nodes, ...newNodes]);
-            setDisplayedLinks([...currentGraphData.links, ...newLinks]);
-        }
-    }
-
-    useImperativeHandle(ref, (): { getInstance: () => ForceGraphInstance | null } => ({
-        getInstance: () => fgInstance.current
-    }));
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -146,21 +71,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     }, []);
 
     useEffect(() => {
-        if (!fgInstance.current) return;
-        const topNodes = graphData.nodes
-            .slice(0, NODE_DISPLAY_LIMIT)
-            .map(n => ({...n}));
-
-        const topNodesIds = new Set(topNodes.map(n => n.id));
-        const relevantLinks = graphData.links
-            .filter((link: GraphLink) => {
-                return topNodesIds.has(link.source) && topNodesIds.has(link.target);
-            }).map(link => ({...link}));
-
-        setDisplayedNodes(topNodes);
-        setDisplayedLinks(relevantLinks);
-        fgInstance.current.graphData({nodes: topNodes, links: relevantLinks});
-    }, [graphData]);
+        loadGraphData()
+    }, [graphData, fgInstance]);
 
     useEffect(() => {
         if (!fgInstance.current || !nodeFoundId) return;
@@ -223,6 +135,76 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         selectedNodeIds
     ]);
 
+
+    const handleNodeClick = (node: GraphNode) => {
+        if (clickedNodeRef.current && clickedNodeRef.current.id === node.id && clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+            clickedNodeRef.current = null;
+
+            handleDoubleNodeClick(node);
+        } else {
+            if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current);
+            }
+
+            clickedNodeRef.current = node;
+            clickTimeoutRef.current = setTimeout(() => {
+                handleSingleNodeClick(node);
+                clickedNodeRef.current = null;
+                clickTimeoutRef.current = null;
+            }, 300);
+        }
+    };
+
+    const handleSingleNodeClick = (node: GraphNode) => {
+        nodeStrategy.handleSingleNodeClick(node, setSelectedUserData, setIsSidebarOpen);
+    }
+
+    const handleDoubleNodeClick = (node: GraphNode) => {
+        if (!fgInstance.current) return;
+        setIsSidebarOpen(false);
+
+        const currentGraphData = fgInstance.current.graphData();
+        const currentNodeIds = new Set(currentGraphData.nodes.map((n: GraphNode) => n.id));
+
+        const neighborLinks = graphData.links.filter(link => {
+            return link.source === node.id || link.target === node.id;
+        })
+
+        const newNodes: GraphNode[] = [];
+        const newLinks: LinkObject[] = [];
+
+        neighborLinks.forEach(link => {
+            const neighborId = link.source === node.id ? link.target : link.source;
+            const neighborNode = graphData.nodes.find(n => n.id === neighborId);
+            if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
+                newNodes.push(neighborNode);
+                newLinks.push(link);
+            } else if (!currentGraphData.links.some((l: LinkObject) => {
+                const existingSourceId = l.source;
+                const existingTargetId = l.target;
+                return (existingSourceId === link.source && existingTargetId === link.target) ||
+                    (existingSourceId === link.target && existingTargetId === link.source);
+            })) {
+                newLinks.push(link);
+            }
+        });
+
+        if (newNodes.length > 0 || newLinks.length > 0) {
+            fgInstance.current.graphData({
+                nodes: [...currentGraphData.nodes, ...newNodes],
+                links: [...currentGraphData.links, ...newLinks]
+            });
+            setDisplayedNodes([...currentGraphData.nodes, ...newNodes]);
+            setDisplayedLinks([...currentGraphData.links, ...newLinks]);
+        }
+    }
+
+    useImperativeHandle(ref, (): { getInstance: () => ForceGraphInstance | null } => ({
+        getInstance: () => fgInstance.current
+    }));
+
     const analyzeWorkspace = () => {
         setIsSidebarOpen(false);
 
@@ -257,22 +239,27 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
 
     const loadGraphData = () => {
-        if (fgInstance.current && graphData.nodes.length > 0) {
-            const top5Nodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
-            const nodeIds = new Set(top5Nodes.map(node => node.id));
-            console.log("Node Ids:", nodeIds);
-            const relevantLinks = graphData.links.filter((link: GraphLink) => {
-                return nodeIds.has(link.source) && nodeIds.has(link.target);
-            });
+        if (!fgInstance.current || !graphData?.nodes?.length) return;
 
-            setDisplayedNodes(top5Nodes);
-            setDisplayedLinks(relevantLinks);
+        const authorNodes = graphData.nodes.filter(
+            (n) => n.nodeType === NodeType.AUTHOR
+        );
 
-            fgInstance.current.graphData({
-                nodes: top5Nodes,
-                links: relevantLinks
-            });
-        }
+        const topAuthorNodes = authorNodes
+            .slice(0, NODE_DISPLAY_LIMIT)
+            .map(n => ({...n}));
+
+        const topAuthorNodesIds = new Set(topAuthorNodes.map(n => n.id));
+
+        const relevantLinks = graphData.links
+            .filter(
+                (link: GraphLink) => topAuthorNodesIds.has(link.source) && topAuthorNodesIds.has(link.target)
+            )
+            .map((link: GraphLink) => ({...link}));
+
+        setDisplayedNodes(topAuthorNodes);
+        setDisplayedLinks(relevantLinks);
+        fgInstance.current.graphData({nodes: topAuthorNodes, links: relevantLinks});
     };
 
     const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
