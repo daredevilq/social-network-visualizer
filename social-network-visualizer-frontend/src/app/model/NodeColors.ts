@@ -1,19 +1,30 @@
-
 export default class NodeColors {
+    static getBackgroundColor(): string {
+        return "#1B1B25";
+    }
+
+    static getDefaultBorderColor(): string {
+        return "#262626"
+    }
+
+    static getWhiteColor(): string {
+        return "#fafafa";
+    }
+
     static getDefaultAuthorColor(): string {
-        return "rgba(92, 55, 230, 0.95)";
+        return "#5C37E6";
     }
 
     static getDefaultTweetColor(): string {
-        return "#22c55e";
+        return "#3B82F6";
     }
 
     static getDefaultHashtagColor(): string {
         return "#eab308";
     }
 
-    static getWhiteColor(): string {
-        return "#fafafa";
+    static getSuccessColor() {
+        return "#22C55E";
     }
 
     static getRedColor() {
@@ -22,5 +33,29 @@ export default class NodeColors {
 
     static getGoldColor() {
         return "rgba(255, 159, 64, 0.95)";
+    }
+
+    static getMentionsColor(): string {
+        return '#FACC15';
+    }
+
+    static getRetweetsColor(): string {
+        return '#4ADE80';
+    }
+
+    static getRepliesColor(): string {
+        return '#FB923C';
+    }
+
+    static getQuotedColor(): string {
+        return '#60A5FA';
+    }
+
+    static getSharesHashtagColor(): string {
+        return '#A78BFA';
+    }
+
+    static getPostedColor(): string {
+        return '#5EEAD4';
     }
 }

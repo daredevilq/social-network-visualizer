@@ -142,7 +142,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setLoadedProjectName(name);
                 await setProjectName(name);
 
-                showNotification(`Project "${name}" loaded successfully.`, BannerType.SUCCESS);
+                showNotification(`${name}`, BannerType.SUCCESS);
 
                 if (fetchData) await fetchGraphData();
             } catch (err) {

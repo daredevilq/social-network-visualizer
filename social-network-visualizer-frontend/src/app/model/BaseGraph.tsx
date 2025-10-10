@@ -12,6 +12,7 @@ import {useProject} from "@/app/context/ProjectContext";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import nodeStrategy from "@/app/model/strategies/NodeStrategy";
+import NodeColors from "@/app/model/NodeColors";
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const {
@@ -21,6 +22,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         nodeColor,
         linkColor,
         linkWidth,
+        linkLabel,
         linkDirectionalArrowLength,
         linkDirectionalArrowRelPos,
         nodeFoundId
@@ -95,20 +97,20 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
             .nodeColor(nodeColor)
             .linkColor(linkColor)
             .linkWidth(linkWidth)
+            .linkLabel(linkLabel)
             .linkDirectionalArrowLength(linkDirectionalArrowLength)
             .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
             .onNodeClick(handleNodeClick)
             .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: any, globalScale: any) => {
                 const fontSize = 12 / globalScale;
-                ctx.font = `${fontSize}px Sans-Serif`;
+                const radius = nodeStrategy.getRadius(node);
+                ctx.font = `${fontSize}px Inter, sans-serif`;
 
                 ctx.beginPath();
-
-                const r = nodeStrategy.getRadius(node);
-                ctx.arc(node.x, node.y, r, 0, 5 * Math.PI, false);
-
-                ctx.fillStyle = nodeColor ? nodeColor(node) : '#888';
+                ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+                ctx.fillStyle = nodeColor ? nodeColor(node) : NodeColors.getDefaultAuthorColor();
                 ctx.fill();
+
 
                 if (selectedNodeIds.includes(node.id)) {
                     ctx.lineWidth = 2 / globalScale;
@@ -117,12 +119,15 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 }
 
                 if (showLabels) {
-                    const label = nodeLabel(node);
-                    ctx.font = `${fontSize}px Sans-Serif`;
-                    ctx.fillStyle = '#bbb';
+                    const nLabel = nodeLabel(node);
+                    const textYPosition = node.y + radius + 4;
+                    ctx.font = `${fontSize}px Inter, sans-serif`;
+                    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+                    ctx.fillStyle = NodeColors.getWhiteColor();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
-                    ctx.fillText(label, node.x, node.y + r + 2);
+
+                    ctx.fillText(nLabel, node.x, textYPosition);
                 }
             });
     }, [nodeVal,
@@ -130,6 +135,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         nodeColor,
         linkColor,
         linkWidth,
+        linkLabel,
         linkDirectionalArrowLength,
         linkDirectionalArrowRelPos,
         selectedNodeIds
@@ -346,7 +352,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 )}
                 <button
                     onClick={resetGraph}
-                    className="px-3 py-2 bg-[#A52734] text-white border-none rounded-md cursor-pointer"
+                    className="px-3 py-2 bg-[#8B0000] text-white border-none rounded-md cursor-pointer"
                 >
                     Reset workspace
                 </button>

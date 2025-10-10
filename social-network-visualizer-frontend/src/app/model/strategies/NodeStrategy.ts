@@ -2,7 +2,7 @@ import {AuthorNode, GraphNode, NodeType} from "@/types/GraphTypes";
 import NodeColors from "@/app/model/NodeColors";
 
 export interface INodeStrategy {
-    getColor: (node: GraphNode) => string;
+    getColor(node: GraphNode): string;
 
     getRadius(node: GraphNode): number;
 
