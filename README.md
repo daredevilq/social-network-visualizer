@@ -19,6 +19,24 @@ Go to the project root directory:
 cd social-network-visualizer
 ```
 
+Update `.env` file by proving credentials for your databases:
+
+```bash
+# MongoDB
+MONGO_HOST=mongodb
+MONGO_PORT=27017
+MONGO_DATABASE=socialdb
+MONGO_USERNAME=root
+MONGO_PASSWORD=
+MONGO_AUTH_DB=admin
+
+# Neo4j
+NEO4J_URI=bolt://neo4j-database:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=
+NEO4J_AUTH="neo4j/${NEO4J_PASSWORD}"
+```
+
 Then run all containers:
 
 ```bash

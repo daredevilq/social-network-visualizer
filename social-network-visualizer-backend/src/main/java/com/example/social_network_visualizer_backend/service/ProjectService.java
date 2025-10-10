@@ -29,7 +29,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     public List<ProjectSummary> getAllProjects() {
-        log.info("Fetching all projects summary");
         List<ProjectSummary> summaries = projectRepository.findAll()
                 .stream()
                 .map(project -> new ProjectSummary(
@@ -43,8 +42,6 @@ public class ProjectService {
     }
 
     public int loadProject(String projectName, String graphType) {
-        log.info("Loading project '{}' with graph type '{}'", projectName, graphType);
-
         neo4jService.waitForNeo4jToBeAvailable();
         neo4jService.handleDatabaseDrop();
         mongodbService.waitForMongoDBToBeAvailable();
@@ -57,8 +54,6 @@ public class ProjectService {
     }
 
     public List<String> createProject(String projectName, MultipartFile[] files) {
-        log.info("Creating new project '{}'", projectName);
-
         Project project = new Project();
         project.setName(projectName);
         project.setFiles(new ArrayList<>());
@@ -83,8 +78,6 @@ public class ProjectService {
     }
 
     public List<String> updateProjectWithFiles(String projectName, MultipartFile[] files) {
-        log.info("Updating project '{}' with new files", projectName);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' does not exist", projectName);
@@ -126,7 +119,7 @@ public class ProjectService {
         for (MultipartFile file : files) {
             String filename = file.getOriginalFilename();
 
-            if (filename == null || filename.isBlank()) {
+            if (filename.isBlank()) {
                 log.warn("Skipped file with empty name");
                 skippedFiles.add("Unnamed file");
                 continue;
@@ -163,7 +156,6 @@ public class ProjectService {
     }
 
     public void deleteProject(String projectName) {
-        log.info("Deleting project '{}'", projectName);
         Optional<Project> projectOpt = projectRepository.findByName(projectName);
 
         if (projectOpt.isEmpty()) {
@@ -188,8 +180,6 @@ public class ProjectService {
     }
 
     public List<String> getProjectFileNames(String projectName) {
-        log.info("Fetching file names from project '{}'", projectName);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' not found", projectName);
@@ -214,8 +204,6 @@ public class ProjectService {
     }
 
     public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
-        log.info("Updating opened project '{}' with files and graph type '{}'", projectName, graphType);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' not found", projectName);
@@ -252,8 +240,6 @@ public class ProjectService {
     }
 
     public void deleteFileFromProject(String projectName, String fileName) {
-        log.info("Deleting file '{}' from project '{}'", fileName, projectName);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' not found", projectName);
