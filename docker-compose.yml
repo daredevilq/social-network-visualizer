@@ -5,7 +5,7 @@ services:
     container_name: neo4j-database
     image: 'neo4j:latest'
     environment:
-      - 'NEO4J_AUTH=neo4j/notverysecret'
+      - NEO4J_AUTH=${NEO4J_AUTH}
       - NEO4J_PLUGINS=["graph-data-science", "apoc"]
     ports:
       - '7687:7687'
@@ -20,10 +20,10 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=secret
-      - MONGO_INITDB_DATABASE=socialdb
-  
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+
   backend_service:
     build: ./social-network-visualizer-backend
     container_name: backend_container_inz
@@ -34,6 +34,16 @@ services:
     depends_on:
       - mongodb
       - neo4j
+    environment:
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_AUTH_DB=${MONGO_AUTH_DB}
+      - NEO4J_URI=${NEO4J_URI}
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
 
   frontend_service:
     build: ./social-network-visualizer-frontend
