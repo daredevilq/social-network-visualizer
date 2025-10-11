@@ -38,11 +38,11 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
     List<HashtagNodeDto> findHashtag();
 
     @Query("""
-        MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
-        RETURN h.hashtag AS name, count(*) AS frequency
-        ORDER BY frequency DESC
-        LIMIT 20
-    """)
+                MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
+                RETURN h.hashtag AS name, count(*) AS frequency
+                ORDER BY frequency DESC
+                LIMIT 20
+            """)
     List<HashtagFrequency> findTopHashtags();
 
 }

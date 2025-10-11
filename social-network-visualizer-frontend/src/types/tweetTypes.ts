@@ -1,5 +1,5 @@
 export interface Tweet {
-    name: string;
+    id: string;
     authorName: string;
     publicationDate: string;
     objectType: string;

@@ -23,16 +23,16 @@ export default class NodeColors {
         return "#eab308";
     }
 
-    static getSuccessColor() {
+    static getSuccessColor(): string {
         return "#22C55E";
     }
 
-    static getRedColor() {
+    static getRedColor(): string {
         return "#8B0000";
     }
 
-    static getGoldColor() {
-        return "rgba(255, 159, 64, 0.95)";
+    static getGoldColor(): string {
+        return "#FF9F40";
     }
 
     static getMentionsColor(): string {

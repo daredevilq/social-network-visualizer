@@ -1,12 +1,12 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.dto.author.TweetPreviewDto;
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
@@ -101,9 +101,9 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<Tweet> findLast10TweetsByAuthorUsername(@Param("authorName") String authorName);
 
     @Query("""
-            MATCH (a:Author)-[:POSTED]->(t:Tweet)
-            WHERE a.userName = $authorName
-            RETURN MIN(t.publicationDate) AS dateOfFirstTweet,
+                MATCH (a:Author)-[:POSTED]->(t:Tweet)
+                WHERE a.userName = $authorName
+                RETURN MIN(t.publicationDate) AS dateOfFirstTweet,
                    COUNT(CASE WHEN t.objectType = 'TWEET' THEN 1 END) AS tweetsCount,
                    COUNT(CASE WHEN t.objectType = 'RETWEET' THEN 1 END) AS retweetsCount,
                    COUNT(CASE WHEN t.objectType = 'REPLY' THEN 1 END) AS repliesCount,
@@ -123,16 +123,16 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<ZonedDateTime> getAuthorActivity(@Param("authorName") String authorName);
 
     @Query("""
-                   MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
-                   CALL gds.shortestPath.dijkstra.stream('g_author_mentions', {
-                       sourceNode: a1,
-                       targetNode: a2
-                       })
-                   YIELD index, path
-                   WITH nodes(path) AS nodes
-                   UNWIND nodes AS node
-                   MATCH (author:Author) WHERE id(author) = id(node)
-            RETURN author.userName AS userNames
+               MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
+               CALL gds.shortestPath.dijkstra.stream('g_author_mentions', {
+                   sourceNode: a1,
+                   targetNode: a2
+                   })
+               YIELD index, path
+               WITH nodes(path) AS nodes
+               UNWIND nodes AS node
+               MATCH (author:Author) WHERE id(author) = id(node)
+               RETURN author.userName AS userNames
             """)
     List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
 
@@ -188,9 +188,9 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<HashtagFrequency> findTopHashtagsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
-            MATCH (a:Author)-[:MENTIONS]->(u:Author)
-            WHERE a.userName=$authorName
-            RETURN u.userName
+                MATCH (a:Author)-[:MENTIONS]->(u:Author)
+                WHERE a.userName=$authorName
+                RETURN u.userName
             """)
     List<String> findMentionsAuthorsByAuthor(@Param("authorName") String authorName);
 
@@ -216,23 +216,23 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
     List<String> findRetweetsByAuthor(@Param("authorName") String authorName);
 
     @Query("""
-            MATCH (a:Author)-[:POSTED]->(t:Tweet)
-            WHERE a.userName=$authorName
-            WITH a, t,
-                 t.likesCount AS likes,
-                 t.retweetsCount AS retweets,
-                 t.repliesCount AS replies,
-                 (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
-            RETURN
-                a.userName as userName,
-                t.contentPreview AS preview,
-                t.url AS tweetUrl,
-                likes,
-                retweets,
-                replies,
-                engagementScore
-            ORDER BY engagementScore DESC
-            LIMIT 5
+                MATCH (a:Author)-[:POSTED]->(t:Tweet)
+                WHERE a.userName=$authorName
+                WITH a, t,
+                     t.likesCount AS likes,
+                     t.retweetsCount AS retweets,
+                     t.repliesCount AS replies,
+                     (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
+                RETURN
+                    a.userName as userName,
+                    t.contentPreview AS preview,
+                    t.url AS tweetUrl,
+                    likes,
+                    retweets,
+                    replies,
+                    engagementScore
+                ORDER BY engagementScore DESC
+                LIMIT 5
             """)
     List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
 
