@@ -22,7 +22,7 @@ export default function GraphTypeContent() {
                             onClick={async () => {
                                 await setGraphUiType(value);
                                 setSelectedGraphType(value);
-                                showNotification(`Graph type has been changed to ${label}.`, BannerType.INFO);
+                                showNotification(`Switched to ${label}`, BannerType.INFO);
                             }}
                             disabled={selectedGraphType === value}
                             className={`w-full text-left transition-colors ${

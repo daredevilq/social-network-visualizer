@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.PaginatedTweetsDto;
-import com.example.social_network_visualizer_backend.dto.TweetWithStats;
+import com.example.social_network_visualizer_backend.dto.tweet.PaginatedTweetsDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
@@ -19,19 +19,19 @@ public class TweetService {
     private final TweetRepository tweetRepository;
     private final AuthorRepository authorRepository;
 
-    public PaginatedTweetsDto getRecentTweets(String userName, Integer page, Integer limit, String search, String sortBy, String order, List<String> hashtags, Boolean highEngagement) {
+    public PaginatedTweetsDto getRecentTweets(String authorName, Integer page, Integer limit, String search, String sortBy, String order, List<String> hashtags, Boolean highEngagement) {
         if (page < 1 || limit <= 0) {
             throw new IllegalArgumentException("Page must be >= 1 and limit must be > 0");
         }
 
-        if (userName != null) {
-            Author author = authorRepository.findAuthorByUserName(userName)
-                    .orElseThrow(() -> new EntityNotFoundException(String.format("Author %s not found", userName)));
+        if (authorName != null) {
+            Author author = authorRepository.findAuthorByUserName(authorName)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Author %s not found", authorName)));
         }
 
         TweetSortOption orderByField = TweetSortOption.from(sortBy);
         String orderDirection = validateOrder(order);
-        List<TweetWithStats> allTweets = tweetRepository.findTweetsWithRelationships(userName, search, orderByField, orderDirection, hashtags, highEngagement);
+        List<TweetWithStats> allTweets = tweetRepository.findTweetsWithRelationships(authorName, search, orderByField, orderDirection, hashtags, highEngagement);
 
         int total = allTweets.size();
         int totalPages = (int) Math.ceil((double) total / limit);

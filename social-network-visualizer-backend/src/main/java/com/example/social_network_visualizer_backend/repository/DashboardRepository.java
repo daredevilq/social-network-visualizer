@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.author.TopAuthorsDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -47,34 +48,6 @@ public interface DashboardRepository extends Neo4jRepository<Author, String> {
     List<ActivityPoint> getProjectActivity();
 
     @Query("""
-        MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
-        RETURN h.hashtag AS name, count(*) AS frequency
-        ORDER BY frequency DESC
-        LIMIT 20
-    """)
-    List<HashtagFrequency> findTopHashtags();
-
-    @Query("""
-        MATCH (a:Author)-[:POSTED]->(t:Tweet)
-        WITH a, t,
-             t.likesCount AS likes,
-             t.retweetsCount AS retweets,
-             t.repliesCount AS replies,
-             (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
-        RETURN
-            a.userName as userName,
-            t.contentPreview AS preview,
-            t.url AS tweetUrl,
-            likes,
-            retweets,
-            replies,
-            engagementScore
-        ORDER BY engagementScore DESC
-        LIMIT 10
-    """)
-    List<ViralTweetDto> findTheMostViralTweets();
-
-    @Query("""
         MATCH (t:Tweet)-[:MENTION]->(a:Author)
         RETURN
             a.userName AS username,
@@ -82,7 +55,7 @@ public interface DashboardRepository extends Neo4jRepository<Author, String> {
         ORDER BY count DESC
         LIMIT 5
     """)
-    List<TopUsersDto> findTopMentions();
+    List<TopAuthorsDto> findTopMentions();
 
     @Query("""
         MATCH (a:Author)-[:POSTED]->(t:Tweet)
@@ -92,7 +65,7 @@ public interface DashboardRepository extends Neo4jRepository<Author, String> {
         ORDER BY count DESC
         LIMIT 5
     """)
-    List<TopUsersDto> findTopAuthors();
+    List<TopAuthorsDto> findTopAuthors();
 
     @Query("""
         UNWIND range(0,23) AS h

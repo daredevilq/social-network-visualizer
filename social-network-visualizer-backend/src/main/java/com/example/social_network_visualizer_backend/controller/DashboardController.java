@@ -1,7 +1,10 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.author.TopAuthorsDto;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
+import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +44,12 @@ public class DashboardController {
     }
 
     @GetMapping("/top-mentions")
-    public ResponseEntity<List<TopUsersDto>> getProjectTopMentionsUsers() {
+    public ResponseEntity<List<TopAuthorsDto>> getProjectTopMentionsUsers() {
         return ResponseEntity.ok(dashboardService.getTopMentions());
     }
 
     @GetMapping("/top-authors")
-    public ResponseEntity<List<TopUsersDto>> getProjectTopAuthors() {
+    public ResponseEntity<List<TopAuthorsDto>> getProjectTopAuthors() {
         return ResponseEntity.ok(dashboardService.getTopAuthors());
     }
 

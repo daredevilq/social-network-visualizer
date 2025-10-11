@@ -1,3 +1,5 @@
+import {GraphLink, GraphNode} from "@/types/GraphTypes";
+
 export interface Node {
     id: string;
     degreeCentrality: number;
@@ -12,6 +14,6 @@ export interface Link {
 }
 
 export interface GraphData {
-    nodes: Node[];
-    links: Link[];
+    nodes: GraphNode[];
+    links: GraphLink[];
 }

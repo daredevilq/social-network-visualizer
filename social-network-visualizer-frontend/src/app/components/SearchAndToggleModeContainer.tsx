@@ -2,6 +2,7 @@ import React, {useState, ChangeEvent, KeyboardEvent, useRef, useEffect} from 're
 import {BarChart2, Search} from "lucide-react";
 import {useProject} from "@/app/context/ProjectContext";
 import {GraphData} from "@/app/interface/GraphData";
+import {GraphNode} from "@/types/GraphTypes";
 
 interface SearchAndToggleModeContainerProps {
     searchValue: string;
@@ -65,7 +66,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
         setIsDropdownVisible(false);
         setActiveIndex(-1);
         setLocalSearchValue(suggestion);
-        const node = findNodeById(graphData, suggestion);
+        const node = findNodeByName(graphData, suggestion);
         if (node) {
             setNodeIdFound(node.id);
             onSearchChange(suggestion);
@@ -80,7 +81,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
         if (!isDropdownVisible) {
             if (e.key === 'Enter') {
                 onSearchChange(localSearchValue);
-                const node = findNodeById(graphData, localSearchValue);
+                const node = findNodeByName(graphData, localSearchValue);
                 if (node) {
                     setNodeIdFound(node.id);
                 } else {
@@ -106,8 +107,8 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
         }
     };
 
-    const findNodeById = (graphData: GraphData, searchId: string) => {
-        return graphData.nodes.find(node => node.id === searchId);
+    const findNodeByName = (graphData: GraphData, searchId: string) => {
+        return graphData.nodes.find((node: GraphNode) => node.id === searchId);
     }
 
     return (

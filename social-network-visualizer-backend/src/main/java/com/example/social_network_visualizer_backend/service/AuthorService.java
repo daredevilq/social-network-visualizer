@@ -1,19 +1,17 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.AuthorDataResponse;
-import com.example.social_network_visualizer_backend.dto.AuthorStatsDto;
-import com.example.social_network_visualizer_backend.dto.HashtagFrequency;
-import com.example.social_network_visualizer_backend.dto.TweetPreviewDto;
-import com.example.social_network_visualizer_backend.dto.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.author.AuthorDataResponse;
+import com.example.social_network_visualizer_backend.dto.author.AuthorStatsDto;
+import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
+import com.example.social_network_visualizer_backend.dto.author.TweetPreviewDto;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
-import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,22 +27,18 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository authorRepository;
 
     public List<Tweet> findLast10TweetsByAuthor(String authorName) {
-        System.out.println("Trying to get from database tweets with Author name: " + authorName);
+        //        TODO: Check if this method works
         try {
-            List<Tweet> top10ByAuthorName = authorRepository.findLast10TweetsByAuthorUsername(authorName);
-
-            for (Tweet tweet : top10ByAuthorName) {
-                System.out.println("Tweet: " + tweet);
-            }
-            return top10ByAuthorName;
+            return authorRepository.findLast10TweetsByAuthorUsername(authorName);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            log.error("Error with Last10Tweets: {}", e.getMessage());
         }
         return List.of();
     }
@@ -80,10 +74,10 @@ public class AuthorService {
                 .build();
     }
 
-    public Map<String, Long> getUserActivity(String authorName) {
-        List<ZonedDateTime> userActivity = authorRepository.getUserActivity(authorName);
+    public Map<String, Long> getAuthorActivity(String authorName) {
+        List<ZonedDateTime> authorActivity = authorRepository.getAuthorActivity(authorName);
 
-        return userActivity.stream()
+        return authorActivity.stream()
                 .collect(Collectors.groupingBy(
                         date -> date.getYear() + "-" + String.format("%02d", date.getMonthValue()),
                         TreeMap::new,
@@ -99,20 +93,21 @@ public class AuthorService {
         return authorRepository.findTopHashtagsByAuthor(authorName);
     }
 
-    public List<String> findMentionsUsersByAuthor(String authorName) {
-        return authorRepository.findMentionsUsersByAuthor(authorName);
+    public List<String> findMentionsAuthorsByAuthor(String authorName) {
+        return authorRepository.findMentionsAuthorsByAuthor(authorName);
     }
 
     public List<String> findAuthorRetweets(String authorName) {
         return authorRepository.findAuthorRetweets(authorName);
     }
 
-    public List<String> findRetweetsByUser(String authorName) {
-        return authorRepository.findRetweetsByUser(authorName);
+    public List<String> findRetweetsByAuthor(String authorName) {
+        return authorRepository.findRetweetsByAuthor(authorName);
     }
 
     public List<String> findMostCommonWords(String authorName) {
-        List<String> tweetsContent = Optional.ofNullable(authorRepository.findTweetsContentByUser(authorName))
+//        TODO: Check if this method works
+        List<String> tweetsContent = Optional.ofNullable(authorRepository.findTweetsContentByAuthor(authorName))
                 .orElse(Collections.emptyList());
 
         Set<String> stopWords = Set.of(
@@ -140,7 +135,7 @@ public class AuthorService {
         return authorRepository.findTheMostViralTweet(authorName);
     }
 
-    public List<ActivityHeatmap> getUserActivityHeatmap(String authorName) {
-        return authorRepository.getUserActivityHeatMap(authorName);
+    public List<ActivityHeatmap> getAuthorActivityHeatmap(String authorName) {
+        return authorRepository.getAuthorActivityHeatMap(authorName);
     }
 }
