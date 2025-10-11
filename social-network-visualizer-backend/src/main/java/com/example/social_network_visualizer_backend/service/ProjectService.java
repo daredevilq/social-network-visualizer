@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.dto.config.ProjectConfigDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,6 +29,7 @@ public class ProjectService {
     private Path basePath;
     private final TweetsFolderParser tweetsFolderParser;
     private final Neo4jService neo4jService;
+    private final ProjectConfigService projectConfigService;
 
     public List<ProjectSummary> getAllProjects() {
         List<ProjectSummary> projects = new ArrayList<>();
@@ -37,7 +38,7 @@ public class ProjectService {
             paths.filter(Files::isDirectory).forEach(projectDir -> {
                 try (Stream<Path> files = Files.list(projectDir)) {
                     long jsonFileCount = files
-                            .filter(path -> path.toString().endsWith(".json"))
+                            .filter(path -> path.toString().endsWith(".json")) // fix this later
                             .count();
 
                     projects.add(new ProjectSummary(
@@ -56,7 +57,7 @@ public class ProjectService {
         return projects;
     }
 
-    public int loadProject(String projectName, String graphType) {
+    public int loadProject(String projectName) {
         neo4jService.waitForNeo4jToBeAvailable();
         neo4jService.handleDatabaseDrop();
 
@@ -67,17 +68,24 @@ public class ProjectService {
         }
 
         int importedTweets = tweetsFolderParser.parseDirectory(projectPath);
-        neo4jService.computeMetricsAndRelations(graphType);
+
+        ProjectConfigDto config;
+        if (!projectConfigService.exists(projectName)){
+            log.error("Project " + projectName + " not found");
+        }
+        config = projectConfigService.load(projectName);
+
+        neo4jService.computeMetricsWithConfig(config);
         log.info(String.format("Project %s imported successfully",projectName));
 
         return importedTweets;
     }
 
-    public List<String> createProject(String projectName, MultipartFile[] files) {
-        Path projectDir = basePath.resolve(projectName);
+    public List<String> createProject(ProjectConfigDto projectConfig, MultipartFile[] files) {
+        Path projectDir = basePath.resolve(projectConfig.getProjectName());
 
         if (Files.exists(projectDir)) {
-            throw new ProjectException("Project with name '" + projectName + "' already exists", HttpStatus.BAD_REQUEST);
+            throw new ProjectException("Project with name '" + projectConfig.getProjectName() + "' already exists", HttpStatus.BAD_REQUEST);
         }
 
         List<String> skippedFiles;
@@ -85,12 +93,13 @@ public class ProjectService {
             Files.createDirectories(projectDir);
             log.info("Created new directory: {}", projectDir);
 
-            skippedFiles = addFilesToProject(projectName, files, projectDir, new ArrayList<>());
+            skippedFiles = addFilesToProject(projectConfig.getProjectName(), files, projectDir, new ArrayList<>());
         } catch (IOException e) {
             log.error("Error while creating project directory or saving files.", e);
-            throw new ProjectException("Error while creating project '" + projectName + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ProjectException("Error while creating project '" + projectConfig.getProjectName() + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+        projectConfigService.save(projectConfig);
         return skippedFiles;
     }
 
@@ -113,7 +122,7 @@ public class ProjectService {
                     throw new IllegalArgumentException("Filename cannot be empty");
                 }
 
-                if (file.isEmpty() || !filename.endsWith(".json")) {
+                if (file.isEmpty() || !filename.endsWith(".json") || filename.endsWith("config.json")) { // do this better
                     log.warn("Skipped file: {}", filename);
                     skippedFiles.add(filename);
                     continue;
@@ -183,7 +192,7 @@ public class ProjectService {
         }
     }
 
-    public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
+    public List<String> updateOpenedProject(String projectName, MultipartFile[] files) {
         Path projectDir = basePath.resolve(projectName);
 
         if (!Files.exists(projectDir)) {
@@ -193,8 +202,10 @@ public class ProjectService {
         List<Path> addedFiles = new ArrayList<>();
         List<String> skippedFiles = addFilesToProject(projectName, files, projectDir, addedFiles);
         tweetsFolderParser.importFilesToDatabase(addedFiles, false);
+        // Recompute metrics using locked project config
+        ProjectConfigDto config = projectConfigService.load(projectName);
         neo4jService.dropAllGdsGraphs();
-        neo4jService.computeMetricsAndRelations(graphType);
+        neo4jService.computeMetricsWithConfig(config);
 
         return skippedFiles;
     }
@@ -216,6 +227,11 @@ public class ProjectService {
             if (!deleted) {
                 throw new ProjectException("Failed to delete file '" + fileName + "' from project '" + projectName + "'", HttpStatus.INTERNAL_SERVER_ERROR);
             }
+
+            // Recompute metrics using locked project config
+            ProjectConfigDto config = projectConfigService.load(projectName);
+            neo4jService.dropAllGdsGraphs();
+            neo4jService.computeMetricsWithConfig(config);
 
         } catch (IOException e) {
             throw new ProjectException("Error while deleting file '" + fileName + "' from project '" + projectName + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);

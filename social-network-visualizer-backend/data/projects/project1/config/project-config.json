@@ -1,0 +1,24 @@
+{
+  "projectName": "project1",
+  "createdAt": "2025-10-08T14:37:39.800472Z",
+  "metrics": [
+    {
+      "type": "PAGERANK",
+      "nodeLabels": ["AUTHOR"],
+      "relationTypes": ["MENTIONS"],
+      "orientation": "NATURAL"
+    },
+    {
+      "type": "COMMUNITY",
+      "nodeLabels": ["AUTHOR"],
+      "relationTypes": ["MENTIONS"],
+      "orientation": "UNDIRECTED"
+    },
+    {
+      "type": "DEGREE",
+      "nodeLabels": ["AUTHOR"],
+      "relationTypes": ["MENTIONS"],
+      "orientation": "NATURAL"
+    }
+  ]
+}

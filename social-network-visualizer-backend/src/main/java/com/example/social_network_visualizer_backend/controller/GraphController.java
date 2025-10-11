@@ -1,17 +1,15 @@
 package com.example.social_network_visualizer_backend.controller;
 
-import com.example.social_network_visualizer_backend.dto.BridgeDto;
 import com.example.social_network_visualizer_backend.dto.GraphDataDto;
-import com.example.social_network_visualizer_backend.dto.GraphTypeDto;
+import com.example.social_network_visualizer_backend.dto.request.GraphQueryRequest;
+import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -21,32 +19,26 @@ public class GraphController {
 
     private final GraphService graphService;
 
-    @GetMapping("/types")
-    public ResponseEntity<List<GraphTypeDto>> getAllGraphTypes() {
-        List<GraphTypeDto> types = graphService.getAllGraphTypes();
-        return ResponseEntity.ok(types);
+    @PostMapping("/data")
+    public ResponseEntity<GraphDataDto> data(@RequestBody GraphQueryRequest req) {
+        log.info("Fetching graph data - Project: {}, Relations: {}, CommunityId: {}", 
+                req.projectName(), req.relationTypes(), req.communityId());
+        
+        Set<RelationType> relationsSet = req.relationTypes() == null || req.relationTypes().isEmpty()
+                ? Set.of(RelationType.MENTIONS)
+                : req.relationTypes();
+        Optional<Integer> community = Optional.ofNullable(req.communityId());
+        return ResponseEntity.ok(graphService.getGraph(relationsSet, community));
     }
-
-    @PostMapping("/{graphType}")
-    public ResponseEntity<Map<String, String>> setGraphType(@PathVariable String graphType) {
-        graphService.setGraphType(graphType);
-        return ResponseEntity.ok(Map.of("message", "Graph type changed successfully"));
-    }
-
-    @GetMapping("/{graphType}")
-    public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType) {
-        GraphDataDto graph = graphService.getGraph(graphType, Optional.empty());
+    @GetMapping("/{relations}")
+    public ResponseEntity<GraphDataDto> getGraphWithRelations(@PathVariable Set<RelationType> relations) {
+        GraphDataDto graph = graphService.getGraph(relations, Optional.empty());
         return ResponseEntity.ok(graph);
     }
 
-    @GetMapping("/bridges")
-    public List<BridgeDto> getAllBridges() {
-        return graphService.getAllBridges();
-    }
-
-    @GetMapping("/{graphType}/community/{communityId}")
-    public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType, @PathVariable Integer communityId) {
-        GraphDataDto graph = graphService.getGraph(graphType, Optional.ofNullable(communityId));
+    @GetMapping("/{relations}/community/{communityId}")
+    public ResponseEntity<GraphDataDto> getCommunityGraphWithRelations(@PathVariable Set<RelationType> relations, @PathVariable Integer communityId) {
+        GraphDataDto graph = graphService.getGraph(relations, Optional.ofNullable(communityId));
         return ResponseEntity.ok(graph);
     }
 }

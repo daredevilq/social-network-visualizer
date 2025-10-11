@@ -44,10 +44,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception e) {
-        log.error("Internal server error", e);
+        log.error("Internal server error: {}", e.getMessage(), e);
         return ResponseEntity
                 .internalServerError()
-                .body(Map.of("error", "Unexpected error occurred. Please try again later."));
+                .body(Map.of(
+                        "error", "Unexpected error occurred. Please try again later.",
+                        "details", e.getMessage() != null ? e.getMessage() : "No details available"
+                ));
     }
 
     @ExceptionHandler(ResponseStatusException.class)

@@ -45,7 +45,9 @@ public class TweetsFolderParser {
 
         try (Stream<Path> files = Files.list(folderPath)) {
             jsonFiles = files
-                    .filter(path -> path.toString().endsWith(".json"))
+                    .filter(path ->{
+                        return path.toString().endsWith(".json") && !path.toString().endsWith("config.json");
+                    })
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new ProjectException("An error occurred while reading the directory: " + folderPath, e, HttpStatus.INTERNAL_SERVER_ERROR);

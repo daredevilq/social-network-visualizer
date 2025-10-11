@@ -9,8 +9,8 @@ import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
 import {resetProjectName} from "@/app/project-state";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 
-const API = 'http://localhost:8080';
 
 export default function ProjectsContent() {
 	const { loadedProjectName, loading, loadProject, runWithLoading } = useProject();
@@ -32,13 +32,13 @@ export default function ProjectsContent() {
 	};
 
 	const refreshProjects = async () => {
-		const res = await fetch(`${API}/project/list`);
+		const res = await fetch(`${API_BASE_URL}/project/list`);
 		setProjects(await res.json());
 	};
 
 	const runDeleteProject = async (name: string) => {
 		await runWithLoading(async () => {
-			const res = await fetch(`${API}/project/${encodeURIComponent(name)}`, { method: 'DELETE' });
+			const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(name)}`, { method: 'DELETE' });
 			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
 			if (loadedProjectName === name) {
@@ -113,9 +113,8 @@ export default function ProjectsContent() {
 				<p className="text-center text-sm text-[#7140F4] py-2">{status}</p>
 			)}
 
-			{/* Modals here */}
 			<ProjectUploadModal
-				API={API}
+				API={API_BASE_URL}
 				open={createModalOpen}
 				defaultName={loadedProjectName ?? ''}
 				pendingFiles={pendingFiles}
@@ -130,7 +129,7 @@ export default function ProjectsContent() {
 			/>
 
 			<ProjectEditModal
-				API={API}
+				API={API_BASE_URL}
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
 			/>

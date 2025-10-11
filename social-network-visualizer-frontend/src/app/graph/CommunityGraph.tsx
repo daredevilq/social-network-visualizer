@@ -1,14 +1,15 @@
 "use client";
 
-import {useEffect} from "react";
-import {Link, Node} from "@/app/interface/GraphData";
-import {useProject} from '@/app/context/ProjectContext';
-import {FolderPlus} from "lucide-react";
-import dynamic from 'next/dynamic';
-import {useNotification} from "@/app/context/NotificationProvider";
-import {BannerType} from "@/app/components/Popups/Banner";
+import { useEffect } from "react";
+import { Link, Node } from "@/app/interface/GraphData";
+import { useProject } from "@/app/context/ProjectContext";
+import { FolderPlus } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { BannerType } from "@/app/components/Popups/Banner";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
 
-const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
+const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
 export default function CommunityGraph() {
     const {
         loadedProjectName,
@@ -17,8 +18,8 @@ export default function CommunityGraph() {
         setGraphData,
         nodeFoundId,
         shortestPath,
-        graphRelationType,
         focusedCommunityId,
+        selectedRelations,
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
@@ -26,54 +27,69 @@ export default function CommunityGraph() {
 
     useEffect(() => {
         if (!loadedProjectName) return;
+        
+        const relations = selectedRelations.length > 0 ? selectedRelations : ["MENTIONS"];
 
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
         )
-            .then(res => {
+            .then((res) => {
                 if (!res.ok) throw new Error(`top‑ids${res.status}`);
                 return res.text();
             })
-            .then(txt => {
+            .then((txt) => {
                 const parsed = JSON.parse(txt);
-                return Array.isArray(parsed) ? parsed as number[] : [];
+                return Array.isArray(parsed) ? (parsed as number[]) : [];
             });
 
-        const fetchGraph = fetch(`http://localhost:8080/graph/${graphRelationType}`)
-            .then(res => {
-                if (!res.ok) throw new Error(`graph ${res.status}`);
-                return res.json();
-            });
+        const body = {
+            projectName: loadedProjectName,
+            relationTypes: relations,
+            communityId: focusedCommunityId ? Number(focusedCommunityId) : null,
+        };
+
+        const fetchGraph = fetch(`${API_BASE_URL}/graph/data`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        }).then((res) => {
+            if (!res.ok) throw new Error(`graph ${res.status}`);
+            return res.json();
+        });
 
         Promise.all([fetchTopIds, fetchGraph])
             .then(([topIds, data]) => {
-                const idSet = new Set(topIds.map(id => id.toString()));
+                const idSet = new Set(topIds.map((id) => id.toString()));
 
                 const nodes: Node[] = (data.nodes ?? [])
-                    .filter((raw: any) => focusedCommunityId
-                          ? raw.community?.toString() === focusedCommunityId
-                              : idSet.has(raw.community?.toString())
-                          )
+                    .filter((raw: any) =>
+                        focusedCommunityId
+                            ? raw.community?.toString() === focusedCommunityId
+                            : idSet.has(raw.community?.toString())
+                    )
                     .map((raw: any) => ({
-                        id:          raw.name,
-                        label:       raw.name,
-                        pagerank:    raw.pagerank ?? 0,
+                        id: raw.name,
+                        label: raw.name,
+                        pagerank: raw.pagerank ?? 0,
                         degreeCentrality: raw.centrality ?? 0,
-                        community:   raw.community?.toString() ?? ""
+                        community: raw.community?.toString() ?? "",
                     }));
 
-                const nodeIds = new Set(nodes.map(n => n.id));
+                const nodeIds = new Set(nodes.map((n) => n.id));
                 const links: Link[] = (data.edges ?? []).filter(
                     (l: any) => nodeIds.has(l.source) && nodeIds.has(l.target)
                 );
 
                 setGraphData({ nodes, links });
             })
-            .catch(err => {
-                showNotification("Failed to load community graph data." ,BannerType.ERROR);
+            .catch((err) => {
+                console.error("Failed to load community graph:", err);
+                showNotification(
+                    "Failed to load community graph data.",
+                    BannerType.ERROR
+                );
             });
-    }, [loadedProjectName, loading, focusedCommunityId]);
-
+    }, [loadedProjectName, loading, focusedCommunityId, selectedRelations]);
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
@@ -82,7 +98,7 @@ export default function CommunityGraph() {
     if (!loadedProjectName)
         return (
             <div className="h-full flex flex-col items-center justify-center text-[#fafafa]">
-                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60"/>
+                <FolderPlus className="w-12 h-12 mb-4 text-[#fafafa]/60" />
                 <p className="text-lg font-medium text-[#fafafa]/80">
                     Select a project to get started
                 </p>
@@ -95,17 +111,25 @@ export default function CommunityGraph() {
     return (
         <BaseGraph
             graphData={graphData}
-            nodeVal={(node: any) => node.pagerank ? node.pagerank * 7 : 10}
-            nodeLabel={(node: any) => `${node.id}` + ` || Community: ${node.community}`}
-            nodeColor={node => {
+            nodeVal={(node: any) => (node.pagerank ? node.pagerank * 7 : 10)}
+            nodeLabel={(node: any) =>
+                `${node.id}` + ` || Community: ${node.community}`
+            }
+            nodeColor={(node) => {
                 if (node.id === nodeFoundId) return "red";
                 return getNodeColor(node);
             }}
             linkColor={(link: any) =>
-                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? "red" : "#fafafa"
+                shortestPath.includes(link.source.id) &&
+                shortestPath.includes(link.target.id)
+                    ? "red"
+                    : "#fafafa"
             }
             linkWidth={(link: any) =>
-                shortestPath.includes(link.source.id) && shortestPath.includes(link.target.id) ? 4 : 2
+                shortestPath.includes(link.source.id) &&
+                shortestPath.includes(link.target.id)
+                    ? 4
+                    : 2
             }
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={1}

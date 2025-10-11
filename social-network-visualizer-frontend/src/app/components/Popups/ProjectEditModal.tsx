@@ -24,7 +24,7 @@ export default function ProjectEditModal({
 	const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 	const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
 	const [loading, setLoading] = useState(false);
-	const { loadedProjectName, graphRelationType, loadProject, runWithLoading } = useProject();
+	const { loadedProjectName, loadProject, runWithLoading } = useProject();
     const { showNotification } = useNotification();
 
 	const showStatus = (msg: string, type: BannerType = BannerType.INFO) => {
@@ -61,7 +61,6 @@ export default function ProjectEditModal({
 		try {
 			const fd = new FormData();
 			filesToUpload.forEach((f) => fd.append('files', f));
-			fd.append('graph-type', graphRelationType);
 
 			const res = await fetch(
 				`${API}/project/${encodeURIComponent(projectName)}/file`,

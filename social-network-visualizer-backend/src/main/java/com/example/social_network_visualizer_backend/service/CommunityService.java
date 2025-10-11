@@ -3,13 +3,12 @@ package com.example.social_network_visualizer_backend.service;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
-import com.example.social_network_visualizer_backend.dto.community.SizeCount;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.repository.CommunityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

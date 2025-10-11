@@ -7,9 +7,8 @@ import ActivityChart from "./ActivityChart";
 import PageRankBar from "./PageRankBar";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {useProject} from "@/app/context/ProjectContext";
-import {GraphType} from "@/app/interface/GraphType";
-import {setGraphUiType} from "@/app/project-state";
+import { useProject } from "@/app/context/ProjectContext";
+import { GraphType } from "@/app/interface/GraphType";
 
 export default function CommunityCard({ data }: { data: CommunitySummary }) {
     const {
@@ -23,9 +22,8 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
 
     const { setFocusedCommunityId, setSelectedGraphType } = useProject();
 
-    const openGraph = async () => {
+    const openGraph = () => {
         setFocusedCommunityId(data.communityId.toString());
-        await setGraphUiType(GraphType.COMMUNITY);
         setSelectedGraphType(GraphType.COMMUNITY);
         router.push("/");
     };
@@ -56,7 +54,7 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
 
             <div className="mt-3 flex flex-wrap gap-4 text-xs">
                 <button
-                    onClick={() => setOpen(o => !o)}
+                    onClick={() => setOpen((o) => !o)}
                     className="text-indigo-300 hover:text-indigo-200 transition"
                 >
                     {open ? "Hide graph ▲" : "Show graph ▼"}
@@ -70,7 +68,8 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
                 </Link>
                 <button
                     onClick={openGraph}
-                    className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition">
+                    className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition"
+                >
                     Show graph
                 </button>
             </div>
@@ -78,7 +77,6 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
             {open && (
                 <div className="mt-6">
                     <ActivityChart data={communityActivity} />
-
                 </div>
             )}
         </article>

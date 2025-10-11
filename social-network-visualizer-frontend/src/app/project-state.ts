@@ -1,6 +1,4 @@
-'use server'
-
-import {GraphType} from "@/app/interface/GraphType";
+import { GraphType } from "@/app/interface/GraphType";
 
 let projectName: string | null = null;
 let graphType: string = "mentions";

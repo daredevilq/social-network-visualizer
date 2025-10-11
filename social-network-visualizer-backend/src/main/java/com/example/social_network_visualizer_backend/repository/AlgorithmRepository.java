@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface AlgorithmRepository extends Neo4jRepository<Author, String> {
     @Query("""
-            CALL gds.bridges.stream('author-importance')
-            YIELD from, to
-            RETURN gds.util.asNode(from).userName AS source, gds.util.asNode(to).userName AS target
-            """)
-    List<BridgeDto> getAllBridges();
+        CALL gds.bridges.stream($graphName)
+        YIELD from, to
+        RETURN gds.util.asNode(from).userName AS source, gds.util.asNode(to).userName AS target
+        """)
+    List<BridgeDto> getAllBridges(@Param("graphName") String graphName);
 
     @Query("""
         CALL gds.pageRank.write($graphName, {

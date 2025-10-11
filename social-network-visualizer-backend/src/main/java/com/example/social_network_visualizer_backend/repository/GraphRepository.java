@@ -41,4 +41,10 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
     """)
     Boolean checkIfGraphExists(@Param("graphName") String graphName);
 
+  @Query("""
+    CALL gds.graph.list() YIELD graphName
+    RETURN graphName
+  """)
+  List<String> listGdsGraphs();
+
 }
