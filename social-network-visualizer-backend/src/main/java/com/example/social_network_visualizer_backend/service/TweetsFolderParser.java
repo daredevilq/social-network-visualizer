@@ -1,9 +1,9 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.AuthorDto;
-import com.example.social_network_visualizer_backend.dto.MentionDto;
+import com.example.social_network_visualizer_backend.dto.author.AuthorDto;
+import com.example.social_network_visualizer_backend.dto.author.MentionDto;
 import com.example.social_network_visualizer_backend.dto.ReplyDto;
-import com.example.social_network_visualizer_backend.dto.TweetDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetDto;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;

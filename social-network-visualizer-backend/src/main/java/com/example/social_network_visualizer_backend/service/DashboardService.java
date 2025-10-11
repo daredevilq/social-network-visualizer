@@ -1,8 +1,13 @@
 package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.author.TopAuthorsDto;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
+import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
+import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
+import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +18,8 @@ import java.util.List;
 public class DashboardService {
 
     private final ProjectRepository projectRepository;
+    private final HashtagRepository hashtagRepository;
+    private final TweetRepository tweetRepository;
 
     public ProjectStatsDto getProjectStats() {
         return projectRepository.getProjectStats();
@@ -23,18 +30,18 @@ public class DashboardService {
     }
 
     public List<HashtagFrequency> getProjectHashtagStats() {
-        return projectRepository.findTopHashtags();
+        return hashtagRepository.findTopHashtags();
     }
 
     public List<ViralTweetDto> getViralTweetStats() {
-        return projectRepository.findTheMostViralTweets();
+        return tweetRepository.findTheMostViralTweets();
     }
 
-    public List<TopUsersDto> getTopMentions() {
+    public List<TopAuthorsDto> getTopMentions() {
         return projectRepository.findTopMentions();
     }
 
-    public List<TopUsersDto> getTopAuthors() {
+    public List<TopAuthorsDto> getTopAuthors() {
         return projectRepository.findTopAuthors();
     }
 

@@ -1,18 +1,29 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.*;
+import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
+import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
+import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.repository.AlgorithmRepository;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.repository.GraphRepository;
+import com.example.social_network_visualizer_backend.repository.HashtagRepository;
+import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +31,9 @@ public class GraphService {
     private final AlgorithmRepository algorithmRepository;
     private final AuthorRepository authorRepository;
     private final Neo4jService neo4jService;
+    private final TweetRepository tweetRepository;
+    private final HashtagRepository hashtagRepository;
+    private final GraphRepository graphRepository;
 
     public List<BridgeDto> getAllBridges() {
         return algorithmRepository.getAllBridges();
@@ -29,11 +43,9 @@ public class GraphService {
         GraphDefinition definition = getGraphDefinition(graphType);
         Set<RelationType> relations = definition.getRelationTypes();
 
-        if (communityId.isPresent()) {
-            return buildGraphUsingRelationsWithCommunity(relations, communityId.get());
-        } else {
-            return buildGraphUsingRelations(relations);
-        }
+        return communityId.map(
+                        integer -> buildGraphUsingRelationsWithCommunity(relations, integer))
+                .orElseGet(this::buildGraphUsingRelations);
     }
 
     private GraphDefinition getGraphDefinition(String graphType) {
@@ -45,11 +57,11 @@ public class GraphService {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown graph type: " + graphType));
     }
 
-    private GraphDataDto buildGraphUsingRelations(Set<RelationType> relations) {
-        List<AuthorNodeDto> authorList = authorRepository.findAuthors();
-        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelations(relations);
+    private GraphDataDto buildGraphUsingRelations() {
+        List<NodeDto> graphNodes = getNodes();
+        List<LinkDto> graphLinks = getLinks();
 
-        return new GraphDataDto(authorList, edgeList);
+        return new GraphDataDto(graphNodes, graphLinks);
     }
 
     public List<GraphTypeDto> getAllGraphTypes() {
@@ -68,15 +80,34 @@ public class GraphService {
     }
 
     private GraphDataDto buildGraphUsingRelationsWithCommunity(Set<RelationType> relations, int communityId) {
-        List<AuthorNodeDto> authorList = authorRepository.findAuthorsWithCommunity(communityId);
-        List<AuthorLinkDto> edgeList = authorRepository.findAuthorRelationsWithinCommunity(relations, communityId);
+        List<NodeDto> graphNodes = new ArrayList<>(authorRepository.findAuthorsWithCommunity(communityId));
+        List<LinkDto> graphLinks = authorRepository.findAuthorRelationsWithinCommunity(relations, communityId);
 
-        return new GraphDataDto(authorList, edgeList);
+        return new GraphDataDto(graphNodes, graphLinks);
     }
 
     public void setGraphType(String graphType) {
         GraphDefinition definition = GraphDefinition.fromUrlName(graphType);
 
         neo4jService.performAlgorithms(definition.getGraphName());
+    }
+
+    private List<NodeDto> getNodes() {
+        return Stream.of(
+                        authorRepository.findAuthors().stream()
+                                .sorted(Comparator.comparingDouble(AuthorNodeDto::getPagerank).reversed()),
+                        tweetRepository.findTweets().stream(),
+                        hashtagRepository.findHashtag().stream()
+                )
+                .flatMap(s -> s)
+                .collect(Collectors.toList());
+    }
+
+    private List<LinkDto> getLinks() {
+        return Stream.of(
+                        graphRepository.findAllRelations()
+                )
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }
