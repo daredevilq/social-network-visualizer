@@ -239,7 +239,7 @@ export default function ProjectsContent() {
 				open={createWorkspaceModalOpen}
 				projectName={loadedProjectName!}
 				onCancel={() => setCreateWorkspaceModalOpen(false)}
-				onSuccess={async (workspaceName) => {
+				onSuccess={async (workspaceName: string) => {
 					setCreateWorkspaceModalOpen(false);
 					await refreshWorkspaces(loadedProjectName!);
 					setSelectedWorkspace(workspaceName);
