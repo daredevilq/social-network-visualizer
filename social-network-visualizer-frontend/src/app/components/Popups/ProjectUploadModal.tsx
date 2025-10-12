@@ -2,9 +2,9 @@
 
 import { useRef, useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 
 interface ProjectUploadModalProps {
-	API: string;
 	open: boolean;
 	defaultName: string;
 	pendingFiles: File[];
@@ -14,7 +14,6 @@ interface ProjectUploadModalProps {
 }
 
 export default function ProjectUploadModal({
-	API,
 	open,
 	defaultName = '',
 	pendingFiles,
@@ -77,7 +76,7 @@ export default function ProjectUploadModal({
 		pendingFiles.forEach((file) => formData.append("files", file));
 
 		try {
-			const response = await fetch(`${API}/project/${trimmedName}`, {
+			const response = await fetch(`${API_BASE_URL}/project/${trimmedName}`, {
 				method: "POST",
 				body: formData,
 			} as RequestInit);

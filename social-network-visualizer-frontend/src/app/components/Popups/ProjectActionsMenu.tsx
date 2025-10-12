@@ -21,7 +21,6 @@ export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props
 
 	return (
 		<div className="relative">
-			{/* 3dots icon */}
 			<button
 				ref={buttonRef}
 				disabled={disabled}
@@ -35,7 +34,6 @@ export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props
 				</svg>
 			</button>
 
-			{/* menu */}
 			{open && (
 			<div className="absolute right-0 mt-1 w-32 bg-[#262631] rounded shadow-lg z-10">
 				<button

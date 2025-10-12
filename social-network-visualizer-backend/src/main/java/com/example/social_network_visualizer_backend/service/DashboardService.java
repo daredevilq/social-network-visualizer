@@ -6,8 +6,8 @@ import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
-import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
+import com.example.social_network_visualizer_backend.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +17,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final ProjectRepository projectRepository;
+    private final DashboardRepository dashboardRepository;
     private final HashtagRepository hashtagRepository;
     private final TweetRepository tweetRepository;
 
     public ProjectStatsDto getProjectStats() {
-        return projectRepository.getProjectStats();
+        return dashboardRepository.getProjectStats();
     }
 
     public List<ActivityPoint> getProjectActivity() {
-        return projectRepository.getProjectActivity();
+        return dashboardRepository.getProjectActivity();
     }
 
     public List<HashtagFrequency> getProjectHashtagStats() {
@@ -38,14 +38,14 @@ public class DashboardService {
     }
 
     public List<TopAuthorsDto> getTopMentions() {
-        return projectRepository.findTopMentions();
+        return dashboardRepository.findTopMentions();
     }
 
     public List<TopAuthorsDto> getTopAuthors() {
-        return projectRepository.findTopAuthors();
+        return dashboardRepository.findTopAuthors();
     }
 
     public List<ActivityHeatmap> getHeatMap() {
-        return projectRepository.getProjectHeatMap();
+        return dashboardRepository.getProjectHeatMap();
     }
 }

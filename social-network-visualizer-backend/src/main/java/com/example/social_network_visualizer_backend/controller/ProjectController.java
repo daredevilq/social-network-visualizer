@@ -16,7 +16,6 @@ import java.util.List;
 @RequestMapping("/project")
 @RequiredArgsConstructor
 public class ProjectController {
-
     private final ProjectService projectService;
 
     @GetMapping("/list")

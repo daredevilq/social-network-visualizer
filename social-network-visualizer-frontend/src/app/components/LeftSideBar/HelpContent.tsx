@@ -3,10 +3,8 @@
 
 export default function HelpContent() {
     return (
-        <div className="h-full w-full box-border flex flex-col space-y-8 text-white rounded-lg shadow-md">
-            <div className="min-h-[40px] w-full border-b-2 border-white flex items-center py-2">
-                <h1 className="text-2xl font-bold">Help</h1>
-            </div>
+        <div className="relative h-full flex flex-col text-white px-4 pt-4">
+            <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">About Project</h1>
         </div>
     );
 }

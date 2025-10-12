@@ -5,11 +5,24 @@ services:
     container_name: neo4j-database
     image: 'neo4j:latest'
     environment:
-      - 'NEO4J_AUTH=neo4j/notverysecret'
+      - NEO4J_AUTH=${NEO4J_AUTH}
       - NEO4J_PLUGINS=["graph-data-science", "apoc"]
     ports:
       - '7687:7687'
       - '7474:7474'
+
+  mongodb:
+    container_name: mongo-database
+    image: mongo:6.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
 
   backend_service:
     build: ./social-network-visualizer-backend
@@ -19,7 +32,18 @@ services:
     volumes:
       - ./social-network-visualizer-backend:/app
     depends_on:
+      - mongodb
       - neo4j
+    environment:
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_AUTH_DB=${MONGO_AUTH_DB}
+      - NEO4J_URI=${NEO4J_URI}
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
 
   frontend_service:
     build: ./social-network-visualizer-frontend
@@ -35,4 +59,6 @@ services:
       - backend_service
     environment:
       - WATCHPACK_POLLING=true
-      
+
+volumes:
+  mongo_data:

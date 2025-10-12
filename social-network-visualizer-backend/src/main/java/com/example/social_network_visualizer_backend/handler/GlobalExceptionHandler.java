@@ -1,7 +1,7 @@
 package com.example.social_network_visualizer_backend.handler;
 
 
-import com.example.social_network_visualizer_backend.exceptions.Neo4jUnavailableException;
+import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -37,9 +37,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     }
 
-    @ExceptionHandler(Neo4jUnavailableException.class)
-    public ResponseEntity<Map<String, String>> handleNeo4jUnavailableException(Neo4jUnavailableException ex) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "Neo4j is not available", "message", ex.getMessage()));
+    @ExceptionHandler(DatabaseUnavailableException.class)
+    public ResponseEntity<Map<String, String>> handleDatabaseUnavailableException(DatabaseUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "Database is not available", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

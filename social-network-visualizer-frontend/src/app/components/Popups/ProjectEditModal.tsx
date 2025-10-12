@@ -3,15 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import {useProject} from "@/app/context/ProjectContext";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 
 interface Props {
-	API: string;
 	projectName: string | null;
 	onClose: () => void;
 }
 
 export default function ProjectEditModal({
-	API,
 	projectName,
 	onClose
 }: Props) {
@@ -32,7 +31,7 @@ export default function ProjectEditModal({
 	const loadFileList = async () => {
 		if (!projectName) return;
 		const res = await fetch(
-			`${API}/project/${encodeURIComponent(projectName)}/file`
+			`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`
 		);
 		setFilesOnServer(await res.json());
 	};
@@ -62,7 +61,7 @@ export default function ProjectEditModal({
 			fd.append('graph-type', graphRelationType);
 
 			const res = await fetch(
-				`${API}/project/${encodeURIComponent(projectName)}/file`,
+				`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`,
 				{ method: 'PUT', body: fd }
 			);
 			if (!res.ok) throw new Error('Failed to upload to current project');
@@ -84,7 +83,7 @@ export default function ProjectEditModal({
 			filesToUpload.forEach((f) => fd.append('files', f));
 
 			const res = await fetch(
-				`${API}/project/${encodeURIComponent(projectName)}`,
+				`${API_BASE_URL}/project/${encodeURIComponent(projectName)}`,
 				{ method: 'PUT', body: fd }
 			);
 
@@ -104,7 +103,7 @@ export default function ProjectEditModal({
 		try {
 			for (const fileName of filesToDelete) {
 				const res = await fetch(
-					`${API}/project/${encodeURIComponent(projectName)}/file/${encodeURIComponent(fileName)}`,
+					`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file/${encodeURIComponent(fileName)}`,
 					{ method: 'DELETE' }
 				);
 				if (!res.ok) throw new Error(`Failed to delete ${fileName}`);
