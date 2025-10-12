@@ -53,9 +53,10 @@ public class ProjectService {
     }
 
     public List<String> createProject(String projectName, MultipartFile[] files) {
-        Project project = new Project();
-        project.setName(projectName);
-        project.setFiles(new ArrayList<>());
+        Project project = Project.builder()
+                .name(projectName)
+                .files(new ArrayList<>())
+                .build();
 
         projectRepository.save(project);
 
@@ -141,9 +142,10 @@ public class ProjectService {
 
             try {
                 byte[] fileBytes = file.getBytes();
-                ProjectFile projectFile = new ProjectFile();
-                projectFile.setFilename(finalFilename);
-                projectFile.setData(new Binary(fileBytes));
+                ProjectFile projectFile = ProjectFile.builder()
+                        .filename(finalFilename)
+                        .data(new Binary(fileBytes))
+                        .build();
                 project.getFiles().add(projectFile);
             } catch (IOException e) {
                 log.error("Error while reading file '{}'", filename, e);
