@@ -20,8 +20,6 @@ public class WorkspaceService {
     private final ProjectRepository projectRepository;
 
     public List<String> getAllWorkspaces(String projectName) {
-        log.info("Fetching all workspaces for project '{}'", projectName);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project with name '{}' does not exist", projectName);
@@ -46,8 +44,6 @@ public class WorkspaceService {
     }
 
     public void saveWorkspace(String projectName, Workspace workspaceData) {
-        log.info("Saving workspace '{}' in project '{}'", workspaceData.getName(), projectName);
-
         if (workspaceData.getName() == null || workspaceData.getName().isBlank()) {
             log.error("Workspace name is null or blank for project '{}'", projectName);
             throw new ProjectException(
@@ -90,8 +86,6 @@ public class WorkspaceService {
     }
 
     public Workspace loadWorkspace(String projectName, String workspaceName) {
-        log.info("Loading workspace '{}' from project '{}'", workspaceName, projectName);
-
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project with name '{}' does not exist", projectName);
@@ -118,8 +112,6 @@ public class WorkspaceService {
     }
 
     public void deleteWorkspace(String projectName, String workspaceName) {
-        log.info("Deleting workspace '{}' from project '{}'", workspaceName, projectName);
-
         if (workspaceName == null || workspaceName.isBlank()) {
             log.error("Workspace name is null or blank for project '{}'", projectName);
             throw new ProjectException(

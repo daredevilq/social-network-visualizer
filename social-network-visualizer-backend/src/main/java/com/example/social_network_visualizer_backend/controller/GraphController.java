@@ -1,6 +1,5 @@
 package com.example.social_network_visualizer_backend.controller;
 
-import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.service.GraphService;
@@ -41,11 +40,6 @@ public class GraphController {
     public ResponseEntity<GraphDataDto> getGraph(@PathVariable String graphType) {
         GraphDataDto graph = graphService.getGraph(graphType, Optional.empty());
         return ResponseEntity.ok(graph);
-    }
-
-    @GetMapping("/bridges")
-    public List<BridgeDto> getAllBridges() {
-        return graphService.getAllBridges();
     }
 
     @GetMapping("/{graphType}/community/{communityId}")

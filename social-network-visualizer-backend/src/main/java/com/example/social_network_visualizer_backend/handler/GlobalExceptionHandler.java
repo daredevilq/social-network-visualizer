@@ -38,8 +38,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DatabaseUnavailableException.class)
-    public ResponseEntity<Map<String, String>> handleNeo4jUnavailableException(DatabaseUnavailableException ex) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "Neo4j is not available", "message", ex.getMessage()));
+    public ResponseEntity<Map<String, String>> handleDatabaseUnavailableException(DatabaseUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "Database is not available", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -1,6 +1,5 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.dto.graph.BridgeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphTypeDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
@@ -34,10 +33,6 @@ public class GraphService {
     private final TweetRepository tweetRepository;
     private final HashtagRepository hashtagRepository;
     private final GraphRepository graphRepository;
-
-    public List<BridgeDto> getAllBridges() {
-        return algorithmRepository.getAllBridges();
-    }
 
     public GraphDataDto getGraph(String graphType, Optional<Integer> communityId) {
         GraphDefinition definition = getGraphDefinition(graphType);

@@ -1,7 +1,6 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.model.project.Workspace;
-import com.example.social_network_visualizer_backend.service.MongodbService;
 import com.example.social_network_visualizer_backend.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WorkspaceController {
     private final WorkspaceService workspaceService;
-    private final MongodbService mongodbService;
 
     @GetMapping("/list")
     public ResponseEntity<List<String>> listAllWorkspaces(@PathVariable String projectName) {
@@ -54,12 +52,5 @@ public class WorkspaceController {
 
         workspaceService.deleteWorkspace(projectName, workspaceName);
         return ResponseEntity.ok("Workspace " + workspaceName + " has been deleted successfully.");
-    }
-
-//    TODO: to remove in the future
-    @GetMapping("/drop")
-    public ResponseEntity<String> dropMongo() {
-        mongodbService.dropMongo();
-        return ResponseEntity.ok("MongoDB dropped");
     }
 }
