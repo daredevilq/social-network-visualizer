@@ -32,11 +32,4 @@ public interface AlgorithmRepository extends Neo4jRepository<Author, String> {
         """)
     void createCommunities(@Param("graphName") String graphName);
 
-    @Query("""
-        CALL gds.degree.write($graphName, {
-          writeProperty: 'degreeCentrality'
-        }) YIELD nodePropertiesWritten
-        RETURN nodePropertiesWritten;
-    """)
-    void computeAuthorDegree(@Param("graphName") String graphName);
 }

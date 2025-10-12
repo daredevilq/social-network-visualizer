@@ -144,7 +144,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN
                     a.userName AS name,
                     a.pagerank AS pagerank,
-                    a.degreeCentrality AS centrality,
                     a.community AS community
             """)
     List<AuthorNodeDto> findAuthors();
@@ -156,7 +155,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN
                     a.userName AS name,
                     a.pagerank AS pagerank,
-                    a.degreeCentrality AS centrality,
                     a.community AS community
             """)
     List<AuthorNodeDto> findAuthorsWithCommunity(@Param("communityId") int communityId);

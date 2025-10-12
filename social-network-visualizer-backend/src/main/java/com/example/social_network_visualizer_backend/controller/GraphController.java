@@ -21,13 +21,11 @@ public class GraphController {
 
     @PostMapping("/data")
     public ResponseEntity<GraphDataDto> data(@RequestBody GraphQueryRequest req) {
-        log.info("Fetching graph data - Project: {}, Relations: {}, CommunityId: {}", 
-                req.projectName(), req.relationTypes(), req.communityId());
-        
         Set<RelationType> relationsSet = req.relationTypes() == null || req.relationTypes().isEmpty()
                 ? Set.of(RelationType.MENTIONS)
                 : req.relationTypes();
         Optional<Integer> community = Optional.ofNullable(req.communityId());
+
         return ResponseEntity.ok(graphService.getGraph(relationsSet, community));
     }
     @GetMapping("/{relations}")

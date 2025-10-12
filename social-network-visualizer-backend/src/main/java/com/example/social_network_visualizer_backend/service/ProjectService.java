@@ -82,10 +82,10 @@ public class ProjectService {
     }
 
     public List<String> createProject(ProjectConfigDto projectConfig, MultipartFile[] files) {
-        Path projectDir = basePath.resolve(projectConfig.getProjectName());
+        Path projectDir = basePath.resolve(projectConfig.projectName());
 
         if (Files.exists(projectDir)) {
-            throw new ProjectException("Project with name '" + projectConfig.getProjectName() + "' already exists", HttpStatus.BAD_REQUEST);
+            throw new ProjectException("Project with name '" + projectConfig.projectName() + "' already exists", HttpStatus.BAD_REQUEST);
         }
 
         List<String> skippedFiles;
@@ -93,10 +93,10 @@ public class ProjectService {
             Files.createDirectories(projectDir);
             log.info("Created new directory: {}", projectDir);
 
-            skippedFiles = addFilesToProject(projectConfig.getProjectName(), files, projectDir, new ArrayList<>());
+            skippedFiles = addFilesToProject(projectConfig.projectName(), files, projectDir, new ArrayList<>());
         } catch (IOException e) {
             log.error("Error while creating project directory or saving files.", e);
-            throw new ProjectException("Error while creating project '" + projectConfig.getProjectName() + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ProjectException("Error while creating project '" + projectConfig.projectName() + "': " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         projectConfigService.save(projectConfig);
@@ -202,7 +202,6 @@ public class ProjectService {
         List<Path> addedFiles = new ArrayList<>();
         List<String> skippedFiles = addFilesToProject(projectName, files, projectDir, addedFiles);
         tweetsFolderParser.importFilesToDatabase(addedFiles, false);
-        // Recompute metrics using locked project config
         ProjectConfigDto config = projectConfigService.load(projectName);
         neo4jService.dropAllGdsGraphs();
         neo4jService.computeMetricsWithConfig(config);
@@ -228,7 +227,6 @@ public class ProjectService {
                 throw new ProjectException("Failed to delete file '" + fileName + "' from project '" + projectName + "'", HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            // Recompute metrics using locked project config
             ProjectConfigDto config = projectConfigService.load(projectName);
             neo4jService.dropAllGdsGraphs();
             neo4jService.computeMetricsWithConfig(config);

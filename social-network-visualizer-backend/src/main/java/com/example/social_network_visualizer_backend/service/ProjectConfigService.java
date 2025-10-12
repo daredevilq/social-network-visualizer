@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 
 @Slf4j
 @Service
@@ -38,10 +37,9 @@ public class ProjectConfigService {
     }
 
     public void save(ProjectConfigDto config) {
-        Path file = configFile(config.getProjectName());
+        Path file = configFile(config.projectName());
         try {
             Files.createDirectories(file.getParent());
-            if (config.getCreatedAt() == null) config.setCreatedAt(Instant.now());
             mapper.writeValue(file.toFile(), config);
         } catch (IOException e) {
             throw new RuntimeException("Failed to write project config", e);

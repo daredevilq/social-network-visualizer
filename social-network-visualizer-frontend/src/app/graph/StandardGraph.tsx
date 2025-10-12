@@ -12,14 +12,13 @@ export default function StandardGraph() {
         graphData,
         nodeFoundId,
         shortestPath,
-        graphRelationType,
         fetchGraphData,
     } = useProject();
 
     useEffect(() => {
         if (!loadedProjectName) return;
         fetchGraphData();
-    }, [loadedProjectName, graphRelationType]);
+    }, [loadedProjectName]);
 
     if (!loadedProjectName)
         return (

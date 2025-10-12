@@ -7,6 +7,7 @@ import { BannerType } from "@/app/components/Popups/Banner";
 import AdvancedConfigModal from "@/app/components/Popups/AdvancedConfigModal";
 import type { ProjectConfigDto } from "@/app/interface/ConfigInterface";
 import { Settings } from "lucide-react";
+import { useDefaultMetricsConfig } from "@/app/hooks/useDefaultMetricsConfig";
 
 interface ProjectUploadModalProps {
     API: string;
@@ -36,6 +37,15 @@ export default function ProjectUploadModal({
     const { showNotification } = useNotification();
     const [config, setConfig] = useState<ProjectConfigDto | null>(null);
     const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
+    const {defaultMetrics, loading: loadingDefaults, fetchDefaultConfig,} = useDefaultMetricsConfig(true);
+    const [hasFetchedDefaults, setHasFetchedDefaults] = useState(false);
+
+    useEffect(() => {
+        if (open && !hasFetchedDefaults) {
+            fetchDefaultConfig();
+            setHasFetchedDefaults(true);
+        }
+    }, [open, hasFetchedDefaults, fetchDefaultConfig]);
 
     useEffect(() => {
         if (open) {
@@ -45,7 +55,6 @@ export default function ProjectUploadModal({
             setNameErrorMessage("");
             setFileErrorMessage("");
             setShowAdvancedConfig(false);
-            // DON'T reset config - keep the last set configuration
         }
     }, [open]);
 
@@ -86,30 +95,20 @@ export default function ProjectUploadModal({
         const formData = new FormData();
 
         // Use config from ConfigForm if available, otherwise use default
-        const finalConfig: ProjectConfigDto = config ?? {
-            projectName: trimmedName,
-            createdAt: new Date().toISOString(),
-            metrics: [
-                {
-                    type: "PAGERANK",
-                    nodeLabels: ["AUTHOR"],
-                    relationTypes: ["MENTIONS"],
-                    orientation: "NATURAL",
-                },
-                {
-                    type: "COMMUNITY",
-                    nodeLabels: ["AUTHOR"],
-                    relationTypes: ["MENTIONS"],
-                    orientation: "UNDIRECTED",
-                },
-                {
-                    type: "DEGREE",
-                    nodeLabels: ["AUTHOR"],
-                    relationTypes: ["MENTIONS"],
-                    orientation: "NATURAL",
-                },
-            ],
-        };
+        let finalConfig: ProjectConfigDto;
+        if (config) {
+            finalConfig = {
+                ...config,
+                projectName: trimmedName,
+                createdAt: new Date().toISOString(),
+            };
+        } else {
+            finalConfig = {
+                projectName: trimmedName,
+                createdAt: new Date().toISOString(),
+                metrics: [...defaultMetrics],
+            };
+        }
 
         formData.append(
             "config",
@@ -149,6 +148,7 @@ export default function ProjectUploadModal({
             onSuccess(trimmedName);
             setProjectName("");
             onFilesChange([]);
+            setConfig(null);
             showNotification(
                 `Project '${trimmedName}' uploaded successfully.`,
                 BannerType.SUCCESS
@@ -254,14 +254,20 @@ export default function ProjectUploadModal({
                             Metrics Configuration
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5 mr-5">
-                            Default: PAGERANK, COMMUNITY, DEGREE with AUTHOR
-                            nodes and MENTIONS relations
+                            {loadingDefaults
+                                ? "Loading default configuration..."
+                                : "Default: PAGERANK, COMMUNITY with AUTHOR nodes and MENTIONS relations"}
                         </p>
                     </div>
                     <button
                         type="button"
                         onClick={() => setShowAdvancedConfig(true)}
-                        className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+                        disabled={loadingDefaults}
+                        className={`px-4 py-2 rounded text-black ${
+                            loadingDefaults
+                                ? "bg-gray-500 cursor-not-allowed"
+                                : "bg-gray-300 hover:bg-gray-400"
+                        }`}
                     >
                         <Settings className="w-4 h-4" />
                     </button>
@@ -291,6 +297,7 @@ export default function ProjectUploadModal({
                             setIsNameError(false);
                             setNameErrorMessage("");
                             setFileErrorMessage("");
+                            setConfig(null);
                             onCancel();
                         }}
                         className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
@@ -311,6 +318,7 @@ export default function ProjectUploadModal({
                 onClose={() => setShowAdvancedConfig(false)}
                 projectName={projectName.trim()}
                 currentConfig={config}
+                defaultMetricsConfig={defaultMetrics}
                 onChange={(cfg) => setConfig(cfg)}
             />
         </Dialog>

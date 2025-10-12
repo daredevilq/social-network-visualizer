@@ -1,53 +1,29 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type {
-    ProjectConfigDto,
-    MetricConfig,
-    Orientation,
-    RelationType,
-    NodeLabel,
-} from "@/app/interface/ConfigInterface";
+import type {ProjectConfigDto, MetricConfig, Orientation, RelationType, NodeLabel} from "@/app/interface/ConfigInterface";
 import { useConfigMeta } from "@/app/hooks/useConfigMeta";
 
 interface ConfigFormProps {
     projectName: string;
     initialConfig: ProjectConfigDto | null;
     onChange: (config: ProjectConfigDto) => void;
+    defaultConfig: MetricConfig[];
 }
 
 export default function ConfigForm({
     projectName,
     initialConfig,
+    defaultConfig,
     onChange,
 }: ConfigFormProps) {
-    const { meta, loading, error, reload } = useConfigMeta();
+    const { meta, loading, error, loadMetaConfig } = useConfigMeta();
 
-    // init config
     const getInitialMetrics = (): MetricConfig[] => {
         if (initialConfig?.metrics) {
             return initialConfig.metrics;
         }
-        return [
-            {
-                type: "PAGERANK",
-                orientation: "NATURAL",
-                nodeLabels: ["AUTHOR"],
-                relationTypes: ["MENTIONS"],
-            },
-            {
-                type: "COMMUNITY",
-                orientation: "UNDIRECTED",
-                nodeLabels: ["AUTHOR"],
-                relationTypes: ["MENTIONS"],
-            },
-            {
-                type: "DEGREE",
-                orientation: "NATURAL",
-                nodeLabels: ["AUTHOR"],
-                relationTypes: ["MENTIONS"],
-            },
-        ];
+        return defaultConfig;
     };
 
     const [metrics, setMetrics] = useState<MetricConfig[]>(getInitialMetrics());
@@ -96,7 +72,7 @@ export default function ConfigForm({
             <div className="text-sm text-red-400 py-2">
                 Failed to load config options.{" "}
                 <button
-                    onClick={reload}
+                    onClick={loadMetaConfig}
                     className="underline hover:text-red-300"
                 >
                     Retry

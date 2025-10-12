@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import {MetricType, NodeLabel, RelationType} from "@/app/interface/ConfigInterface";
 
 export type ConfigMeta = {
-    orientations: string[];
-    metricTypes: string[];
-    relationTypes: string[];
-    nodeLabels: string[];
-    defaultWritePropertyByMetricType?: Record<string, string>;
+    orientations: OrientationType[];
+    metricTypes: MetricType[];
+    relationTypes: RelationType[];
+    nodeLabels: NodeLabel[];
 };
 
 export function useConfigMeta(lazy = false) {
@@ -14,13 +14,11 @@ export function useConfigMeta(lazy = false) {
     const [loading, setLoading] = useState(!lazy);
     const [error, setError] = useState<string | null>(null);
 
-    const load = async () => {
+    const loadMetaConfig = async () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE_URL}/config/meta`, {
-                cache: "no-store",
-            });
+            const res = await fetch(`${API_BASE_URL}/config/meta`);
             if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
             const data = await res.json();
             setMeta(data);
@@ -32,8 +30,8 @@ export function useConfigMeta(lazy = false) {
     };
 
     useEffect(() => {
-        if (!lazy) load().catch(() => {});
+        if (!lazy) loadMetaConfig().catch(() => {});
     }, [lazy]);
 
-    return { meta, loading, error, reload: load };
+    return { meta, loading, error, loadMetaConfig };
 }

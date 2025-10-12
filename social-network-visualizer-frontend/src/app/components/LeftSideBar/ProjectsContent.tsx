@@ -10,6 +10,7 @@ import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
 import {resetProjectName} from "@/app/project-state";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import ProjectConfigViewModal from "@/app/components/Popups/ProjectConfigViewModal";
 
 
 export default function ProjectsContent() {
@@ -21,6 +22,7 @@ export default function ProjectsContent() {
 	const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 	const [editTarget, setEditTarget] = useState<string|null>(null);
 	const hideTimer = useRef<NodeJS.Timeout | null>(null);
+    const [viewConfigTarget, setViewConfigTarget] = useState<string | null>(null);
 
 	const askDeleteProject = (name: string) => setDeleteTarget(name);
 	const cancelCreateModal = () => { setCreateModalOpen(false); setPendingFiles([]); };
@@ -85,13 +87,14 @@ export default function ProjectsContent() {
 							<span className="truncate">{p.name}</span>
 						</button>
 
-						<ProjectActionsMenu
-							disabled={loading}
-							onDelete={() => askDeleteProject(p.name)}
-							onEdit={() => setEditTarget(p.name)}
-						/>
-					</div>
-				))}
+                        <ProjectActionsMenu
+                            disabled={loading}
+                            onDelete={() => askDeleteProject(p.name)}
+                            onEdit={() => setEditTarget(p.name)}
+                            onViewConfig={() => setViewConfigTarget(p.name)}
+                        />
+                    </div>
+                ))}
 
 				<div className="py-3">
 					<button
@@ -133,7 +136,10 @@ export default function ProjectsContent() {
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
 			/>
-
+            <ProjectConfigViewModal
+                projectName={viewConfigTarget}
+                onClose={() => setViewConfigTarget(null)}
+            />
 			<ConfirmModal
 				open={deleteTarget !== null}
 				title="Delete project?"

@@ -2,7 +2,7 @@
 
 import { Dialog } from "@headlessui/react";
 import ConfigForm from "@/app/components/Popups/ConfigForm";
-import type { ProjectConfigDto } from "@/app/interface/ConfigInterface";
+import type {MetricConfig, ProjectConfigDto} from "@/app/interface/ConfigInterface";
 import { Settings } from "lucide-react";
 
 interface AdvancedConfigModalProps {
@@ -11,6 +11,7 @@ interface AdvancedConfigModalProps {
     projectName: string;
     currentConfig: ProjectConfigDto | null;
     onChange: (config: ProjectConfigDto) => void;
+    defaultMetricsConfig: MetricConfig[];
 }
 
 export default function AdvancedConfigModal({
@@ -18,6 +19,7 @@ export default function AdvancedConfigModal({
     onClose,
     projectName,
     currentConfig,
+    defaultMetricsConfig,
     onChange,
 }: AdvancedConfigModalProps) {
     return (
@@ -54,6 +56,7 @@ export default function AdvancedConfigModal({
                 <ConfigForm
                     projectName={projectName}
                     initialConfig={currentConfig}
+                    defaultConfig={defaultMetricsConfig}
                     onChange={onChange}
                 />
 

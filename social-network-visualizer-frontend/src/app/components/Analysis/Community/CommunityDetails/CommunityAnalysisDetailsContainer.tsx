@@ -115,6 +115,7 @@ export default function CommunityAnalysisDetailsContainer({
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                             {usernamesInCommunity.map((username, index) => (
                                 <button
+                                    key={username}
                                     onClick={() =>
                                         router.push(`/user-details/${username}`)
                                     }

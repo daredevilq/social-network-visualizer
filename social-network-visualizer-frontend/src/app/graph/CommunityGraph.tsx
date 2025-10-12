@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import type {ProjectConfigDto, RelationType,} from "@/app/interface/ConfigInterface";
 
 const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
 export default function CommunityGraph() {
@@ -19,7 +20,6 @@ export default function CommunityGraph() {
         nodeFoundId,
         shortestPath,
         focusedCommunityId,
-        selectedRelations,
     } = useProject();
 
     const NUMBER_OF_COMMUNITIES = 15;
@@ -27,14 +27,46 @@ export default function CommunityGraph() {
 
     useEffect(() => {
         if (!loadedProjectName) return;
-        
-        const relations = selectedRelations.length > 0 ? selectedRelations : ["MENTIONS"];
-
-        const fetchTopIds = fetch(
-            `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
+        const fetchConfig = fetch(
+            `${API_BASE_URL}/project/${encodeURIComponent(
+                loadedProjectName
+            )}/config`
         )
             .then((res) => {
-                if (!res.ok) throw new Error(`top‑ids${res.status}`);
+                if (!res.ok)
+                    throw new Error(`Failed to fetch config: ${res.status}`);
+                return res.json() as Promise<ProjectConfigDto>;
+            })
+            .then((config: ProjectConfigDto): RelationType[] => {
+                const communityMetric = config.metrics?.find(
+                    (m) => m.type === "COMMUNITY"
+                );
+                if (
+                    !communityMetric?.relationTypes ||
+                    communityMetric.relationTypes.length === 0
+                ) {
+                    console.warn(
+                        "No COMMUNITY metric found in config, using default MENTIONS"
+                    );
+                    return ["MENTIONS"];
+                }
+                return communityMetric.relationTypes;
+            })
+            .catch((err) => {
+                console.error("Failed to fetch project config:", err);
+                showNotification(
+                    "Failed to load project configuration. Using default relations.",
+                    BannerType.WARNING
+                );
+                return ["MENTIONS"] as RelationType[];
+            });
+
+        const fetchTopIds = fetch(
+            `${API_BASE_URL}/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
+        )
+            .then((res) => {
+                if (!res.ok)
+                    throw new Error(`Failed to fetch top ids: ${res.status}`);
                 return res.text();
             })
             .then((txt) => {
@@ -42,24 +74,30 @@ export default function CommunityGraph() {
                 return Array.isArray(parsed) ? (parsed as number[]) : [];
             });
 
-        const body = {
-            projectName: loadedProjectName,
-            relationTypes: relations,
-            communityId: focusedCommunityId ? Number(focusedCommunityId) : null,
-        };
+        Promise.all([fetchConfig, fetchTopIds])
+            .then(async ([relations, topIds]) => {
+                const body = {
+                    projectName: loadedProjectName,
+                    relationTypes: relations,
+                    communityId: focusedCommunityId
+                        ? Number(focusedCommunityId)
+                        : null,
+                };
 
-        const fetchGraph = fetch(`${API_BASE_URL}/graph/data`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-        }).then((res) => {
-            if (!res.ok) throw new Error(`graph ${res.status}`);
-            return res.json();
-        });
-
-        Promise.all([fetchTopIds, fetchGraph])
-            .then(([topIds, data]) => {
-                const idSet = new Set(topIds.map((id) => id.toString()));
+                const res = await fetch(`${API_BASE_URL}/graph/data`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                });
+                if (!res.ok)
+                    throw new Error(`Failed to fetch graph: ${res.status}`);
+                const data = await res.json();
+                return { data, topIds };
+            })
+            .then(({ data, topIds }) => {
+                const idSet = new Set(
+                    topIds.map((id: number) => id.toString())
+                );
 
                 const nodes: Node[] = (data.nodes ?? [])
                     .filter((raw: any) =>
@@ -89,7 +127,7 @@ export default function CommunityGraph() {
                     BannerType.ERROR
                 );
             });
-    }, [loadedProjectName, loading, focusedCommunityId, selectedRelations]);
+    }, [loadedProjectName, loading, focusedCommunityId]);
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;

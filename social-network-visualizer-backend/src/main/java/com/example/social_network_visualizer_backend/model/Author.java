@@ -21,6 +21,5 @@ public class Author {
     private String foreignId;
     private Boolean bot;
     private Double pagerank;
-    private Double degreeCentrality;
     private Integer community;
 }

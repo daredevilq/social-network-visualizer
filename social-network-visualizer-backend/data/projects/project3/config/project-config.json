@@ -13,12 +13,6 @@
       "nodeLabels": ["AUTHOR"],
       "relationTypes": ["MENTIONS"],
       "orientation": "UNDIRECTED"
-    },
-    {
-      "type": "DEGREE",
-      "nodeLabels": ["AUTHOR"],
-      "relationTypes": ["MENTIONS"],
-      "orientation": "NATURAL"
     }
   ]
 }

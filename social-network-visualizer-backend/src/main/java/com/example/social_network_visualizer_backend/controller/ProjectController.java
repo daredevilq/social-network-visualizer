@@ -30,7 +30,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectSummaries);
     }
 
-    @GetMapping("/config/{projectName}")
+    @GetMapping("/{projectName}/config")
     public ResponseEntity<ProjectConfigDto> get(@PathVariable String projectName) {
         return ResponseEntity.ok(projectConfigService.load(projectName));
     }
@@ -38,7 +38,6 @@ public class ProjectController {
     @PostMapping("/{projectName}/import")
     public ResponseEntity<MessageResponse> importProjectWithGraph(
             @PathVariable String projectName) {
-        log.info("Importing project: {}", projectName);
         int importedTweets = projectService.loadProject(projectName);
         String message = "Project " + projectName + " imported successfully. " + "Imported tweets: " + importedTweets + ".";
 
@@ -50,18 +49,12 @@ public class ProjectController {
             @Valid @RequestPart("config") ProjectConfigDto projectConfig,
             @RequestPart("files") MultipartFile[] files) {
 
-        log.info("Creating new project: {} with {} files", projectConfig.getProjectName(), files.length);
-        log.debug("Project config - Metrics: {}", projectConfig.getMetrics());
-        
         List<String> skippedFiles = projectService.createProject(projectConfig, files);
-        String message = "Project " + projectConfig.getProjectName() + " processed successfully.";
+        String message = "Project " + projectConfig.projectName() + " processed successfully.";
         
         if (!skippedFiles.isEmpty()) {
             log.warn("Project created with {} skipped files: {}", skippedFiles.size(), skippedFiles);
-        } else {
-            log.info("Project {} created successfully with all files", projectConfig.getProjectName());
         }
-
         return ResponseEntity.ok(new ProjectUpdateResponse(message, skippedFiles));
     }
 
@@ -75,7 +68,6 @@ public class ProjectController {
 
     @DeleteMapping("/{projectName}")
     public ResponseEntity<MessageResponse> deleteProjectWithName(@PathVariable String projectName) {
-        log.info("Deleting project: {}", projectName);
         projectService.deleteProject(projectName);
         String message = "Project " + projectName + " deleted successfully.";
 
