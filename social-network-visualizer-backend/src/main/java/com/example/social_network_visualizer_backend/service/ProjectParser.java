@@ -6,6 +6,7 @@ import com.example.social_network_visualizer_backend.dto.ReplyDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetDto;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.project.Project;
+import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
@@ -39,6 +40,7 @@ public class ProjectParser {
     private final HashtagRepository hashtagRepository;
     private final TweetRelationService tweetRelationService;
     private final ProjectRepository projectRepository;
+    private final GridFsService gridFsService;
 
     @Transactional
     public int parseDirectory(String projectName) {
@@ -48,9 +50,23 @@ public class ProjectParser {
                         HttpStatus.NOT_FOUND
                 ));
 
-        List<byte[]> fileContents = project.getFiles().stream()
-                .map(projectFile -> projectFile.getData().getData())
-                .collect(Collectors.toList());
+        List<byte[]> fileContents = new ArrayList<>();
+        for (ProjectFile projectFile : project.getFiles()) {
+            try {
+                var gridFsResource = gridFsService.getFile(projectFile.getGridFsId());
+                if (gridFsResource != null) {
+                    fileContents.add(gridFsResource.getInputStream().readAllBytes());
+                } else {
+                    log.warn("File not found in GridFS: {} (ID: {})", 
+                            projectFile.getFilename(), projectFile.getGridFsId());
+                }
+            } catch (IOException e) {
+                log.error("Failed to read file from GridFS: {}", projectFile.getFilename(), e);
+                throw new ProjectException("Failed to read file: " + projectFile.getFilename(), e,
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                );
+            }
+        }
 
         if (fileContents.isEmpty()) {
             log.info("No files found for project {}", projectName);

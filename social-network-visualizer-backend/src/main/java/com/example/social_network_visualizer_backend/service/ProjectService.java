@@ -7,7 +7,6 @@ import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.Binary;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +25,7 @@ public class ProjectService {
     private final Neo4jService neo4jService;
     private final MongodbService mongodbService;
     private final ProjectRepository projectRepository;
+    private final GridFsService gridFsService;
 
     public List<ProjectSummary> getAllProjects() {
         List<ProjectSummary> summaries = projectRepository.findAll()
@@ -119,7 +119,7 @@ public class ProjectService {
         for (MultipartFile file : files) {
             String filename = file.getOriginalFilename();
 
-            if (filename.isBlank()) {
+            if (filename == null || filename.isBlank()) {
                 log.warn("Skipped file with empty name");
                 skippedFiles.add("Unnamed file");
                 continue;
@@ -141,12 +141,19 @@ public class ProjectService {
             }
 
             try {
-                byte[] fileBytes = file.getBytes();
+                // actual file we store in gridFS, in ProjectFile we strore only ID
+                String gridFsId = gridFsService.storeFile(project.getName(), file);
+                
                 ProjectFile projectFile = ProjectFile.builder()
                         .filename(finalFilename)
-                        .data(new Binary(fileBytes))
+                        .gridFsId(gridFsId)
+                        .sizeInBytes(file.getSize())
                         .build();
+                        
                 project.getFiles().add(projectFile);
+                log.info("Added file '{}' to project '{}' (size: {} bytes, GridFS ID: {})",
+                        finalFilename, project.getName(), file.getSize(), gridFsId);
+                        
             } catch (IOException e) {
                 log.error("Error while reading file '{}'", filename, e);
                 skippedFiles.add(filename);
@@ -168,8 +175,11 @@ public class ProjectService {
         }
 
         try {
+
+            gridFsService.deleteProjectFiles(projectName);
             projectRepository.deleteByName(projectName);
-            log.info("Project '{}' deleted successfully from MongoDB.", projectName);
+
+            log.info("Project '{}' and all its files deleted successfully.", projectName);
         } catch (Exception e) {
             log.error("Error while deleting project '{}' from MongoDB", projectName, e);
             throw new ProjectException(
@@ -257,17 +267,20 @@ public class ProjectService {
             );
         }
 
-        boolean removed = project.getFiles().removeIf(file -> file.getFilename().equals(fileName));
-
-        if (!removed) {
-            log.error("File '{}' not found in project '{}'", fileName, projectName);
-            throw new ProjectException(
-                    "File '" + fileName + "' does not exist in project '" + projectName + "'",
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        ProjectFile fileToDelete = project.getFiles().stream()
+                .filter(file -> file.getFilename().equals(fileName))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.error("File '{}' not found in project '{}'", fileName, projectName);
+                    return new ProjectException("File '" + fileName + "' does not exist in project '" + projectName + "'",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         try {
+            gridFsService.deleteFile(fileToDelete.getGridFsId());
+            project.getFiles().removeIf(file -> file.getFilename().equals(fileName));
+
             projectRepository.save(project);
             log.info("File '{}' deleted successfully from project '{}'", fileName, projectName);
         } catch (Exception e) {
