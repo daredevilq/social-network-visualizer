@@ -1,13 +1,12 @@
 'use client';
 
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {getGraphType, getGraphUiType, getProjectName, setGraphType, setProjectName} from "@/app/project-state";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode} from "@/types/GraphTypes";
-
 
 interface Context {
     loadedProjectName: string | null;
@@ -18,8 +17,8 @@ interface Context {
     fetchGraphData: () => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
-    graphData: { nodes: GraphNode[], links: GraphLink[] };
-    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[], links: GraphLink[] }>>;
+    projectData: { nodes: GraphNode[], links: GraphLink[] };
+    setProjectData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[], links: GraphLink[] }>>;
     nodeFoundId: string | null;
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
@@ -51,8 +50,8 @@ const ProjectContext = createContext<Context>({
     isLabelsMode: true,
     setIsLabelsMode: () => {
     },
-    graphData: {nodes: [], links: []},
-    setGraphData: () => {
+    projectData: {nodes: [], links: []},
+    setProjectData: () => {
     },
     nodeFoundId: null,
     setNodeIdFound: () => {
@@ -78,7 +77,6 @@ const ProjectContext = createContext<Context>({
     showLabels: false,
     setShowLabels: () => {
     },
-
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -89,7 +87,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
-    const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
+    const [projectData, setProjectData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
@@ -225,7 +223,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
                         }
                     })
-                setGraphData({nodes, links});
+                setProjectData({nodes, links});
             } catch (err) {
                 showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }
@@ -243,8 +241,8 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 fetchGraphData,
                 isLabelsMode,
                 setIsLabelsMode,
-                graphData,
-                setGraphData,
+                projectData: projectData,
+                setProjectData,
                 nodeFoundId,
                 setNodeIdFound,
                 shortestPath,

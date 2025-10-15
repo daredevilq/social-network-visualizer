@@ -58,7 +58,7 @@ const TweetAnalysisContainer = ({userName, tweetsContainerRef}: TweetAnalysisCon
                 if (!response.ok) throw new Error(`Failed to fetch tweets`);
                 const data: TweetResponse = await response.json();
 
-                setTweets(prev => reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.name === t.name))]);
+                setTweets(prev => reset ? data.tweets : [...prev, ...data.tweets.filter(t => !prev.some(p => p.id === t.id))]);
                 setPage(currentPage + 1);
                 setHasMore(data.tweets.length === PAGE_SIZE);
             } catch (err: any) {

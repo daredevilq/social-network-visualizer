@@ -9,10 +9,10 @@ import {
     SelectionBox
 } from '@/types/GraphTypes';
 import {useProject} from "@/app/context/ProjectContext";
-import {useNotification} from "@/app/context/NotificationProvider";
-import {BannerType} from "@/app/components/Popups/Banner";
 import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
+import {useWorkspace} from "@/app/context/WorkspaceContext";
+import {useGraph} from "@/app/context/GraphContext";
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const {
@@ -34,18 +34,18 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
     const [isSelecting, setIsSelecting] = useState(false);
 
-    const [workspaceNodes, setWorkspaceNodes] = useState<GraphNode[]>([]);
+    const [selectedNodes, setSelectedNodes] = useState<GraphNode[]>([]);
     const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
 
     const [displayedNodes, setDisplayedNodes] = useState<GraphNode[]>([]);
     const [displayedLinks, setDisplayedLinks] = useState<GraphLink[]>([]);
 
-    const {setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels} = useProject();
+    const {setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
 
     const clickedNodeRef = useRef<GraphNode | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const {showNotification} = useNotification();
-
+    const { isInWorkspaceMode, saveWorkspaceData } = useWorkspace();
+    const { setGraphData, resetGraphData, hasUnsavedChanges, setHasUnsavedChanges } = useGraph();
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -73,7 +73,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     }, []);
 
     useEffect(() => {
-        loadGraphData()
+        displayGraphData()
     }, [graphData, fgInstance]);
 
     useEffect(() => {
@@ -86,7 +86,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
             fgInstance.current.zoom(6, 1000);
         }
     }, [nodeFoundId]);
-
 
     useEffect(() => {
         if (!fgInstance.current) return;
@@ -140,7 +139,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         linkDirectionalArrowRelPos,
         selectedNodeIds
     ]);
-
 
     const handleNodeClick = (node: GraphNode) => {
         if (clickedNodeRef.current && clickedNodeRef.current.id === node.id && clickTimeoutRef.current) {
@@ -211,42 +209,31 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         getInstance: () => fgInstance.current
     }));
 
-    const analyzeWorkspace = () => {
+    const analyzeSelectedNodes = () => {
         setIsSidebarOpen(false);
 
         if (selectedNodeIds.length !== 0) {
-            if (fgInstance.current) {
-                const currZoom = fgInstance.current.zoom();
+            const nodes = selectedNodes;
+            const links = graphData.links.filter(l =>
+                selectedNodes.find(n => n.id === l.source) &&
+                selectedNodes.find(n => n.id === l.target)
+            )
 
-                fgInstance.current.graphData({
-                    nodes: workspaceNodes,
-                    links: graphData.links.filter(l =>
-                        workspaceNodes.find(n => n.id === l.source) &&
-                        workspaceNodes.find(n => n.id === l.target)
-                    )
-                });
-
-                fgInstance.current.zoom(currZoom);
-            }
-
+            setGraphData({nodes: nodes, links: links})
             setSelectedNodeIds([]);
+            setHasUnsavedChanges(true);
         }
     };
 
     const resetGraph = () => {
         setIsSidebarOpen(false);
-        setWorkspaceNodes([]);
+        setSelectedNodes([]);
         setSelectedNodeIds([]);
-        loadGraphData();
+        resetGraphData();
         setFocusedCommunityId(undefined);
-
-        showNotification("Graph has been reset.", BannerType.INFO);
     };
 
-
-    const loadGraphData = () => {
-        if (!fgInstance.current || !graphData?.nodes?.length) return;
-
+    const displayGraphData = () => {
         const authorNodes = graphData.nodes.filter(
             (n) => n.nodeType === NodeType.AUTHOR
         );
@@ -313,9 +300,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 node.y <= Math.max(startCoords.y, endCoords.y);
         });
 
-
         setSelectedNodeIds(selectedNodes.map(n => n.id));
-        setWorkspaceNodes(selectedNodes);
+        setSelectedNodes(selectedNodes);
     };
 
     return (
@@ -341,20 +327,28 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                 />
             )}
 
-            <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30">
+            <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30 w-[180px]">
                 {selectedNodeIds.length > 0 && (
                     <button
-                        onClick={analyzeWorkspace}
+                        onClick={() => analyzeSelectedNodes()}
                         className="px-3 py-2 bg-[#384EB3] text-white border-none rounded-md cursor-pointer"
                     >
                         Analyze
                     </button>
                 )}
+                {isInWorkspaceMode && hasUnsavedChanges && (
+                    <button
+                        onClick={() => saveWorkspaceData(graphData)}
+                        className="px-3 py-2 bg-[green] text-white border-none rounded-md cursor-pointer"
+                    >
+                        Save workspace
+                    </button>
+                )}
                 <button
-                    onClick={resetGraph}
+                    onClick={() => resetGraph()}
                     className="px-3 py-2 bg-[#8B0000] text-white border-none rounded-md cursor-pointer"
                 >
-                    Reset workspace
+                    Reset graph
                 </button>
             </div>
         </div>

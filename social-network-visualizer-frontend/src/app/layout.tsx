@@ -3,6 +3,8 @@
 import './globals.css'
 import { ProjectProvider } from './context/ProjectContext'
 import {NotificationProvider} from "@/app/context/NotificationProvider";
+import {WorkspaceProvider} from "@/app/context/WorkspaceContext";
+import {GraphProvider} from "@/app/context/GraphContext";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
@@ -10,7 +12,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			<body suppressHydrationWarning>
 				<NotificationProvider>
 					<ProjectProvider>
-						{children}
+						<WorkspaceProvider>
+							<GraphProvider>
+								{children}
+							</GraphProvider>
+						</WorkspaceProvider>
 					</ProjectProvider>
 				</NotificationProvider>
 			</body>

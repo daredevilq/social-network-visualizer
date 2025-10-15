@@ -14,8 +14,8 @@ export default function CommunityGraph() {
     const {
         loadedProjectName,
         loading,
-        graphData,
-        setGraphData,
+        projectData,
+        setProjectData,
         nodeFoundId,
         shortestPath,
         focusedCommunityId,
@@ -41,14 +41,14 @@ export default function CommunityGraph() {
 
         Promise.all([fetchTopIds])
             .then(([topIds]) => {
-                if (!graphData?.nodes?.length) {
+                if (!projectData?.nodes?.length) {
                     showNotification("No graph graphData available.", BannerType.WARNING);
                     return;
                 }
 
                 const idSet = new Set(topIds.map(id => id.toString()));
 
-                const authorNodes = (graphData.nodes ?? []).filter(
+                const authorNodes = (projectData.nodes ?? []).filter(
                     (n: any) => n.nodeType === NodeType.AUTHOR
                 ) as AuthorNode[];
 
@@ -68,7 +68,7 @@ export default function CommunityGraph() {
 
                 const nodeIds = new Set(authorNodesFromCommunity.map((n) => n.id));
 
-                const links: GraphLink[] = (graphData.links ?? []).filter(
+                const links: GraphLink[] = (projectData.links ?? []).filter(
                     (l: GraphLink) => nodeIds.has(l.source) && nodeIds.has(l.target)
                 );
 
@@ -80,7 +80,7 @@ export default function CommunityGraph() {
                     centrality: author.centrality,
                 }));
 
-                setGraphData({nodes, links});
+                setProjectData({nodes, links});
             })
             .catch((err) => {
                 console.error("Failed to load community graph:", err);
@@ -108,7 +108,7 @@ export default function CommunityGraph() {
 
     return (
         <BaseGraph
-            graphData={graphData}
+            graphData={projectData}
             nodeVal={(node: GraphNode) => {
                 // TODO: Add a strategy pattern for node sizing depends on pagerank or other metrics in community graph
                 const authorNode = node as AuthorNode;

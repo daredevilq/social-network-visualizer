@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import {useProject} from "@/app/context/ProjectContext";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import {useWorkspace} from "@/app/context/WorkspaceContext";
 
 interface Props {
 	projectName: string | null;
@@ -22,6 +23,7 @@ export default function ProjectEditModal({
 	const [loading, setLoading] = useState(false);
 	const [status, setStatus] = useState<string | null>(null);
 	const { loadedProjectName, graphRelationType, loadProject, runWithLoading } = useProject();
+	const { setIsInWorkspaceMode, setOpenedWorkspaceName } = useWorkspace();
 
 	const showStatus = (msg: string) => {
 		setStatus(msg);
@@ -43,6 +45,8 @@ export default function ProjectEditModal({
 		if (projectName && projectName === loadedProjectName) {
 			await runWithLoading(() => uploadToOpenedProject());
 			await loadProject(projectName, true);
+			setIsInWorkspaceMode(false);
+			setOpenedWorkspaceName(null);
 
 		} else {
 			await uploadFiles();

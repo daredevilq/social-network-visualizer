@@ -4,11 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 interface Props {
     disabled: boolean;
     onDelete: () => void;
-    onEdit: () => void;
-    onExport: () => void;
 }
 
-export default function WorkspaceActionMenu({ disabled, onDelete, onEdit, onExport }: Props) {
+export default function WorkspaceActionMenu({ disabled, onDelete }: Props) {
     const [open, setOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null!);
 
@@ -38,14 +36,12 @@ export default function WorkspaceActionMenu({ disabled, onDelete, onEdit, onExpo
             {open && (
                 <div className="absolute right-0 mt-1 w-36 bg-[#262631] rounded shadow-lg z-10">
                     <button
-                        onClick={() => { setOpen(false); onExport(); }}
                         disabled={true}
                         className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 disabled:text-gray-500 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >
                         Export data
                     </button>
                     <button
-                        onClick={() => { setOpen(false); onEdit(); }}
                         disabled={true}
                         className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 disabled:text-gray-500 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >

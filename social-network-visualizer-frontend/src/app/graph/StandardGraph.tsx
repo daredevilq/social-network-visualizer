@@ -7,18 +7,19 @@ import {GraphLink, GraphNode} from "@/types/GraphTypes";
 import nodeStrategy from "../model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 import linkStrategy from "@/app/model/strategies/LinkStrategy";
+import {useGraph} from "@/app/context/GraphContext";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 
 export default function StandardGraph() {
     const {
         loadedProjectName,
-        graphData,
         nodeFoundId,
         shortestPath,
         graphRelationType,
         fetchGraphData,
     } = useProject();
+    const { graphData } = useGraph();
 
     useEffect(() => {
         if (!loadedProjectName) return;

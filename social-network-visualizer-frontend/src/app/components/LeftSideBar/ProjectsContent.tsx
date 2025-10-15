@@ -5,7 +5,7 @@ import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import WorkspaceActionMenu from '@/app/components/Popups/WorkspaceActionMenu';
-import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
+import ConfirmModal from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
 import {resetProjectName} from "@/app/project-state";
@@ -13,16 +13,19 @@ import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import WorkspaceCreateModal from "@/app/components/Popups/WorkspaceCreateModal";
+import { useWorkspace } from '@/app/context/WorkspaceContext';
+import {useGraph} from "@/app/context/GraphContext";
 
 type DeleteTarget = {
 	type: 'project' | 'workspace';
 	name: string;
 } | null;
 
-
 export default function ProjectsContent() {
-	const { loadedProjectName, loading, loadProject, runWithLoading, setGraphData } = useProject();
+	const { loadedProjectName, loading, loadProject, runWithLoading, setProjectData,  } = useProject();
+	const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, fetchWorkspaceData } = useWorkspace();
 	const { showNotification } = useNotification()
+	const {runWithUnsavedCheck } = useGraph();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
 	const [workspaces, setWorkspaces] = useState<string[]>([]);
 	const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
@@ -30,10 +33,16 @@ export default function ProjectsContent() {
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 	const [editTarget, setEditTarget] = useState<string|null>(null);
-	const [selectedWorkspace, setSelectedWorkspace] = useState<string|null>(null);
 	const askDeleteProject = (name: string) => setDeleteTarget({ type: 'project', name });
 	const askDeleteWorkspace = (name: string) => setDeleteTarget({ type: 'workspace', name });
 	const cancelCreateModal = () => { setCreateProjectModalOpen(false); setPendingFiles([]); };
+
+	useEffect(() => {
+		refreshProjects();
+		if (loadedProjectName) {
+			refreshWorkspaces(loadedProjectName);
+		}
+	}, []);
 
 	const refreshProjects = async () => {
 		try {
@@ -54,7 +63,7 @@ export default function ProjectsContent() {
 			if (loadedProjectName === projectName) {
 				await resetProjectName();
 				refreshProjects();
-				setGraphData({nodes: [], links: []});
+				setProjectData({nodes: [], links: []});
 				setWorkspaces([]);
 			}
 			showNotification(`Project “${projectName}” deleted`, BannerType.INFO);
@@ -64,6 +73,8 @@ export default function ProjectsContent() {
 	};
 
 	const handleProjectClick = async (projectName: string) => {
+		setIsInWorkspaceMode(false);
+		setOpenedWorkspaceName(null);
 		await loadProject(projectName,true)
 		await refreshWorkspaces(projectName);
 	};
@@ -78,26 +89,14 @@ export default function ProjectsContent() {
 		}
 	};
 
-	const loadWorkspace = async (workspaceName: string) => {
-		await runWithLoading(async () => {
-			const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}/load`);
-			if (!res.ok) throw new Error("Failed to load workspace");
-
-			console.log(res.json());
-			setSelectedWorkspace(workspaceName);
-			showNotification(`Workspace "${workspaceName}" loaded successfully.`, BannerType.SUCCESS);
-		}).catch((err: any) => {
-			showNotification(`Load error: ${err.message}`, BannerType.ERROR);
-		});
-	};
-
 	const deleteWorkspace = async (workspaceName: string) => {
 		await runWithLoading(async () => {
 			const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, { method: 'DELETE' });
 			if (!res.ok) throw new Error("Failed to delete workspace");
 
-			if (workspaceName === loadedProjectName) {
-				setWorkspaces([]);
+			if (workspaceName === openedWorkspaceName) {
+				setOpenedWorkspaceName(null);
+				setIsInWorkspaceMode(false);
 			}
 			refreshWorkspaces(loadedProjectName!);
 			showNotification(`Workspace “${workspaceName}” deleted`, BannerType.INFO);
@@ -106,12 +105,32 @@ export default function ProjectsContent() {
 		});
 	};
 
-	useEffect(() => {
-		refreshProjects();
-		if (loadedProjectName) {
-			refreshWorkspaces(loadedProjectName);
-		}
-	}, []);
+	const createWorkspace = async (workspaceName: string) => {
+		setCreateWorkspaceModalOpen(false);
+
+		await runWithLoading(async () => {
+			const res = await fetch(
+				`${API_BASE_URL}/project/${loadedProjectName}/workspace`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						name: workspaceName,
+						nodes: [],
+						edges: [],
+					}),
+				}
+			);
+
+			if (!res.ok) throw new Error("Failed to create workspace");
+			showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
+		}).catch((err: any) => {
+			showNotification(`Create error: ${err.message}`, BannerType.ERROR);
+		});
+		await refreshWorkspaces(loadedProjectName!);
+		setOpenedWorkspaceName(workspaceName);
+		setIsInWorkspaceMode(true);
+	};
 
 	return (
 		<div className="relative h-full flex flex-col text-white px-4 pt-4">
@@ -129,7 +148,7 @@ export default function ProjectsContent() {
 						>
 							<button
 								disabled={loading}
-								onClick={() => handleProjectClick(project.name)}
+								onClick={() => runWithUnsavedCheck(() => handleProjectClick(project.name))}
 								className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
 							>
 								<img
@@ -157,19 +176,18 @@ export default function ProjectsContent() {
 									<div
 										key={workspace}
 										className={`group relative flex items-center justify-between text-base duration-200 pl-3 pr-0 cursor-pointer transition-colors duration-200 
-										${selectedWorkspace === workspace ? "text-[#7140F4]" : "text-white hover:text-[#7140F4]"}`}
+										${openedWorkspaceName === workspace ? "text-[#7140F4]" : "text-white hover:text-[#7140F4]"}`}
 									>
 									<button
 										disabled={loading}
 										onClick={() => {
-											setSelectedWorkspace(workspace);
-											loadWorkspace(workspace);
+											setOpenedWorkspaceName(workspace);
 										}}
 										className="flex items-center flex-1 text-left transition-colors duration-200"
 									>
 										<span
 											className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 rounded transition-colors duration-200 
-											${selectedWorkspace === workspace ? "bg-[#7140F4]" : "bg-white group-hover:bg-[#7140F4]"}`}
+											${openedWorkspaceName === workspace ? "bg-[#7140F4]" : "bg-white group-hover:bg-[#7140F4]"}`}
 										/>
 										<span className="truncate pr-6">{workspace}</span>
 									</button>
@@ -177,8 +195,6 @@ export default function ProjectsContent() {
 									<WorkspaceActionMenu
 										disabled={loading}
 										onDelete={() => askDeleteWorkspace(workspace)}
-										onEdit={() => console.log()}
-										onExport={() => console.log()}
 									/>
 								</div>
 								))}
@@ -227,6 +243,8 @@ export default function ProjectsContent() {
 					cancelCreateModal();
 					await refreshProjects();
 					await loadProject(name, true);
+					setIsInWorkspaceMode(false);
+					setOpenedWorkspaceName(null);
 				}}
 			/>
 
@@ -239,12 +257,8 @@ export default function ProjectsContent() {
 				open={createWorkspaceModalOpen}
 				projectName={loadedProjectName!}
 				onCancel={() => setCreateWorkspaceModalOpen(false)}
-				onSuccess={async (workspaceName: string) => {
-					setCreateWorkspaceModalOpen(false);
-					await refreshWorkspaces(loadedProjectName!);
-					setSelectedWorkspace(workspaceName);
-					showNotification(`Workspace "${workspaceName}" created.`, BannerType.SUCCESS);
-				}}
+				handleCreateWorkspace={(workspaceName: string) => createWorkspace(workspaceName)}
+				workspaceList={workspaces}
 			/>
 
 			<ConfirmModal
