@@ -14,7 +14,6 @@ import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import WorkspaceCreateModal from "@/app/components/Popups/WorkspaceCreateModal";
 import { useWorkspace } from '@/app/context/WorkspaceContext';
-import {useGraph} from "@/app/context/GraphContext";
 
 type DeleteTarget = {
 	type: 'project' | 'workspace';
@@ -23,9 +22,8 @@ type DeleteTarget = {
 
 export default function ProjectsContent() {
 	const { loadedProjectName, loading, loadProject, runWithLoading, setProjectData,  } = useProject();
-	const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, fetchWorkspaceData } = useWorkspace();
+	const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, runWithUnsavedCheck } = useWorkspace();
 	const { showNotification } = useNotification()
-	const {runWithUnsavedCheck } = useGraph();
 	const [projects, setProjects] = useState<ProjectSummary[]>([]);
 	const [workspaces, setWorkspaces] = useState<string[]>([]);
 	const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useProject } from "@/app/context/ProjectContext";
 import { useRouter } from 'next/navigation';
-import {useGraph} from "@/app/context/GraphContext";
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 export default function FunctionsContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,7 +12,7 @@ export default function FunctionsContent() {
     const [isLoading, setIsLoading] = useState(false);
     const { setShortestPath } = useProject();
     const router = useRouter();
-    const { runWithUnsavedCheck } = useGraph();
+    const { runWithUnsavedCheck } = useWorkspace();
 
     const handleSearch = () => {
         if (!source || !target) {

@@ -4,6 +4,8 @@ import {BannerType} from "@/app/components/Popups/Banner";
 import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode} from "@/types/GraphTypes";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {useProject} from "@/app/context/ProjectContext";
+import LeaveConfirmModal from "@/app/components/Popups/LeaveConfirmModal";
+import {useSaveWorkspaceChanges} from "@/app/hooks/useSaveWorkspaceChanges";
 
 interface WorkspaceContextType {
     isInWorkspaceMode: boolean;
@@ -16,6 +18,10 @@ interface WorkspaceContextType {
     >;
     fetchWorkspaceData: (workspaceName: string) => Promise<void>;
     saveWorkspaceData: (graphData: { nodes: GraphNode[], links: GraphLink[] }) => Promise<void>;
+    hasUnsavedChanges: boolean;
+    setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsConfirmModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    runWithUnsavedCheck: <T>(fn: () => Promise<T>) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType>({
@@ -27,6 +33,10 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
     setWorkspaceData: () => {},
     fetchWorkspaceData: async (workspaceName: string) => {},
     saveWorkspaceData: async (graphData: { nodes: GraphNode[], links: GraphLink[] }) => {},
+    hasUnsavedChanges: false,
+    setHasUnsavedChanges: () => {},
+    setIsConfirmModalOpen: () => {},
+    runWithUnsavedCheck: async (fn) => {return},
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -35,10 +45,31 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [workspaceData, setWorkspaceData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const { showNotification } = useNotification();
     const { runWithLoading, loadedProjectName } = useProject();
+    const { saveCurrentGraphData } = useSaveWorkspaceChanges();
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
 
     useEffect(() => {
         fetchWorkspaceData();
     }, [openedWorkspaceName]);
+
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+            return undefined;
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [hasUnsavedChanges]);
 
     const fetchWorkspaceData = async () =>
         runWithLoading(async () => {
@@ -143,11 +174,54 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     showNotification(message, BannerType.ERROR);
                     return;
                 }
+
                 showNotification(`Workspace saved successfully.`, BannerType.SUCCESS);
             } catch (err) {
                 showNotification("Unexpected error while saving workspace data.", BannerType.ERROR);
             }
+            setHasUnsavedChanges(false);
         });
+
+    const runWithUnsavedCheck = async <T, >(fn: () => Promise<T>): Promise<void> => {
+        if (hasUnsavedChanges) {
+            setPendingAction(() => fn);
+            setIsConfirmModalOpen(true);
+            return;
+        }
+
+        await fn();
+    };
+
+    const handleSave = async () => {
+        await saveCurrentGraphData();
+        if (pendingAction) {
+            await pendingAction();
+            setPendingAction(undefined);
+        }
+        setIsConfirmModalOpen(false);
+    };
+
+    const handleDiscard = async () => {
+        if (pendingAction) {
+            try {
+                await pendingAction();
+                setIsInWorkspaceMode(false);
+                setOpenedWorkspaceName(null);
+                setWorkspaceData({ nodes: [], links: [] });
+            } catch (err) {
+                showNotification("Error executing pending action.", BannerType.ERROR);
+            }
+        }
+
+        setPendingAction(undefined);
+        setHasUnsavedChanges(false);
+        setIsConfirmModalOpen(false);
+    };
+
+    const handleCancel = async () => {
+        setPendingAction(undefined);
+        setIsConfirmModalOpen(false);
+    };
 
     return (
         <WorkspaceContext.Provider
@@ -160,9 +234,20 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 setWorkspaceData,
                 fetchWorkspaceData,
                 saveWorkspaceData,
+                hasUnsavedChanges,
+                setHasUnsavedChanges,
+                setIsConfirmModalOpen,
+                runWithUnsavedCheck
             }}
         >
             {children}
+
+            <LeaveConfirmModal
+                open={isConfirmModalOpen}
+                onSave={handleSave}
+                onDiscard={handleDiscard}
+                onCancel={handleCancel}
+            />
         </WorkspaceContext.Provider>
     );
 };

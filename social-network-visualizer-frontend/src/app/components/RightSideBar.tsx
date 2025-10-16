@@ -7,7 +7,7 @@ import {API_BASE_URL} from '@/app/configuration/urlConfig';
 import {TweetPreview} from "@/app/interface/TweetPreview";
 import { useNotification } from '../context/NotificationProvider'
 import {BannerType} from "@/app/components/Popups/Banner";
-import {useGraph} from "@/app/context/GraphContext";
+import {useWorkspace} from "@/app/context/WorkspaceContext";
 
 export default function RightSidebar() {
     const router = useRouter()
@@ -16,7 +16,7 @@ export default function RightSidebar() {
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserData} = useProject()
     const { showNotification } = useNotification()
-    const { runWithUnsavedCheck } = useGraph();
+    const { runWithUnsavedCheck } = useWorkspace();
 
     useEffect(() => {
         fetchData()

@@ -2,7 +2,7 @@
 
 import {useCallback, useState} from 'react';
 import { useRouter } from "next/navigation";
-import {useGraph} from "@/app/context/GraphContext";
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 const icons = [
     {
@@ -58,7 +58,7 @@ export default function LeftBar({setIsLeftSideBarOpen, setSelectedLeftSideBarCon
     const [activeIcon, setActiveIcon] = useState<string | null>(null);
     const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
     const router = useRouter();
-    const { runWithUnsavedCheck } = useGraph();
+    const { runWithUnsavedCheck } = useWorkspace();
 
     const handleIconClick = useCallback((id: string) => {
         if (id === "home") {

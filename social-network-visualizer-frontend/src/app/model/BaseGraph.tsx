@@ -44,8 +44,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     const clickedNodeRef = useRef<GraphNode | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const { isInWorkspaceMode, saveWorkspaceData } = useWorkspace();
-    const { setGraphData, resetGraphData, hasUnsavedChanges, setHasUnsavedChanges } = useGraph();
+    const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, setHasUnsavedChanges } = useWorkspace();
+    const { setGraphData, resetGraphData } = useGraph();
 
     useEffect(() => {
         if (!containerRef.current) return;
