@@ -13,6 +13,7 @@ public class Project {
     @Id
     private String id;
     private String name;
+    private ProjectConfig config;
     private List<ProjectFile> files;
     private List<Workspace> workspaces;
 }

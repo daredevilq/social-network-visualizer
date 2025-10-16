@@ -20,7 +20,7 @@ const TweetList: FC<TweetListProps> = ({tweets, hasMore, inViewRef, tweetsContai
                 <p className="text-center">No tweets found.</p>
             ) : (
                 tweets.map((tweet) => (
-                    <TweetCard key={tweet.name} tweet={tweet}/>
+                    <TweetCard key={tweet.id} tweet={tweet}/>
                 ))
             )}
 

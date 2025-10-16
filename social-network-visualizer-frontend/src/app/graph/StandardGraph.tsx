@@ -1,30 +1,16 @@
-import {useEffect} from "react";
-import {useProject} from '@/app/context/ProjectContext';
+import {useProject} from "@/app/context/ProjectContext";
 import {FolderPlus} from "lucide-react";
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import {GraphLink, GraphNode} from "@/types/GraphTypes";
 import nodeStrategy from "../model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 import linkStrategy from "@/app/model/strategies/LinkStrategy";
 
-const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
+const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
 
 export default function StandardGraph() {
-    const {
-        loadedProjectName,
-        graphData,
-        nodeFoundId,
-        shortestPath,
-        graphRelationType,
-        fetchGraphData,
-    } = useProject();
-
-    useEffect(() => {
-        if (!loadedProjectName) return;
-        fetchGraphData().then(r => {
-        });
-    }, [loadedProjectName, graphRelationType]);
+    const { loadedProjectName, graphData, nodeFoundId, shortestPath } = useProject();
 
     if (!loadedProjectName)
         return (
@@ -43,11 +29,10 @@ export default function StandardGraph() {
         <div className="relative flex flex-col justify-center items-center h-screen w-full">
             <BaseGraph
                 graphData={graphData}
-                nodeVal={(node: GraphNode) => ((node as any).pagerank ? (node as any).pagerank * 5 : 1)}
+                nodeVal={(node: GraphNode) => Math.min((node as any).pagerank ? (node as any).pagerank * 5 : 5, 30)}
                 nodeLabel={(node: GraphNode) => `${node.id}`}
                 nodeColor={(node: GraphNode) => {
                     if (node.id === nodeFoundId) return NodeColors.getRedColor();
-
                     if (shortestPath.includes(String(node.id))) {
                         return NodeColors.getGoldColor();
                     }
@@ -67,4 +52,3 @@ export default function StandardGraph() {
         </div>
     );
 }
-

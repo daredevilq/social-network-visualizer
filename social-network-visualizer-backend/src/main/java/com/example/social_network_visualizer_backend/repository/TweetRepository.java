@@ -166,6 +166,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
 
     @Query("""
                 MATCH (t:Tweet)
+                OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
                 RETURN 
                     t.id AS name,
                     'TWEET' AS nodeType,
@@ -183,7 +184,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.videos AS videos,
                     t.repliesCount AS repliesCount,
                     t.retweetsCount AS retweetsCount,
-                    t.likesCount AS likesCount
+                    t.likesCount AS likesCount,
+                    a.userName AS authorName,
+                    COALESCE(a.community, -1) AS community
                 ORDER BY t.publicationDate DESC
             """)
     List<TweetNodeDto> findTweets();

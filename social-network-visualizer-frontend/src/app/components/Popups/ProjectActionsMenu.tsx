@@ -1,15 +1,16 @@
-'use client';
-import { useState, useRef, useEffect } from 'react';
+"use client";
+import { useState, useRef, useEffect } from "react";
 
 interface Props {
 	disabled: boolean;
 	onDelete: () => void;
 	onEdit: () => void;
+    onViewConfig: () => void;
 }
 
-export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props) {
-	const [open, setOpen] = useState(false);
-	const buttonRef = useRef<HTMLButtonElement>(null!);
+export default function ProjectActionsMenu({ disabled, onDelete, onEdit, onViewConfig }: Props) {
+    const [open, setOpen] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null!);
 
 	useEffect(() => {
 		if (!open) return;
@@ -34,22 +35,28 @@ export default function ProjectActionsMenu({ disabled, onDelete, onEdit }: Props
 				</svg>
 			</button>
 
-			{open && (
-			<div className="absolute right-0 mt-1 w-32 bg-[#262631] rounded shadow-lg z-10">
-				<button
-				onClick={() => { setOpen(false); onEdit(); }}
-				className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10"
-				>
-				Edit project
-				</button>
-				<button
-				onClick={() => { setOpen(false); onDelete(); }}
-				className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/20"
-				>
-				Delete project
-				</button>
-			</div>
-			)}
-		</div>
-	);
+            {open && (
+                <div className="absolute right-0 mt-1 w-40 bg-[#262631] rounded shadow-lg z-10">
+                    <button
+                        onClick={() => {setOpen(false); onViewConfig();}}
+                        className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10"
+                    >
+                        View Config
+                    </button>
+                    <button
+                        onClick={() => {setOpen(false);onEdit();}}
+                        className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10"
+                    >
+                        Edit Files
+                    </button>
+                    <button
+                        onClick={() => {setOpen(false);onDelete();}}
+                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/20"
+                    >
+                        Delete
+                    </button>
+                </div>
+            )}
+        </div>
+    );
 }

@@ -1,9 +1,7 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.enums.NodeLabel;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
-import com.example.social_network_visualizer_backend.enums.GraphDefinition;
 import com.example.social_network_visualizer_backend.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ public class Neo4jService {
     private final HashtagRepository hashtagRepository;
     private final RelationshipRepository relationshipRepository;
     private final GraphRepository graphRepository;
-    private final AlgorithmRepository algorithmRepository;
 
     public void handleDatabaseDrop() {
         log.info("Dropping all nodes in the database...");
@@ -34,9 +31,9 @@ public class Neo4jService {
     }
 
     public void dropAllGdsGraphs() {
-        for (GraphDefinition def : GraphDefinition.values()) {
-            String graphName = def.getGraphName();
-            graphRepository.dropGdsGraph(graphName);
+        List<String> gdsGraphs = graphRepository.listGdsGraphs();
+        for(String gdsGraph : gdsGraphs) {
+            graphRepository.dropGdsGraph(gdsGraph);
         }
     }
 
@@ -61,33 +58,17 @@ public class Neo4jService {
         throw new DatabaseUnavailableException("Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
     }
 
-    public void computeMetricsAndRelations(String graphType){
-        createRelationsInGraph();
-        createAllGraphs();
-        performAlgorithms(GraphDefinition.fromUrlName(graphType).getGraphName());
-    }
-
-    private void createRelationsInGraph() {
+    public void createRelationsInGraph() {
         relationshipRepository.createRelationshipAuthorMentionsAuthor();
         relationshipRepository.createRelationshipAuthorRetweetAuthor();
         relationshipRepository.createRelationshipAuthorRepliesAuthor();
         relationshipRepository.createRelationshipAuthorUsesHashtag();
         relationshipRepository.createRelationshipAuthorsShareHashtag();
-        relationshipRepository.createRelationshipAuthorUsesCashtag();
-        relationshipRepository.createRelationshipAuthorsShareCashtag();
         relationshipRepository.createQuoteRelationships();
         relationshipRepository.createRetweetRelationships();
         relationshipRepository.createReplyTotRelationships();
         relationshipRepository.createIndexForCommunity();
 
-    }
-
-    private void createAllGraphs() {
-        for (GraphDefinition def : GraphDefinition.values()) {
-            List<String> nodeLabels = def.getNodeLabels().stream().map(NodeLabel::getLabel).toList();
-            Map<String, Map<String, String>> relationMap = toGdsRelationMap(def.getRelationTypes());
-            graphRepository.createGraph(def.getGraphName(), nodeLabels, relationMap);
-        }
     }
 
     private Map<String, Map<String, String>> toGdsRelationMap(Set<RelationType> relationTypes) {
@@ -98,15 +79,6 @@ public class Neo4jService {
                         "orientation", "NATURAL"
                 )
         ));
-    }
-
-
-    public void performAlgorithms(String graphName) {
-        if (graphRepository.checkIfGraphExists(graphName)) {
-            algorithmRepository.computePageRank(graphName);
-            algorithmRepository.createCommunities(graphName);
-            algorithmRepository.computeAuthorDegree(graphName);
-        }
     }
 
     public void createConstraints() {

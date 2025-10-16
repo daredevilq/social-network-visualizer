@@ -2,15 +2,22 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.Project;
+import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
+import com.example.social_network_visualizer_backend.service.metric.MetricComputationService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +33,8 @@ public class ProjectService {
     private final MongodbService mongodbService;
     private final ProjectRepository projectRepository;
     private final GridFsService gridFsService;
+    private final MetricComputationService metricComputationService;
+    private final ObjectMapper objectMapper;
 
     public List<ProjectSummary> getAllProjects() {
         List<ProjectSummary> summaries = projectRepository.findAll()
@@ -40,21 +49,32 @@ public class ProjectService {
         return summaries;
     }
 
-    public int loadProject(String projectName, String graphType) {
+    public int importProject(String projectName) {
+        Project project = projectRepository.findByName(projectName)
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
+                });
+
         neo4jService.waitForNeo4jToBeAvailable();
-        neo4jService.handleDatabaseDrop();
         mongodbService.waitForMongoDBToBeAvailable();
+        neo4jService.handleDatabaseDrop();
 
         int importedTweets = projectParser.parseDirectory(projectName);
-        neo4jService.computeMetricsAndRelations(graphType);
-        log.info("Project {} imported successfully", projectName);
 
+        neo4jService.createRelationsInGraph();
+        metricComputationService.computeMetrics(projectName, project.getConfig());
+
+        
+        log.info("Project {} imported successfully with {} tweets", projectName, importedTweets);
         return importedTweets;
     }
+    
 
-    public List<String> createProject(String projectName, MultipartFile[] files) {
+    public List<String> createProject(String projectName, ProjectConfig projectConfig, MultipartFile[] files) {
         Project project = Project.builder()
                 .name(projectName)
+                .config(projectConfig)
                 .files(new ArrayList<>())
                 .build();
 
@@ -214,7 +234,7 @@ public class ProjectService {
         return filenames;
     }
 
-    public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
+    public List<String> updateOpenedProject(String projectName, MultipartFile[] files) {
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' not found", projectName);
@@ -244,7 +264,15 @@ public class ProjectService {
         projectParser.importFilesToDatabase(new ArrayList<>(), false);
 
         neo4jService.dropAllGdsGraphs();
-        neo4jService.computeMetricsAndRelations(graphType);
+        neo4jService.createRelationsInGraph();
+
+        Project reloadedProject = projectRepository.findByName(projectName)
+                .orElseThrow(() -> new ProjectException("Project '" + projectName + "' not found after update",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
+        
+        if (reloadedProject.getConfig() != null && reloadedProject.getConfig().metrics() != null) {
+            metricComputationService.computeMetrics(projectName, reloadedProject.getConfig());
+        }
 
         return skippedFiles;
     }
@@ -289,6 +317,33 @@ public class ProjectService {
                     "Failed to delete file '" + fileName + "' from project '" + projectName + "': " + e.getMessage(),
                     e,
                     HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public ProjectConfig getProjectConfig(String projectName) {
+        Project project = projectRepository.findByName(projectName)
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
+                });
+        
+        log.info("Retrieved config for project: {}", projectName);
+        return project.getConfig();
+    }
+
+    public List<MetricConfig> getDefaultMetrics() {
+        try {
+            ClassPathResource resource = new ClassPathResource("defaultMetrics.json");
+            try (InputStream inputStream = resource.getInputStream()) {
+                List<MetricConfig> defaultMetrics = objectMapper.readValue(inputStream, new TypeReference<List<MetricConfig>>() {});
+                log.info("Loaded {} default metrics from configuration", defaultMetrics.size());
+                return defaultMetrics;
+            }
+        } catch (IOException e) {
+            log.error("Failed to load default metrics configuration", e);
+            throw new ProjectException(
+                    "Failed to load default metrics configuration: " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
     }

@@ -1,77 +1,180 @@
-'use client';
+"use client";
 
-import {useProject} from "@/app/context/ProjectContext";
-import {useEffect, useState} from "react";
-import {Network} from "lucide-react";
-import {API_BASE_URL} from '@/app/configuration/urlConfig';
-import {useNotification} from "@/app/context/NotificationProvider";
-import {BannerType} from "@/app/components/Popups/Banner";
-
-interface GraphType {
-    value: string;
-    label: string;
-}
+import { useProject } from "@/app/context/ProjectContext";
+import { useState, useEffect } from "react";
+import { Network, Layers } from "lucide-react";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { BannerType } from "@/app/components/Popups/Banner";
+import { RelationType, NodeType } from "@/types/GraphTypes";
+import { GraphQueryRequest } from "@/types/GraphQueryRequest";
 
 export default function FiltersContent() {
     const {
-        graphRelationType,
-        updateGraphType,
+        selectedRelationTypes,
+        selectedNodeTypes,
+        setSelectedRelationTypes,
+        setSelectedNodeTypes,
         runWithLoading,
+        fetchGraphData,
     } = useProject();
-    const [types, setTypes] = useState<GraphType[]>([]);
+
     const { showNotification } = useNotification();
 
-    const refreshTypes = async () => {
-        try {
-            const res = await fetch(`${API_BASE_URL}/graph/types`);
-            if (!res.ok) throw new Error("Failed to fetch graph types");
-            const data = await res.json();
-            setTypes(data);
-        } catch (err: any) {
-            showNotification(`Error fetching graph types: ${err.message}`, BannerType.ERROR);
-        }
+    const [tempNodeTypes, setTempNodeTypes] = useState<NodeType[]>(selectedNodeTypes);
+    const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(selectedRelationTypes);
+
+    useEffect(() => {setTempNodeTypes(selectedNodeTypes);setTempRelationTypes(selectedRelationTypes);}, [selectedNodeTypes, selectedRelationTypes]);
+
+    const toggleNodeType = (nodeType: NodeType) => {
+        setTempNodeTypes((prev) =>
+            prev.includes(nodeType)
+                ? prev.filter((t) => t !== nodeType)
+                : [...prev, nodeType]
+        );
     };
 
-    const selectGraphType = async (type: GraphType) => {
+    const toggleRelationType = (relationType: RelationType) => {
+        setTempRelationTypes((prev) =>
+            prev.includes(relationType)
+                ? prev.filter((t) => t !== relationType)
+                : [...prev, relationType]
+        );
+    };
+
+    const handleApply = async () => {
+        if (tempNodeTypes.length === 0) {
+            showNotification(
+                "Please select at least one node type",
+                BannerType.ERROR
+            );
+            return;
+        }
+        if (tempRelationTypes.length === 0) {
+            showNotification(
+                "Please select at least one relation type",
+                BannerType.ERROR
+            );
+            return;
+        }
+
         await runWithLoading(async () => {
             try {
-                const res = await fetch(`${API_BASE_URL}/graph/${type.value}`, { method: "POST" });
-                if (!res.ok) throw new Error("Graph computation failed");
+                setSelectedNodeTypes(tempNodeTypes);
+                setSelectedRelationTypes(tempRelationTypes);
 
-                await updateGraphType(type.value);
-                showNotification(`Relations "${type.label}" recomputed.`, BannerType.INFO);
+                const request: GraphQueryRequest = {
+                    nodeTypes: tempNodeTypes,
+                    relationTypes: tempRelationTypes,
+                };
+                await fetchGraphData(request);
+                showNotification(
+                    "Filters applied successfully",
+                    BannerType.INFO
+                );
             } catch (err: any) {
-                showNotification(`Error updating graph: ${err.message || err}`, BannerType.ERROR);
+                showNotification(
+                    `Error updating graph: ${err.message || err}`,
+                    BannerType.ERROR
+                );
             }
         });
     };
 
-    useEffect(() => {
-        refreshTypes();
-    }, []);
-
     return (
         <div className="relative h-full flex flex-col text-white px-4 pt-4">
-            <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Relations Types</h1>
+            <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">
+                Graph Filters
+            </h1>
 
-            <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
-                {types.map((type) => (
-                    <div key={type.value} className="py-3">
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Layers className="w-5 h-5" />
+                    Node Types
+                </h2>
+                <div className="space-y-2">
+                    {Object.values(NodeType).map((nodeType) => (
                         <button
-                            disabled={graphRelationType === type.value}
-                            onClick={() => selectGraphType(type)}
-                            className={`flex items-center gap-2 w-full text-left transition-colors
-                                ${graphRelationType === type.value
-                                ? 'text-[#7140F4] font-semibold'
-                                : 'text-white hover:text-[#7140F4] cursor-pointer'
-                            }`}
+                            key={nodeType}
+                            onClick={() => toggleNodeType(nodeType)}
+                            className="flex items-center gap-3 w-full text-left py-2 px-3 rounded hover:bg-white/5 transition-colors"
                         >
-                            <Network className="w-4 h-4 shrink-0" />
-                            <span className="truncate">{type.label}</span>
+                            <div
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    tempNodeTypes.includes(nodeType)
+                                        ? "border-[#7140F4] bg-[#7140F4]"
+                                        : "border-gray-500"
+                                }`}
+                            >
+                                {tempNodeTypes.includes(nodeType) && (
+                                    <div className="w-2 h-2 rounded-full bg-white" />
+                                )}
+                            </div>
+                            <span className="truncate">{nodeType}</span>
                         </button>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
+
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Network className="w-5 h-5" />
+                    Relation Types
+                </h2>
+                <div
+                    className="flex-1 overflow-y-auto space-y-2 pr-2"
+                    style={{
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "#4B5563 #1F2937",
+                    }}
+                >
+                    {Object.values(RelationType).map((relationType) => (
+                        <button
+                            key={relationType}
+                            onClick={() => toggleRelationType(relationType)}
+                            className="flex items-center gap-3 w-full text-left py-2 px-3 rounded hover:bg-white/5 transition-colors"
+                        >
+                            <div
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    tempRelationTypes.includes(relationType)
+                                        ? "border-[#7140F4] bg-[#7140F4]"
+                                        : "border-gray-500"
+                                }`}
+                            >
+                                {tempRelationTypes.includes(relationType) && (
+                                    <div className="w-2 h-2 rounded-full bg-white" />
+                                )}
+                            </div>
+                            <span className="truncate">{relationType}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="pt-4 pb-2 border-t border-white/20 mt-4">
+                <button
+                    onClick={handleApply}
+                    className="w-full py-3 bg-[#7140F4] hover:bg-[#5a33c4] text-white font-semibold rounded-lg transition-colors"
+                >
+                    Apply Filters
+                </button>
+            </div>
+
+            <style jsx>{`
+                div::-webkit-scrollbar {
+                    width: 8px;
+                }
+                div::-webkit-scrollbar-track {
+                    background: #1f2937;
+                    border-radius: 4px;
+                }
+                div::-webkit-scrollbar-thumb {
+                    background: #4b5563;
+                    border-radius: 4px;
+                }
+                div::-webkit-scrollbar-thumb:hover {
+                    background: #6b7280;
+                }
+            `}</style>
         </div>
     );
 }

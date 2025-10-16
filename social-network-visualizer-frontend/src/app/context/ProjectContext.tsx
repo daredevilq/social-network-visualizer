@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import {createContext, ReactNode, useContext, useEffect, useState,} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
-import {getGraphType, getGraphUiType, getProjectName, setGraphType, setProjectName} from "@/app/project-state";
+import {getGraphUiType, getProjectName, setProjectName} from "@/app/project-state";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
-import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode} from "@/types/GraphTypes";
-
+import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode,} from "@/types/GraphTypes";
+import {GraphQueryRequest} from "@/types/GraphQueryRequest";
 
 interface Context {
     loadedProjectName: string | null;
@@ -15,11 +15,11 @@ interface Context {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     loadProject: (name: string, fetchData: boolean) => Promise<void>;
     runWithLoading: <T>(fn: () => Promise<T>) => Promise<T>;
-    fetchGraphData: () => Promise<void>;
+    fetchGraphData: (request?: GraphQueryRequest) => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
-    graphData: { nodes: GraphNode[], links: GraphLink[] };
-    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[], links: GraphLink[] }>>;
+    graphData: { nodes: GraphNode[]; links: GraphLink[] };
+    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
     nodeFoundId: string | null;
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
@@ -28,8 +28,10 @@ interface Context {
     setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
     selectedUserData: BasicUserData | null;
     setSelectedUserData: React.Dispatch<React.SetStateAction<BasicUserData | null>>;
-    graphRelationType: string;
-    updateGraphType: (name: string) => Promise<void>;
+    selectedNodeTypes: NodeType[];
+    setSelectedNodeTypes: React.Dispatch<React.SetStateAction<NodeType[]>>;
+    selectedRelationTypes: RelationType[];
+    setSelectedRelationTypes: React.Dispatch<React.SetStateAction<RelationType[]>>;
     focusedCommunityId?: string;
     setFocusedCommunityId: (id?: string) => void;
     selectedGraphType: GraphType;
@@ -51,7 +53,7 @@ const ProjectContext = createContext<Context>({
     isLabelsMode: true,
     setIsLabelsMode: () => {
     },
-    graphData: {nodes: [], links: []},
+    graphData: { nodes: [], links: [] },
     setGraphData: () => {
     },
     nodeFoundId: null,
@@ -66,9 +68,11 @@ const ProjectContext = createContext<Context>({
     selectedUserData: null,
     setSelectedUserData: () => {
     },
-    graphRelationType: "mentions",
-    updateGraphType: async () => {
+    selectedNodeTypes: [NodeType.AUTHOR],
+    setSelectedNodeTypes: () => {
     },
+    selectedRelationTypes: [RelationType.MENTIONS],
+    setSelectedRelationTypes: () => {},
     focusedCommunityId: undefined,
     setFocusedCommunityId: () => {
     },
@@ -78,12 +82,11 @@ const ProjectContext = createContext<Context>({
     showLabels: false,
     setShowLabels: () => {
     },
-
 });
 
 export const useProject = () => useContext(ProjectContext);
 
-export function ProjectProvider({children}: { children: ReactNode }) {
+export function ProjectProvider({ children }: { children: ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [loadedProjectName, setLoadedProjectName] = useState<string | null>(null)
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
@@ -92,7 +95,8 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
-    const [graphRelationType, setGraphRelationType] = useState<string>("mentions");
+    const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([NodeType.AUTHOR,]);
+    const [selectedRelationTypes, setSelectedRelationTypes] = useState<RelationType[]>([RelationType.MENTIONS]);
     const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
     const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
     const [showLabels, setShowLabels] = useState(false);
@@ -100,22 +104,15 @@ export function ProjectProvider({children}: { children: ReactNode }) {
 
     useEffect(() => {
         const fetchProjectState = async () => {
-            const name = await getProjectName()
-            const type = await getGraphType();
+            const name = await getProjectName();
             const uiType = await getGraphUiType();
 
             setLoadedProjectName(name);
-            setGraphRelationType(type);
             setSelectedGraphType(uiType);
-        }
+        };
 
         fetchProjectState();
-    }, [])
-
-    const updateGraphType = async (graphType: string) => {
-        await setGraphType(graphType);
-        setGraphRelationType(graphType);
-    };
+    }, []);
 
     const runWithLoading = async <T, >(fn: () => Promise<T>): Promise<T> => {
         if (loading) return fn();
@@ -130,10 +127,12 @@ export function ProjectProvider({children}: { children: ReactNode }) {
     const loadProject = async (name: string, fetchData: boolean = false) => {
         runWithLoading(async () => {
             try {
-
-                const res = await fetch(`${API_BASE_URL}/project/${name}/import?graph-type=${graphRelationType}`, {
-                    method: "POST",
-                });
+                const res = await fetch(
+                    `${API_BASE_URL}/project/${name}/import`,
+                    {
+                        method: "POST",
+                    }
+                );
 
                 if (!res.ok) {
                     throw new Error(`Failed to import project: ${res.statusText}`);
@@ -151,11 +150,23 @@ export function ProjectProvider({children}: { children: ReactNode }) {
         });
     };
 
-    const fetchGraphData = async () =>
+    const fetchGraphData = async (request?: GraphQueryRequest) =>
         runWithLoading(async () => {
             if (!loadedProjectName) return;
             try {
-                const res = await fetch(`http://localhost:8080/graph/${graphRelationType}`);
+
+                const graphQuery: GraphQueryRequest = request ?? {
+                    nodeTypes: selectedNodeTypes,
+                    relationTypes: selectedRelationTypes,
+                };
+
+                const res = await fetch(`${API_BASE_URL}/graph`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(graphQuery),
+                });
 
                 if (!res.ok) {
                     const message = `Failed to fetch graph data: ${res.status} ${res.statusText}`;
@@ -175,7 +186,6 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                     showNotification("Graph data format is invalid.", BannerType.ERROR);
                     return;
                 }
-
                 const links: GraphLink[] = data.edges.map((edge: GraphLink) => ({
                     source: edge.source,
                     target: edge.target,
@@ -207,7 +217,7 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                                     authorName: raw.authorName ?? "",
                                     likesCount: raw.likesCount ?? 0,
                                     retweetsCount: raw.retweetsCount ?? 0,
-                                    community: raw.community?.toString() ?? ""
+                                    community: raw.community ?? -1
                                 } as TweetNode;
 
                             case NodeType.HASHTAG:
@@ -222,15 +232,14 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                                     ...baseNode,
                                     nodeType: NodeType.HASHTAG,
                                 } as HashtagNode;
-
                         }
-                    })
-                setGraphData({nodes, links});
+                    }
+                );
+                setGraphData({ nodes, links });
             } catch (err) {
                 showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }
         });
-
 
     return (
         <ProjectContext.Provider
@@ -253,15 +262,18 @@ export function ProjectProvider({children}: { children: ReactNode }) {
                 setIsSidebarOpen,
                 selectedUserData,
                 setSelectedUserData,
-                graphRelationType,
-                updateGraphType,
+                selectedNodeTypes,
+                setSelectedNodeTypes,
+                selectedRelationTypes,
+                setSelectedRelationTypes,
                 focusedCommunityId,
                 setFocusedCommunityId,
                 selectedGraphType,
                 setSelectedGraphType,
                 showLabels,
-                setShowLabels
-            }}>
+                setShowLabels,
+            }}
+        >
             {children}
         </ProjectContext.Provider>
     );

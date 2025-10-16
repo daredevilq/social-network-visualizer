@@ -1,0 +1,14 @@
+[
+  {
+    "type": "PAGERANK",
+    "nodeLabels": ["AUTHOR"],
+    "relationTypes": ["MENTIONS"],
+    "orientation": "NATURAL"
+  },
+  {
+    "type": "COMMUNITY",
+    "nodeLabels": ["AUTHOR"],
+    "relationTypes": ["MENTIONS"],
+    "orientation": "UNDIRECTED"
+  }
+]
