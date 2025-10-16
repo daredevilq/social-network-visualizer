@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useCommunitySummary } from "@/app/hooks/useCommunitySummary";
-import { useCommunityAuthors } from "@/app/hooks/useCommunityAuthors";
-import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import { TopHashtagsContainer } from "@/app/components/Analysis/User/TopHashtagsContainer";
-import { useActivityHeatmap } from "@/app/hooks/useActivityHeatmap";
-import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
-import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
-import { useProject } from "@/app/context/ProjectContext";
-import { GraphType } from "@/app/interface/GraphType";
-import { setGraphUiType } from "@/app/project-state";
+import React from 'react';
+import {useRouter} from 'next/navigation';
+import {useCommunitySummary} from '@/app/hooks/useCommunitySummary';
+import {useCommunityAuthors} from '@/app/hooks/useCommunityAuthors';
+import LoadingOverlay from '@/app/components/Loading/LoadingOverlay';
+import {TopHashtagsContainer} from '@/app/components/Analysis/User/TopHashtagsContainer';
+import {useActivityHeatmap} from '@/app/hooks/useActivityHeatmap';
+import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
+import ActivityChartCard from '@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard';
+import {useProject} from '@/app/context/ProjectContext';
+import {GraphType} from '@/app/interface/GraphType';
+import {setGraphUiType} from '@/app/project-state';
 
 export default function CommunityAnalysisDetailsContainer(
     {communityId}: { communityId: string }) {
     const id = Number(communityId);
-    const { data: summary, loading: loadingSummary } = useCommunitySummary(id);
-    const { data: authors, loading: loadingAuthors } = useCommunityAuthors(id);
-    const { data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({ communityId: id });
-    const { setFocusedCommunityId, setSelectedGraphType } = useProject();
+    const {data: summary, loading: loadingSummary} = useCommunitySummary(id);
+    const {data: authors, loading: loadingAuthors} = useCommunityAuthors(id);
+    const {data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({communityId: id});
+    const {setFocusedCommunityId, setSelectedGraphType} = useProject();
 
     const openGraph = async () => {
         setFocusedCommunityId(communityId);
@@ -32,7 +32,7 @@ export default function CommunityAnalysisDetailsContainer(
 
     const loading = loadingSummary || loadingAuthors || loadingHeatMap;
 
-    if (loading) return <LoadingOverlay />;
+    if (loading) return <LoadingOverlay/>;
     if (!summary) return <p>No summary found.</p>;
 
     const hashtagActivities = summary.topHashtags.map(name => ({name, frequency: 0}));
@@ -66,9 +66,7 @@ export default function CommunityAnalysisDetailsContainer(
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="lg:col-span-2">
-                        <ActivityChartCard
-                            activity={summary.communityActivity}
-                        />
+                        <ActivityChartCard activity={summary.communityActivity}/>
                     </div>
 
                     <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">

@@ -1,10 +1,10 @@
-import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState,} from "react";
+import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
 // @ts-ignore
-import ForceGraph, { ForceGraphInstance, LinkObject } from "force-graph";
-import {GraphLink, GraphNode, GraphProps, NodeType, SelectionBox,} from "@/types/GraphTypes";
-import { useProject } from "@/app/context/ProjectContext";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { BannerType } from "@/app/components/Popups/Banner";
+import ForceGraph, {ForceGraphInstance, LinkObject} from 'force-graph';
+import {GraphLink, GraphNode, GraphProps, NodeType, SelectionBox} from "@/types/GraphTypes";
+import {useProject} from "@/app/context/ProjectContext";
+import {useNotification } from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 
@@ -19,7 +19,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         linkLabel,
         linkDirectionalArrowLength,
         linkDirectionalArrowRelPos,
-        nodeFoundId,
+        nodeFoundId
     } = props;
 
     const NODE_DISPLAY_LIMIT: number = 350;
@@ -34,7 +34,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const [displayedNodes, setDisplayedNodes] = useState<GraphNode[]>([]);
     const [displayedLinks, setDisplayedLinks] = useState<GraphLink[]>([]);
 
-    const {setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels,} = useProject();
+    const {setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels} = useProject();
 
     const clickedNodeRef = useRef<GraphNode | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -47,7 +47,9 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         const handleResize = () => {
             if (fgInstance.current && containerRef.current) {
                 const {offsetWidth, offsetHeight} = containerRef.current;
-                fgInstance.current.width(offsetWidth).height(offsetHeight);
+                fgInstance.current
+                    .width(offsetWidth)
+                    .height(offsetHeight);
             }
         };
 

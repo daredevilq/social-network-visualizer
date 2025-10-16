@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Dialog } from "@headlessui/react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { Dialog } from '@headlessui/react';
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import AdvancedConfigModal from "@/app/components/Popups/AdvancedConfigModal";
 import { useDefaultMetricsConfig } from "@/app/hooks/useDefaultMetricsConfig";
 import { ProjectConfig } from "@/types/GraphTypes";

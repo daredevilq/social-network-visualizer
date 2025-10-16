@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useProject } from "@/app/context/ProjectContext";
-import { useState, useEffect } from "react";
-import { Network, Layers } from "lucide-react";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { BannerType } from "@/app/components/Popups/Banner";
-import { RelationType, NodeType } from "@/types/GraphTypes";
-import { GraphQueryRequest } from "@/types/GraphQueryRequest";
+import {useProject } from "@/app/context/ProjectContext";
+import {useState, useEffect} from "react";
+import {Network, Layers} from "lucide-react";
+import {useNotification} from '@/app/context/NotificationProvider';
+import {BannerType} from "@/app/components/Popups/Banner";
+import {RelationType, NodeType} from "@/types/GraphTypes";
+import {GraphQueryRequest} from "@/types/GraphQueryRequest";
 
 export default function FiltersContent() {
     const {
@@ -43,17 +43,12 @@ export default function FiltersContent() {
 
     const handleApply = async () => {
         if (tempNodeTypes.length === 0) {
-            showNotification(
-                "Please select at least one node type",
-                BannerType.ERROR
-            );
+            showNotification("Please select at least one node type",BannerType.ERROR);
             return;
         }
+
         if (tempRelationTypes.length === 0) {
-            showNotification(
-                "Please select at least one relation type",
-                BannerType.ERROR
-            );
+            showNotification("Please select at least one relation type",BannerType.ERROR);
             return;
         }
 
@@ -67,15 +62,9 @@ export default function FiltersContent() {
                     relationTypes: tempRelationTypes,
                 };
                 await fetchGraphData(request);
-                showNotification(
-                    "Filters applied successfully",
-                    BannerType.INFO
-                );
+                showNotification("Filters applied successfully", BannerType.INFO);
             } catch (err: any) {
-                showNotification(
-                    `Error updating graph: ${err.message || err}`,
-                    BannerType.ERROR
-                );
+                showNotification(`Error updating graph: ${err.message || err}`,BannerType.ERROR);
             }
         });
     };

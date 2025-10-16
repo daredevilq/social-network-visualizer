@@ -1,13 +1,13 @@
-import {useProject} from "@/app/context/ProjectContext";
+import {useProject} from '@/app/context/ProjectContext';
 import {FolderPlus} from "lucide-react";
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 import {GraphLink, GraphNode} from "@/types/GraphTypes";
 import nodeStrategy from "../model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 import linkStrategy from "@/app/model/strategies/LinkStrategy";
 
-const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
+const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 
 export default function StandardGraph() {
     const { loadedProjectName, graphData, nodeFoundId, shortestPath } = useProject();

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useProject } from "@/app/context/ProjectContext";
-import { ProjectSummary } from "@/app/interface/ProjectSummary";
-import ProjectActionsMenu from "@/app/components/Popups/ProjectActionsMenu";
-import WorkspaceActionMenu from "@/app/components/Popups/WorkspaceActionMenu";
-import ConfirmModal from "@/app/components/Popups/ConfirmModal";
-import ProjectUploadModal from "@/app/components/Popups/ProjectUploadModal";
-import ProjectEditModal from "@/app/components/Popups/ProjectEditModal";
+import { useEffect, useState } from 'react';
+import { useProject } from '@/app/context/ProjectContext';
+import { ProjectSummary } from '@/app/interface/ProjectSummary';
+import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
+import WorkspaceActionMenu from '@/app/components/Popups/WorkspaceActionMenu';
+import ConfirmModal from '@/app/components/Popups/ConfirmModal';
+import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
+import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
 import ProjectConfigViewModal from "@/app/components/Popups/ProjectConfigViewModal";
 import {resetProjectName} from "@/app/project-state";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";

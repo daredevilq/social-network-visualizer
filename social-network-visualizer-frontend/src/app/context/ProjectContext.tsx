@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import {createContext, ReactNode, useContext, useEffect, useState,} from 'react';
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {getGraphUiType, getProjectName, setProjectName} from "@/app/project-state";
@@ -53,7 +53,7 @@ const ProjectContext = createContext<Context>({
     isLabelsMode: true,
     setIsLabelsMode: () => {
     },
-    graphData: { nodes: [], links: [] },
+    graphData: {nodes: [], links: []},
     setGraphData: () => {
     },
     nodeFoundId: null,
