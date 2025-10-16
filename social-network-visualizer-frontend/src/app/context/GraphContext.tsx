@@ -22,9 +22,13 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const { showNotification } = useNotification();
     const { projectData } = useProject();
-    const { isInWorkspaceMode, workspaceData, setHasUnsavedChanges } = useWorkspace();
+    const { isInWorkspaceMode, workspaceData, setHasUnsavedChanges, hasUnsavedChanges } = useWorkspace();
 
     useEffect(() => {
+        if (hasUnsavedChanges) {
+            return;
+        }
+
         setGraphData(isInWorkspaceMode ? workspaceData : projectData);
     }, [isInWorkspaceMode, projectData, workspaceData]);``
 

@@ -8,24 +8,26 @@ import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import {AuthorNode, GraphLink, GraphNode, NodeType} from "@/types/GraphTypes";
 import NodeColors from "../model/NodeColors";
+import {useGraph} from "@/app/context/GraphContext";
+import {useWorkspace} from "@/app/context/WorkspaceContext";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
     const {
         loadedProjectName,
         loading,
-        projectData,
-        setProjectData,
         nodeFoundId,
         shortestPath,
         focusedCommunityId,
     } = useProject();
+    const { isInWorkspaceMode } = useWorkspace();
+    const { graphData, setGraphData } = useGraph();
 
     const NUMBER_OF_COMMUNITIES = 15;
     const {showNotification} = useNotification();
 
     useEffect(() => {
-        if (!loadedProjectName) return;
+        if (!loadedProjectName || isInWorkspaceMode) return;
 
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
@@ -41,14 +43,14 @@ export default function CommunityGraph() {
 
         Promise.all([fetchTopIds])
             .then(([topIds]) => {
-                if (!projectData?.nodes?.length) {
+                if (!graphData?.nodes?.length) {
                     showNotification("No graph graphData available.", BannerType.WARNING);
                     return;
                 }
 
                 const idSet = new Set(topIds.map(id => id.toString()));
 
-                const authorNodes = (projectData.nodes ?? []).filter(
+                const authorNodes = (graphData.nodes ?? []).filter(
                     (n: any) => n.nodeType === NodeType.AUTHOR
                 ) as AuthorNode[];
 
@@ -68,7 +70,7 @@ export default function CommunityGraph() {
 
                 const nodeIds = new Set(authorNodesFromCommunity.map((n) => n.id));
 
-                const links: GraphLink[] = (projectData.links ?? []).filter(
+                const links: GraphLink[] = (graphData.links ?? []).filter(
                     (l: GraphLink) => nodeIds.has(l.source) && nodeIds.has(l.target)
                 );
 
@@ -80,14 +82,12 @@ export default function CommunityGraph() {
                     centrality: author.centrality,
                 }));
 
-                setProjectData({nodes, links});
+                setGraphData({nodes, links});
             })
             .catch((err) => {
-                console.error("Failed to load community graph:", err);
                 showNotification("Failed to load community graph data.", BannerType.ERROR);
             });
     }, [loadedProjectName, loading, focusedCommunityId]);
-
 
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
@@ -108,7 +108,7 @@ export default function CommunityGraph() {
 
     return (
         <BaseGraph
-            graphData={projectData}
+            graphData={graphData}
             nodeVal={(node: GraphNode) => {
                 // TODO: Add a strategy pattern for node sizing depends on pagerank or other metrics in community graph
                 const authorNode = node as AuthorNode;

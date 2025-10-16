@@ -15,7 +15,7 @@ export default function LeaveConfirmModal({ open, onSave, onDiscard, onCancel }:
     return (
         <Dialog
             open={open}
-            onClose={() => {}}
+            onClose={onCancel}
             className="fixed inset-0 z-50 flex items-center justify-center"
         >
             <div className="fixed inset-0 bg-black/50" />
