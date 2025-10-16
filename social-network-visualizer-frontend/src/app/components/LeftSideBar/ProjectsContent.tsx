@@ -165,8 +165,8 @@ export default function ProjectsContent() {
 
 							<ProjectActionsMenu
 								disabled={loading}
-								onDelete={() => askDeleteProject(project.name)}
-								onEdit={() => setEditTarget(project.name)}
+								onDelete={() => runWithUnsavedCheck(async () => askDeleteProject(project.name))}
+								onEdit={() => runWithUnsavedCheck(async () => setEditTarget(project.name))}
 							/>
 						</div>
 
@@ -194,14 +194,14 @@ export default function ProjectsContent() {
 
 									<WorkspaceActionMenu
 										disabled={loading}
-										onDelete={() => askDeleteWorkspace(workspace)}
+										onDelete={() => runWithUnsavedCheck(async () => askDeleteWorkspace(workspace))}
 									/>
 								</div>
 								))}
 								<div className="py-1">
 									<button
 										disabled={loading}
-										onClick={() => setCreateWorkspaceModalOpen(true)}
+										onClick={() => runWithUnsavedCheck(async () => setCreateWorkspaceModalOpen(true))}
 										className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
 									>
 										<img
@@ -220,7 +220,7 @@ export default function ProjectsContent() {
 				<div className="py-3">
 					<button
 						disabled={loading}
-						onClick={() => setCreateProjectModalOpen(true)}
+						onClick={() => runWithUnsavedCheck(async () => setCreateProjectModalOpen(true))}
 						className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
 					>
 						<img

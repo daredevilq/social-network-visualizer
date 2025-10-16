@@ -31,7 +31,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const { showNotification } = useNotification();
     const { projectData } = useProject();
-    const { isInWorkspaceMode, workspaceData, saveWorkspaceData } = useWorkspace();
+    const { isInWorkspaceMode, workspaceData, saveWorkspaceData, setIsInWorkspaceMode, setOpenedWorkspaceName, setWorkspaceData } = useWorkspace();
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
@@ -87,7 +87,9 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (pendingAction) {
             try {
                 await pendingAction();
-                showNotification("Pending action executed.", BannerType.SUCCESS);
+                setIsInWorkspaceMode(false);
+                setOpenedWorkspaceName(null);
+                setWorkspaceData({ nodes: [], links: [] });
             } catch (err) {
                 showNotification("Error executing pending action.", BannerType.ERROR);
             }
@@ -95,6 +97,11 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         setPendingAction(undefined);
         setHasUnsavedChanges(false);
+        setIsConfirmModalOpen(false);
+    };
+
+    const handleCancel = async () => {
+        setPendingAction(undefined);
         setIsConfirmModalOpen(false);
     };
 
@@ -116,6 +123,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 open={isConfirmModalOpen}
                 onSave={handleSave}
                 onDiscard={handleDiscard}
+                onCancel={handleCancel}
             />
         </GraphContext.Provider>
     );

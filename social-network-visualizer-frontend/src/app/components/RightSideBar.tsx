@@ -7,6 +7,7 @@ import {API_BASE_URL} from '@/app/configuration/urlConfig';
 import {TweetPreview} from "@/app/interface/TweetPreview";
 import { useNotification } from '../context/NotificationProvider'
 import {BannerType} from "@/app/components/Popups/Banner";
+import {useGraph} from "@/app/context/GraphContext";
 
 export default function RightSidebar() {
     const router = useRouter()
@@ -15,6 +16,7 @@ export default function RightSidebar() {
     const [loading, setLoading] = useState<boolean>(false)
     const {isSidebarOpen, setIsSidebarOpen, selectedUserData} = useProject()
     const { showNotification } = useNotification()
+    const { runWithUnsavedCheck } = useGraph();
 
     useEffect(() => {
         fetchData()
@@ -95,7 +97,7 @@ export default function RightSidebar() {
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">User Statistics</h3>
                         <button
-                            onClick={showDetails}
+                            onClick={() => runWithUnsavedCheck(async () => showDetails())}
                             className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer
 "
                         >
@@ -145,7 +147,7 @@ export default function RightSidebar() {
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">Last 3 Posts</h3>
                         <button
-                            onClick={showUserCommunity}
+                            onClick={() => runWithUnsavedCheck(async () => showUserCommunity())}
                             className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer
 "
                         >
@@ -191,7 +193,7 @@ export default function RightSidebar() {
                         )}
                         <div className="mt-3">
                             <button
-                                onClick={() => router.push(`/tweet-analysis/${selectedUserData?.name}`)}
+                                onClick={() => runWithUnsavedCheck(async () => router.push(`/tweet-analysis/${selectedUserData?.name}`))}
                                 className="w-full px-3 py-2 text-sm bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
                             >
                                 Show more posts
