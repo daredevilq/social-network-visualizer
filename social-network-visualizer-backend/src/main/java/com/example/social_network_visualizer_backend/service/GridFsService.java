@@ -3,6 +3,7 @@ package com.example.social_network_visualizer_backend.service;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,7 +32,7 @@ public class GridFsService {
                 inputStream,
                 filename,
                 file.getContentType(),
-                new org.bson.Document("projectName", projectName)
+                new Document("projectName", projectName)
             );
             
             log.info("Stored file '{}' in GridFS for project '{}' with ID: {}", 

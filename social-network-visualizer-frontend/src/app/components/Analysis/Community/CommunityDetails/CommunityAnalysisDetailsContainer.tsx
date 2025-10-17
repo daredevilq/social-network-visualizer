@@ -6,12 +6,12 @@ import {useCommunitySummary} from '@/app/hooks/useCommunitySummary';
 import {useCommunityAuthors} from '@/app/hooks/useCommunityAuthors';
 import LoadingOverlay from '@/app/components/Loading/LoadingOverlay';
 import {TopHashtagsContainer} from '@/app/components/Analysis/User/TopHashtagsContainer';
-import {useActivityHeatmap} from '@/app/hooks/useActivityHeatmap';
-import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
-import ActivityChartCard from '@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard';
-import {useProject} from '@/app/context/ProjectContext';
-import {GraphType} from '@/app/interface/GraphType';
-import {setGraphUiType} from '@/app/project-state';
+import {useActivityHeatmap} from "@/app/hooks/useActivityHeatmap";
+import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
+import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
+import {useProject} from "@/app/context/ProjectContext";
+import {GraphType} from "@/app/interface/GraphType";
+import {setGraphUiType} from "@/app/project-state";
 
 export default function CommunityAnalysisDetailsContainer(
     {communityId}: { communityId: string }) {

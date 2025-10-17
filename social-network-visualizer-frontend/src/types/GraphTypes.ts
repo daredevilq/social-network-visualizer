@@ -56,7 +56,7 @@ export enum RelationType {
     HAS_PARENT = 'HAS_PARENT',
     MENTION = 'MENTION',
     REPLY_TO = 'REPLY_TO',
-    POSTED = 'POSTED',
+    POSTED = 'POSTED'
 }
 
 export interface GraphLink extends LinkObject {

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { Dialog } from "@headlessui/react";
-import { useProject } from "@/app/context/ProjectContext";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { useEffect, useRef, useState } from 'react';
+import { Dialog } from '@headlessui/react';
+import {useProject} from "@/app/context/ProjectContext";
+import {API_BASE_URL} from "@/app/configuration/urlConfig";
 
 interface Props {
-    projectName: string | null;
-    onClose: () => void;
+	projectName: string | null;
+	onClose: () => void;
 }
 
 export default function ProjectEditModal({ projectName, onClose }: Props) {

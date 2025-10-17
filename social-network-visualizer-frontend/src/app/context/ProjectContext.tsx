@@ -6,7 +6,7 @@ import {GraphType} from "@/app/interface/GraphType";
 import {getGraphUiType, getProjectName, setProjectName} from "@/app/project-state";
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
-import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode,} from "@/types/GraphTypes";
+import {AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode} from "@/types/GraphTypes";
 import {GraphQueryRequest} from "@/types/GraphQueryRequest";
 
 interface Context {

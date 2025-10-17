@@ -22,7 +22,7 @@ class AuthorNodeStrategy implements INodeStrategy {
     getRadius(node: GraphNode): number {
         const authorNode = node as AuthorNode;
         const calculatedSize = authorNode.pagerank ? Math.pow(authorNode.pagerank, 3) + 10 : 10;
-        return Math.min(calculatedSize, 30);
+        return Math.min(calculatedSize, 15);
     }
 
     handleSingleNodeClick(node: GraphNode, setSelectedUserData: (value: (((prevState: (BasicUserData | null)) => (BasicUserData | null)) | BasicUserData | null)) => void, setIsSidebarOpen: (value: (((prevState: boolean) => boolean) | boolean)) => void) {

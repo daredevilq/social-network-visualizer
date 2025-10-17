@@ -1,7 +1,7 @@
 'use client';
 
-import {useProject } from "@/app/context/ProjectContext";
-import {useState, useEffect} from "react";
+import {useProject} from "@/app/context/ProjectContext";
+import {useEffect, useState} from "react";
 import {Network, Layers} from "lucide-react";
 import {useNotification} from '@/app/context/NotificationProvider';
 import {BannerType} from "@/app/components/Popups/Banner";
@@ -64,7 +64,7 @@ export default function FiltersContent() {
                 await fetchGraphData(request);
                 showNotification("Filters applied successfully", BannerType.INFO);
             } catch (err: any) {
-                showNotification(`Error updating graph: ${err.message || err}`,BannerType.ERROR);
+                showNotification(`Error updating graph: ${err.message || err}`, BannerType.ERROR);
             }
         });
     };
