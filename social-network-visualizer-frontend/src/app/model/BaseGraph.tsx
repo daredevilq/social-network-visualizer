@@ -1,15 +1,9 @@
 import {forwardRef, MouseEvent, useEffect, useImperativeHandle, useRef, useState} from "react";
 // @ts-ignore
 import ForceGraph, {ForceGraphInstance, LinkObject} from 'force-graph';
-import {
-    GraphLink,
-    GraphNode,
-    GraphProps,
-    NodeType,
-    SelectionBox
-} from '@/types/GraphTypes';
+import {GraphLink, GraphNode, GraphProps, NodeType, SelectionBox} from "@/types/GraphTypes";
 import {useProject} from "@/app/context/ProjectContext";
-import {useNotification} from "@/app/context/NotificationProvider";
+import {useNotification } from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
@@ -28,7 +22,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         nodeFoundId
     } = props;
 
-    const NODE_DISPLAY_LIMIT: number = 250;
+    const NODE_DISPLAY_LIMIT: number = 350;
     const containerRef = useRef<HTMLDivElement | null>(null);
     const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(null);
     const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
@@ -45,7 +39,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const clickedNodeRef = useRef<GraphNode | null>(null);
     const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const {showNotification} = useNotification();
-
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -87,7 +80,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         }
     }, [nodeFoundId]);
 
-
     useEffect(() => {
         if (!fgInstance.current) return;
 
@@ -126,11 +118,12 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                     ctx.fillStyle = NodeColors.getWhiteColor();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
-
                     ctx.fillText(nLabel, node.x, textYPosition);
+                    }
                 }
-            });
-    }, [nodeVal,
+            );
+    }, [
+        nodeVal,
         nodeLabel,
         nodeColor,
         linkColor,
@@ -140,7 +133,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         linkDirectionalArrowRelPos,
         selectedNodeIds
     ]);
-
 
     const handleNodeClick = (node: GraphNode) => {
         if (clickedNodeRef.current && clickedNodeRef.current.id === node.id && clickTimeoutRef.current) {
@@ -243,29 +235,38 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         showNotification("Graph has been reset.", BannerType.INFO);
     };
 
-
     const loadGraphData = () => {
         if (!fgInstance.current || !graphData?.nodes?.length) return;
 
-        const authorNodes = graphData.nodes.filter(
-            (n) => n.nodeType === NodeType.AUTHOR
-        );
+        const nodesByType = new Map<NodeType, GraphNode[]>();
+        graphData.nodes.forEach((node) => {
+            if (!nodesByType.has(node.nodeType)) {
+                nodesByType.set(node.nodeType, []);
+            }
+            nodesByType.get(node.nodeType)!.push(node);
+        });
 
-        const topAuthorNodes = authorNodes
-            .slice(0, NODE_DISPLAY_LIMIT)
-            .map(n => ({...n}));
+        const nodeTypes = Array.from(nodesByType.keys());
+        const nodesPerType = Math.floor(NODE_DISPLAY_LIMIT / nodeTypes.length);
 
-        const topAuthorNodesIds = new Set(topAuthorNodes.map(n => n.id));
+        // Take proportionally from each type (workaround)
+        const topNodes: GraphNode[] = [];
+        nodesByType.forEach((nodes, type) => {
+            topNodes.push(
+                ...nodes.slice(0, nodesPerType).map((n) => ({ ...n }))
+            );
+        });
+
+        const topNodesIds = new Set(topNodes.map((n) => n.id));
 
         const relevantLinks = graphData.links
-            .filter(
-                (link: GraphLink) => topAuthorNodesIds.has(link.source) && topAuthorNodesIds.has(link.target)
+            .filter((link: GraphLink) => topNodesIds.has(link.source) && topNodesIds.has(link.target)
             )
             .map((link: GraphLink) => ({...link}));
 
-        setDisplayedNodes(topAuthorNodes);
+        setDisplayedNodes(topNodes);
         setDisplayedLinks(relevantLinks);
-        fgInstance.current.graphData({nodes: topAuthorNodes, links: relevantLinks});
+        fgInstance.current.graphData({ nodes: topNodes, links: relevantLinks });
     };
 
     const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
@@ -307,12 +308,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         const nodes: GraphNode[] = fgInstance.current.graphData().nodes;
         const selectedNodes = nodes.filter((node: GraphNode) => {
             if (typeof node.x !== 'number' || typeof node.y !== 'number') return false;
-            return node.x >= Math.min(startCoords.x, endCoords.x) &&
+            return (node.x >= Math.min(startCoords.x, endCoords.x) &&
                 node.x <= Math.max(startCoords.x, endCoords.x) &&
                 node.y >= Math.min(startCoords.y, endCoords.y) &&
-                node.y <= Math.max(startCoords.y, endCoords.y);
+                node.y <= Math.max(startCoords.y, endCoords.y));
         });
-
 
         setSelectedNodeIds(selectedNodes.map(n => n.id));
         setWorkspaceNodes(selectedNodes);

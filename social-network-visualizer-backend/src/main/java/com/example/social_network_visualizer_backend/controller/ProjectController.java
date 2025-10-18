@@ -3,6 +3,8 @@ package com.example.social_network_visualizer_backend.controller;
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.dto.response.MessageResponse;
 import com.example.social_network_visualizer_backend.dto.response.ProjectUpdateResponse;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
+import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,18 +27,24 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectName}/import")
-    public ResponseEntity<MessageResponse> importProjectWithGraph(
-            @PathVariable String projectName,
-            @RequestParam("graph-type") String graphType) {
-        int importedTweets = projectService.loadProject(projectName, graphType);
+    public ResponseEntity<MessageResponse> importProject(
+            @PathVariable String projectName) {
+
+        int importedTweets = projectService.importProject(projectName);
+        log.info("Imported {} tweets", importedTweets);
         String message = "Project " + projectName + " imported successfully. " + "Imported tweets: " + importedTweets + ".";
 
         return ResponseEntity.ok(new MessageResponse(message));
     }
 
     @PostMapping("/{projectName}")
-    public ResponseEntity<ProjectUpdateResponse> createNewProject(@PathVariable String projectName, @RequestParam(name = "files") MultipartFile[] files) {
-        List<String> skippedFiles = projectService.createProject(projectName, files);
+    public ResponseEntity<ProjectUpdateResponse> createNewProject(
+            @PathVariable String projectName,
+            @RequestParam(name = "files") MultipartFile[] files,
+            @RequestParam(name = "config") String configJson) {
+
+        ProjectConfig projectConfig = projectService.parseConfig(configJson);
+        List<String> skippedFiles = projectService.createProject(projectName, projectConfig, files);
         String message = "Project " + projectName + " processed successfully.";
 
         return ResponseEntity.ok(new ProjectUpdateResponse(message, skippedFiles));
@@ -75,11 +83,24 @@ public class ProjectController {
     @PutMapping("/{projectName}/file")
     public ResponseEntity<ProjectUpdateResponse> appendFilesToProject(
             @PathVariable String projectName,
-            @RequestParam("files") MultipartFile[] files,
-            @RequestParam("graph-type") String graphType) {
-        List<String> skippedFiles = projectService.updateOpenedProject(projectName, files, graphType);
+            @RequestParam("files") MultipartFile[] files) {
+        List<String> skippedFiles = projectService.updateOpenedProject(projectName, files);
         String message = "Files added to project '" + projectName + "' successfully.";
 
         return ResponseEntity.ok(new ProjectUpdateResponse(message, skippedFiles));
     }
+
+    @GetMapping("/{projectName}/config")
+    public ResponseEntity<ProjectConfig> getProjectConfig(
+            @PathVariable String projectName) {
+        ProjectConfig config = projectService.getProjectConfig(projectName);
+        return ResponseEntity.ok(config);
+    }
+
+    @GetMapping("/default-metrics")
+    public ResponseEntity<List<MetricConfig>> getDefaultMetrics() {
+        List<MetricConfig> defaultMetrics = projectService.getDefaultMetrics();
+        return ResponseEntity.ok(defaultMetrics);
+    }
+
 }

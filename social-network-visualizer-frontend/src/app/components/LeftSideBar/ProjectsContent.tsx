@@ -5,9 +5,10 @@ import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
 import WorkspaceActionMenu from '@/app/components/Popups/WorkspaceActionMenu';
-import ConfirmModal       from '@/app/components/Popups/ConfirmModal';
+import ConfirmModal from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
+import ProjectConfigViewModal from "@/app/components/Popups/ProjectConfigViewModal";
 import {resetProjectName} from "@/app/project-state";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {useNotification} from "@/app/context/NotificationProvider";
@@ -18,7 +19,6 @@ type DeleteTarget = {
 	type: 'project' | 'workspace';
 	name: string;
 } | null;
-
 
 export default function ProjectsContent() {
 	const { loadedProjectName, loading, loadProject, runWithLoading, setGraphData } = useProject();
@@ -34,6 +34,7 @@ export default function ProjectsContent() {
 	const askDeleteProject = (name: string) => setDeleteTarget({ type: 'project', name });
 	const askDeleteWorkspace = (name: string) => setDeleteTarget({ type: 'workspace', name });
 	const cancelCreateModal = () => { setCreateProjectModalOpen(false); setPendingFiles([]); };
+    const [viewConfigTarget, setViewConfigTarget] = useState<string | null>(null);
 
 	const refreshProjects = async () => {
 		try {
@@ -144,12 +145,13 @@ export default function ProjectsContent() {
 								<span className="truncate">{project.name}</span>
 							</button>
 
-							<ProjectActionsMenu
-								disabled={loading}
-								onDelete={() => askDeleteProject(project.name)}
-								onEdit={() => setEditTarget(project.name)}
-							/>
-						</div>
+                            <ProjectActionsMenu
+                                disabled={loading}
+                                onDelete={() => askDeleteProject(project.name)}
+                                onEdit={() => setEditTarget(project.name)}
+                                onViewConfig={() => setViewConfigTarget(project.name)}
+                            />
+                        </div>
 
 						{loadedProjectName === project.name && !loading && (
 							<div className="ml-7 space-y-2 mb-3">
@@ -224,9 +226,10 @@ export default function ProjectsContent() {
 				onFilesChange={setPendingFiles}
 				onCancel={cancelCreateModal}
 				onSuccess={async (name) => {
-					cancelCreateModal();
-					await refreshProjects();
+                    cancelCreateModal();
+                    await refreshProjects();
 					await loadProject(name, true);
+                    showNotification(`Project "${name}" uploaded successfully. Click to load.`, BannerType.SUCCESS);
 				}}
 			/>
 
@@ -234,7 +237,10 @@ export default function ProjectsContent() {
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
 			/>
-
+            <ProjectConfigViewModal
+                projectName={viewConfigTarget}
+                onClose={() => setViewConfigTarget(null)}
+            />
 			<WorkspaceCreateModal
 				open={createWorkspaceModalOpen}
 				projectName={loadedProjectName!}

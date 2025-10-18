@@ -67,4 +67,11 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation
             """)
     List<LinkDto> findAllRelations();
+
+    @Query("""
+                CALL gds.graph.list() YIELD graphName
+                RETURN graphName
+            """)
+    List<String> listGdsGraphs();
+
 }

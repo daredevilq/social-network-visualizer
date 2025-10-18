@@ -1,7 +1,6 @@
 
 package com.example.social_network_visualizer_backend.dto.graph.graphNode;
 
-import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,13 +13,11 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TweetNodeDto extends NodeDto {
-    private String name;
-    private NodeType nodeType;
     private String content;
     private String authorName;
     private Long likesCount;
     private Long retweetsCount;
-    private String community;
+    private Integer community;
 }
 
 

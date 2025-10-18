@@ -2,7 +2,7 @@
 
 import {useEffect} from "react";
 import {useProject} from '@/app/context/ProjectContext';
-import {FolderPlus} from "lucide-react";
+import {FolderPlus} from 'lucide-react';
 import dynamic from 'next/dynamic';
 import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
@@ -36,7 +36,7 @@ export default function CommunityGraph() {
             })
             .then(txt => {
                 const parsed = JSON.parse(txt);
-                return Array.isArray(parsed) ? parsed as number[] : [];
+                return Array.isArray(parsed) ? (parsed as number[]) : [];
             });
 
         Promise.all([fetchTopIds])
@@ -46,7 +46,7 @@ export default function CommunityGraph() {
                     return;
                 }
 
-                const idSet = new Set(topIds.map(id => id.toString()));
+                const idSet = new Set(topIds.map((id) => id.toString()));
 
                 const authorNodes = (graphData.nodes ?? []).filter(
                     (n: any) => n.nodeType === NodeType.AUTHOR
@@ -88,7 +88,6 @@ export default function CommunityGraph() {
             });
     }, [loadedProjectName, loading, focusedCommunityId]);
 
-
     const getNodeColor = (node: any) => {
         return `hsl(${(node.community * 55) % 360}, 90%, 50%)`;
     };
@@ -112,7 +111,7 @@ export default function CommunityGraph() {
             nodeVal={(node: GraphNode) => {
                 // TODO: Add a strategy pattern for node sizing depends on pagerank or other metrics in community graph
                 const authorNode = node as AuthorNode;
-                return authorNode.pagerank ? authorNode.pagerank * 7 : 10
+                return Math.min(authorNode.pagerank ? authorNode.pagerank * 7 : 10, 30);
             }}
             nodeLabel={(node: GraphNode) => `${node.id}` + ` || Community: ${node.community}`}
             nodeColor={node => node.id === nodeFoundId ? NodeColors.getRedColor() : getNodeColor(node)}
