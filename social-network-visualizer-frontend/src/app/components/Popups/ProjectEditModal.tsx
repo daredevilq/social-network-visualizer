@@ -11,19 +11,16 @@ interface Props {
 	onClose: () => void;
 }
 
-export default function ProjectEditModal({
-	projectName,
-	onClose
-}: Props) {
-	const open = projectName !== null;
-	const fileInputRef = useRef<HTMLInputElement>(null!);
-	const [filesOnServer, setFilesOnServer] = useState<string[]>([]);
-	const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
-	const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
-	const [loading, setLoading] = useState(false);
-	const [status, setStatus] = useState<string | null>(null);
-	const { loadedProjectName, graphRelationType, loadProject, runWithLoading } = useProject();
-	const { setIsInWorkspaceMode, setOpenedWorkspaceName } = useWorkspace();
+export default function ProjectEditModal({ projectName, onClose }: Props) {
+    const open = projectName !== null;
+    const fileInputRef = useRef<HTMLInputElement>(null!);
+    const [filesOnServer, setFilesOnServer] = useState<string[]>([]);
+    const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+    const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState<string | null>(null);
+    const { loadedProjectName, loadProject, runWithLoading } = useProject();
+    const { setIsInWorkspaceMode, setOpenedWorkspaceName } = useWorkspace();
 
 	const showStatus = (msg: string) => {
 		setStatus(msg);
@@ -62,7 +59,6 @@ export default function ProjectEditModal({
 		try {
 			const fd = new FormData();
 			filesToUpload.forEach((f) => fd.append('files', f));
-			fd.append('graph-type', graphRelationType);
 
 			const res = await fetch(
 				`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`,
@@ -127,10 +123,10 @@ export default function ProjectEditModal({
 		onClose();
 	};
 
-	const handleMarkFileForDeletion = (fileName: string) => {
-		setFilesToDelete((prev) => (prev.includes(fileName) ? prev : [...prev, fileName]));
-		setFilesOnServer((prev) => prev.filter((name) => name !== fileName));
-	};
+    const handleMarkFileForDeletion = (fileName: string) => {
+        setFilesToDelete((prev) => prev.includes(fileName) ? prev : [...prev, fileName]);
+        setFilesOnServer((prev) => prev.filter((name) => name !== fileName));
+    };
 
 	useEffect(() => {
 		if (open) loadFileList().catch(console.error);

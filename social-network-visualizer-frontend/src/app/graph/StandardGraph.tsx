@@ -16,16 +16,9 @@ export default function StandardGraph() {
         loadedProjectName,
         nodeFoundId,
         shortestPath,
-        graphRelationType,
         fetchGraphData,
     } = useProject();
     const { graphData } = useGraph();
-
-    useEffect(() => {
-        if (!loadedProjectName) return;
-        fetchGraphData().then(r => {
-        });
-    }, [loadedProjectName, graphRelationType]);
 
     if (!loadedProjectName)
         return (
@@ -44,11 +37,10 @@ export default function StandardGraph() {
         <div className="relative flex flex-col justify-center items-center h-screen w-full">
             <BaseGraph
                 graphData={graphData}
-                nodeVal={(node: GraphNode) => ((node as any).pagerank ? (node as any).pagerank * 5 : 1)}
+                nodeVal={(node: GraphNode) => Math.min((node as any).pagerank ? (node as any).pagerank * 5 : 5, 30)}
                 nodeLabel={(node: GraphNode) => `${node.id}`}
                 nodeColor={(node: GraphNode) => {
                     if (node.id === nodeFoundId) return NodeColors.getRedColor();
-
                     if (shortestPath.includes(String(node.id))) {
                         return NodeColors.getGoldColor();
                     }
@@ -68,4 +60,3 @@ export default function StandardGraph() {
         </div>
     );
 }
-

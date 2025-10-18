@@ -2,16 +2,21 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.Project;
+import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.Binary;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +31,9 @@ public class ProjectService {
     private final Neo4jService neo4jService;
     private final MongodbService mongodbService;
     private final ProjectRepository projectRepository;
+    private final GridFsService gridFsService;
+    private final MetricComputationService metricComputationService;
+    private final ObjectMapper objectMapper;
 
     public List<ProjectSummary> getAllProjects() {
         List<ProjectSummary> summaries = projectRepository.findAll()
@@ -40,21 +48,32 @@ public class ProjectService {
         return summaries;
     }
 
-    public int loadProject(String projectName, String graphType) {
+    public int importProject(String projectName) {
+        Project project = projectRepository.findByName(projectName)
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
+                });
+
         neo4jService.waitForNeo4jToBeAvailable();
-        neo4jService.handleDatabaseDrop();
         mongodbService.waitForMongoDBToBeAvailable();
+        neo4jService.handleDatabaseDrop();
 
         int importedTweets = projectParser.parseDirectory(projectName);
-        neo4jService.computeMetricsAndRelations(graphType);
-        log.info("Project {} imported successfully", projectName);
 
+        neo4jService.createRelationsInGraph();
+        metricComputationService.computeMetrics(projectName, project.getConfig());
+
+        
+        log.info("Project {} imported successfully with {} tweets", projectName, importedTweets);
         return importedTweets;
     }
+    
 
-    public List<String> createProject(String projectName, MultipartFile[] files) {
+    public List<String> createProject(String projectName, ProjectConfig projectConfig, MultipartFile[] files) {
         Project project = Project.builder()
                 .name(projectName)
+                .config(projectConfig)
                 .files(new ArrayList<>())
                 .build();
 
@@ -119,7 +138,7 @@ public class ProjectService {
         for (MultipartFile file : files) {
             String filename = file.getOriginalFilename();
 
-            if (filename.isBlank()) {
+            if (filename == null || filename.isBlank()) {
                 log.warn("Skipped file with empty name");
                 skippedFiles.add("Unnamed file");
                 continue;
@@ -141,12 +160,19 @@ public class ProjectService {
             }
 
             try {
-                byte[] fileBytes = file.getBytes();
+                // actual file we store in gridFS, in ProjectFile we strore only ID
+                String gridFsId = gridFsService.storeFile(project.getName(), file);
+                
                 ProjectFile projectFile = ProjectFile.builder()
                         .filename(finalFilename)
-                        .data(new Binary(fileBytes))
+                        .gridFsId(gridFsId)
+                        .sizeInBytes(file.getSize())
                         .build();
+                        
                 project.getFiles().add(projectFile);
+                log.info("Added file '{}' to project '{}' (size: {} bytes, GridFS ID: {})",
+                        finalFilename, project.getName(), file.getSize(), gridFsId);
+                        
             } catch (IOException e) {
                 log.error("Error while reading file '{}'", filename, e);
                 skippedFiles.add(filename);
@@ -168,8 +194,11 @@ public class ProjectService {
         }
 
         try {
+
+            gridFsService.deleteProjectFiles(projectName);
             projectRepository.deleteByName(projectName);
-            log.info("Project '{}' deleted successfully from MongoDB.", projectName);
+
+            log.info("Project '{}' and all its files deleted successfully.", projectName);
         } catch (Exception e) {
             log.error("Error while deleting project '{}' from MongoDB", projectName, e);
             throw new ProjectException(
@@ -204,7 +233,7 @@ public class ProjectService {
         return filenames;
     }
 
-    public List<String> updateOpenedProject(String projectName, MultipartFile[] files, String graphType) {
+    public List<String> updateOpenedProject(String projectName, MultipartFile[] files) {
         Project project = projectRepository.findByName(projectName)
                 .orElseThrow(() -> {
                     log.error("Project '{}' not found", projectName);
@@ -234,7 +263,15 @@ public class ProjectService {
         projectParser.importFilesToDatabase(new ArrayList<>(), false);
 
         neo4jService.dropAllGdsGraphs();
-        neo4jService.computeMetricsAndRelations(graphType);
+        neo4jService.createRelationsInGraph();
+
+        Project reloadedProject = projectRepository.findByName(projectName)
+                .orElseThrow(() -> new ProjectException("Project '" + projectName + "' not found after update",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
+        
+        if (reloadedProject.getConfig() != null && reloadedProject.getConfig().metrics() != null) {
+            metricComputationService.computeMetrics(projectName, reloadedProject.getConfig());
+        }
 
         return skippedFiles;
     }
@@ -257,17 +294,20 @@ public class ProjectService {
             );
         }
 
-        boolean removed = project.getFiles().removeIf(file -> file.getFilename().equals(fileName));
-
-        if (!removed) {
-            log.error("File '{}' not found in project '{}'", fileName, projectName);
-            throw new ProjectException(
-                    "File '" + fileName + "' does not exist in project '" + projectName + "'",
-                    HttpStatus.NOT_FOUND
-            );
-        }
+        ProjectFile fileToDelete = project.getFiles().stream()
+                .filter(file -> file.getFilename().equals(fileName))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.error("File '{}' not found in project '{}'", fileName, projectName);
+                    return new ProjectException("File '" + fileName + "' does not exist in project '" + projectName + "'",
+                            HttpStatus.NOT_FOUND
+                    );
+                });
 
         try {
+            gridFsService.deleteFile(fileToDelete.getGridFsId());
+            project.getFiles().removeIf(file -> file.getFilename().equals(fileName));
+
             projectRepository.save(project);
             log.info("File '{}' deleted successfully from project '{}'", fileName, projectName);
         } catch (Exception e) {
@@ -276,6 +316,45 @@ public class ProjectService {
                     "Failed to delete file '" + fileName + "' from project '" + projectName + "': " + e.getMessage(),
                     e,
                     HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public ProjectConfig getProjectConfig(String projectName) {
+        Project project = projectRepository.findByName(projectName)
+                .orElseThrow(() -> {
+                    log.error("Project '{}' not found", projectName);
+                    return new ProjectException("Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
+                });
+        
+        log.info("Retrieved config for project: {}", projectName);
+        return project.getConfig();
+    }
+
+    public List<MetricConfig> getDefaultMetrics() {
+        try {
+            ClassPathResource resource = new ClassPathResource("defaultMetrics.json");
+            try (InputStream inputStream = resource.getInputStream()) {
+                List<MetricConfig> defaultMetrics = objectMapper.readValue(inputStream, new TypeReference<List<MetricConfig>>() {});
+                log.info("Loaded {} default metrics from configuration", defaultMetrics.size());
+                return defaultMetrics;
+            }
+        } catch (IOException e) {
+            log.error("Failed to load default metrics configuration", e);
+            throw new ProjectException(
+                    "Failed to load default metrics configuration: " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public ProjectConfig parseConfig(String configJson){
+        try {
+            ProjectConfig projectConfig = new ObjectMapper().readValue(configJson, ProjectConfig.class);
+            return projectConfig;
+        } catch (Exception e) {
+            log.error("Failed to parse config JSON", e);
+            throw new ProjectException(
+                    "Invalid configuration format: " + e.getMessage(), e, HttpStatus.BAD_REQUEST
             );
         }
     }

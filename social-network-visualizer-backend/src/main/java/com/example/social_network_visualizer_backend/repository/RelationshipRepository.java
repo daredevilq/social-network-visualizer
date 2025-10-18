@@ -2,7 +2,6 @@ package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.model.Author;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
-import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -38,19 +37,6 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String>{
         MERGE (a1)-[:SHARES_HASHTAG]->(a2);
         """)
     void createRelationshipAuthorsShareHashtag();
-
-    @Query("""
-        MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_CASHTAG]->(h:Cashtag)
-        MERGE (a)-[:USES_CASHTAG]->(h);
-        """)
-    void createRelationshipAuthorUsesCashtag();
-
-    @Query("""
-        MATCH (a1:Author)-[:USES_CASHTAG]->(h:Cashtag)<-[:USES_CASHTAG]-(a2:Author)
-        WHERE a1 <> a2
-        MERGE (a1)-[:SHARES_CASHTAG]->(a2);
-        """)
-    void createRelationshipAuthorsShareCashtag();
 
     @Query("""
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)

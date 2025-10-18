@@ -3,7 +3,17 @@ import { NodeObject, LinkObject } from 'force-graph';
 export enum NodeType {
     AUTHOR = 'AUTHOR',
     TWEET = 'TWEET',
-    HASHTAG = 'HASHTAG'
+    HASHTAG = 'HASHTAG',
+}
+
+export enum MetricType {
+    PAGERANK = 'PAGERANK',
+    COMMUNITY = 'COMMUNITY',
+}
+
+export enum Orientation {
+    NATURAL = 'NATURAL',
+    UNDIRECTED = 'UNDIRECTED',
 }
 
 export interface BaseNode extends NodeObject {
@@ -23,7 +33,7 @@ export interface TweetNode extends BaseNode {
     authorName: string;
     likesCount: number;
     retweetsCount: number;
-    community: string;
+    community: number;
 }
 export interface HashtagNode extends BaseNode {
     nodeType: NodeType.HASHTAG;
@@ -32,7 +42,6 @@ export interface HashtagNode extends BaseNode {
 }
 
 export type GraphNode = AuthorNode | TweetNode | HashtagNode;
-
 
 export enum RelationType {
     MENTIONS = 'MENTIONS',
@@ -77,4 +86,22 @@ export interface SelectionBox {
     startY: number;
     endX: number;
     endY: number;
+}
+
+export interface MetricConfig {
+    type: MetricType;
+    nodeLabels: NodeType[];
+    relationTypes: RelationType[];
+    orientation: Orientation;
+}
+
+export interface ProjectConfig {
+    metrics: MetricConfig[];
+}
+
+export interface ConfigMeta {
+    nodeLabels: string[];
+    relationTypes: string[];
+    metricTypes: string[];
+    orientations: string[];
 }

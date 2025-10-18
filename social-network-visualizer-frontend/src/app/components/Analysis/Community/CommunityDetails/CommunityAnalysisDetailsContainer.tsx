@@ -14,20 +14,17 @@ import {GraphType} from "@/app/interface/GraphType";
 import {setGraphUiType} from "@/app/project-state";
 
 export default function CommunityAnalysisDetailsContainer(
-    {communityId}: { communityId: string }
-) {
+    {communityId}: { communityId: string }) {
     const id = Number(communityId);
     const {data: summary, loading: loadingSummary} = useCommunitySummary(id);
     const {data: authors, loading: loadingAuthors} = useCommunityAuthors(id);
-    const {
-        data: communityHeatMap,
-        loading: loadingHeatMap,
-    } = useActivityHeatmap({communityId: id});
-    const {setFocusedCommunityId} = useProject();
+    const {data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({communityId: id});
+    const {setFocusedCommunityId, setSelectedGraphType} = useProject();
 
-    const openGraph = () => {
+    const openGraph = async () => {
         setFocusedCommunityId(communityId);
-        setGraphUiType(GraphType.COMMUNITY);
+        await setGraphUiType(GraphType.COMMUNITY);
+        setSelectedGraphType(GraphType.COMMUNITY);
         router.push("/");
     };
 
@@ -44,7 +41,6 @@ export default function CommunityAnalysisDetailsContainer(
     return (
         <section className="flex flex-col h-max w-full text-[#FAFAFA]">
             <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
-
                 <header className="mb-6 flex items-center justify-between gap-4 w-full">
                     <button
                         onClick={() => router.push('/community-analysis')}
@@ -61,7 +57,7 @@ export default function CommunityAnalysisDetailsContainer(
                     </h1>
 
                     <button
-                        onClick={async () => openGraph}
+                        onClick={openGraph}
                         className="ml-auto shrink-0 text-white bg-[#7140F4] hover:bg-indigo-500 cursor-pointer px-4 py-1.5 rounded-md transition-colors duration-200"
                     >
                         Show community graph
@@ -78,8 +74,12 @@ export default function CommunityAnalysisDetailsContainer(
                             Top Author
                         </h3>
                         <div className="flex items-center justify-between">
-                            <span className="text-gray-300">@{summary.topAuthor}</span>
-                            <span className="text-sm text-gray-400">PageRank: {summary.topPageRank.toFixed(2)}</span>
+                            <span className="text-gray-300">
+                                @{summary.topAuthor}
+                            </span>
+                            <span className="text-sm text-gray-400">
+                                PageRank: {summary.topPageRank.toFixed(2)}
+                            </span>
                         </div>
                     </div>
 
@@ -96,14 +96,15 @@ export default function CommunityAnalysisDetailsContainer(
                             Community Members ({usernamesInCommunity.length})
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                            {usernamesInCommunity.map((username, index) => (
-                                <button onClick={() => router.push(`/user-details/${username}`)}>
-                                    <div
-                                        key={index}
-                                        className="bg-[#7140F4] hover:bg-indigo-500 transition-colors cursor-pointer rounded-lg px-3 py-2 text-sm text-gray-300  border border-gray-700"
-                                    >
-                                        {username}
-                                    </div>
+                            {usernamesInCommunity.map((username) => (
+                                <button
+                                    key={username}
+                                    onClick={() =>
+                                        router.push(`/user-details/${username}`)
+                                    }
+                                    className="bg-[#7140F4] hover:bg-indigo-500 transition-colors cursor-pointer rounded-lg px-3 py-2 text-sm text-gray-300 border border-gray-700"
+                                >
+                                    {username}
                                 </button>
                             ))}
                         </div>

@@ -1,8 +1,12 @@
 'use client';
 
-import { useRef, useState, useEffect } from "react";
-import { Dialog } from "@headlessui/react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Dialog } from '@headlessui/react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
+import AdvancedConfigModal from "@/app/components/Popups/AdvancedConfigModal";
+import { useDefaultMetricsConfig } from "@/app/hooks/useDefaultMetricsConfig";
+import { ProjectConfig } from "@/types/GraphTypes";
+import { Settings } from "lucide-react";
 
 interface ProjectUploadModalProps {
 	open: boolean;
@@ -27,6 +31,9 @@ export default function ProjectUploadModal({
 	const [isFileError, setIsFileError] = useState(false);
 	const [nameErrorMessage, setNameErrorMessage] = useState("");
 	const [fileErrorMessage, setFileErrorMessage] = useState("");
+    const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
+    const [config, setConfig] = useState<ProjectConfig | null>(null);
+    const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
 
 	useEffect(() => {
 		if (open) {
@@ -35,10 +42,19 @@ export default function ProjectUploadModal({
 			setIsFileError(false);
 			setNameErrorMessage("");
 			setFileErrorMessage("");
+            setConfig(null);
+            setShowAdvancedConfig(false);
 		}
 	}, [open]);
 
-	const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        if (defaultMetrics.length > 0 && !config) {
+            setConfig({ metrics: defaultMetrics });
+        }
+    }, [defaultMetrics, config]);
+
+
+    const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
 			const filesArray = Array.from(e.target.files);
 			onFilesChange([...pendingFiles, ...filesArray]);
@@ -75,6 +91,10 @@ export default function ProjectUploadModal({
 		const formData = new FormData();
 		pendingFiles.forEach((file) => formData.append("files", file));
 
+        if (config) {
+            formData.append("config", JSON.stringify(config));
+        }
+
 		try {
 			const response = await fetch(`${API_BASE_URL}/project/${trimmedName}`, {
 				method: "POST",
@@ -104,9 +124,9 @@ export default function ProjectUploadModal({
 			onSuccess(trimmedName);
 			setProjectName("");
 			onFilesChange([]);
+            setConfig(null);
 		} catch (err: any) {
 			console.error("Upload error:", err);
-			alert(err.message); // to delete probably
 		}
 	};
 
@@ -116,20 +136,23 @@ export default function ProjectUploadModal({
 		onFilesChange(updatedFiles);
 	};
 
-	return (
-		<Dialog
-			open={open}
-			onClose={onCancel}
-			className="fixed inset-0 z-50 flex items-center justify-center"
-		>
+    const handleConfigChange = useCallback((cfg: ProjectConfig) => {
+        setConfig(cfg);
+    }, []);
 
-			{open && (
-				<div
-					className="fixed inset-0 bg-black/50"
-					aria-hidden="true"
-					onClick={onCancel}
-				/>
-			)}
+    return (
+        <><Dialog
+                open={open && !showAdvancedConfig}
+                onClose={onCancel}
+                className="fixed inset-0 z-50 flex items-center justify-center"
+            >
+                {open && !showAdvancedConfig && (
+                    <div
+                        className="fixed inset-0 bg-black/50"
+                        aria-hidden="true"
+                        onClick={onCancel}
+                    />
+                )}
 
 			<div
 				className="fixed inset-0 bg-black/50"
@@ -137,7 +160,6 @@ export default function ProjectUploadModal({
 				onClick={onCancel}
 			/>
 
-			{/* panel */}
 			<div
 				className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
 				onClick={(e) => e.stopPropagation()}
@@ -146,7 +168,6 @@ export default function ProjectUploadModal({
 					Upload New Project
 				</Dialog.Title>
 
-				{/* name input */}
 				<input
 					value={projectName}
 					onChange={(e) => {
@@ -163,7 +184,6 @@ export default function ProjectUploadModal({
 					<p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>
 				)}
 
-				{/* files list */}
 				<div
 					className={`mb-1 p-2 rounded ${
 						isFileError ? "border-2 border-red-300" : "border-2 border-gray-600"
@@ -188,11 +208,10 @@ export default function ProjectUploadModal({
 						)}
 					</ul>
 				</div>
-				{isFileError && (
-					<p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>
-				)}
+                {isFileError && (<p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>)}
 
-				<div className="flex justify-between items-center mb-4">
+
+				<div className="flex justify-between items-center mb-4 mt-4">
 					<button
 						onClick={() => fileInputRef.current?.click()}
 						className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
@@ -208,6 +227,31 @@ export default function ProjectUploadModal({
 						className="hidden"
 					/>
 				</div>
+
+                <div className="mb-4 flex items-center justify-between p-3 bg-[#30303d] rounded-lg border border-gray-600">
+                    <div>
+                        <p className="text-sm font-medium text-gray-200">
+                            Metrics Configuration
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5 mr-5">
+                            {loadingDefaults
+                                ? "Loading default configuration..."
+                                : "Default: PAGERANK, COMMUNITY with AUTHOR nodes and MENTIONS relations"}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setShowAdvancedConfig(true)}
+                        disabled={loadingDefaults}
+                        className={`px-4 py-2 rounded text-black ${
+                            loadingDefaults
+                                ? "bg-gray-500 cursor-not-allowed"
+                                : "bg-gray-300 hover:bg-gray-400"
+                        }`}
+                    >
+                        <Settings className="w-4 h-4" />
+                    </button>
+                </div>
 
 				<div className="flex justify-end space-x-2">
 					<button
@@ -231,5 +275,15 @@ export default function ProjectUploadModal({
 				</div>
 			</div>
 		</Dialog>
+
+            <AdvancedConfigModal
+                open={showAdvancedConfig}
+                onClose={() => setShowAdvancedConfig(false)}
+                projectName={projectName.trim()}
+                currentConfig={config}
+                defaultMetricsConfig={defaultMetrics}
+                onChange={handleConfigChange}
+            />
+        </>
 	);
 }

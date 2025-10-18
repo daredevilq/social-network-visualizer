@@ -65,7 +65,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-                OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
                 ORDER BY t.publicationDate DESC
                 RETURN t.url AS url, t.contentPreview AS contentPreview
                 LIMIT 3
@@ -76,7 +75,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-                OPTIONAL MATCH (t)-[:HAS_CASHTAG]->(c:Cashtag)
                 RETURN t.id AS id,
                        t.objectCreatedAt AS objectCreatedAt,
                        t.publicationDate AS publicationDate,
@@ -93,8 +91,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                        t.repliesCount AS repliesCount,
                        t.retweetsCount AS retweetsCount,
                        t.likesCount AS likesCount,
-                       COLLECT(h) AS hashtags,
-                       COLLECT(c) AS cashtags
+                       COLLECT(h) AS hashtags
                 ORDER BY t.publicationDate DESC
                 LIMIT 10
             """)

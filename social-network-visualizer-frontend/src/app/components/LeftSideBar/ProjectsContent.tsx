@@ -8,6 +8,7 @@ import WorkspaceActionMenu from '@/app/components/Popups/WorkspaceActionMenu';
 import ConfirmModal from '@/app/components/Popups/ConfirmModal';
 import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
 import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
+import ProjectConfigViewModal from "@/app/components/Popups/ProjectConfigViewModal";
 import {resetProjectName} from "@/app/project-state";
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {useNotification} from "@/app/context/NotificationProvider";
@@ -31,9 +32,11 @@ export default function ProjectsContent() {
 	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 	const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 	const [editTarget, setEditTarget] = useState<string|null>(null);
+	const [selectedWorkspace, setSelectedWorkspace] = useState<string|null>(null);
 	const askDeleteProject = (name: string) => setDeleteTarget({ type: 'project', name });
 	const askDeleteWorkspace = (name: string) => setDeleteTarget({ type: 'workspace', name });
 	const cancelCreateModal = () => { setCreateProjectModalOpen(false); setPendingFiles([]); };
+    const [viewConfigTarget, setViewConfigTarget] = useState<string | null>(null);
 
 	useEffect(() => {
 		refreshProjects();
@@ -165,7 +168,8 @@ export default function ProjectsContent() {
 								disabled={loading}
 								onDelete={() => runWithUnsavedCheck(async () => askDeleteProject(project.name))}
 								onEdit={() => runWithUnsavedCheck(async () => setEditTarget(project.name))}
-							/>
+                                onViewConfig={() => setViewConfigTarget(project.name)}
+                            />
 						</div>
 
 						{loadedProjectName === project.name && !loading && (
@@ -238,11 +242,12 @@ export default function ProjectsContent() {
 				onFilesChange={setPendingFiles}
 				onCancel={cancelCreateModal}
 				onSuccess={async (name) => {
-					cancelCreateModal();
-					await refreshProjects();
+                    cancelCreateModal();
+                    await refreshProjects();
 					await loadProject(name, true);
 					setIsInWorkspaceMode(false);
 					setOpenedWorkspaceName(null);
+                    showNotification(`Project "${name}" uploaded successfully. Click to load.`, BannerType.SUCCESS);
 				}}
 			/>
 
@@ -250,7 +255,10 @@ export default function ProjectsContent() {
 				projectName={editTarget}
 				onClose={() => setEditTarget(null)}
 			/>
-
+            <ProjectConfigViewModal
+                projectName={viewConfigTarget}
+                onClose={() => setViewConfigTarget(null)}
+            />
 			<WorkspaceCreateModal
 				open={createWorkspaceModalOpen}
 				projectName={loadedProjectName!}
