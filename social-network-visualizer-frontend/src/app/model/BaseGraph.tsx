@@ -25,7 +25,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         linkLabel,
         linkDirectionalArrowLength,
         linkDirectionalArrowRelPos,
-        nodeFoundId
+        nodeFound
     } = props;
 
     const NODE_DISPLAY_LIMIT: number = 250;
@@ -77,15 +77,15 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     }, [graphData, fgInstance]);
 
     useEffect(() => {
-        if (!fgInstance.current || !nodeFoundId) return;
+        if (!fgInstance.current || !nodeFound) return;
         const graphCurrentData = fgInstance.current.graphData();
-        const node = graphCurrentData.nodes.find((n: GraphNode) => n.id === nodeFoundId);
+        const node = graphCurrentData.nodes.find((n: GraphNode) => (n.id === nodeFound?.id && n.nodeType === nodeFound?.nodeType));
 
         if (node && 'x' in node && 'y' in node) {
             fgInstance.current.centerAt(node.x, node.y, 1000);
             fgInstance.current.zoom(6, 1000);
         }
-    }, [nodeFoundId]);
+    }, [nodeFound]);
 
     useEffect(() => {
         if (!fgInstance.current) return;
