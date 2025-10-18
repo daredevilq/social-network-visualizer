@@ -14,9 +14,8 @@ const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function StandardGraph() {
     const {
         loadedProjectName,
-        nodeFoundId,
+        nodeFound,
         shortestPath,
-        fetchGraphData,
     } = useProject();
     const { graphData } = useGraph();
 
@@ -40,7 +39,8 @@ export default function StandardGraph() {
                 nodeVal={(node: GraphNode) => Math.min((node as any).pagerank ? (node as any).pagerank * 5 : 5, 30)}
                 nodeLabel={(node: GraphNode) => `${node.id}`}
                 nodeColor={(node: GraphNode) => {
-                    if (node.id === nodeFoundId) return NodeColors.getRedColor();
+                    if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return NodeColors.getRedColor();
+
                     if (shortestPath.includes(String(node.id))) {
                         return NodeColors.getGoldColor();
                     }
@@ -55,7 +55,7 @@ export default function StandardGraph() {
                 linkLabel={(link: GraphLink) => `${link.relation}`}
                 linkDirectionalArrowLength={6}
                 linkDirectionalArrowRelPos={1}
-                nodeFoundId={nodeFoundId}
+                nodeFound={nodeFound}
             />
         </div>
     );
