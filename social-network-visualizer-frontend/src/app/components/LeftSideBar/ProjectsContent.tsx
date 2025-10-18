@@ -228,6 +228,7 @@ export default function ProjectsContent() {
 				onSuccess={async (name) => {
                     cancelCreateModal();
                     await refreshProjects();
+					await loadProject(name, true);
                     showNotification(`Project "${name}" uploaded successfully. Click to load.`, BannerType.SUCCESS);
 				}}
 			/>

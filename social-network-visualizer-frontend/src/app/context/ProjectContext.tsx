@@ -143,16 +143,19 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
                 showNotification(`Successfully loaded project: ${name}`, BannerType.SUCCESS);
 
-                if (fetchData) await fetchGraphData();
+                if (fetchData) await fetchGraphData(undefined, name);
             } catch (err) {
                 showNotification(`Error loading project "${name}".`, BannerType.ERROR);
             }
         });
     };
 
-    const fetchGraphData = async (request?: GraphQueryRequest) =>
+    const fetchGraphData = async (request?: GraphQueryRequest, projectNameOverride?: string) =>
         runWithLoading(async () => {
-            if (!loadedProjectName) return;
+            const projectName = projectNameOverride ?? loadedProjectName;
+            
+            if (!projectName) return;
+
             try {
 
                 const graphQuery: GraphQueryRequest = request ?? {
