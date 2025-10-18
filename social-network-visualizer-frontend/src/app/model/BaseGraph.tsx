@@ -118,8 +118,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
                     ctx.fillStyle = NodeColors.getWhiteColor();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
-
-                        ctx.fillText(nLabel, node.x, textYPosition);
+                    ctx.fillText(nLabel, node.x, textYPosition);
                     }
                 }
             );

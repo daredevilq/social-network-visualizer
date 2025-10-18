@@ -27,18 +27,26 @@ public class GraphService {
     private final List<NodeQueryStrategy> nodeQueryStrategies;
 
     public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
-        log.info("Building graph with nodeTypes: {}, relations: {}, community: {}", 
-                request.nodeTypes(), request.relationTypes(), communityId.orElse(null));
+        GraphQueryRequest finalRequest = validateRequest(request);
 
-        List<NodeDto> nodes = fetchRequestedNodes(request.nodeTypes(), communityId);
+        List<NodeDto> nodes = fetchRequestedNodes(finalRequest.nodeTypes(), communityId);
         List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
+        List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
 
-        List<LinkDto> links = fetchRequestedLinks(request.relationTypes(), communityId);
+        log.info("Graph built (community: {}) | nodeTypes={} | relationTypes={} | nodes: {} total, {} unique | links: {}",
+                communityId.map(String::valueOf).orElse("null"),
+                finalRequest.nodeTypes(),
+                finalRequest.relationTypes(),
+                nodes.size(), uniqueNodes.size(), links.size());
 
-        log.info("Graph built successfully with {} unique nodes (from {} total) and {} links", 
-                uniqueNodes.size(), nodes.size(), links.size());
         return new GraphDataDto(uniqueNodes, links);
     }
+
+    //TODO: the the problem is that we need to change the logic of displaying nodes and links
+    //when we have HashtagDtp.name = "Google" and AuthorDto.name = "Google" (its real example)
+    //frontend doesnt know that relation MENTIONS only apply to AUTHOR->AUTHOR and it linsk HASHTAG->AUTHOR too
+    //because we dont have information in LinkDto what type of node source and target is
+    //fix shouldnt be complicated but we should do this in the next PR, for now we deduplicate by name
 
     private List<NodeDto> deduplicateNodesByName(List<NodeDto> nodes) {
         Map<String, NodeDto> uniqueNodesMap = new LinkedHashMap<>();
@@ -88,5 +96,19 @@ public class GraphService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No strategy found for node type: " + nodeType));
+    }
+
+    private GraphQueryRequest validateRequest(GraphQueryRequest request){
+        Set<NodeType> nodeTypes = request.nodeTypes();
+        Set<RelationType> relationTypes = request.relationTypes();
+
+        if (nodeTypes == null || nodeTypes.isEmpty()) {
+            nodeTypes = Set.of(NodeType.AUTHOR);
+        }
+        if (relationTypes == null || relationTypes.isEmpty()) {
+            relationTypes = Set.of(RelationType.MENTIONS);
+        }
+
+        return  new GraphQueryRequest(nodeTypes, relationTypes);
     }
 }

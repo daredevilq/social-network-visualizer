@@ -23,20 +23,7 @@ public class GraphController {
 
     @PostMapping
     public ResponseEntity<GraphDataDto> getGraph(@RequestBody GraphQueryRequest request) {
-
-        Set<NodeType> nodeTypes = request.nodeTypes();
-        Set<RelationType> relationTypes = request.relationTypes();
-        
-        if (nodeTypes == null || nodeTypes.isEmpty()) {
-            nodeTypes = Set.of(NodeType.AUTHOR);
-        }
-        if (relationTypes == null || relationTypes.isEmpty()) {
-            relationTypes = Set.of(RelationType.MENTIONS);
-        }
-        
-        GraphQueryRequest finalRequest = new GraphQueryRequest(nodeTypes, relationTypes);
-        GraphDataDto graph = graphService.getGraph(finalRequest, Optional.empty());
-        
+        GraphDataDto graph = graphService.getGraph(request, Optional.empty());
         return ResponseEntity.ok(graph);
     }
 
@@ -44,20 +31,7 @@ public class GraphController {
     public ResponseEntity<GraphDataDto> getGraphByCommunity(
             @PathVariable Integer communityId,
             @RequestBody GraphQueryRequest request) {
-
-        Set<NodeType> nodeTypes = request.nodeTypes();
-        Set<RelationType> relationTypes = request.relationTypes();
-        
-        if (nodeTypes == null || nodeTypes.isEmpty()) {
-            nodeTypes = Set.of(NodeType.AUTHOR);
-        }
-        if (relationTypes == null || relationTypes.isEmpty()) {
-            relationTypes = Set.of(RelationType.MENTIONS);
-        }
-        
-        GraphQueryRequest finalRequest = new GraphQueryRequest(nodeTypes, relationTypes);
-        GraphDataDto graph = graphService.getGraph(finalRequest, Optional.of(communityId));
-        
+        GraphDataDto graph = graphService.getGraph(request, Optional.of(communityId));
         return ResponseEntity.ok(graph);
     }
 }

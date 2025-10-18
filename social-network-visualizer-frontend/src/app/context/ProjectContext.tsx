@@ -125,7 +125,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     };
 
     const loadProject = async (name: string, fetchData: boolean = false) => {
-        runWithLoading(async () => {
+        await runWithLoading(async () => {
             try {
                 const res = await fetch(
                     `${API_BASE_URL}/project/${name}/import`,

@@ -23,7 +23,10 @@ export default function FiltersContent() {
     const [tempNodeTypes, setTempNodeTypes] = useState<NodeType[]>(selectedNodeTypes);
     const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(selectedRelationTypes);
 
-    useEffect(() => {setTempNodeTypes(selectedNodeTypes);setTempRelationTypes(selectedRelationTypes);}, [selectedNodeTypes, selectedRelationTypes]);
+    useEffect(() => {
+        setTempNodeTypes(selectedNodeTypes);
+        setTempRelationTypes(selectedRelationTypes);
+        }, [selectedNodeTypes, selectedRelationTypes]);
 
     const toggleNodeType = (nodeType: NodeType) => {
         setTempNodeTypes((prev) =>
@@ -85,7 +88,7 @@ export default function FiltersContent() {
                         <button
                             key={nodeType}
                             onClick={() => toggleNodeType(nodeType)}
-                            className="flex items-center gap-3 w-full text-left py-2 px-3 rounded hover:bg-white/5 transition-colors"
+                            className="group flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors"
                         >
                             <div
                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -98,7 +101,7 @@ export default function FiltersContent() {
                                     <div className="w-2 h-2 rounded-full bg-white" />
                                 )}
                             </div>
-                            <span className="truncate">{nodeType}</span>
+                            <span className="truncate transition-colors group-hover:text-[#7140F4] focus-visible:text-[#7140F4]">{nodeType}</span>
                         </button>
                     ))}
                 </div>
@@ -110,17 +113,13 @@ export default function FiltersContent() {
                     Relation Types
                 </h2>
                 <div
-                    className="flex-1 overflow-y-auto space-y-2 pr-2"
-                    style={{
-                        scrollbarWidth: "thin",
-                        scrollbarColor: "#4B5563 #1F2937",
-                    }}
+                    className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-dark"
                 >
                     {Object.values(RelationType).map((relationType) => (
                         <button
                             key={relationType}
                             onClick={() => toggleRelationType(relationType)}
-                            className="flex items-center gap-3 w-full text-left py-2 px-3 rounded hover:bg-white/5 transition-colors"
+                            className="group flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors"
                         >
                             <div
                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -133,7 +132,7 @@ export default function FiltersContent() {
                                     <div className="w-2 h-2 rounded-full bg-white" />
                                 )}
                             </div>
-                            <span className="truncate">{relationType}</span>
+                            <span className="truncate transition-colors group-hover:text-[#7140F4] focus-visible:text-[#7140F4]">{relationType}</span>
                         </button>
                     ))}
                 </div>
@@ -147,23 +146,6 @@ export default function FiltersContent() {
                     Apply Filters
                 </button>
             </div>
-
-            <style jsx>{`
-                div::-webkit-scrollbar {
-                    width: 8px;
-                }
-                div::-webkit-scrollbar-track {
-                    background: #1f2937;
-                    border-radius: 4px;
-                }
-                div::-webkit-scrollbar-thumb {
-                    background: #4b5563;
-                    border-radius: 4px;
-                }
-                div::-webkit-scrollbar-thumb:hover {
-                    background: #6b7280;
-                }
-            `}</style>
         </div>
     );
 }

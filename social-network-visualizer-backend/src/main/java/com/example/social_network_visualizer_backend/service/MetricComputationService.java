@@ -1,4 +1,4 @@
-package com.example.social_network_visualizer_backend.service.metric;
+package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.enums.MetricType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
@@ -7,6 +7,7 @@ import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.repository.GraphRepository;
+import com.example.social_network_visualizer_backend.service.metric.MetricComputationStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,6 @@ public class MetricComputationService {
     private final List<MetricComputationStrategy> strategies;
 
     public void computeMetrics(String projectName, ProjectConfig config) {
-        log.info("Starting metric computation for project: {}", projectName);
-        
         if (config == null || config.metrics() == null || config.metrics().isEmpty()) {
             log.warn("No metrics defined in project config for: {}", projectName);
             return;
@@ -50,16 +49,12 @@ public class MetricComputationService {
             createGraphProjection(tempGraphName, metricCfg);
             MetricComputationStrategy strategy = findStrategy(metricCfg.type());
             strategy.compute(tempGraphName);
-            graphRepository.dropGdsGraph(tempGraphName);
 
         } catch (Exception e) {
             log.error("Failed to compute metric {} for graph {}: {}", metricCfg.type(), tempGraphName, e.getMessage(), e);
-            try {
-                graphRepository.dropGdsGraph(tempGraphName);
-            } catch (Exception cleanupEx) {
-                log.warn("Failed to cleanup graph {} after error: {}", tempGraphName, cleanupEx.getMessage());
-            }
             throw new RuntimeException("Failed to compute metric: " + metricCfg.type(), e);
+        } finally {
+            graphRepository.dropGdsGraph(tempGraphName);
         }
     }
     

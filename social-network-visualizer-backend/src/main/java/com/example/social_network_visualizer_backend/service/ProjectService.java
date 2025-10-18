@@ -7,7 +7,6 @@ import com.example.social_network_visualizer_backend.model.project.Project;
 import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
-import com.example.social_network_visualizer_backend.service.metric.MetricComputationService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -344,6 +343,18 @@ public class ProjectService {
             log.error("Failed to load default metrics configuration", e);
             throw new ProjectException(
                     "Failed to load default metrics configuration: " + e.getMessage(), e, HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public ProjectConfig parseConfig(String configJson){
+        try {
+            ProjectConfig projectConfig = new ObjectMapper().readValue(configJson, ProjectConfig.class);
+            return projectConfig;
+        } catch (Exception e) {
+            log.error("Failed to parse config JSON", e);
+            throw new ProjectException(
+                    "Invalid configuration format: " + e.getMessage(), e, HttpStatus.BAD_REQUEST
             );
         }
     }

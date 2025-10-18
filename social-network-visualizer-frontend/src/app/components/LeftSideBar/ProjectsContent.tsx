@@ -15,7 +15,10 @@ import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import WorkspaceCreateModal from "@/app/components/Popups/WorkspaceCreateModal";
 
-type DeleteTarget = { type: "project" | "workspace"; name: string; } | null;
+type DeleteTarget = {
+	type: 'project' | 'workspace';
+	name: string;
+} | null;
 
 export default function ProjectsContent() {
 	const { loadedProjectName, loading, loadProject, runWithLoading, setGraphData } = useProject();

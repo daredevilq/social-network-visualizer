@@ -3,14 +3,11 @@ package com.example.social_network_visualizer_backend.controller;
 import com.example.social_network_visualizer_backend.dto.ProjectSummary;
 import com.example.social_network_visualizer_backend.dto.response.MessageResponse;
 import com.example.social_network_visualizer_backend.dto.response.ProjectUpdateResponse;
-import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.service.ProjectService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +30,6 @@ public class ProjectController {
     public ResponseEntity<MessageResponse> importProject(
             @PathVariable String projectName) {
 
-        log.info("Importing project {}", projectName);
         int importedTweets = projectService.importProject(projectName);
         log.info("Imported {} tweets", importedTweets);
         String message = "Project " + projectName + " imported successfully. " + "Imported tweets: " + importedTweets + ".";
@@ -47,16 +43,7 @@ public class ProjectController {
             @RequestParam(name = "files") MultipartFile[] files,
             @RequestParam(name = "config") String configJson) {
 
-        ProjectConfig projectConfig;
-        try {
-            projectConfig = new ObjectMapper().readValue(configJson, ProjectConfig.class);
-        } catch (Exception e) {
-            log.error("Failed to parse config JSON", e);
-            throw new ProjectException(
-                    "Invalid configuration format: " + e.getMessage(), e, HttpStatus.BAD_REQUEST
-            );
-        }
-
+        ProjectConfig projectConfig = projectService.parseConfig(configJson);
         List<String> skippedFiles = projectService.createProject(projectName, projectConfig, files);
         String message = "Project " + projectName + " processed successfully.";
 
