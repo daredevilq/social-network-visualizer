@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
 
 interface WorkspaceCreateModalProps {
     open: boolean;
     projectName: string;
     onCancel: () => void;
-    onSuccess: (workspaceName: string) => void;
+    handleCreateWorkspace: (workspaceName: string) => void;
+    workspaceList: string[];
 }
 
 export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
-    const { open, projectName, onCancel, onSuccess } = props;
+    const { open, projectName, onCancel, handleCreateWorkspace, workspaceList } = props;
     const [workspaceName, setWorkspaceName] = useState("");
     const [isNameError, setIsNameError] = useState(false);
     const [nameErrorMessage, setNameErrorMessage] = useState("");
@@ -37,39 +37,18 @@ export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
             return;
         }
 
-        try {
-            const res = await fetch(
-                `${API_BASE_URL}/project/${encodeURIComponent(projectName)}/workspace`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: trimmedName }),
-                }
-            );
+        const nameExists = workspaceList.some(
+            (workspace) => workspace.toLowerCase() === trimmedName.toLowerCase()
+        );
 
-            if (!res.ok) {
-                const text = await res.text();
-                let message = "Failed to create workspace.";
-                try {
-                    const json = JSON.parse(text);
-                    if (json.error) message = json.error;
-                } catch {}
-
-                if (message.includes("already exists")) {
-                    setIsNameError(true);
-                    setNameErrorMessage(`Workspace '${trimmedName}' already exists.`);
-                } else {
-                    throw new Error(message);
-                }
-                return;
-            }
-
-            onSuccess(trimmedName);
-            setWorkspaceName("");
-        } catch (err: any) {
+        if (nameExists) {
             setIsNameError(true);
-            setNameErrorMessage(err.message || "Unknown error");
+            setNameErrorMessage("A workspace with this name already exists.");
+            return;
         }
+
+        handleCreateWorkspace(trimmedName);
+        setWorkspaceName("");
     };
 
     return (

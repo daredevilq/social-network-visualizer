@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useProject } from "@/app/context/ProjectContext";
 import { useRouter } from 'next/navigation';
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 export default function FunctionsContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,6 +12,7 @@ export default function FunctionsContent() {
     const [isLoading, setIsLoading] = useState(false);
     const { setShortestPath } = useProject();
     const router = useRouter();
+    const { runWithUnsavedCheck } = useWorkspace();
 
     const handleSearch = () => {
         if (!source || !target) {
@@ -35,7 +37,7 @@ export default function FunctionsContent() {
                 <div className="py-3">
                     <button
                         className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] cursor-pointer transition-colors"
-                        onClick={() => router.push('/community-analysis')}
+                        onClick={() => runWithUnsavedCheck(async () => router.push('/community-analysis'))}
                     >
                         <span>Community analysis</span>
                     </button>

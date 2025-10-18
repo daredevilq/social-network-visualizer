@@ -2,6 +2,7 @@
 
 import {useCallback, useState} from 'react';
 import { useRouter } from "next/navigation";
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 const icons = [
     {
@@ -57,20 +58,22 @@ export default function LeftBar({setIsLeftSideBarOpen, setSelectedLeftSideBarCon
     const [activeIcon, setActiveIcon] = useState<string | null>(null);
     const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
     const router = useRouter();
+    const { runWithUnsavedCheck } = useWorkspace();
 
     const handleIconClick = useCallback((id: string) => {
         if (id === "home") {
-            router.push("/dashboard");
-            return;
+            runWithUnsavedCheck(async () => {
+                router.push("/dashboard");
+            });
+        } else {
+            const isSame = activeIcon === id;
+            if (!isSame) {
+                setSelectedLeftSideBarContent(id);
+            }
+            setIsLeftSideBarOpen(!isSame);
+            setActiveIcon(isSame ? null : id);
         }
-
-        const isSame = activeIcon === id;
-        if (!isSame) {
-            setSelectedLeftSideBarContent(id);
-        }
-        setIsLeftSideBarOpen(!isSame);
-        setActiveIcon(isSame ? null : id);
-    }, [activeIcon, setIsLeftSideBarOpen, setSelectedLeftSideBarContent]);
+    }, [activeIcon, setIsLeftSideBarOpen, setSelectedLeftSideBarContent, runWithUnsavedCheck]);
 
     return (
         <div

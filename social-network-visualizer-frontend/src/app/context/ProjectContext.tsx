@@ -1,6 +1,6 @@
 'use client';
 
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {API_BASE_URL} from "@/app/configuration/urlConfig";
 import {GraphType} from "@/app/interface/GraphType";
 import {getGraphUiType, getProjectName, setProjectName} from "@/app/project-state";
@@ -18,8 +18,8 @@ interface Context {
     fetchGraphData: (request?: GraphQueryRequest) => Promise<void>;
     isLabelsMode: true | false;
     setIsLabelsMode: React.Dispatch<React.SetStateAction<true | false>>;
-    graphData: { nodes: GraphNode[]; links: GraphLink[] };
-    setGraphData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
+    projectData: { nodes: GraphNode[], links: GraphLink[] };
+    setProjectData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[], links: GraphLink[] }>>;
     nodeFoundId: string | null;
     setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
     shortestPath: string[];
@@ -53,8 +53,8 @@ const ProjectContext = createContext<Context>({
     isLabelsMode: true,
     setIsLabelsMode: () => {
     },
-    graphData: {nodes: [], links: []},
-    setGraphData: () => {
+    projectData: {nodes: [], links: []},
+    setProjectData: () => {
     },
     nodeFoundId: null,
     setNodeIdFound: () => {
@@ -92,7 +92,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     const [selectedUserData, setSelectedUserData] = useState<BasicUserData | null>(null);
     const [loading, setLoading] = useState(false);
     const [isLabelsMode, setIsLabelsMode] = useState(false);
-    const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
+    const [projectData, setProjectData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({nodes: [], links: []});
     const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
     const [shortestPath, setShortestPath] = useState<string[]>([]);
     const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([NodeType.AUTHOR,]);
@@ -153,7 +153,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     const fetchGraphData = async (request?: GraphQueryRequest, projectNameOverride?: string) =>
         runWithLoading(async () => {
             const projectName = projectNameOverride ?? loadedProjectName;
-            
+
             if (!projectName) return;
 
             try {
@@ -235,10 +235,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
                                     ...baseNode,
                                     nodeType: NodeType.HASHTAG,
                                 } as HashtagNode;
+
                         }
-                    }
-                );
-                setGraphData({ nodes, links });
+                    })
+                setProjectData({ nodes, links });
             } catch (err) {
                 showNotification("Unexpected error while fetching graph data.", BannerType.ERROR);
             }
@@ -255,8 +255,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
                 fetchGraphData,
                 isLabelsMode,
                 setIsLabelsMode,
-                graphData,
-                setGraphData,
+                projectData: projectData,
+                setProjectData,
                 nodeFoundId,
                 setNodeIdFound,
                 shortestPath,

@@ -8,24 +8,26 @@ import {useNotification} from "@/app/context/NotificationProvider";
 import {BannerType} from "@/app/components/Popups/Banner";
 import {AuthorNode, GraphLink, GraphNode, NodeType} from "@/types/GraphTypes";
 import NodeColors from "../model/NodeColors";
+import {useGraph} from "@/app/context/GraphContext";
+import {useWorkspace} from "@/app/context/WorkspaceContext";
 
 const BaseGraph = dynamic(() => import('../model/BaseGraph'), {ssr: false});
 export default function CommunityGraph() {
     const {
         loadedProjectName,
         loading,
-        graphData,
-        setGraphData,
         nodeFoundId,
         shortestPath,
         focusedCommunityId,
     } = useProject();
+    const { isInWorkspaceMode } = useWorkspace();
+    const { graphData, setGraphData } = useGraph();
 
     const NUMBER_OF_COMMUNITIES = 15;
     const {showNotification} = useNotification();
 
     useEffect(() => {
-        if (!loadedProjectName) return;
+        if (!loadedProjectName || isInWorkspaceMode) return;
 
         const fetchTopIds = fetch(
             `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`
@@ -83,7 +85,6 @@ export default function CommunityGraph() {
                 setGraphData({nodes, links});
             })
             .catch((err) => {
-                console.error("Failed to load community graph:", err);
                 showNotification("Failed to load community graph data.", BannerType.ERROR);
             });
     }, [loadedProjectName, loading, focusedCommunityId]);

@@ -21,7 +21,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
     const [activeIndex, setActiveIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
-    const {isLabelsMode, setIsLabelsMode, graphData, setNodeIdFound, setShowLabels} = useProject();
+    const {isLabelsMode, setIsLabelsMode, projectData, setNodeIdFound, setShowLabels} = useProject();
 
     const toggleLabels = () => {
         setShowLabels((prev => !prev))
@@ -48,7 +48,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             setActiveIndex(-1);
             return;
         }
-        const matches = graphData.nodes
+        const matches = projectData.nodes
             .map(node => node.id)
             .filter(name => name.toLowerCase().includes(query));
 
@@ -66,7 +66,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
         setIsDropdownVisible(false);
         setActiveIndex(-1);
         setLocalSearchValue(suggestion);
-        const node = findNodeByName(graphData, suggestion);
+        const node = findNodeByName(projectData, suggestion);
         if (node) {
             setNodeIdFound(node.id);
             onSearchChange(suggestion);
@@ -81,7 +81,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
         if (!isDropdownVisible) {
             if (e.key === 'Enter') {
                 onSearchChange(localSearchValue);
-                const node = findNodeByName(graphData, localSearchValue);
+                const node = findNodeByName(projectData, localSearchValue);
                 if (node) {
                     setNodeIdFound(node.id);
                 } else {
