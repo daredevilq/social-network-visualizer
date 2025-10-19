@@ -72,12 +72,12 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
                     {tweet.photos.map((photo, idx) => (
                         <div
                             key={idx}
-                            className="relative w-full rounded-lg overflow-hidden bg-gray-700 aspect-[4/3]"
+                            className="rounded-lg overflow-hidden max-h-[50vh]"
                         >
                             <img
                                 src={photo}
                                 alt={`Tweet photo ${idx + 1}`}
-                                className="absolute inset-0 w-full h-full object-cover"
+                                className="h-full object-contain object-top"
                             />
                         </div>
                     ))}

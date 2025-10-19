@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react';
+import {User2, Users} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface Author {
@@ -21,22 +21,27 @@ export function TopAuthorsContainer({ authors }: TopAuthorsProps) {
             </h2>
 
             {authors && authors.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3">
+                <div className="flex flex-col space-y-2">
                     {authors.map((author) => (
                         <div
                             key={author.username}
                             onClick={() => router.push(`/user-details/${author.username}`)}
-                            className="flex justify-between items-center bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3 rounded-xl text-sm transition-all duration-200 cursor-pointer shadow-sm"
+                            className="flex items-center justify-between bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer hover:shadow-md hover:scale-[1.01]"
                         >
-                            <div className="flex items-center mr-2 max-w-[70%]">
-                                <span className="text-[#7140F4] mr-1">@</span>
-                                <span className="truncate">{author.username}</span>
+                            <div className="flex items-center gap-3 truncate">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md">
+                                    <User2 size={18} />
+                                </div>
+                                <span className="truncate font-medium text-gray-200">
+                                  {author.username}
+                                </span>
                             </div>
-                            <span className="text-gray-300 font-medium ml-auto">{author.count}</span>
+                            <span className="text-gray-300 font-medium ml-auto">
+                                {author.count}
+                            </span>
                         </div>
                     ))}
                 </div>
-
             ) : (
                 <p className="text-gray-400">No author data available.</p>
             )}

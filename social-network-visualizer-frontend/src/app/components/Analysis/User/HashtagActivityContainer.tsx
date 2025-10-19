@@ -1,5 +1,4 @@
-import {Tag} from 'lucide-react';
-import {useState} from 'react';
+import {Hash, Tag} from 'lucide-react';
 import {useRouter} from "next/navigation";
 
 interface HashtagActivity {
@@ -31,7 +30,9 @@ export function HashtagActivityContainer({topHashtags}: TopHashtagsContainerProp
                                 className="flex items-center justify-between bg-[#3D3D4E] px-3 py-2 rounded-lg text-sm hover:bg-[#4D4D5E] transition-colors hover:cursor-pointer"
                             >
                                 <div className="flex items-center mr-2 max-w-[70%]">
-                                    <span className="text-[#7140F4] mr-1">#</span>
+                                    <Hash
+                                        className="flex-shrink-0 w-4 h-4 text-[#7140F4] mr-2"
+                                    />
                                     <span className="truncate">{hashtag.name}</span>
                                 </div>
                                 <span className="text-gray-300 font-medium ml-auto">{hashtag.frequency}</span>

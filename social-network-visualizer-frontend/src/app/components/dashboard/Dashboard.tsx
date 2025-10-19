@@ -128,7 +128,7 @@ const Dashboard = () => {
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-4 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 w-full">
                             <ProjectStatsContainer projectData={projectData}/>
                             <ProjectStatsChart projectData={projectData}/>
                             <TopAuthorsContainer authors={topAuthors}/>
@@ -140,7 +140,7 @@ const Dashboard = () => {
                             <HeatMapChartCard heat={heatMap}/>
                             <HashtagActivityChartContainer data={topHashtags}/>
 
-                            <div className="lg:col-span-4">
+                            <div className="lg:col-span-2 xl:col-span-4">
                                 <ViralTweetsContainer viralTweets={viralTweets}/>
                             </div>
 

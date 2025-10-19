@@ -130,8 +130,8 @@ export default function RightSidebar() {
                             </div>
                             <div
                                 className="bg-gradient-to-r from-[#3D3D4E] to-[#454557] p-3 rounded-lg hover:shadow-lg transition-all duration-200 border border-[#3D3D4E]/70">
-                                <p className="text-xs text-gray-400 mb-1">Avg. Likes</p>
-                                <p className="text-xl font-bold">{userData.averageLikesCount}</p>
+                                <p className="text-xs text-gray-400 mb-1">Quotes</p>
+                                <p className="text-xl font-bold">{userData.quotesCount}</p>
                             </div>
                         </div>
                     ) : (

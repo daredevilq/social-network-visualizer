@@ -12,6 +12,7 @@ import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDeta
 import {useProject} from "@/app/context/ProjectContext";
 import {GraphType} from "@/app/interface/GraphType";
 import {setGraphUiType} from "@/app/project-state";
+import {User2, Users} from "lucide-react";
 
 export default function CommunityAnalysisDetailsContainer(
     {communityId}: { communityId: string }) {
@@ -70,13 +71,21 @@ export default function CommunityAnalysisDetailsContainer(
                     </div>
 
                     <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">
-                        <h3 className="text-lg font-medium mb-4 text-white border-b border-gray-600 pb-2">
+                        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
+                            <Users className="w-5 h-5 mr-2" />
                             Top Author
-                        </h3>
+                        </h2>
                         <div className="flex items-center justify-between">
-                            <span className="text-gray-300">
-                                @{summary.topAuthor}
-                            </span>
+                            <div
+                                onClick={() => router.push(`/user-details/${summary?.topAuthor}`)}
+                                className="flex items-center gap-3 px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer"
+                            >
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md flex-shrink-0">
+                                    <User2 size={18} />
+                                </div>
+
+                                <span className="truncate font-medium text-gray-200">{summary.topAuthor}</span>
+                            </div>
                             <span className="text-sm text-gray-400">
                                 PageRank: {summary.topPageRank.toFixed(2)}
                             </span>
@@ -92,20 +101,23 @@ export default function CommunityAnalysisDetailsContainer(
                     </div>
 
                     <div className="lg:col-span-2 bg-[#32323F] rounded-xl p-6 shadow-lg">
-                        <h3 className="text-lg font-medium mb-4 text-white border-b border-gray-600 pb-2">
+                        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
+                            <Users className="w-5 h-5 mr-2" />
                             Community Members ({usernamesInCommunity.length})
-                        </h3>
+                        </h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                             {usernamesInCommunity.map((username) => (
-                                <button
+                                <div
                                     key={username}
-                                    onClick={() =>
-                                        router.push(`/user-details/${username}`)
-                                    }
-                                    className="bg-[#7140F4] hover:bg-indigo-500 transition-colors cursor-pointer rounded-lg px-3 py-2 text-sm text-gray-300 border border-gray-700"
+                                    onClick={() => router.push(`/user-details/${username}`)}
+                                    className="flex items-center gap-3 bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer hover:shadow-md hover:scale-[1.01]"
                                 >
-                                    {username}
-                                </button>
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md flex-shrink-0">
+                                        <User2 size={18} />
+                                    </div>
+
+                                    <span className="truncate font-medium text-gray-200">{username}</span>
+                                </div>
                             ))}
                         </div>
                         {usernamesInCommunity.length === 0 && (
