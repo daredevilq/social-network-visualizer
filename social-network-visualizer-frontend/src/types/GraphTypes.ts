@@ -78,7 +78,7 @@ export interface GraphProps {
     linkLabel: (link: GraphLink) => string;
     linkDirectionalArrowLength: number;
     linkDirectionalArrowRelPos: number;
-    nodeFoundId: string | null;
+    nodeFound: GraphNode | null;
 }
 
 export interface SelectionBox {
