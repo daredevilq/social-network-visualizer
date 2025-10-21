@@ -25,8 +25,6 @@ public class CommunityController {
   @GetMapping("/list-slow")
   public ResponseEntity<List<CommunitySummary>> getCommunities(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "25") int size) {
-    System.out.println("cos tam");
-
     List<CommunitySummary> slice = communityService.listCommunities(page, size);
     return ResponseEntity.ok(slice);
   }
