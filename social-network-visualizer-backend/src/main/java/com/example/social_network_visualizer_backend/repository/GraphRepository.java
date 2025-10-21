@@ -40,14 +40,6 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
-                CALL gds.graph.exists($graphName)
-                YIELD exists
-                RETURN exists
-            """)
-  Boolean checkIfGraphExists(@Param("graphName") String graphName);
-
-  @Query(
-      """
                 MATCH (a1:Author)-[r]->(a2:Author)
                 RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
 
@@ -72,6 +64,39 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation
             """)
   List<LinkDto> findAllRelations();
+
+  @Query(
+      """
+
+                MATCH (a1:Author)-[r]->(a2:Author)
+                WHERE a1.isInWorkspace = true AND a2.isInWorkspace = true
+                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+
+                UNION
+
+                MATCH (a:Author)-[r]->(t:Tweet)
+                WHERE a.isInWorkspace = true AND t.isInWorkspace = true
+                RETURN a.userName AS source, t.id AS target, type(r) AS relation
+
+                UNION
+
+                MATCH (t:Tweet)-[r]->(h:Hashtag)
+                WHERE t.isInWorkspace = true AND h.isInWorkspace = true
+                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation
+
+                UNION
+
+                MATCH (t1:Tweet)-[r]->(t2:Tweet)
+                WHERE t1.isInWorkspace = true AND t2.isInWorkspace = true
+                RETURN t1.id AS source, t2.id AS target, type(r) AS relation
+
+                UNION
+
+                MATCH (a:Author)-[r]->(h:Hashtag)
+                WHERE a.isInWorkspace = true AND h.isInWorkspace = true
+                RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation
+            """)
+  List<LinkDto> findWorkspaceRelationships();
 
   @Query(
       """

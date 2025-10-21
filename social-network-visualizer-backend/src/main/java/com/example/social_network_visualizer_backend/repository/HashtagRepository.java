@@ -14,7 +14,8 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
       """
                 UNWIND $hashtags AS hashtag
                 CREATE (h:Hashtag {
-                    hashtag: hashtag.hashtag
+                    hashtag: hashtag.hashtag,
+                    isInWorkspace: hashtag.isInWorkspace
                 })
             """)
   void createAll(@Param("hashtags") List<Map<String, Object>> hashtags);

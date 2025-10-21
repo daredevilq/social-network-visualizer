@@ -95,6 +95,7 @@ export default function ProjectUploadModal({
       formData.append("config", JSON.stringify(config));
     }
 
+    console.log("dsadsa");
     try {
       const response = await fetch(`${API_BASE_URL}/project/${trimmedName}`, {
         method: "POST",

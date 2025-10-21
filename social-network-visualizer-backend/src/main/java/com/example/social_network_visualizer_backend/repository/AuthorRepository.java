@@ -30,7 +30,8 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     displayName: author.displayName,
                     name: author.name,
                     foreignId: author.foreignId,
-                    bot: author.bot
+                    bot: author.bot,
+                    isInWorkspace: author.isInWorkspace
                 })
             """)
   void createAll(@Param("authors") List<Map<String, Object>> authors);
@@ -145,15 +146,16 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 MATCH (a:Author)
+                WHERE $inWorkspace = false OR a.isInWorkspace = true
                 ORDER BY a.pagerank DESC
                 RETURN
-                    a.userName AS name,
+                    a.userName AS id,
                     'AUTHOR' AS nodeType,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
             """)
-  List<AuthorNodeDto> findAuthors();
+  List<AuthorNodeDto> findAuthors(@Param("inWorkspace") boolean inWorkspace);
 
   @Query(
       """
@@ -161,7 +163,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.community = $communityId
                 ORDER BY a.pagerank DESC
                 RETURN
-                    a.userName AS name,
+                    a.userName AS id,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
@@ -191,7 +193,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
       """
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
-                    RETURN h.hashtag as name, count(*) AS frequency
+                    RETURN h.hashtag as id, count(*) AS frequency
                     ORDER BY frequency DESC
                     LIMIT 10
             """)

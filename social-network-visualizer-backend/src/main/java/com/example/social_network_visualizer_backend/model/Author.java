@@ -22,4 +22,5 @@ public class Author {
   private Double pagerank;
   private Double degreeCentrality;
   private Integer community;
+  private Boolean isInWorkspace;
 }

@@ -32,7 +32,8 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     videos: tweet.videos,
                     repliesCount: tweet.repliesCount,
                     retweetsCount: tweet.retweetsCount,
-                    likesCount: tweet.likesCount
+                    likesCount: tweet.likesCount,
+                    isInWorkspace: tweet.isInWorkspace
                 })
             """)
   void createAll(@Param("tweets") List<Map<String, Object>> tweets);
@@ -171,8 +172,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
       """
                 MATCH (t:Tweet)
                 OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
+                WHERE $inWorkspace = false OR t.isInWorkspace = true
                 RETURN
-                    t.id AS name,
+                    t.id AS id,
                     'TWEET' AS nodeType,
                     t.objectCreatedAt AS objectCreatedAt,
                     t.publicationDate AS publicationDate,
@@ -193,7 +195,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     COALESCE(a.community, -1) AS community
                 ORDER BY t.publicationDate DESC
             """)
-  List<TweetNodeDto> findTweets();
+  List<TweetNodeDto> findTweets(@Param("inWorkspace") boolean inWorkspace);
 
   @Query(
       """

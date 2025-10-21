@@ -23,6 +23,7 @@ interface WorkspaceContextType {
   setWorkspaceData: React.Dispatch<
     React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>
   >;
+  loadWorkspace: (workspaceName: string) => void;
   fetchWorkspaceData: (workspaceName: string) => Promise<void>;
   saveWorkspaceData: (graphData: {
     nodes: GraphNode[];
@@ -41,6 +42,7 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   setOpenedWorkspaceName: () => {},
   workspaceData: { nodes: [], links: [] },
   setWorkspaceData: () => {},
+  loadWorkspace: (workspaceName: string) => {},
   fetchWorkspaceData: async (workspaceName: string) => {},
   saveWorkspaceData: async (graphData: {
     nodes: GraphNode[];
@@ -95,12 +97,33 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [hasUnsavedChanges]);
 
+  const loadWorkspace = async (workspaceName: string) =>
+    runWithLoading(async () => {
+      if (!loadedProjectName) return;
+      try {
+        const res = await fetch(
+          `http://localhost:8080/project/${loadedProjectName}/workspace/${workspaceName}/load`,
+        );
+
+        if (!res.ok) {
+          const message = `Failed to load workspace data: ${res.status} ${res.statusText}`;
+          showNotification(message, BannerType.ERROR);
+          return;
+        }
+
+        setOpenedWorkspaceName(workspaceName);
+        setIsInWorkspaceMode(true);
+      } catch (err: any) {
+        showNotification(`Load error: ${err.message}`, BannerType.ERROR);
+      }
+    });
+
   const fetchWorkspaceData = async () =>
     runWithLoading(async () => {
       if (!openedWorkspaceName || !loadedProjectName) return;
       try {
         const res = await fetch(
-          `http://localhost:8080/project/${loadedProjectName}/workspace/${openedWorkspaceName}/load`,
+          `http://localhost:8080/project/${loadedProjectName}/workspace`,
         );
 
         if (!res.ok) {
@@ -279,6 +302,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         setOpenedWorkspaceName,
         workspaceData,
         setWorkspaceData,
+        loadWorkspace,
         fetchWorkspaceData,
         saveWorkspaceData,
         hasUnsavedChanges,
