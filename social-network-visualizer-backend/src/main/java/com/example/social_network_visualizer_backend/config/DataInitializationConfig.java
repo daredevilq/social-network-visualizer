@@ -15,11 +15,11 @@ import org.springframework.context.annotation.Profile;
 @Profile("!test")
 @RequiredArgsConstructor
 public class DataInitializationConfig {
-  private final MongodbService mongodbService;
-  private final Neo4jService neo4jService;
-
   @Value("${drop.mode:true}")
   private String dropMode;
+
+  private final MongodbService mongodbService;
+  private final Neo4jService neo4jService;
 
   @PostConstruct
   public void init() {
