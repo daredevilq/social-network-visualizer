@@ -3,8 +3,6 @@
 import React, { JSX } from "react";
 import { GraphNode, NodeType } from "@/types/GraphTypes";
 
-// --- PROPS & TYPES ---
-
 interface Position {
   x: number;
   y: number;
@@ -16,16 +14,12 @@ interface MenuComponentProps {
   onClose: () => void;
 }
 
-// Rozszerzony typ MenuItem o ikonę i separator
 interface MenuItem {
   label: string;
   icon: JSX.Element;
   onClick: () => void;
-  isSeparator?: boolean; // Opcjonalny separator
+  isSeparator?: boolean;
 }
-
-// --- IKONY SVG ---
-// Definiowanie ikon jako lekkich komponentów dla czystości kodu
 
 const ProfileIcon = () => (
   <svg
@@ -111,8 +105,6 @@ const HideIcon = () => (
   </svg>
 );
 
-// --- KOMPONENT ---
-
 const MenuComponent: React.FC<MenuComponentProps> = ({
   node,
   position,
@@ -185,7 +177,6 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
 
   return (
     <>
-      {/* Tło do zamykania menu po kliknięciu poza nim */}
       <div className="fixed inset-0 z-50" onClick={onClose} />
 
       <div
@@ -194,7 +185,6 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
       >
         {menuItems.map((item, index) => (
           <React.Fragment key={index}>
-            {/* Renderuj separator nad elementem, jeśli jest oznaczony */}
             {item.isSeparator && <div className="h-[1px] bg-[#3f3f4d] my-1" />}
             <div
               className="flex items-center gap-3 px-3 py-1.5 text-sm text-neutral-200 hover:bg-[#3f3f4d] cursor-pointer transition-colors duration-150 rounded-md mx-1"
@@ -206,7 +196,6 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
           </React.Fragment>
         ))}
       </div>
-      {/* Definicja animacji - dzięki temu komponent jest w pełni samowystarczalny */}
       <style jsx global>{`
         @keyframes fadeInScale {
           from {
@@ -217,9 +206,6 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
             opacity: 1;
             transform: scale(1);
           }
-        }
-        .animate-fade-in-scale {
-          animation: fadeInScale 0.1s ease-out forwards;
         }
       `}</style>
     </>
