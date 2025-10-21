@@ -11,8 +11,7 @@ import { useGraph } from "@/app/context/GraphContext";
 const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
 
 export default function StandardGraph() {
-  const { loadedProjectName, nodeFoundId, shortestPath } =
-    useProject();
+  const { loadedProjectName, nodeFoundId, shortestPath } = useProject();
   const { graphData } = useGraph();
 
   if (!loadedProjectName)
