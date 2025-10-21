@@ -8,7 +8,7 @@ import NodeColors from "@/app/model/NodeColors";
 import linkStrategy from "@/app/model/strategies/LinkStrategy";
 import { useGraph } from "@/app/context/GraphContext";
 
-const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
+const BaseGraph = dynamic(() => import("./BaseGraph"), { ssr: false });
 
 export default function StandardGraph() {
   const { loadedProjectName, nodeFound, shortestPath } = useProject();

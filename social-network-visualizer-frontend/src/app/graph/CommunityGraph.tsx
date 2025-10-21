@@ -11,7 +11,7 @@ import NodeColors from "../model/NodeColors";
 import { useGraph } from "@/app/context/GraphContext";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 
-const BaseGraph = dynamic(() => import("../model/BaseGraph"), { ssr: false });
+const BaseGraph = dynamic(() => import("./BaseGraph"), { ssr: false });
 export default function CommunityGraph() {
   const {
     loadedProjectName,
@@ -125,6 +125,7 @@ export default function CommunityGraph() {
           ? NodeColors.getRedColor()
           : getNodeColor(node)
       }
+      linkLabel={(link: GraphLink) => `${link.relation}`}
       linkColor={(link: GraphLink) =>
         shortestPath.includes(link.source) && shortestPath.includes(link.target)
           ? NodeColors.getRedColor()
