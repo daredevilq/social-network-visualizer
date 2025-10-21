@@ -13,5 +13,4 @@ public enum NodeType {
   NodeType(String label) {
     this.label = label;
   }
-
 }
