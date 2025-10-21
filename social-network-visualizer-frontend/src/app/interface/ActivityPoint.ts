@@ -1,4 +1,4 @@
 export interface ActivityPoint {
-    day: string;     // yyyy‑MM‑dd
-    posts: number;
+  day: string; // yyyy‑MM‑dd
+  posts: number;
 }

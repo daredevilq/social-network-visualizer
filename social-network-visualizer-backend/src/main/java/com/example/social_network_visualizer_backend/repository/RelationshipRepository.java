@@ -6,62 +6,72 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RelationshipRepository extends Neo4jRepository<Author, String>{
+public interface RelationshipRepository extends Neo4jRepository<Author, String> {
 
-    @Query("""
+  @Query(
+      """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTION]->(a2:Author)
         MERGE (a1)-[:MENTIONS]->(a2)
         """)
-    void createRelationshipAuthorMentionsAuthor();
+  void createRelationshipAuthorMentionsAuthor();
 
-    @Query("""
+  @Query(
+      """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_REPLY]->(a2:Author)
         MERGE (a2)-[:REPLIES]->(a1)
         """)
-    void createRelationshipAuthorRepliesAuthor();
+  void createRelationshipAuthorRepliesAuthor();
 
-    @Query("""
+  @Query(
+      """
             MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(a2:Author)
             MERGE (a1)-[:RETWEETS]->(a2)
         """)
-    void createRelationshipAuthorRetweetAuthor();
-    @Query("""
+  void createRelationshipAuthorRetweetAuthor();
+
+  @Query(
+      """
         MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
         MERGE (a)-[:USES_HASHTAG]->(h);
         """)
-    void createRelationshipAuthorUsesHashtag();
+  void createRelationshipAuthorUsesHashtag();
 
-    @Query("""
+  @Query(
+      """
         MATCH (a1:Author)-[:USES_HASHTAG]->(h:Hashtag)<-[:USES_HASHTAG]-(a2:Author)
         WHERE a1 <> a2
         MERGE (a1)-[:SHARES_HASHTAG]->(a2);
         """)
-    void createRelationshipAuthorsShareHashtag();
+  void createRelationshipAuthorsShareHashtag();
 
-    @Query("""
+  @Query(
+      """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'QUOTE'
        MERGE (t)-[:QUOTED]->(p)
       """)
-    void createQuoteRelationships();
+  void createQuoteRelationships();
 
-    @Query("""
+  @Query(
+      """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'REPLY'
        MERGE (t)-[:REPLY_TO]->(p)
        """)
-    void createReplyTotRelationships();
+  void createReplyTotRelationships();
 
-    @Query("""
+  @Query(
+      """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'RETWEET'
        MERGE (t)-[:RETWEETED]->(p)
    """)
-    void createRetweetRelationships();
+  void createRetweetRelationships();
 
-    @Query("""
+  @Query(
+      """
         CREATE INDEX author_community IF NOT EXISTS
         FOR (a:Author) ON (a.community);
     """)
-    void createIndexForCommunity();
+  void createIndexForCommunity();
 }

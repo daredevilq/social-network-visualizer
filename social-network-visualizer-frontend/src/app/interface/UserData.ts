@@ -1,16 +1,15 @@
-
 interface UserData {
-    dateOfFirstTweet: string;
-    tweetsCount: number;
-    quotesCount: number;
-    retweetsCount: number;
-    repliesCount: number;
-    averageLikesCount: number;
-    averageRepliesCount: number;
-    averageRetweetsCount: number;
+  dateOfFirstTweet: string;
+  tweetsCount: number;
+  quotesCount: number;
+  retweetsCount: number;
+  repliesCount: number;
+  averageLikesCount: number;
+  averageRepliesCount: number;
+  averageRetweetsCount: number;
 }
 
 interface BasicUserData {
-    name: string;
-    community: string;
+  name: string;
+  community: string;
 }

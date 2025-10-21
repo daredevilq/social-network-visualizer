@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HashtagNodeDto extends NodeDto {
-}
+public class HashtagNodeDto extends NodeDto {}

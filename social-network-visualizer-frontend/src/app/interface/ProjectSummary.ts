@@ -1,4 +1,4 @@
 export interface ProjectSummary {
-    name: string;
-    fileCount: number;
+  name: string;
+  fileCount: number;
 }

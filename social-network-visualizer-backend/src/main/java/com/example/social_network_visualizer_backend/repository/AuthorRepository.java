@@ -10,20 +10,19 @@ import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequenc
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.model.Tweet;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
-import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
-
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
-    @Query("""
+  @Query(
+      """
                 UNWIND $authors AS author
                 CREATE (a:Author {
                     id: author.id,
@@ -34,9 +33,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     bot: author.bot
                 })
             """)
-    void createAll(@Param("authors") List<Map<String, Object>> authors);
+  void createAll(@Param("authors") List<Map<String, Object>> authors);
 
-    @Query("""
+  @Query(
+      """
                 UNWIND $authors AS author
                 MERGE (a:Author { userName: author.userName })
                 SET
@@ -45,23 +45,26 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     a.name = CASE WHEN a.name IS NULL AND author.name IS NOT NULL THEN author.name ELSE a.name END,
                     a.foreignId = CASE WHEN a.foreignId IS NULL AND author.foreignId IS NOT NULL THEN author.foreignId ELSE a.foreignId END,
                     a.bot = CASE WHEN a.bot IS NULL AND author.bot IS NOT NULL THEN author.bot ELSE a.bot END
-            
-            """)
-    void mergeAll(@Param("authors") List<Map<String, Object>> authors);
 
-    @Query("""
+            """)
+  void mergeAll(@Param("authors") List<Map<String, Object>> authors);
+
+  @Query(
+      """
                 UNWIND $authorTweetData AS data
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
                 MERGE (a)-[:POSTED]->(t)
             """)
-    void createAuthorTweetRelations(@Param("authorTweetData") List<Map<String, Object>> authorTweetData);
+  void createAuthorTweetRelations(
+      @Param("authorTweetData") List<Map<String, Object>> authorTweetData);
 
-    @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (a:Author) REQUIRE a.userName IS UNIQUE")
-    void createAuthorUserNameConstraint();
+  @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (a:Author) REQUIRE a.userName IS UNIQUE")
+  void createAuthorUserNameConstraint();
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
@@ -69,9 +72,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN t.url AS url, t.contentPreview AS contentPreview
                 LIMIT 3
             """)
-    List<TweetPreviewDto> findLast3TweetUrlsByAuthorUsername(@Param("authorName") String authorName);
+  List<TweetPreviewDto> findLast3TweetUrlsByAuthorUsername(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
@@ -95,9 +99,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY t.publicationDate DESC
                 LIMIT 10
             """)
-    List<Tweet> findLast10TweetsByAuthorUsername(@Param("authorName") String authorName);
+  List<Tweet> findLast10TweetsByAuthorUsername(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
                 RETURN MIN(t.publicationDate) AS dateOfFirstTweet,
@@ -108,19 +113,21 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                    COALESCE(AVG(t.repliesCount), 0) AS averageRepliesCount,
                    COALESCE(AVG(t.retweetsCount), 0) AS averageRetweetsCount,
                    COALESCE(AVG(t.likesCount), 0) AS averageLikesCount
-            
-            """)
-    Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
 
-    @Query("""
+            """)
+  Optional<AuthorStatsDto> findStatsByAuthorId(@Param("authorName") String authorName);
+
+  @Query(
+      """
                 MATCH (a:Author {userName: $authorName})-[:POSTED]->(t:Tweet)
                 WITH a, t
                 RETURN datetime(t.publicationDate) AS activityDate
                 ORDER BY activityDate DESC
             """)
-    List<ZonedDateTime> getAuthorActivity(@Param("authorName") String authorName);
+  List<ZonedDateTime> getAuthorActivity(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
                CALL gds.shortestPath.dijkstra.stream('g_author_mentions', {
                    sourceNode: a1,
@@ -132,9 +139,11 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                MATCH (author:Author) WHERE id(author) = id(node)
                RETURN author.userName AS userNames
             """)
-    List<String> findShortestPathAuthors(@Param("sourceName") String sourceName, @Param("targetName") String targetName);
+  List<String> findShortestPathAuthors(
+      @Param("sourceName") String sourceName, @Param("targetName") String targetName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)
                 ORDER BY a.pagerank DESC
                 RETURN
@@ -144,9 +153,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     a.degreeCentrality AS centrality,
                     a.community AS community
             """)
-    List<AuthorNodeDto> findAuthors();
+  List<AuthorNodeDto> findAuthors();
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)
                 WHERE a.community = $communityId
                 ORDER BY a.pagerank DESC
@@ -156,64 +166,71 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     a.degreeCentrality AS centrality,
                     a.community AS community
             """)
-    List<AuthorNodeDto> findAuthorsWithCommunity(@Param("communityId") int communityId);
+  List<AuthorNodeDto> findAuthorsWithCommunity(@Param("communityId") int communityId);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a1:Author)-[r]->(a2:Author)
                 WHERE type(r) IN $relations
                   AND a1.community = $communityId
                   AND a2.community = $communityId
                 RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
             """)
-    List<LinkDto> findAuthorRelationsWithinCommunity(
-            @Param("relations") Set<RelationType> relations,
-            @Param("communityId") int communityId);
+  List<LinkDto> findAuthorRelationsWithinCommunity(
+      @Param("relations") Set<RelationType> relations, @Param("communityId") int communityId);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)
                 WHERE a.userName = $userName
                 RETURN a
             """)
-    Optional<Author> findAuthorByUserName(@Param("userName") String userName);
+  Optional<Author> findAuthorByUserName(@Param("userName") String userName);
 
-    @Query("""
+  @Query(
+      """
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
                     RETURN h.hashtag as name, count(*) AS frequency
                     ORDER BY frequency DESC
                     LIMIT 10
             """)
-    List<HashtagFrequency> findTopHashtagsByAuthor(@Param("authorName") String authorName);
+  List<HashtagFrequency> findTopHashtagsByAuthor(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:MENTIONS]->(u:Author)
                 WHERE a.userName=$authorName
                 RETURN u.userName
             """)
-    List<String> findMentionsAuthorsByAuthor(@Param("authorName") String authorName);
+  List<String> findMentionsAuthorsByAuthor(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName=$authorName AND size(t.content) > 1
                 RETURN t.content
             """)
-    List<String> findTweetsContentByAuthor(@Param("authorName") String authorName);
+  List<String> findTweetsContentByAuthor(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[r:RETWEETS]->(u:Author)
                 WHERE a.userName=$authorName
                 RETURN u.userName
             """)
-    List<String> findAuthorRetweets(@Param("authorName") String authorName);
+  List<String> findAuthorRetweets(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (u:Author)-[r:RETWEETS]->(a:Author)
                 WHERE a.userName=$authorName
                 RETURN u.userName
             """)
-    List<String> findRetweetsByAuthor(@Param("authorName") String authorName);
+  List<String> findRetweetsByAuthor(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName=$authorName
                 WITH a, t,
@@ -232,9 +249,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY engagementScore DESC
                 LIMIT 5
             """)
-    List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
+  List<ViralTweetDto> findTheMostViralTweet(@Param("authorName") String authorName);
 
-    @Query("""
+  @Query(
+      """
                 UNWIND range(0,23) AS h
                 UNWIND range(1,7) AS d
                 OPTIONAL MATCH (a:Author {userName:$username})-[:POSTED]->(t:Tweet)
@@ -244,6 +262,5 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN h AS hour, d AS dayOfWeek, posts
                 ORDER  BY d, h;
             """)
-    List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
+  List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
 }
-

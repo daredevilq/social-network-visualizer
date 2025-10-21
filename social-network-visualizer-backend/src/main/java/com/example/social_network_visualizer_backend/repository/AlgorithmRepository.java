@@ -6,27 +6,30 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AlgorithmRepository extends Neo4jRepository<Author, String> {
-    @Query("""
+  @Query(
+      """
                 CALL gds.pageRank.write($graphName, {
                     writeProperty: 'pagerank'
                 }) YIELD nodePropertiesWritten
                 RETURN 1
             """)
-    void computePageRank(@Param("graphName") String graphName);
+  void computePageRank(@Param("graphName") String graphName);
 
-    @Query("""
+  @Query(
+      """
                 CALL gds.labelPropagation.write($graphName, {
                     writeProperty: 'community'
                 }) YIELD communityCount
                 RETURN 1
             """)
-    void createCommunities(@Param("graphName") String graphName);
+  void createCommunities(@Param("graphName") String graphName);
 
-    @Query("""
+  @Query(
+      """
                 CALL gds.degree.write($graphName, {
                   writeProperty: 'degreeCentrality'
                 }) YIELD nodePropertiesWritten
                 RETURN nodePropertiesWritten;
             """)
-    void computeAuthorDegree(@Param("graphName") String graphName);
+  void computeAuthorDegree(@Param("graphName") String graphName);
 }

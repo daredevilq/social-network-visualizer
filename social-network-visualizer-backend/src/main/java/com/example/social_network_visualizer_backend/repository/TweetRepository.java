@@ -1,21 +1,20 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
-import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Tweet;
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Map;
-
 public interface TweetRepository extends Neo4jRepository<Tweet, String> {
 
-
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweets AS tweet
                 CREATE (t:Tweet {
                     id: tweet.id,
@@ -36,10 +35,10 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     likesCount: tweet.likesCount
                 })
             """)
-    void createAll(@Param("tweets") List<Map<String, Object>> tweets);
+  void createAll(@Param("tweets") List<Map<String, Object>> tweets);
 
-
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweets AS tweet
                 MERGE (t:Tweet { id: tweet.id })
                 SET t.objectCreatedAt = tweet.objectCreatedAt,
@@ -58,59 +57,63 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.retweetsCount = tweet.retweetsCount,
                     t.likesCount = tweet.likesCount
             """)
-    void mergeAll(@Param("tweets") List<Map<String, Object>> tweets);
+  void mergeAll(@Param("tweets") List<Map<String, Object>> tweets);
 
-
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweetMentionsData AS data
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
                 CREATE (t)-[:MENTION]->(a)
             """)
-    void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
+  void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
 
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweetRepliesData AS data
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
                 CREATE (t)-[:HAS_REPLY]->(a)
             """)
-    void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
+  void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
 
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweetParentData AS data
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (p:Tweet {id: data.parentId})
                 CREATE (t)-[:HAS_PARENT]->(p)
             """)
-    void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
+  void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
-    @Query("""
+  @Query(
+      """
                 UNWIND $tweetHashtagsData AS data
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (h:Hashtag {hashtag: data.hashtag})
                 CREATE (t)-[:HAS_HASHTAG]->(h)
             """)
-    void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
+  void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
 
-    @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (t:Tweet) REQUIRE t.id IS UNIQUE")
-    void createTweetIdConstraint();
+  @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (t:Tweet) REQUIRE t.id IS UNIQUE")
+  void createTweetIdConstraint();
 
-    @Query("""
+  @Query(
+      """
                 MATCH (a:Author)-[:POSTED]->(tAll:Tweet)
                 WHERE $authorName IS NULL OR a.userName = $authorName
                 WITH avg(coalesce(tAll.likesCount, 0)) AS avgLikes,
                      avg(coalesce(tAll.retweetsCount, 0)) AS avgRetweets,
                      avg(coalesce(tAll.repliesCount, 0)) AS avgReplies
-            
+
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE ($authorName IS NULL OR a.userName = $authorName) AND ($search IS NULL OR $search = "" OR toLower(t.content) CONTAINS toLower($search))
                 OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
-            
+
                 WITH t, collect(DISTINCT h.hashtag) AS hashtags, avgLikes, avgRetweets, avgReplies, a,
                          CASE $sortField
                              WHEN 'DATE' THEN t.publicationDate
@@ -119,19 +122,19 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                              WHEN 'REPLIES' THEN t.repliesCount
                              ELSE t.publicationDate
                          END AS sortField
-            
+
                 WHERE size($hashtags) = 0 OR any(tag IN $hashtags WHERE tag IN hashtags)
-            
+
                 WITH t, hashtags, avgLikes, avgRetweets, avgReplies, a,
                          (t.likesCount + t.retweetsCount + t.repliesCount) AS totalEngagement,
                          (t.likesCount + t.retweetsCount + t.repliesCount) / (avgLikes + avgRetweets + avgReplies) * 100 AS engagement,
                          sortField
-            
+
                 WITH t, hashtags, totalEngagement, engagement, sortField, a,
                      CASE WHEN engagement > 150 THEN true ELSE false END AS isHighEngagement
-            
+
                 WHERE $highEngagement = false OR isHighEngagement = true
-            
+
                 RETURN
                     t.id AS id,
                     a.userName AS authorName,
@@ -151,27 +154,28 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     hashtags,
                     engagement,
                     isHighEngagement
-            
+
                 ORDER BY
                     CASE WHEN $sortDirection = 'ASC' THEN sortField END ASC,
                     CASE WHEN $sortDirection = 'DESC' THEN sortField END DESC
             """)
-    List<TweetWithStats> findTweetsWithRelationships(
-            @Param("authorName") String authorName,
-            @Param("search") String search,
-            @Param("sortField") TweetSortOption sortField,
-            @Param("sortDirection") String sortDirection,
-            @Param("hashtags") List<String> hashtags,
-            @Param("highEngagement") Boolean highEngagement);
+  List<TweetWithStats> findTweetsWithRelationships(
+      @Param("authorName") String authorName,
+      @Param("search") String search,
+      @Param("sortField") TweetSortOption sortField,
+      @Param("sortDirection") String sortDirection,
+      @Param("hashtags") List<String> hashtags,
+      @Param("highEngagement") Boolean highEngagement);
 
-    @Query("""
+  @Query(
+      """
                 MATCH (t:Tweet)
                 OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
-                RETURN 
+                RETURN
                     t.id AS name,
                     'TWEET' AS nodeType,
                     t.objectCreatedAt AS objectCreatedAt,
-                    t.publicationDate AS publicationDate, 
+                    t.publicationDate AS publicationDate,
                     t.objectType AS objectType,
                     t.language AS language,
                     t.contentPreview AS contentPreview,
@@ -189,9 +193,10 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     COALESCE(a.community, -1) AS community
                 ORDER BY t.publicationDate DESC
             """)
-    List<TweetNodeDto> findTweets();
+  List<TweetNodeDto> findTweets();
 
-    @Query("""
+  @Query(
+      """
         MATCH (a:Author)-[:POSTED]->(t:Tweet)
         WITH a, t,
              t.likesCount AS likes,
@@ -209,5 +214,5 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         ORDER BY engagementScore DESC
         LIMIT 10
     """)
-    List<ViralTweetDto> findTheMostViralTweets();
+  List<ViralTweetDto> findTheMostViralTweets();
 }

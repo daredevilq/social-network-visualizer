@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthorNodeDto extends NodeDto {
-    private Double pagerank;
-    private Double centrality;
-    private Integer community;
+  private Double pagerank;
+  private Double centrality;
+  private Integer community;
 }

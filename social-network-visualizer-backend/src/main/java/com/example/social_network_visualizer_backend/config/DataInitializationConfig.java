@@ -8,34 +8,39 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Slf4j
 @Configuration
+@Profile("!test")
 @RequiredArgsConstructor
 public class DataInitializationConfig {
-    private final MongodbService mongodbService;
-    private final Neo4jService neo4jService;
-    @Value("${drop.mode:true}")
-    private String dropMode;
+  @Value("${drop.mode:true}")
+  private String dropMode;
 
-    @PostConstruct
-    public void init() {
-        try {
-            neo4jService.waitForNeo4jToBeAvailable();
-        } catch (DatabaseUnavailableException e) {
-            throw new RuntimeException("Neo4j is not available, cannot proceed with database operations.", e);
-        }
+  private final MongodbService mongodbService;
+  private final Neo4jService neo4jService;
 
-        try {
-            mongodbService.waitForMongoDBToBeAvailable();
-        } catch (DatabaseUnavailableException e) {
-            throw new RuntimeException("MongoDB is not available, cannot proceed with database operations.", e);
-        }
-
-        if (Boolean.parseBoolean(dropMode)) {
-            neo4jService.handleDatabaseDrop();
-        }
-
-        neo4jService.createConstraints();
+  @PostConstruct
+  public void init() {
+    try {
+      neo4jService.waitForNeo4jToBeAvailable();
+    } catch (DatabaseUnavailableException e) {
+      throw new RuntimeException(
+          "Neo4j is not available, cannot proceed with database operations.", e);
     }
+
+    try {
+      mongodbService.waitForMongoDBToBeAvailable();
+    } catch (DatabaseUnavailableException e) {
+      throw new RuntimeException(
+          "MongoDB is not available, cannot proceed with database operations.", e);
+    }
+
+    if (Boolean.parseBoolean(dropMode)) {
+      neo4jService.handleDatabaseDrop();
+    }
+
+    neo4jService.createConstraints();
+  }
 }

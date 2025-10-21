@@ -10,17 +10,17 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CommunityDetectionStrategy implements MetricComputationStrategy {
-    
-    private final AlgorithmRepository algorithmRepository;
-    
-    @Override
-    public void compute(String graphName) {
-        algorithmRepository.createCommunities(graphName);
-        log.info("Community detection completed successfully for graph: {}", graphName);
-    }
-    
-    @Override
-    public MetricType getMetricType() {
-        return MetricType.COMMUNITY;
-    }
+
+  private final AlgorithmRepository algorithmRepository;
+
+  @Override
+  public void compute(String graphName) {
+    algorithmRepository.createCommunities(graphName);
+    log.info("Community detection completed successfully for graph: {}", graphName);
+  }
+
+  @Override
+  public MetricType getMetricType() {
+    return MetricType.COMMUNITY;
+  }
 }

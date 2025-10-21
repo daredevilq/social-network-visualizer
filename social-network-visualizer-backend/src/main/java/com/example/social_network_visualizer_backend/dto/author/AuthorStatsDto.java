@@ -2,14 +2,12 @@ package com.example.social_network_visualizer_backend.dto.author;
 
 import java.time.LocalDateTime;
 
-
 public record AuthorStatsDto(
-        LocalDateTime dateOfFirstTweet,
-        Long tweetsCount,
-        Long quotesCount,
-        Long retweetsCount,
-        Long repliesCount,
-        Double averageRepliesCount,
-        Double averageRetweetsCount,
-        Double averageLikesCount
-) {}
+    LocalDateTime dateOfFirstTweet,
+    Long tweetsCount,
+    Long quotesCount,
+    Long retweetsCount,
+    Long repliesCount,
+    Double averageRepliesCount,
+    Double averageRetweetsCount,
+    Double averageLikesCount) {}

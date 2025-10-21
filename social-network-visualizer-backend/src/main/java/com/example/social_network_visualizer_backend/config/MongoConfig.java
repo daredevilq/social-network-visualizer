@@ -9,10 +9,9 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 @Configuration
 public class MongoConfig {
 
-    @Bean
-    public GridFsTemplate gridFsTemplate(
-            MongoDatabaseFactory mongoDbFactory,
-            MappingMongoConverter mappingMongoConverter) {
-        return new GridFsTemplate(mongoDbFactory, mappingMongoConverter);
-    }
+  @Bean
+  public GridFsTemplate gridFsTemplate(
+      MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+    return new GridFsTemplate(mongoDbFactory, mappingMongoConverter);
+  }
 }

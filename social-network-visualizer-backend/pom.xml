@@ -38,13 +38,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-devtools</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--			<optional>true</optional>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -85,6 +78,24 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>2.43.0</version> <configuration>
+				<java>
+					<googleJavaFormat>
+						<version>1.17.0</version> <style>GOOGLE</style>
+					</googleJavaFormat>
+					<lineEndings>UNIX</lineEndings>
+				</java>
+			</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal> </goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

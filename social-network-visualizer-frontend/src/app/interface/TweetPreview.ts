@@ -1,4 +1,4 @@
 export interface TweetPreview {
-    url: string;
-    contentPreview: string;
+  url: string;
+  contentPreview: string;
 }
