@@ -50,7 +50,7 @@ public class GraphService {
 
     return new GraphDataDto(nodes, links);
   }
-    
+
   // TODO: the the problem is that we need to change the logic of displaying nodes and links
   // when we have HashtagDtp.name = "Google" and AuthorDto.name = "Google" (its real example)
   // frontend doesnt know that relation MENTIONS only apply to AUTHOR->AUTHOR and it linsk
