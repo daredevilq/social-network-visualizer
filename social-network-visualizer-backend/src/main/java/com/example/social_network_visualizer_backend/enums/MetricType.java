@@ -1,3 +1,6 @@
 package com.example.social_network_visualizer_backend.enums;
 
-public enum MetricType { PAGERANK, COMMUNITY;}
+public enum MetricType {
+  PAGERANK,
+  COMMUNITY
+}

@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public abstract class NodeDto {
-    private String name;
-    private NodeType nodeType;
+  private String name;
+  private NodeType nodeType;
 }
-

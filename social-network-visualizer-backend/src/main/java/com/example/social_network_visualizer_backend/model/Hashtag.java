@@ -14,6 +14,5 @@ import org.springframework.data.neo4j.core.schema.Node;
 @NoArgsConstructor
 public class Hashtag {
 
-    @Id
-    private String hashtag;
+  @Id private String hashtag;
 }

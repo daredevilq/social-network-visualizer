@@ -10,17 +10,17 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PageRankComputationStrategy implements MetricComputationStrategy {
-    
-    private final AlgorithmRepository algorithmRepository;
-    
-    @Override
-    public void compute(String graphName) {
-        algorithmRepository.computePageRank(graphName);
-        log.info("PageRank computed successfully for graph: {}", graphName);
-    }
-    
-    @Override
-    public MetricType getMetricType() {
-        return MetricType.PAGERANK;
-    }
+
+  private final AlgorithmRepository algorithmRepository;
+
+  @Override
+  public void compute(String graphName) {
+    algorithmRepository.computePageRank(graphName);
+    log.info("PageRank computed successfully for graph: {}", graphName);
+  }
+
+  @Override
+  public MetricType getMetricType() {
+    return MetricType.PAGERANK;
+  }
 }

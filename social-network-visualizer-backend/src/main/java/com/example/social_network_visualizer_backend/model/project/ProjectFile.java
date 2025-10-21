@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ProjectFile {
-    private String filename;
-    private String gridFsId;
-    private long sizeInBytes;
+  private String filename;
+  private String gridFsId;
+  private long sizeInBytes;
 }

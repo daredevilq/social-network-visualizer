@@ -13,29 +13,32 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializationConfig {
-    private final MongodbService mongodbService;
-    private final Neo4jService neo4jService;
-    @Value("${drop.mode:true}")
-    private String dropMode;
+  private final MongodbService mongodbService;
+  private final Neo4jService neo4jService;
 
-    @PostConstruct
-    public void init() {
-        try {
-            neo4jService.waitForNeo4jToBeAvailable();
-        } catch (DatabaseUnavailableException e) {
-            throw new RuntimeException("Neo4j is not available, cannot proceed with database operations.", e);
-        }
+  @Value("${drop.mode:true}")
+  private String dropMode;
 
-        try {
-            mongodbService.waitForMongoDBToBeAvailable();
-        } catch (DatabaseUnavailableException e) {
-            throw new RuntimeException("MongoDB is not available, cannot proceed with database operations.", e);
-        }
-
-        if (Boolean.parseBoolean(dropMode)) {
-            neo4jService.handleDatabaseDrop();
-        }
-
-        neo4jService.createConstraints();
+  @PostConstruct
+  public void init() {
+    try {
+      neo4jService.waitForNeo4jToBeAvailable();
+    } catch (DatabaseUnavailableException e) {
+      throw new RuntimeException(
+          "Neo4j is not available, cannot proceed with database operations.", e);
     }
+
+    try {
+      mongodbService.waitForMongoDBToBeAvailable();
+    } catch (DatabaseUnavailableException e) {
+      throw new RuntimeException(
+          "MongoDB is not available, cannot proceed with database operations.", e);
+    }
+
+    if (Boolean.parseBoolean(dropMode)) {
+      neo4jService.handleDatabaseDrop();
+    }
+
+    neo4jService.createConstraints();
+  }
 }

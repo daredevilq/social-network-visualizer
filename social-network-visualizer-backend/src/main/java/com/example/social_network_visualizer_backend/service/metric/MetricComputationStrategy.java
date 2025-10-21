@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.enums.MetricType;
 
 public interface MetricComputationStrategy {
 
-    void compute(String graphName);
-    MetricType getMetricType();
+  void compute(String graphName);
+
+  MetricType getMetricType();
 }

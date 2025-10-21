@@ -13,14 +13,13 @@ import org.springframework.data.neo4j.core.schema.Node;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Author {
-    private String id;
-    @Id
-    private String userName;
-    private String displayName;
-    private String name;
-    private String foreignId;
-    private Boolean bot;
-    private Double pagerank;
-    private Double degreeCentrality;
-    private Integer community;
+  private String id;
+  @Id private String userName;
+  private String displayName;
+  private String name;
+  private String foreignId;
+  private Boolean bot;
+  private Double pagerank;
+  private Double degreeCentrality;
+  private Integer community;
 }
