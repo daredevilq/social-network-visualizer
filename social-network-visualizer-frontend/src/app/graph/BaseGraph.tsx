@@ -61,6 +61,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     node: null,
     position: { x: 0, y: 0 },
   });
+
   const {
     setIsSidebarOpen,
     setSelectedUserData,
@@ -211,7 +212,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
             ctx.restore();
           }
 
-          // 3. Rysowanie etykiety (bez zmian)
           const fontSize = 12 / globalScale;
           if (showLabels) {
             const nLabel = nodeLabel(node);
@@ -236,20 +236,22 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     selectedNodeIds,
   ]);
 
-  const handleNodeLeftClick = (node: GraphNode) => {
+  const handleNodeLeftClick = useCallback((node: GraphNode) => {
     nodeStrategy.handleNodeLeftClick(
       node,
       setSelectedUserData,
       setIsSidebarOpen,
     );
-  };
+  }, []);
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
-      setMenu({ node, position: { x: event.clientX, y: event.clientY } });
-      nodeStrategy.handleNodeRightClick(node);
+      if (isInWorkspaceMode) {
+        setMenu({ node, position: { x: event.clientX, y: event.clientY } });
+        nodeStrategy.handleNodeRightClick(node);
+      }
     },
-    [],
+    [isInWorkspaceMode],
   );
 
   const handleCloseMenu = useCallback(() => {
@@ -295,7 +297,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const nodeTypes = Array.from(nodesByType.keys());
     const nodesPerType = Math.floor(NODE_DISPLAY_LIMIT / nodeTypes.length);
 
-    // Take proportionally from each type (workaround)
     const topNodes: GraphNode[] = [];
     nodesByType.forEach((nodes) => {
       topNodes.push(...nodes.slice(0, nodesPerType).map((n) => ({ ...n })));
