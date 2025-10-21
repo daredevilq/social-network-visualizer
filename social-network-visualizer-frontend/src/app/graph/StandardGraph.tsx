@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { GraphLink, GraphNode } from "@/types/GraphTypes";
 import nodeStrategy from "../model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
-import linkStrategy from "@/app/model/strategies/LinkStrategy";
 import { useGraph } from "@/app/context/GraphContext";
 
 const BaseGraph = dynamic(() => import("./BaseGraph"), { ssr: false });
@@ -32,7 +31,7 @@ export default function StandardGraph() {
       <BaseGraph
         graphData={graphData}
         nodeVal={(node: GraphNode) =>
-          Math.min((node as any).pagerank ? (node as any).pagerank * 5 : 5, 30)
+          (nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12
         }
         nodeLabel={(node: GraphNode) => `${node.id}`}
         nodeColor={(node: GraphNode) => {
@@ -48,19 +47,20 @@ export default function StandardGraph() {
           return nodeStrategy.getColor(node);
         }}
         linkColor={(link: GraphLink) => {
+          // return shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : linkStrategy.getColor(link);
           return shortestPath.includes(link.source) &&
             shortestPath.includes(link.target)
             ? NodeColors.getRedColor()
-            : linkStrategy.getColor(link);
+            : "#0D0630";
         }}
         linkWidth={(link: GraphLink) =>
           shortestPath.includes(link.source) &&
           shortestPath.includes(link.target)
-            ? 4
-            : 2
+            ? 6
+            : 3
         }
         linkLabel={(link: GraphLink) => `${link.relation}`}
-        linkDirectionalArrowLength={6}
+        linkDirectionalArrowLength={8}
         linkDirectionalArrowRelPos={1}
         nodeFound={nodeFound}
       />
