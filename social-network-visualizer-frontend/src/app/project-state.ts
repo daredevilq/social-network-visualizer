@@ -1,35 +1,35 @@
-'use server'
+"use server";
 
-import {GraphType} from "@/app/interface/GraphType";
+import { GraphType } from "@/app/interface/GraphType";
 
 let projectName: string | null = null;
 let graphType: string = "mentions";
 let graphUiType: GraphType = GraphType.STANDARD;
 
 export async function setProjectName(name: string): Promise<void> {
-    projectName = name;
+  projectName = name;
 }
 
 export async function getProjectName(): Promise<string | null> {
-    return projectName;
+  return projectName;
 }
 
 export async function resetProjectName(): Promise<void> {
-    projectName = null;
+  projectName = null;
 }
 
 export async function getGraphType(): Promise<string> {
-    return graphType;
+  return graphType;
 }
 
 export async function setGraphType(type: string): Promise<void> {
-    graphType = type;
+  graphType = type;
 }
 
 export async function getGraphUiType(): Promise<GraphType> {
-    return graphUiType;
+  return graphUiType;
 }
 
 export async function setGraphUiType(type: GraphType): Promise<void> {
-    graphUiType = type;
+  graphUiType = type;
 }

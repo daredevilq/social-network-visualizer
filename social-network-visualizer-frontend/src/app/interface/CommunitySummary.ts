@@ -1,10 +1,10 @@
-import {ActivityPoint} from "@/app/interface/ActivityPoint";
+import { ActivityPoint } from "@/app/interface/ActivityPoint";
 
-export interface CommunitySummary{
-    communityId: number;
-    memberCount: number;
-    topAuthor: string;
-    topPageRank: number;
-    topHashtags: string[];
-    communityActivity: ActivityPoint[]
+export interface CommunitySummary {
+  communityId: number;
+  memberCount: number;
+  topAuthor: string;
+  topPageRank: number;
+  topHashtags: string[];
+  communityActivity: ActivityPoint[];
 }

@@ -1,293 +1,347 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useProject } from '@/app/context/ProjectContext';
-import { ProjectSummary } from '@/app/interface/ProjectSummary';
-import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
-import WorkspaceActionMenu from '@/app/components/Popups/WorkspaceActionMenu';
-import ConfirmModal from '@/app/components/Popups/ConfirmModal';
-import ProjectUploadModal from '@/app/components/Popups/ProjectUploadModal';
-import ProjectEditModal from '@/app/components/Popups/ProjectEditModal';
+import { useEffect, useState } from "react";
+import { useProject } from "@/app/context/ProjectContext";
+import { ProjectSummary } from "@/app/interface/ProjectSummary";
+import ProjectActionsMenu from "@/app/components/Popups/ProjectActionsMenu";
+import WorkspaceActionMenu from "@/app/components/Popups/WorkspaceActionMenu";
+import ConfirmModal from "@/app/components/Popups/ConfirmModal";
+import ProjectUploadModal from "@/app/components/Popups/ProjectUploadModal";
+import ProjectEditModal from "@/app/components/Popups/ProjectEditModal";
 import ProjectConfigViewModal from "@/app/components/Popups/ProjectConfigViewModal";
-import {resetProjectName} from "@/app/project-state";
-import {API_BASE_URL} from "@/app/configuration/urlConfig";
-import {useNotification} from "@/app/context/NotificationProvider";
-import {BannerType} from "@/app/components/Popups/Banner";
+import { resetProjectName } from "@/app/project-state";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { BannerType } from "@/app/components/Popups/Banner";
 import WorkspaceCreateModal from "@/app/components/Popups/WorkspaceCreateModal";
-import { useWorkspace } from '@/app/context/WorkspaceContext';
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 type DeleteTarget = {
-	type: 'project' | 'workspace';
-	name: string;
+  type: "project" | "workspace";
+  name: string;
 } | null;
 
 export default function ProjectsContent() {
-	const { loadedProjectName, loading, loadProject, runWithLoading, setProjectData,  } = useProject();
-	const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, runWithUnsavedCheck } = useWorkspace();
-	const { showNotification } = useNotification()
-	const [projects, setProjects] = useState<ProjectSummary[]>([]);
-	const [workspaces, setWorkspaces] = useState<string[]>([]);
-	const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
-	const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
-	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-	const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
-	const [editTarget, setEditTarget] = useState<string|null>(null);
-	const [selectedWorkspace, setSelectedWorkspace] = useState<string|null>(null);
-	const askDeleteProject = (name: string) => setDeleteTarget({ type: 'project', name });
-	const askDeleteWorkspace = (name: string) => setDeleteTarget({ type: 'workspace', name });
-	const cancelCreateModal = () => { setCreateProjectModalOpen(false); setPendingFiles([]); };
-    const [viewConfigTarget, setViewConfigTarget] = useState<string | null>(null);
+  const {
+    loadedProjectName,
+    loading,
+    loadProject,
+    runWithLoading,
+    setProjectData,
+  } = useProject();
+  const {
+    setIsInWorkspaceMode,
+    openedWorkspaceName,
+    setOpenedWorkspaceName,
+    runWithUnsavedCheck,
+  } = useWorkspace();
+  const { showNotification } = useNotification();
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [workspaces, setWorkspaces] = useState<string[]>([]);
+  const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
+  const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] =
+    useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+  const [editTarget, setEditTarget] = useState<string | null>(null);
 
-	useEffect(() => {
-		refreshProjects();
-		if (loadedProjectName) {
-			refreshWorkspaces(loadedProjectName);
-		}
-	}, []);
+  const askDeleteProject = (name: string) =>
+    setDeleteTarget({ type: "project", name });
+  const askDeleteWorkspace = (name: string) =>
+    setDeleteTarget({ type: "workspace", name });
+  const cancelCreateModal = () => {
+    setCreateProjectModalOpen(false);
+    setPendingFiles([]);
+  };
+  const [viewConfigTarget, setViewConfigTarget] = useState<string | null>(null);
 
-	const refreshProjects = async () => {
-		try {
-			const res = await fetch(`${API_BASE_URL}/project/list`);
-			if (!res.ok) throw new Error("Failed to load project list");
+  useEffect(() => {
+    refreshProjects();
+    if (loadedProjectName) {
+      refreshWorkspaces(loadedProjectName);
+    }
+  }, []);
 
-			setProjects(await res.json());
-		} catch (err: any) {
-			showNotification(`Load error: ${err.message}`, BannerType.ERROR);
-		}
-	};
+  const refreshProjects = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/project/list`);
+      if (!res.ok) throw new Error("Failed to load project list");
 
-	const runDeleteProject = async (projectName: string) => {
-		await runWithLoading(async () => {
-			const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}`, { method: 'DELETE' });
-			if (!res.ok) throw new Error("Failed to delete project");
+      setProjects(await res.json());
+    } catch (err: any) {
+      showNotification(`Load error: ${err.message}`, BannerType.ERROR);
+    }
+  };
 
-			if (loadedProjectName === projectName) {
-				await resetProjectName();
-				refreshProjects();
-				setProjectData({nodes: [], links: []});
-				setWorkspaces([]);
-			}
-			showNotification(`Project “${projectName}” deleted`, BannerType.INFO);
-		}).catch((err: any) => {
-			showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
-		});
-	};
+  const runDeleteProject = async (projectName: string) => {
+    await runWithLoading(async () => {
+      const res = await fetch(
+        `${API_BASE_URL}/project/${encodeURIComponent(projectName)}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error("Failed to delete project");
 
-	const handleProjectClick = async (projectName: string) => {
-		setIsInWorkspaceMode(false);
-		setOpenedWorkspaceName(null);
-		await loadProject(projectName,true)
-		await refreshWorkspaces(projectName);
-	};
+      if (loadedProjectName === projectName) {
+        await resetProjectName();
+        refreshProjects();
+        setProjectData({ nodes: [], links: [] });
+        setWorkspaces([]);
+      }
+      showNotification(`Project “${projectName}” deleted`, BannerType.INFO);
+    }).catch((err: any) => {
+      showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
+    });
+  };
 
-	const refreshWorkspaces = async (projectName: string) => {
-		try {
-			const res = await fetch(`${API_BASE_URL}/project/${projectName}/workspace/list`);
-			if (!res.ok) throw new Error("Failed to load workspace list");
-			setWorkspaces(await res.json());
-		} catch (err: any) {
-			showNotification(`Load error: ${err.message}`, BannerType.ERROR);
-		}
-	};
+  const handleProjectClick = async (projectName: string) => {
+    setIsInWorkspaceMode(false);
+    setOpenedWorkspaceName(null);
+    await loadProject(projectName, true);
+    await refreshWorkspaces(projectName);
+  };
 
-	const deleteWorkspace = async (workspaceName: string) => {
-		await runWithLoading(async () => {
-			const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, { method: 'DELETE' });
-			if (!res.ok) throw new Error("Failed to delete workspace");
+  const refreshWorkspaces = async (projectName: string) => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/project/${projectName}/workspace/list`,
+      );
+      if (!res.ok) throw new Error("Failed to load workspace list");
+      setWorkspaces(await res.json());
+    } catch (err: any) {
+      showNotification(`Load error: ${err.message}`, BannerType.ERROR);
+    }
+  };
 
-			if (workspaceName === openedWorkspaceName) {
-				setOpenedWorkspaceName(null);
-				setIsInWorkspaceMode(false);
-			}
-			refreshWorkspaces(loadedProjectName!);
-			showNotification(`Workspace “${workspaceName}” deleted`, BannerType.INFO);
-		}).catch((err: any) => {
-			showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
-		});
-	};
+  const deleteWorkspace = async (workspaceName: string) => {
+    await runWithLoading(async () => {
+      const res = await fetch(
+        `${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error("Failed to delete workspace");
 
-	const createWorkspace = async (workspaceName: string) => {
-		setCreateWorkspaceModalOpen(false);
+      if (workspaceName === openedWorkspaceName) {
+        setOpenedWorkspaceName(null);
+        setIsInWorkspaceMode(false);
+      }
+      refreshWorkspaces(loadedProjectName!);
+      showNotification(`Workspace “${workspaceName}” deleted`, BannerType.INFO);
+    }).catch((err: any) => {
+      showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
+    });
+  };
 
-		await runWithLoading(async () => {
-			const res = await fetch(
-				`${API_BASE_URL}/project/${loadedProjectName}/workspace`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						name: workspaceName,
-						nodes: [],
-						edges: [],
-					}),
-				}
-			);
+  const createWorkspace = async (workspaceName: string) => {
+    setCreateWorkspaceModalOpen(false);
 
-			if (!res.ok) throw new Error("Failed to create workspace");
-			showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
-		}).catch((err: any) => {
-			showNotification(`Create error: ${err.message}`, BannerType.ERROR);
-		});
-		await refreshWorkspaces(loadedProjectName!);
-		setOpenedWorkspaceName(workspaceName);
-		setIsInWorkspaceMode(true);
-	};
+    await runWithLoading(async () => {
+      const res = await fetch(
+        `${API_BASE_URL}/project/${loadedProjectName}/workspace`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: workspaceName,
+            nodes: [],
+            edges: [],
+          }),
+        },
+      );
 
-	return (
-		<div className="relative h-full flex flex-col text-white px-4 pt-4">
-			<h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Projects</h1>
+      if (!res.ok) throw new Error("Failed to create workspace");
+      showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
+    }).catch((err: any) => {
+      showNotification(`Create error: ${err.message}`, BannerType.ERROR);
+    });
+    await refreshWorkspaces(loadedProjectName!);
+    setOpenedWorkspaceName(workspaceName);
+    setIsInWorkspaceMode(true);
+  };
 
-			<div className="flex-1 overflow-y-auto divide-y divide-gray-700">
-				{projects.map((project) => (
-					<div key={project.name} className="relative mb-2">
-						<div
-							className={`py-3 flex items-center justify-between ${
-								loadedProjectName === project.name
-									? "text-[#7140F4] font-semibold"
-									: "text-white hover:text-[#7140F4]"
-							}`}
-						>
-							<button
-								disabled={loading}
-								onClick={() => runWithUnsavedCheck(() => handleProjectClick(project.name))}
-								className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
-							>
-								<img
-									src={
-										loadedProjectName === project.name
-											? "/icons/leftSideBar/current_project_icon.png"
-											: "/icons/leftSideBar/project_icon.png"
-									}
-									className="w-5 h-5 mr-2"
-									alt="Project"
-								/>
-								<span className="truncate">{project.name}</span>
-							</button>
+  return (
+    <div className="relative h-full flex flex-col text-white px-4 pt-4">
+      <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">
+        Projects
+      </h1>
 
-							<ProjectActionsMenu
-								disabled={loading}
-								onDelete={() => runWithUnsavedCheck(async () => askDeleteProject(project.name))}
-								onEdit={() => runWithUnsavedCheck(async () => setEditTarget(project.name))}
-                                onViewConfig={() => setViewConfigTarget(project.name)}
-                            />
-						</div>
+      <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
+        {projects.map((project) => (
+          <div key={project.name} className="relative mb-2">
+            <div
+              className={`py-3 flex items-center justify-between ${
+                loadedProjectName === project.name
+                  ? "text-[#7140F4] font-semibold"
+                  : "text-white hover:text-[#7140F4]"
+              }`}
+            >
+              <button
+                disabled={loading}
+                onClick={() =>
+                  runWithUnsavedCheck(() => handleProjectClick(project.name))
+                }
+                className="flex items-center text-left w-full hover:cursor-pointer transition-colors duration-300 ease-in-out"
+              >
+                <img
+                  src={
+                    loadedProjectName === project.name
+                      ? "/icons/leftSideBar/current_project_icon.png"
+                      : "/icons/leftSideBar/project_icon.png"
+                  }
+                  className="w-5 h-5 mr-2"
+                  alt="Project"
+                />
+                <span className="truncate">{project.name}</span>
+              </button>
 
-						{loadedProjectName === project.name && !loading && (
-							<div className="ml-7 space-y-2 mb-3">
-								{workspaces.map((workspace) => (
-									<div
-										key={workspace}
-										className={`group relative flex items-center justify-between text-base duration-200 pl-3 pr-0 cursor-pointer transition-colors duration-200 
+              <ProjectActionsMenu
+                disabled={loading}
+                onDelete={() =>
+                  runWithUnsavedCheck(async () =>
+                    askDeleteProject(project.name),
+                  )
+                }
+                onEdit={() =>
+                  runWithUnsavedCheck(async () => setEditTarget(project.name))
+                }
+                onViewConfig={() => setViewConfigTarget(project.name)}
+              />
+            </div>
+
+            {loadedProjectName === project.name && !loading && (
+              <div className="ml-7 space-y-2 mb-3">
+                {workspaces.map((workspace) => (
+                  <div
+                    key={workspace}
+                    className={`group relative flex items-center justify-between text-base duration-200 pl-3 pr-0 cursor-pointer transition-colors duration-200 
 										${openedWorkspaceName === workspace ? "text-[#7140F4]" : "text-white hover:text-[#7140F4]"}`}
-									>
-									<button
-										disabled={loading}
-										onClick={() => {
-											setOpenedWorkspaceName(workspace);
-										}}
-										className="flex items-center flex-1 text-left transition-colors duration-200"
-									>
-										<span
-											className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 rounded transition-colors duration-200 
+                  >
+                    <button
+                      disabled={loading}
+                      onClick={() => {
+                        setOpenedWorkspaceName(workspace);
+                      }}
+                      className="flex items-center flex-1 text-left transition-colors duration-200"
+                    >
+                      <span
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 rounded transition-colors duration-200 
 											${openedWorkspaceName === workspace ? "bg-[#7140F4]" : "bg-white group-hover:bg-[#7140F4]"}`}
-										/>
-										<span className="truncate pr-6">{workspace}</span>
-									</button>
+                      />
+                      <span className="truncate pr-6">{workspace}</span>
+                    </button>
 
-									<WorkspaceActionMenu
-										disabled={loading}
-										onDelete={() => runWithUnsavedCheck(async () => askDeleteWorkspace(workspace))}
-									/>
-								</div>
-								))}
-								<div className="py-1">
-									<button
-										disabled={loading}
-										onClick={() => runWithUnsavedCheck(async () => setCreateWorkspaceModalOpen(true))}
-										className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
-									>
-										<img
-											src="/icons/leftSideBar/plus_icon.png"
-											className="w-4 h-4 mr-2"
-											alt="Add"
-										/>
-										<span>Add workspace</span>
-									</button>
-								</div>
-							</div>
-						)}
-					</div>
-				))}
+                    <WorkspaceActionMenu
+                      disabled={loading}
+                      onDelete={() =>
+                        runWithUnsavedCheck(async () =>
+                          askDeleteWorkspace(workspace),
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+                <div className="py-1">
+                  <button
+                    disabled={loading}
+                    onClick={() =>
+                      runWithUnsavedCheck(async () =>
+                        setCreateWorkspaceModalOpen(true),
+                      )
+                    }
+                    className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
+                  >
+                    <img
+                      src="/icons/leftSideBar/plus_icon.png"
+                      className="w-4 h-4 mr-2"
+                      alt="Add"
+                    />
+                    <span>Add workspace</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
 
-				<div className="py-3">
-					<button
-						disabled={loading}
-						onClick={() => runWithUnsavedCheck(async () => setCreateProjectModalOpen(true))}
-						className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
-					>
-						<img
-							src="/icons/leftSideBar/plus_icon.png"
-							className="w-5 h-5 mr-2"
-							alt="Add"
-						/>
-						<span>Upload project</span>
-					</button>
-				</div>
-			</div>
-
-			<ProjectUploadModal
-				open={createProjectModalOpen}
-				defaultName={loadedProjectName ?? ''}
-				pendingFiles={pendingFiles}
-				onFilesChange={setPendingFiles}
-				onCancel={cancelCreateModal}
-				onSuccess={async (name) => {
-                    cancelCreateModal();
-                    await refreshProjects();
-					await loadProject(name, true);
-					setIsInWorkspaceMode(false);
-					setOpenedWorkspaceName(null);
-                    showNotification(`Project "${name}" uploaded successfully. Click to load.`, BannerType.SUCCESS);
-				}}
-			/>
-
-			<ProjectEditModal
-				projectName={editTarget}
-				onClose={() => setEditTarget(null)}
-			/>
-            <ProjectConfigViewModal
-                projectName={viewConfigTarget}
-                onClose={() => setViewConfigTarget(null)}
+        <div className="py-3">
+          <button
+            disabled={loading}
+            onClick={() =>
+              runWithUnsavedCheck(async () => setCreateProjectModalOpen(true))
+            }
+            className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
+          >
+            <img
+              src="/icons/leftSideBar/plus_icon.png"
+              className="w-5 h-5 mr-2"
+              alt="Add"
             />
-			<WorkspaceCreateModal
-				open={createWorkspaceModalOpen}
-				projectName={loadedProjectName!}
-				onCancel={() => setCreateWorkspaceModalOpen(false)}
-				handleCreateWorkspace={(workspaceName: string) => createWorkspace(workspaceName)}
-				workspaceList={workspaces}
-			/>
+            <span>Upload project</span>
+          </button>
+        </div>
+      </div>
 
-			<ConfirmModal
-				open={deleteTarget !== null}
-				title={deleteTarget?.type === 'project' ? "Delete project?" : "Delete workspace?"}
-				message={`${
-					deleteTarget?.type === 'project' ? "Project" : "Workspace"
-				} “${deleteTarget?.name ?? ''}” will be permanently removed.`}
-				confirmLabel="Delete"
-				cancelLabel="Cancel"
-				onCancel={() => setDeleteTarget(null)}
-				onConfirm={async () => {
-					if (!deleteTarget) return;
+      <ProjectUploadModal
+        open={createProjectModalOpen}
+        defaultName={loadedProjectName ?? ""}
+        pendingFiles={pendingFiles}
+        onFilesChange={setPendingFiles}
+        onCancel={cancelCreateModal}
+        onSuccess={async (name) => {
+          cancelCreateModal();
+          await refreshProjects();
+          await loadProject(name, true);
+          setIsInWorkspaceMode(false);
+          setOpenedWorkspaceName(null);
+          showNotification(
+            `Project "${name}" uploaded successfully. Click to load.`,
+            BannerType.SUCCESS,
+          );
+        }}
+      />
 
-					if (deleteTarget.type === 'project') {
-						runDeleteProject(deleteTarget.name);
-					} else {
-						deleteWorkspace(deleteTarget.name);
-					}
+      <ProjectEditModal
+        projectName={editTarget}
+        onClose={() => setEditTarget(null)}
+      />
+      <ProjectConfigViewModal
+        projectName={viewConfigTarget}
+        onClose={() => setViewConfigTarget(null)}
+      />
+      <WorkspaceCreateModal
+        open={createWorkspaceModalOpen}
+        projectName={loadedProjectName!}
+        onCancel={() => setCreateWorkspaceModalOpen(false)}
+        handleCreateWorkspace={(workspaceName: string) =>
+          createWorkspace(workspaceName)
+        }
+        workspaceList={workspaces}
+      />
 
-					setDeleteTarget(null);
-				}}
-			/>
-		</div>
-	);
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title={
+          deleteTarget?.type === "project"
+            ? "Delete project?"
+            : "Delete workspace?"
+        }
+        message={`${
+          deleteTarget?.type === "project" ? "Project" : "Workspace"
+        } “${deleteTarget?.name ?? ""}” will be permanently removed.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+
+          if (deleteTarget.type === "project") {
+            runDeleteProject(deleteTarget.name);
+          } else {
+            deleteWorkspace(deleteTarget.name);
+          }
+
+          setDeleteTarget(null);
+        }}
+      />
+    </div>
+  );
 }
