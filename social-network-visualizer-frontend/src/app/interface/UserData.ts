@@ -1,6 +1,7 @@
 interface UserData {
   dateOfFirstTweet: string;
   tweetsCount: number;
+  quotesCount: number;
   retweetsCount: number;
   repliesCount: number;
   averageLikesCount: number;

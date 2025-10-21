@@ -70,6 +70,7 @@ public class AuthorService {
         .userName(authorName)
         .dateOfFirstTweet(dateOfFirstTweet)
         .tweetsCount(authorStatsDto.tweetsCount())
+        .quotesCount(authorStatsDto.quotesCount())
         .retweetsCount(authorStatsDto.retweetsCount())
         .repliesCount(authorStatsDto.repliesCount())
         .averageRepliesCount(averageReplies.doubleValue())

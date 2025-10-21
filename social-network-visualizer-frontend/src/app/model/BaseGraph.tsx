@@ -32,7 +32,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     linkLabel,
     linkDirectionalArrowLength,
     linkDirectionalArrowRelPos,
-    nodeFoundId,
+    nodeFound,
   } = props;
 
   const NODE_DISPLAY_LIMIT: number = 350;
@@ -42,12 +42,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   );
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
-
   const [selectedNodes, setSelectedNodes] = useState<GraphNode[]>([]);
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
-
-  const [displayedNodes, setDisplayedNodes] = useState<GraphNode[]>([]);
-  const [displayedLinks, setDisplayedLinks] = useState<GraphLink[]>([]);
 
   const {
     setIsSidebarOpen,
@@ -96,17 +92,18 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   }, [graphData, fgInstance]);
 
   useEffect(() => {
-    if (!fgInstance.current || !nodeFoundId) return;
+    if (!fgInstance.current || !nodeFound) return;
     const graphCurrentData = fgInstance.current.graphData();
     const node = graphCurrentData.nodes.find(
-      (n: GraphNode) => n.id === nodeFoundId,
+      (n: GraphNode) =>
+        n.id === nodeFound?.id && n.nodeType === nodeFound?.nodeType,
     );
 
     if (node && "x" in node && "y" in node) {
       fgInstance.current.centerAt(node.x, node.y, 1000);
       fgInstance.current.zoom(6, 1000);
     }
-  }, [nodeFoundId]);
+  }, [nodeFound]);
 
   useEffect(() => {
     if (!fgInstance.current) return;
@@ -244,8 +241,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         nodes: [...currentGraphData.nodes, ...newNodes],
         links: [...currentGraphData.links, ...newLinks],
       });
-      setDisplayedNodes([...currentGraphData.nodes, ...newNodes]);
-      setDisplayedLinks([...currentGraphData.links, ...newLinks]);
     }
   };
 
@@ -282,7 +277,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   };
 
   const displayGraphData = () => {
-    if (!fgInstance.current || !graphData?.nodes?.length) return;
+    if (!fgInstance.current) return;
 
     const nodesByType = new Map<NodeType, GraphNode[]>();
     graphData.nodes.forEach((node) => {
@@ -310,8 +305,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       )
       .map((link: GraphLink) => ({ ...link }));
 
-    setDisplayedNodes(topNodes);
-    setDisplayedLinks(relevantLinks);
     fgInstance.current.graphData({ nodes: topNodes, links: relevantLinks });
   };
 

@@ -5,10 +5,12 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { BarChart2, Search } from "lucide-react";
+import { BarChart2, Search, X } from "lucide-react";
 import { useProject } from "@/app/context/ProjectContext";
 import { GraphData } from "@/app/interface/GraphData";
 import { GraphNode } from "@/types/GraphTypes";
+import { useGraph } from "@/app/context/GraphContext";
+import { useWorkspace } from "@/app/context/WorkspaceContext";
 
 interface SearchAndToggleModeContainerProps {
   searchValue: string;
@@ -26,16 +28,30 @@ const SearchAndToggleModeContainer: React.FC<
   } = searchAndToggleModeContainer;
   const [localSearchValue, setLocalSearchValue] = useState(searchValue || "");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<GraphNode[]>(
+    [],
+  );
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const {
     isLabelsMode,
     setIsLabelsMode,
     projectData,
-    setNodeIdFound,
+    setNodeFound,
     setShowLabels,
+    loadedProjectName,
   } = useProject();
+  const { openedWorkspaceName } = useWorkspace();
+  const { addNodeToGraph } = useGraph();
+
+  useEffect(() => {
+    if (!loadedProjectName || !openedWorkspaceName) return;
+    setLocalSearchValue("");
+    setFilteredSuggestions([]);
+    setIsDropdownVisible(false);
+    setActiveIndex(-1);
+    setNodeFound(null);
+  }, [loadedProjectName, openedWorkspaceName]);
 
   const toggleLabels = () => {
     setShowLabels((prev) => !prev);
@@ -59,15 +75,16 @@ const SearchAndToggleModeContainer: React.FC<
 
   useEffect(() => {
     const query = localSearchValue.trim().toLowerCase();
+
     if (query.length === 0) {
       setFilteredSuggestions([]);
       setIsDropdownVisible(false);
       setActiveIndex(-1);
       return;
     }
-    const matches = projectData.nodes
-      .map((node) => node.id)
-      .filter((name) => name.toLowerCase().includes(query));
+    const matches = projectData.nodes.filter((node) =>
+      node.id.toLowerCase().includes(query),
+    );
 
     setFilteredSuggestions(matches);
     setIsDropdownVisible(matches.length > 0);
@@ -79,18 +96,19 @@ const SearchAndToggleModeContainer: React.FC<
   };
 
   const selectSuggestion = (suggestion: string) => {
-    setIsDropdownVisible(false);
-    setActiveIndex(-1);
     setLocalSearchValue(suggestion);
+    setActiveIndex(-1);
+
     const node = findNodeByName(projectData, suggestion);
     if (node) {
-      setNodeIdFound(node.id);
-      onSearchChange(suggestion);
+      setNodeFound(node);
+      addNodeToGraph(node);
     } else {
-      setNodeIdFound(null);
-      onSearchChange(suggestion);
+      setNodeFound(null);
     }
-    return;
+    onSearchChange(suggestion);
+
+    setTimeout(() => setIsDropdownVisible(false), 100);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -99,9 +117,10 @@ const SearchAndToggleModeContainer: React.FC<
         onSearchChange(localSearchValue);
         const node = findNodeByName(projectData, localSearchValue);
         if (node) {
-          setNodeIdFound(node.id);
+          setNodeFound(node);
+          addNodeToGraph(node);
         } else {
-          setNodeIdFound(null);
+          setNodeFound(null);
         }
       }
       return;
@@ -117,7 +136,7 @@ const SearchAndToggleModeContainer: React.FC<
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (activeIndex >= 0 && activeIndex < filteredSuggestions.length) {
-        selectSuggestion(filteredSuggestions[activeIndex]);
+        selectSuggestion(filteredSuggestions[activeIndex].id);
       }
     } else if (e.key === "Escape") {
       setIsDropdownVisible(false);
@@ -177,40 +196,62 @@ const SearchAndToggleModeContainer: React.FC<
             className="w-full h-9 pl-10 pr-4 py-2 text-gray-800 placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-[#FAFAFA]"
           />
 
+          {localSearchValue && (
+            <button
+              onClick={() => {
+                setLocalSearchValue("");
+                setFilteredSuggestions([]);
+                setIsDropdownVisible(false);
+                setNodeFound(null);
+                onSearchChange("");
+              }}
+              className="absolute right-3 top-2 text-gray-400 hover:text-gray-600"
+              aria-label="Clear search"
+            >
+              <X size={16} />
+            </button>
+          )}
+
           {/* Dropdown z suggestions */}
           {isDropdownVisible && (
             <ul className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
               {filteredSuggestions.map((suggestion, index) => {
                 const query = localSearchValue.trim().toLowerCase();
-                const lowerName = suggestion.toLowerCase();
+                const lowerName = suggestion.id.toLowerCase();
                 const matchIndex = lowerName.indexOf(query);
-                const before = suggestion.slice(0, matchIndex);
-                const matchText = suggestion.slice(
+                const before = suggestion.id.slice(0, matchIndex);
+                const matchText = suggestion.id.slice(
                   matchIndex,
                   matchIndex + query.length,
                 );
-                const after = suggestion.slice(matchIndex + query.length);
-
+                const after = suggestion.id.slice(matchIndex + query.length);
                 const isActive = index === activeIndex;
+
                 return (
                   <li
-                    key={suggestion}
-                    onClick={() => selectSuggestion(suggestion)}
+                    key={`${suggestion.id}-${suggestion.nodeType}`}
+                    onClick={() => selectSuggestion(suggestion.id)}
                     onMouseEnter={() => setActiveIndex(index)}
                     className={`
-                    px-4 py-2 cursor-pointer flex items-center transition-colors duration-200
-                    text-gray-800
-                    ${isActive ? "bg-indigo-100" : ""}
-                    hover:bg-indigo-100
-                  `}
+                                            px-4 py-2 cursor-pointer flex flex-col transition-colors duration-200
+                                            text-gray-800
+                                            ${isActive ? "bg-indigo-100" : ""}
+                                            hover:bg-indigo-100
+                                        `}
                   >
-                    <span>
+                    <span className="text-sm">
                       {before}
                       <span className="font-semibold text-indigo-600">
                         {matchText}
                       </span>
                       {after}
                     </span>
+
+                    {suggestion.nodeType && (
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        {suggestion.nodeType}
+                      </span>
+                    )}
                   </li>
                 );
               })}

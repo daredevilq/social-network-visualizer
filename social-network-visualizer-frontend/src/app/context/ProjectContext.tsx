@@ -40,8 +40,8 @@ interface Context {
   setProjectData: React.Dispatch<
     React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>
   >;
-  nodeFoundId: string | null;
-  setNodeIdFound: React.Dispatch<React.SetStateAction<string | null>>;
+  nodeFound: GraphNode | null;
+  setNodeFound: React.Dispatch<React.SetStateAction<GraphNode | null>>;
   shortestPath: string[];
   setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
   isSidebarOpen: boolean;
@@ -75,8 +75,8 @@ const ProjectContext = createContext<Context>({
   setIsLabelsMode: () => {},
   projectData: { nodes: [], links: [] },
   setProjectData: () => {},
-  nodeFoundId: null,
-  setNodeIdFound: () => {},
+  nodeFound: null,
+  setNodeFound: () => {},
   shortestPath: [],
   setShortestPath: () => {},
   isSidebarOpen: false,
@@ -110,7 +110,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     nodes: GraphNode[];
     links: GraphLink[];
   }>({ nodes: [], links: [] });
-  const [nodeFoundId, setNodeIdFound] = useState<string | null>(null);
+  const [nodeFound, setNodeFound] = useState<GraphNode | null>(null);
   const [shortestPath, setShortestPath] = useState<string[]>([]);
   const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([
     NodeType.AUTHOR,
@@ -162,6 +162,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
         setLoadedProjectName(name);
         await setProjectName(name);
+        setNodeFound(null);
 
         showNotification(
           `Successfully loaded project: ${name}`,
@@ -291,8 +292,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setIsLabelsMode,
         projectData: projectData,
         setProjectData,
-        nodeFoundId,
-        setNodeIdFound,
+        nodeFound,
+        setNodeFound,
         shortestPath,
         setShortestPath,
         isSidebarOpen,

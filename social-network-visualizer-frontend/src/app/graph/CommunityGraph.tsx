@@ -16,7 +16,7 @@ export default function CommunityGraph() {
   const {
     loadedProjectName,
     loading,
-    nodeFoundId,
+    nodeFound,
     shortestPath,
     focusedCommunityId,
   } = useProject();
@@ -121,9 +121,10 @@ export default function CommunityGraph() {
         `${node.id}` + ` || Community: ${node.community}`
       }
       nodeColor={(node) =>
-        node.id === nodeFoundId ? NodeColors.getRedColor() : getNodeColor(node)
+        node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType
+          ? NodeColors.getRedColor()
+          : getNodeColor(node)
       }
-      linkLabel={() => ""}
       linkColor={(link: GraphLink) =>
         shortestPath.includes(link.source) && shortestPath.includes(link.target)
           ? NodeColors.getRedColor()
@@ -136,7 +137,7 @@ export default function CommunityGraph() {
       }
       linkDirectionalArrowLength={5}
       linkDirectionalArrowRelPos={1}
-      nodeFoundId={nodeFoundId}
+      nodeFound={nodeFound}
     />
   );
 }

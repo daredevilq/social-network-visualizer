@@ -42,12 +42,12 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden text-[#FAFAFA]">
-      <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
+    <div className="flex flex-col h-screen w-full overflow-hidden text-[#FAFAFA] bg-[#262631] px-16">
+      <div className="flex flex-col h-full w-full max-w-6xl pt-8 pb-8 mx-auto pl-6">
         <div className="flex w-full mb-4 flex items-center justify-between">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer"
+            className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Graph
@@ -63,7 +63,10 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
             {userName ? (
               <Link href={`/user-details/${userName}`}>
                 <button className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer">
-                  <UserSearch size={16} />
+                  <UserSearch
+                    className="w-4 h-4 flex-shrink-0"
+                    strokeWidth={2.5}
+                  />
                   Analyze User
                 </button>
               </Link>
@@ -80,7 +83,7 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
 
         {showScrollTop && (
           <button
-            className="absolute top-12 right-12 bg-[#7140F4] hover:bg-[#5a33c1] text-white p-3 rounded-full shadow-lg transition hidden lg:block"
+            className="absolute top-12 right-12 bg-[#7140F4] hover:bg-[#5c32c3] text-white p-3 rounded-full shadow-lg transition hidden lg:block"
             onClick={scrollToTop}
           >
             <ArrowUp size={32} />

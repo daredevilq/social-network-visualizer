@@ -69,6 +69,7 @@ export default function UserDetailsContainer({
     tweetsCount: 0,
     retweetsCount: 0,
     repliesCount: 0,
+    quotesCount: 0,
     averageLikesCount: 0,
     averageRepliesCount: 0,
     averageRetweetsCount: 0,
@@ -84,6 +85,7 @@ export default function UserDetailsContainer({
         tweetsCount: userData.tweetsCount,
         retweetsCount: userData.retweetsCount,
         repliesCount: userData.repliesCount,
+        quotesCount: userData.quotesCount,
         averageLikesCount: userData.averageLikesCount,
         averageRepliesCount: userData.averageRepliesCount,
         averageRetweetsCount: userData.averageRetweetsCount,
@@ -102,6 +104,7 @@ export default function UserDetailsContainer({
           tweetsCount: Math.round(targets.tweetsCount * progress),
           retweetsCount: Math.round(targets.retweetsCount * progress),
           repliesCount: Math.round(targets.repliesCount * progress),
+          quotesCount: Math.round(targets.quotesCount * progress),
           averageLikesCount:
             Math.round(targets.averageLikesCount * progress * 100) / 100,
           averageRepliesCount:

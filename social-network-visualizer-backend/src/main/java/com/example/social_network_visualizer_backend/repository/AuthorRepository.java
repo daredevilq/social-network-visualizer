@@ -107,6 +107,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.userName = $authorName
                 RETURN MIN(t.publicationDate) AS dateOfFirstTweet,
                    COUNT(CASE WHEN t.objectType = 'TWEET' THEN 1 END) AS tweetsCount,
+                   COUNT(CASE WHEN t.objectType = 'QUOTE' THEN 1 END) AS quotesCount,
                    COUNT(CASE WHEN t.objectType = 'RETWEET' THEN 1 END) AS retweetsCount,
                    COUNT(CASE WHEN t.objectType = 'REPLY' THEN 1 END) AS repliesCount,
                    COALESCE(AVG(t.repliesCount), 0) AS averageRepliesCount,

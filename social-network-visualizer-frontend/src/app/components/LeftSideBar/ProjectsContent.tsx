@@ -44,7 +44,6 @@ export default function ProjectsContent() {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const [editTarget, setEditTarget] = useState<string | null>(null);
-
   const askDeleteProject = (name: string) =>
     setDeleteTarget({ type: "project", name });
   const askDeleteWorkspace = (name: string) =>
@@ -217,9 +216,11 @@ export default function ProjectsContent() {
                   >
                     <button
                       disabled={loading}
-                      onClick={() => {
-                        setOpenedWorkspaceName(workspace);
-                      }}
+                      onClick={() =>
+                        runWithUnsavedCheck(async () =>
+                          setOpenedWorkspaceName(workspace),
+                        )
+                      }
                       className="flex items-center flex-1 text-left transition-colors duration-200"
                     >
                       <span

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record AuthorStatsDto(
     LocalDateTime dateOfFirstTweet,
     Long tweetsCount,
+    Long quotesCount,
     Long retweetsCount,
     Long repliesCount,
     Double averageRepliesCount,

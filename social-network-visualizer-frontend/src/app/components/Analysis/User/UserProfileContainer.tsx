@@ -41,9 +41,9 @@ export function UserProfileContainer({
             </div>
 
             <div className="bg-[#3D3D4E] p-4 rounded-lg">
-              <span className="text-gray-400">Avg. Likes</span>
+              <span className="text-gray-400">Quotes</span>
               <div className="text-3xl font-bold">
-                {animatedStats.averageLikesCount}
+                {animatedStats.quotesCount}
               </div>
             </div>
           </div>
@@ -51,6 +51,12 @@ export function UserProfileContainer({
           <div className="pt-4 border-t border-gray-600">
             <h3 className="text-xl mb-3">Engagement Metrics</h3>
             <ul className="space-y-2">
+              <li className="flex justify-between">
+                <span>Average Likes:</span>
+                <span className="font-medium">
+                  {animatedStats.averageLikesCount}
+                </span>
+              </li>
               <li className="flex justify-between">
                 <span>Average Replies:</span>
                 <span className="font-medium">

@@ -9,6 +9,7 @@ public record AuthorDataResponse(
     long retweetsCount,
     long repliesCount,
     long tweetsCount,
+    long quotesCount,
     double averageRepliesCount,
     double averageRetweetsCount,
     double averageLikesCount) {}
