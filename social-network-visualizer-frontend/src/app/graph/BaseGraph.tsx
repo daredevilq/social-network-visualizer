@@ -89,7 +89,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     fgInstance.current.d3Force(
       "collide",
       forceCollide()
-        .radius((d: GraphNode) => nodeStrategy.getRadius(d) + 10)
+        .radius((d: any) => nodeStrategy.getRadius(d) + 10)
         .strength(0.3),
     );
     fgInstance.current.d3Force("container_x", forceX(0).strength(0.005));
