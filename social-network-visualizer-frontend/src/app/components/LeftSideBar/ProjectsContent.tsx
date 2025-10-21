@@ -182,9 +182,7 @@ export default function ProjectsContent() {
 									>
 									<button
 										disabled={loading}
-										onClick={() => {
-											setOpenedWorkspaceName(workspace);
-										}}
+										onClick={() => runWithUnsavedCheck(async () => setOpenedWorkspaceName(workspace))}
 										className="flex items-center flex-1 text-left transition-colors duration-200"
 									>
 										<span

@@ -183,7 +183,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
 
     const runWithUnsavedCheck = async <T, >(fn: () => Promise<T>): Promise<void> => {
-        if (hasUnsavedChanges) {
+        if (hasUnsavedChanges && isInWorkspaceMode) {
             setPendingAction(() => fn);
             setIsConfirmModalOpen(true);
             return;

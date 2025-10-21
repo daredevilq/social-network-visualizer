@@ -89,7 +89,10 @@ const TweetFilters = ({
                     </div>
                 </div>
 
-                <div className="h-10 relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-[#7140F4] text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow sm:w-1/4 md:w-1/6">
+                <div
+                    className="h-10 relative flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-gray-800 border border-[#7140F4] text-white text-sm hover:ring-2 hover:ring-[#7140F4] transition flex-grow sm:w-1/4 md:w-1/6"
+                        onClick={() => setHighEngagement(!highEngagement)}
+                >
                     <input
                         type="checkbox"
                         id="highEngagement"
@@ -116,10 +119,10 @@ const TweetFilters = ({
                         <button
                             type="button"
                             onClick={handleHashtagAdd}
-                            className="h-10 flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5a33c1] rounded text-sm whitespace-nowrap"
+                            className="h-10 flex items-center gap-2 px-4 bg-[#7140F4] hover:bg-[#5a33c3] rounded-md text-sm whitespace-nowrap transition-colors duration-200 shadow-md hover:cursor-pointer"
                         >
-                            <Plus size={12} strokeWidth={2.5} />
-                            Add Hashtag
+                            <Plus className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
+                            <span>Add Hashtag</span>
                         </button>
                     </div>
                 </div>
