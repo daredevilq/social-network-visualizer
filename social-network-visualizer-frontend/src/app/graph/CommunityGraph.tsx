@@ -123,6 +123,7 @@ export default function CommunityGraph() {
       nodeColor={(node) =>
         node.id === nodeFoundId ? NodeColors.getRedColor() : getNodeColor(node)
       }
+      linkLabel={() => ""}
       linkColor={(link: GraphLink) =>
         shortestPath.includes(link.source) && shortestPath.includes(link.target)
           ? NodeColors.getRedColor()
