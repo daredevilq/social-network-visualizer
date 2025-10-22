@@ -14,7 +14,8 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
       """
                 UNWIND $hashtags AS hashtag
                 CREATE (h:Hashtag {
-                    hashtag: hashtag.hashtag
+                    hashtag: hashtag.hashtag,
+                    isInWorkspace: hashtag.isInWorkspace
                 })
             """)
   void createAll(@Param("hashtags") List<Map<String, Object>> hashtags);
@@ -32,12 +33,13 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
   @Query(
       """
                 MATCH (h:Hashtag)
+                WHERE $inWorkspace = false OR h.isInWorkspace = true
                 RETURN
                 h.hashtag AS name,
                 'HASHTAG' AS nodeType
                 ORDER BY h.hashtag
             """)
-  List<HashtagNodeDto> findHashtag();
+  List<HashtagNodeDto> findHashtag(@Param("inWorkspace") boolean inWorkspace);
 
   @Query(
       """

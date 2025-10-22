@@ -29,4 +29,5 @@ public class Tweet {
   private Long repliesCount;
   private Long retweetsCount;
   private Long likesCount;
+  private Boolean isInWorkspace;
 }

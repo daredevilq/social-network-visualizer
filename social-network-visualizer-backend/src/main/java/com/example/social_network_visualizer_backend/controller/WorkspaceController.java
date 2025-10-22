@@ -1,6 +1,8 @@
 package com.example.social_network_visualizer_backend.controller;
 
+import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
+import com.example.social_network_visualizer_backend.service.GraphService;
 import com.example.social_network_visualizer_backend.service.WorkspaceService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class WorkspaceController {
   private final WorkspaceService workspaceService;
+  private final GraphService graphService;
 
   @GetMapping("/list")
   public ResponseEntity<List<String>> listAllWorkspaces(@PathVariable String projectName) {
@@ -36,10 +39,11 @@ public class WorkspaceController {
   }
 
   @GetMapping("/{workspaceName}/load")
-  public ResponseEntity<Workspace> openWorkspace(
+  public ResponseEntity<String> openWorkspace(
       @PathVariable String projectName, @PathVariable String workspaceName) {
 
-    return ResponseEntity.ok(workspaceService.loadWorkspace(projectName, workspaceName));
+    workspaceService.loadWorkspace(projectName, workspaceName);
+    return ResponseEntity.ok("Workspace " + workspaceName + " has been loaded successfully.");
   }
 
   @DeleteMapping("/{workspaceName}")
@@ -48,5 +52,11 @@ public class WorkspaceController {
 
     workspaceService.deleteWorkspace(projectName, workspaceName);
     return ResponseEntity.ok("Workspace " + workspaceName + " has been deleted successfully.");
+  }
+
+  @GetMapping()
+  public ResponseEntity<GraphDataDto> fetchWorkspace(@PathVariable String projectName) {
+
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 }

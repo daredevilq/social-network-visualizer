@@ -27,7 +27,7 @@ public class GraphService {
   public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
-    List<NodeDto> nodes = fetchRequestedNodes(finalRequest.nodeTypes(), communityId);
+    List<NodeDto> nodes = fetchRequestedNodes(finalRequest.nodeTypes(), communityId, false);
     List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
     List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
 
@@ -43,6 +43,15 @@ public class GraphService {
     return new GraphDataDto(uniqueNodes, links);
   }
 
+  public GraphDataDto fetchWorkspaceData() {
+    List<NodeDto> nodes =
+        fetchRequestedNodes(
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG), Optional.empty(), true);
+    List<LinkDto> links = graphRepository.findWorkspaceRelationships();
+
+    return new GraphDataDto(nodes, links);
+  }
+
   // TODO: the the problem is that we need to change the logic of displaying nodes and links
   // when we have HashtagDtp.name = "Google" and AuthorDto.name = "Google" (its real example)
   // frontend doesnt know that relation MENTIONS only apply to AUTHOR->AUTHOR and it linsk
@@ -55,7 +64,7 @@ public class GraphService {
     Map<String, NodeDto> uniqueNodesMap = new LinkedHashMap<>();
 
     for (NodeDto node : nodes) {
-      String nodeName = node.getName();
+      String nodeName = node.getId();
       if (nodeName != null && !uniqueNodesMap.containsKey(nodeName)) {
         uniqueNodesMap.put(nodeName, node);
       }
@@ -65,7 +74,7 @@ public class GraphService {
   }
 
   private List<NodeDto> fetchRequestedNodes(
-      Set<NodeType> nodeTypes, Optional<Integer> communityId) {
+      Set<NodeType> nodeTypes, Optional<Integer> communityId, boolean inWorkspace) {
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       log.warn("No node types requested, returning empty list");
       return Collections.emptyList();
@@ -75,7 +84,7 @@ public class GraphService {
         .flatMap(
             nodeType -> {
               NodeQueryStrategy strategy = findStrategyForNodeType(nodeType);
-              return strategy.fetchNodes(communityId).stream();
+              return strategy.fetchNodes(communityId, inWorkspace).stream();
             })
         .collect(Collectors.toList());
   }

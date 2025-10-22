@@ -12,17 +12,11 @@ import com.example.social_network_visualizer_backend.repository.HashtagRepositor
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.json.JsonParseException;
@@ -142,24 +136,6 @@ public class ProjectParser {
     return tweetDtoList;
   }
 
-  private List<TweetDto> readFile(File file) throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.enable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-
-    List<TweetDto> allTweets =
-        mapper.readValue(
-            file, mapper.getTypeFactory().constructCollectionType(List.class, TweetDto.class));
-
-    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    Validator validator = factory.getValidator();
-
-    return allTweets.stream()
-        .filter(tweet -> validator.validate(tweet).isEmpty())
-        .collect(Collectors.toList());
-  }
-
   public void buildNodes(
       List<TweetDto> tweetDtosList, Map<String, TweetDto> tweetsMap, boolean createAllNodes) {
     List<Map<String, Object>> authorsData = new ArrayList<>();
@@ -264,6 +240,7 @@ public class ProjectParser {
     map.put("name", authorDto.getName());
     map.put("foreignId", authorDto.getForeignId());
     map.put("bot", authorDto.getBot());
+    map.put("isInWorkspace", false);
     return map;
   }
 
@@ -289,12 +266,14 @@ public class ProjectParser {
     map.put("repliesCount", tweetDto.getRepliesCount());
     map.put("retweetsCount", tweetDto.getRetweetsCount());
     map.put("likesCount", tweetDto.getLikesCount());
+    map.put("isInWorkspace", false);
     return map;
   }
 
   private Map<String, Object> buildHashtagNode(String hashtagStr) {
     Map<String, Object> map = new HashMap<>();
     map.put("hashtag", hashtagStr);
+    map.put("isInWorkspace", false);
     return map;
   }
 

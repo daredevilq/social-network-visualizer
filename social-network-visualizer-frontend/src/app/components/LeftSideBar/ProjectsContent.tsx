@@ -34,6 +34,7 @@ export default function ProjectsContent() {
     openedWorkspaceName,
     setOpenedWorkspaceName,
     runWithUnsavedCheck,
+    loadWorkspace,
   } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -153,8 +154,7 @@ export default function ProjectsContent() {
       showNotification(`Create error: ${err.message}`, BannerType.ERROR);
     });
     await refreshWorkspaces(loadedProjectName!);
-    setOpenedWorkspaceName(workspaceName);
-    setIsInWorkspaceMode(true);
+    loadWorkspace(workspaceName);
   };
 
   return (
@@ -218,7 +218,7 @@ export default function ProjectsContent() {
                       disabled={loading}
                       onClick={() =>
                         runWithUnsavedCheck(async () =>
-                          setOpenedWorkspaceName(workspace),
+                          loadWorkspace(workspace),
                         )
                       }
                       className="flex items-center flex-1 text-left transition-colors duration-200"

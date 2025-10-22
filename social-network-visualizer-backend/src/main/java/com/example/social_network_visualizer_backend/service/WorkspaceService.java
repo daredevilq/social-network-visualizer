@@ -1,9 +1,15 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.project.Project;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
+import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.repository.GraphRepository;
+import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
+import com.example.social_network_visualizer_backend.repository.TweetRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +23,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WorkspaceService {
   private final ProjectRepository projectRepository;
+  private final GraphRepository graphRepository;
+  private final AuthorRepository authorRepository;
+  private final TweetRepository tweetRepository;
+  private final HashtagRepository hashtagRepository;
 
   public List<String> getAllWorkspaces(String projectName) {
     Project project =
@@ -85,7 +95,9 @@ public class WorkspaceService {
     projectRepository.save(project);
   }
 
-  public Workspace loadWorkspace(String projectName, String workspaceName) {
+  public void loadWorkspace(String projectName, String workspaceName) {
+    clearWorkspaceMembership();
+
     Project project =
         projectRepository
             .findByName(projectName)
@@ -113,13 +125,18 @@ public class WorkspaceService {
                       HttpStatus.NOT_FOUND);
                 });
 
+    workspace.getNodes().forEach(node -> updateWorkspaceMembership(node, true));
+
     log.info("Workspace '{}' loaded successfully from project '{}'", workspaceName, projectName);
-    return workspace;
+  }
+
+  private void clearWorkspaceMembership() {
+    graphRepository.clearWorkspaceMembership();
   }
 
   public void deleteWorkspace(String projectName, String workspaceName) {
     if (workspaceName == null || workspaceName.isBlank()) {
-      log.error("Workspace name is null or blank for project '{}'", projectName);
+      log.warn("Node or node type is null – cannot update workspace flag.");
       throw new ProjectException("Workspace name cannot be null or empty", HttpStatus.BAD_REQUEST);
     }
 
@@ -164,5 +181,50 @@ public class WorkspaceService {
     }
 
     projectRepository.save(project);
+  }
+
+  private void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
+    if (node == null || node.getNodeType() == null) {
+      log.warn("Node or node type is null – cannot update workspace flag.");
+      return;
+    }
+
+    switch (node.getNodeType()) {
+      case NodeType.AUTHOR:
+        authorRepository
+            .findById(node.getId())
+            .ifPresentOrElse(
+                author -> {
+                  author.setIsInWorkspace(isInWorkspace);
+                  authorRepository.save(author);
+                },
+                () -> log.warn("Author not found: {}", node.getId()));
+        break;
+
+      case NodeType.TWEET:
+        tweetRepository
+            .findById(node.getId())
+            .ifPresentOrElse(
+                tweet -> {
+                  tweet.setIsInWorkspace(isInWorkspace);
+                  tweetRepository.save(tweet);
+                },
+                () -> log.warn("Tweet not found: {}", node.getId()));
+        break;
+
+      case NodeType.HASHTAG:
+        hashtagRepository
+            .findById(node.getId())
+            .ifPresentOrElse(
+                hashtag -> {
+                  hashtag.setIsInWorkspace(isInWorkspace);
+                  hashtagRepository.save(hashtag);
+                },
+                () -> log.warn("Hashtag not found: {}", node.getId()));
+        break;
+
+      default:
+        log.warn("Unknown node type: {}", node.getNodeType());
+    }
   }
 }

@@ -17,8 +17,8 @@ public class TweetNodeQueryStrategy implements NodeQueryStrategy {
   private final TweetRepository tweetRepository;
 
   @Override
-  public List<? extends NodeDto> fetchNodes(Optional<Integer> communityId) {
-    return tweetRepository.findTweets();
+  public List<? extends NodeDto> fetchNodes(Optional<Integer> communityId, boolean inWorkspace) {
+    return tweetRepository.findTweets(inWorkspace);
   }
 
   @Override
