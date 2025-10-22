@@ -18,7 +18,7 @@ public class HashtagNodeQueryStrategy implements NodeQueryStrategy {
 
   @Override
   public List<? extends NodeDto> fetchNodes(Optional<Integer> communityId, boolean inWorkspace) {
-    return hashtagRepository.findHashtag();
+    return hashtagRepository.findHashtag(inWorkspace);
   }
 
   @Override

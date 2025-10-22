@@ -6,6 +6,7 @@ import com.example.social_network_visualizer_backend.exceptions.ProjectException
 import com.example.social_network_visualizer_backend.model.project.Project;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.repository.GraphRepository;
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WorkspaceService {
   private final ProjectRepository projectRepository;
+  private final GraphRepository graphRepository;
   private final AuthorRepository authorRepository;
   private final TweetRepository tweetRepository;
   private final HashtagRepository hashtagRepository;
@@ -94,6 +96,8 @@ public class WorkspaceService {
   }
 
   public void loadWorkspace(String projectName, String workspaceName) {
+    clearWorkspaceMembership();
+
     Project project =
         projectRepository
             .findByName(projectName)
@@ -124,6 +128,10 @@ public class WorkspaceService {
     workspace.getNodes().forEach(node -> updateWorkspaceMembership(node, true));
 
     log.info("Workspace '{}' loaded successfully from project '{}'", workspaceName, projectName);
+  }
+
+  private void clearWorkspaceMembership() {
+    graphRepository.clearWorkspaceMembership();
   }
 
   public void deleteWorkspace(String projectName, String workspaceName) {

@@ -28,7 +28,6 @@ public class GraphService {
     GraphQueryRequest finalRequest = validateRequest(request);
 
     List<NodeDto> nodes = fetchRequestedNodes(finalRequest.nodeTypes(), communityId, false);
-    System.out.println(nodes);
     List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
     List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
 
@@ -45,7 +44,9 @@ public class GraphService {
   }
 
   public GraphDataDto fetchWorkspaceData() {
-    List<NodeDto> nodes = fetchRequestedNodes(Set.of(NodeType.AUTHOR), Optional.empty(), true);
+    List<NodeDto> nodes =
+        fetchRequestedNodes(
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG), Optional.empty(), true);
     List<LinkDto> links = graphRepository.findWorkspaceRelationships();
 
     return new GraphDataDto(nodes, links);

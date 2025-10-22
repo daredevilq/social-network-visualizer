@@ -104,4 +104,11 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 RETURN graphName
             """)
   List<String> listGdsGraphs();
+
+  @Query("""
+    MATCH (n)
+    WHERE n.isInWorkspace = true
+    SET n.isInWorkspace = false
+    """)
+  void clearWorkspaceMembership();
 }

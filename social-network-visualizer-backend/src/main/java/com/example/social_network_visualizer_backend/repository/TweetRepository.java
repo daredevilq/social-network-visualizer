@@ -171,8 +171,8 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
   @Query(
       """
                 MATCH (t:Tweet)
-                OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
                 WHERE $inWorkspace = false OR t.isInWorkspace = true
+                OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
                 RETURN
                     t.id AS id,
                     'TWEET' AS nodeType,

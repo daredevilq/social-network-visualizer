@@ -13,6 +13,7 @@ import { useNotification } from "@/app/context/NotificationProvider";
 import { useProject } from "@/app/context/ProjectContext";
 import LeaveConfirmModal from "@/app/components/Popups/LeaveConfirmModal";
 import { useSaveWorkspaceChanges } from "@/app/hooks/useSaveWorkspaceChanges";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
 
 interface WorkspaceContextType {
   isInWorkspaceMode: boolean;
@@ -102,7 +103,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!loadedProjectName) return;
       try {
         const res = await fetch(
-          `http://localhost:8080/project/${loadedProjectName}/workspace/${workspaceName}/load`,
+          `${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}/load`,
         );
 
         if (!res.ok) {
@@ -220,7 +221,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!openedWorkspaceName || !loadedProjectName) return;
       try {
         const res = await fetch(
-          `http://localhost:8080/project/${loadedProjectName}/workspace`,
+          `${API_BASE_URL}/project/${loadedProjectName}/workspace`,
           {
             method: "POST",
             headers: {
