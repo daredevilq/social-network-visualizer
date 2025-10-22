@@ -35,7 +35,7 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                 MATCH (h:Hashtag)
                 WHERE $inWorkspace = false OR h.isInWorkspace = true
                 RETURN
-                h.hashtag AS name,
+                h.hashtag AS id,
                 'HASHTAG' AS nodeType
                 ORDER BY h.hashtag
             """)
