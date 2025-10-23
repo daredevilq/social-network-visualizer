@@ -1,7 +1,6 @@
 import { NodeType, RelationType } from "@/types/GraphTypes";
 
 export const RELATION_NODE_MAP: Record<RelationType, [NodeType, NodeType]> = {
-
   [RelationType.MENTIONS]: [NodeType.AUTHOR, NodeType.AUTHOR],
   [RelationType.RETWEETS]: [NodeType.AUTHOR, NodeType.AUTHOR],
   [RelationType.SHARES_HASHTAG]: [NodeType.AUTHOR, NodeType.AUTHOR],
