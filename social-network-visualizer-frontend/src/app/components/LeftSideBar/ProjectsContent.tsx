@@ -83,10 +83,11 @@ export default function ProjectsContent() {
 
       if (loadedProjectName === projectName) {
         await resetProjectName();
-        refreshProjects();
         setProjectData({ nodes: [], links: [] });
         setWorkspaces([]);
       }
+      await refreshProjects();
+
       showNotification(`Project “${projectName}” deleted`, BannerType.INFO);
     }).catch((err: any) => {
       showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
