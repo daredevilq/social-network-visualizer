@@ -9,6 +9,10 @@ import type {
   RelationType,
 } from "@/types/GraphTypes";
 import { useConfigMeta } from "@/app/hooks/useConfigMeta";
+import {
+  isRelationAvailable,
+  filterValidRelations,
+} from "@/app/utils/nodeRelationMap";
 
 interface ConfigFormProps {
   projectName: string;
@@ -58,7 +62,21 @@ export default function ConfigForm({
 
   const updateMetric = (idx: number, patch: Partial<MetricConfig>) => {
     setMetrics((prev) =>
-      prev.map((row, i) => (i === idx ? { ...row, ...patch } : row)),
+      prev.map((row, i) => {
+        if (i !== idx) return row;
+
+        const updated = { ...row, ...patch };
+
+        if (patch.nodeLabels) {
+          const validRelations = filterValidRelations(
+            updated.relationTypes,
+            updated.nodeLabels,
+          );
+          updated.relationTypes = validRelations;
+        }
+
+        return updated;
+      }),
     );
   };
 
@@ -192,34 +210,49 @@ export default function ConfigForm({
               Relation Types
             </label>
             <div className="flex flex-wrap gap-2">
-              {meta.relationTypes.map((rt: string) => (
-                <label
-                  key={rt}
-                  className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded border cursor-pointer transition-all ${
-                    metric.relationTypes.includes(rt as RelationType)
-                      ? "border-[#7140F4] bg-[#7140F4]/20 text-white"
-                      : "border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="accent-[#7140F4] cursor-pointer"
-                    checked={metric.relationTypes.includes(rt as RelationType)}
-                    onChange={() => {
-                      const updated = toggleArrayItem(
-                        metric.relationTypes,
-                        rt as RelationType,
-                      );
-                      if (updated.length > 0) {
-                        updateMetric(idx, {
-                          relationTypes: updated,
-                        });
-                      }
-                    }}
-                  />
-                  <span>{rt}</span>
-                </label>
-              ))}
+              {meta.relationTypes.map((rt: string) => {
+                const isAvailable = isRelationAvailable(
+                  rt as RelationType,
+                  metric.nodeLabels,
+                );
+                const isChecked = metric.relationTypes.includes(
+                  rt as RelationType,
+                );
+
+                return (
+                  <label
+                    key={rt}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded border transition-all ${
+                      !isAvailable
+                        ? "border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50"
+                        : isChecked
+                          ? "border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer"
+                          : "border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-[#7140F4] cursor-pointer"
+                      checked={isChecked}
+                      disabled={!isAvailable}
+                      onChange={() => {
+                        if (isAvailable) {
+                          const updated = toggleArrayItem(
+                            metric.relationTypes,
+                            rt as RelationType,
+                          );
+                          if (updated.length > 0) {
+                            updateMetric(idx, {
+                              relationTypes: updated,
+                            });
+                          }
+                        }
+                      }}
+                    />
+                    <span>{rt}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         </div>
