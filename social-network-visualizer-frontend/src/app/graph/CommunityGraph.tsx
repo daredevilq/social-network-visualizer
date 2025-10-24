@@ -1,5 +1,5 @@
 "use client";
-
+// @ts-ignore
 import { useEffect } from "react";
 import { useProject } from "@/app/context/ProjectContext";
 import { FolderPlus } from "lucide-react";

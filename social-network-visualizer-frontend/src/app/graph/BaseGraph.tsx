@@ -1,13 +1,20 @@
 import {
   forwardRef,
   MouseEvent,
+  useCallback,
   useEffect,
-  useImperativeHandle,
   useRef,
   useState,
 } from "react";
 // @ts-ignore
-import ForceGraph, { ForceGraphInstance, LinkObject } from "force-graph";
+import ForceGraph, { ForceGraphInstance } from "force-graph";
+import {
+  forceManyBody,
+  forceCollide,
+  forceX,
+  forceY,
+  forceLink,
+} from "d3-force";
 import {
   GraphLink,
   GraphNode,
@@ -20,7 +27,12 @@ import nodeStrategy from "@/app/model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { useGraph } from "@/app/context/GraphContext";
+import MenuComponent from "@/app/components/graphMenu/MenuComponent";
 
+interface MenuState {
+  node: GraphNode | null;
+  position: { x: number; y: number };
+}
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
     graphData,
@@ -35,7 +47,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     nodeFound,
   } = props;
 
-  const NODE_DISPLAY_LIMIT: number = 350;
+  const NODE_DISPLAY_LIMIT: number = 1000;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(
     null,
@@ -45,6 +57,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const [selectedNodes, setSelectedNodes] = useState<GraphNode[]>([]);
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
 
+  const [menu, setMenu] = useState<MenuState>({
+    node: null,
+    position: { x: 0, y: 0 },
+  });
+
   const {
     setIsSidebarOpen,
     setSelectedUserData,
@@ -52,8 +69,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     showLabels,
   } = useProject();
 
-  const clickedNodeRef = useRef<GraphNode | null>(null);
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const {
     isInWorkspaceMode,
     saveWorkspaceData,
@@ -68,10 +83,32 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(
       containerRef.current,
     );
+    fgInstance.current.d3Force(
+      "charge",
+      forceManyBody().distanceMin(10).strength(-200),
+    );
+    fgInstance.current.d3Force(
+      "collide",
+      forceCollide()
+        .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+        .strength(0.3),
+    );
+    fgInstance.current.d3Force("container_x", forceX(0).strength(0.005));
+    fgInstance.current.d3Force("container_y", forceY(0).strength(0.005));
+    fgInstance.current.d3Force(
+      "link",
+      forceLink<GraphNode, GraphLink>()
+        .id((d: GraphNode) => d.id)
+        .strength(0.7),
+    );
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
         const { offsetWidth, offsetHeight } = containerRef.current;
-        fgInstance.current.width(offsetWidth).height(offsetHeight);
+        fgInstance.current
+          .width(offsetWidth)
+          .height(offsetHeight)
+          .d3Force("container_x", forceX(offsetWidth / 2).strength(0.01))
+          .d3Force("container_y", forceY(offsetHeight / 2).strength(0.01));
       }
     };
 
@@ -117,36 +154,70 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-      .onNodeClick(handleNodeClick)
+      .onNodeClick(handleNodeLeftClick)
+      .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject(
         (
           node: GraphNode & { x: number; y: number },
-          ctx: any,
+          ctx: CanvasRenderingContext2D,
           globalScale: any,
         ) => {
-          const fontSize = 12 / globalScale;
+          if (!isFinite(node.x) || !isFinite(node.y)) {
+            return;
+          }
+
           const radius = nodeStrategy.getRadius(node);
-          ctx.font = `${fontSize}px Inter, sans-serif`;
+          const baseColor = nodeColor
+            ? nodeColor(node)
+            : NodeColors.getDefaultAuthorColor();
+
+          if (!isFinite(radius) || radius <= 0) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 0.5 / globalScale, 0, 2 * Math.PI, false);
+            ctx.fillStyle = baseColor;
+            ctx.fill();
+            return;
+          }
+
+          ctx.save();
+          ctx.shadowColor = baseColor;
+          ctx.shadowBlur = 10;
 
           ctx.beginPath();
           ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
-          ctx.fillStyle = nodeColor
-            ? nodeColor(node)
-            : NodeColors.getDefaultAuthorColor();
+          ctx.fillStyle = baseColor;
           ctx.fill();
 
+          ctx.restore();
+
           if (selectedNodeIds.includes(node.id)) {
+            ctx.save();
+            ctx.shadowColor = "white";
+            ctx.shadowBlur = 10;
+
             ctx.lineWidth = 2 / globalScale;
             ctx.strokeStyle = "white";
+
+            ctx.beginPath();
+            ctx.arc(
+              node.x,
+              node.y,
+              radius + 1 / globalScale,
+              0,
+              2 * Math.PI,
+              false,
+            );
             ctx.stroke();
+
+            ctx.restore();
           }
 
+          const fontSize = 12 / globalScale;
           if (showLabels) {
             const nLabel = nodeLabel(node);
             const textYPosition = node.y + radius + 4;
-            ctx.font = `${fontSize}px Inter, sans-serif`;
             ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-            ctx.fillStyle = NodeColors.getWhiteColor();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(nLabel, node.x, textYPosition);
@@ -165,91 +236,27 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     selectedNodeIds,
   ]);
 
-  const handleNodeClick = (node: GraphNode) => {
-    if (
-      clickedNodeRef.current &&
-      clickedNodeRef.current.id === node.id &&
-      clickTimeoutRef.current
-    ) {
-      clearTimeout(clickTimeoutRef.current);
-      clickTimeoutRef.current = null;
-      clickedNodeRef.current = null;
-
-      handleDoubleNodeClick(node);
-    } else {
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-
-      clickedNodeRef.current = node;
-      clickTimeoutRef.current = setTimeout(() => {
-        handleSingleNodeClick(node);
-        clickedNodeRef.current = null;
-        clickTimeoutRef.current = null;
-      }, 300);
-    }
-  };
-
-  const handleSingleNodeClick = (node: GraphNode) => {
-    nodeStrategy.handleSingleNodeClick(
+  const handleNodeLeftClick = useCallback((node: GraphNode) => {
+    nodeStrategy.handleNodeLeftClick(
       node,
       setSelectedUserData,
       setIsSidebarOpen,
     );
-  };
+  }, []);
 
-  const handleDoubleNodeClick = (node: GraphNode) => {
-    if (!fgInstance.current) return;
-    setIsSidebarOpen(false);
-
-    const currentGraphData = fgInstance.current.graphData();
-    const currentNodeIds = new Set(
-      currentGraphData.nodes.map((n: GraphNode) => n.id),
-    );
-
-    const neighborLinks = graphData.links.filter((link) => {
-      return link.source === node.id || link.target === node.id;
-    });
-
-    const newNodes: GraphNode[] = [];
-    const newLinks: LinkObject[] = [];
-
-    neighborLinks.forEach((link) => {
-      const neighborId = link.source === node.id ? link.target : link.source;
-      const neighborNode = graphData.nodes.find((n) => n.id === neighborId);
-      if (!currentNodeIds.has(neighborId) && neighborNode != undefined) {
-        newNodes.push(neighborNode);
-        newLinks.push(link);
-      } else if (
-        !currentGraphData.links.some((l: LinkObject) => {
-          const existingSourceId = l.source;
-          const existingTargetId = l.target;
-          return (
-            (existingSourceId === link.source &&
-              existingTargetId === link.target) ||
-            (existingSourceId === link.target &&
-              existingTargetId === link.source)
-          );
-        })
-      ) {
-        newLinks.push(link);
+  const handleNodeRightClick = useCallback(
+    (node: GraphNode, event: MouseEvent) => {
+      if (isInWorkspaceMode) {
+        setMenu({ node, position: { x: event.clientX, y: event.clientY } });
+        nodeStrategy.handleNodeRightClick(node);
       }
-    });
-
-    if (newNodes.length > 0 || newLinks.length > 0) {
-      fgInstance.current.graphData({
-        nodes: [...currentGraphData.nodes, ...newNodes],
-        links: [...currentGraphData.links, ...newLinks],
-      });
-    }
-  };
-
-  useImperativeHandle(
-    ref,
-    (): { getInstance: () => ForceGraphInstance | null } => ({
-      getInstance: () => fgInstance.current,
-    }),
+    },
+    [isInWorkspaceMode],
   );
+
+  const handleCloseMenu = useCallback(() => {
+    setMenu((prev) => ({ ...prev, node: null }));
+  }, []);
 
   const analyzeSelectedNodes = () => {
     setIsSidebarOpen(false);
@@ -290,9 +297,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const nodeTypes = Array.from(nodesByType.keys());
     const nodesPerType = Math.floor(NODE_DISPLAY_LIMIT / nodeTypes.length);
 
-    // Take proportionally from each type (workaround)
     const topNodes: GraphNode[] = [];
-    nodesByType.forEach((nodes, type) => {
+    nodesByType.forEach((nodes) => {
       topNodes.push(...nodes.slice(0, nodesPerType).map((n) => ({ ...n })));
     });
 
@@ -381,6 +387,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         onContextMenu={handleContextMenu}
       />
 
+      <MenuComponent
+        node={menu.node}
+        position={menu.position}
+        onClose={handleCloseMenu}
+      />
       {selectionBox && (
         <div
           className="absolute border-2 border-dashed border-[#783CDC] bg-[#783CDC33] pointer-events-none z-10"

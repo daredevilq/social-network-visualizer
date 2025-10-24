@@ -6,7 +6,7 @@ export interface INodeStrategy {
 
   getRadius(node: GraphNode): number;
 
-  handleSingleNodeClick(
+  handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (
       value:
@@ -18,6 +18,8 @@ export interface INodeStrategy {
       value: ((prevState: boolean) => boolean) | boolean,
     ) => void,
   ): any;
+
+  handleNodeRightClick(node: GraphNode): any;
 }
 
 class AuthorNodeStrategy implements INodeStrategy {
@@ -27,13 +29,10 @@ class AuthorNodeStrategy implements INodeStrategy {
 
   getRadius(node: GraphNode): number {
     const authorNode = node as AuthorNode;
-    const calculatedSize = authorNode.pagerank
-      ? Math.pow(authorNode.pagerank, 3) + 10
-      : 10;
-    return Math.min(calculatedSize, 15);
+    return authorNode.pagerank ? authorNode.pagerank * 10 + 15 : 15;
   }
 
-  handleSingleNodeClick(
+  handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (
       value:
@@ -49,7 +48,11 @@ class AuthorNodeStrategy implements INodeStrategy {
       name: node.id,
       community: node.community,
     } as BasicUserData);
-    setIsSidebarOpen(true);
+    setIsSidebarOpen((prev) => !prev);
+  }
+
+  handleNodeRightClick(node: GraphNode) {
+    console.log("Right click on AUTHOR node:", node.id);
   }
 }
 
@@ -59,10 +62,10 @@ class TweetNodeStrategy implements INodeStrategy {
   }
 
   getRadius(): number {
-    return 7;
+    return 10;
   }
 
-  handleSingleNodeClick(
+  handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (
       value:
@@ -76,6 +79,10 @@ class TweetNodeStrategy implements INodeStrategy {
   ) {
     console.log("SingleNodeClick Method not implemented for: TWEET nodes.");
   }
+
+  handleNodeRightClick(node: GraphNode) {
+    console.log("Right click on TWEET node:", node.id);
+  }
 }
 
 class HashtagNodeStrategy implements INodeStrategy {
@@ -84,10 +91,10 @@ class HashtagNodeStrategy implements INodeStrategy {
   }
 
   getRadius(): number {
-    return 4;
+    return 7;
   }
 
-  handleSingleNodeClick(
+  handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (
       value:
@@ -100,6 +107,10 @@ class HashtagNodeStrategy implements INodeStrategy {
     ) => void,
   ) {
     console.log("SingleNodeClick Method not implemented for: Hashtag nodes.");
+  }
+
+  handleNodeRightClick(node: GraphNode) {
+    console.log("Right click on HASHTAG node:", node.id);
   }
 }
 
@@ -124,17 +135,7 @@ class NodeStrategy {
     return strategy.getRadius(node);
   }
 
-  private resolveStrategy(node: GraphNode) {
-    const strategy = this.strategies.get(node.nodeType);
-
-    if (!strategy) {
-      console.warn(`No strategy found for node type: ${node.nodeType}`);
-      throw new Error(`No strategy found for node type: ${node.nodeType}`);
-    }
-    return strategy;
-  }
-
-  handleSingleNodeClick(
+  handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (
       value:
@@ -147,11 +148,26 @@ class NodeStrategy {
     ) => void,
   ) {
     const strategy = this.resolveStrategy(node);
-    return strategy.handleSingleNodeClick(
+    return strategy.handleNodeLeftClick(
       node,
       setSelectedUserData,
       setIsSidebarOpen,
     );
+  }
+
+  handleNodeRightClick(node: GraphNode) {
+    const strategy = this.resolveStrategy(node);
+    return strategy.handleNodeRightClick(node);
+  }
+
+  private resolveStrategy(node: GraphNode) {
+    const strategy = this.strategies.get(node.nodeType);
+
+    if (!strategy) {
+      console.warn(`No strategy found for node type: ${node.nodeType}`);
+      throw new Error(`No strategy found for node type: ${node.nodeType}`);
+    }
+    return strategy;
   }
 }
 
