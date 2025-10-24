@@ -31,7 +31,10 @@ export default function StandardGraph() {
       <BaseGraph
         graphData={graphData}
         nodeVal={(node: GraphNode) =>
-          (nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12
+          Math.min(
+            (nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12,
+            200,
+          )
         }
         nodeLabel={(node: GraphNode) => `${node.id}`}
         nodeColor={(node: GraphNode) => {
