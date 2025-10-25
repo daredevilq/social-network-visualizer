@@ -28,11 +28,9 @@ import NodeColors from "@/app/model/NodeColors";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { useGraph } from "@/app/context/GraphContext";
 import MenuComponent from "@/app/components/graphMenu/MenuComponent";
+import { MenuItem, MenuState } from "../interface/Menu";
+import { ContextMenuItemsProvider } from "@/app/components/graphMenu/ContextMenuItemsProvider";
 
-interface MenuState {
-  node: GraphNode | null;
-  position: { x: number; y: number };
-}
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
     graphData,
@@ -58,7 +56,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
 
   const [menu, setMenu] = useState<MenuState>({
-    node: null,
+    items: [],
     position: { x: 0, y: 0 },
   });
 
@@ -247,15 +245,18 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
       if (isInWorkspaceMode) {
-        setMenu({ node, position: { x: event.clientX, y: event.clientY } });
-        nodeStrategy.handleNodeRightClick(node);
+        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node);
+        setMenu({
+          items: menuItems,
+          position: { x: event.clientX, y: event.clientY },
+        });
       }
     },
     [isInWorkspaceMode],
   );
 
   const handleCloseMenu = useCallback(() => {
-    setMenu((prev) => ({ ...prev, node: null }));
+    setMenu((prev: MenuState) => ({ ...prev, items: [] }));
   }, []);
 
   const analyzeSelectedNodes = () => {
@@ -388,7 +389,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       />
 
       <MenuComponent
-        node={menu.node}
+        items={menu.items}
         position={menu.position}
         onClose={handleCloseMenu}
       />
