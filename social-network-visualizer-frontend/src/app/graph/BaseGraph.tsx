@@ -29,7 +29,7 @@ import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { useGraph } from "@/app/context/GraphContext";
 import MenuComponent from "@/app/components/graphMenu/MenuComponent";
 import { MenuItem, MenuState } from "../interface/Menu";
-import { ContextMenuItemsProvider } from "@/app/components/graphMenu/ContextMenuItemsProvider";
+import { useContextMenuItems } from "@/app/components/graphMenu/ContextMenuItemsProvider";
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
@@ -66,7 +66,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setFocusedCommunityId,
     showLabels,
   } = useProject();
-
+  const menuItemsGetters = useContextMenuItems();
   const {
     isInWorkspaceMode,
     saveWorkspaceData,
@@ -245,7 +245,10 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
       if (isInWorkspaceMode) {
-        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node);
+        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(
+          node,
+          menuItemsGetters,
+        );
         setMenu({
           items: menuItems,
           position: { x: event.clientX, y: event.clientY },

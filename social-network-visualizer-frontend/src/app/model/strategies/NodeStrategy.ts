@@ -1,7 +1,7 @@
 import { AuthorNode, GraphNode, NodeType } from "@/types/GraphTypes";
 import NodeColors from "@/app/model/NodeColors";
 import { MenuItem } from "@/app/interface/Menu";
-import { ContextMenuItemsProvider } from "@/app/components/graphMenu/ContextMenuItemsProvider";
+import { MenuItemsGetters } from "@/app/components/graphMenu/ContextMenuItemsProvider";
 
 export interface INodeStrategy {
   getColor(node: GraphNode): string;
@@ -21,7 +21,10 @@ export interface INodeStrategy {
     ) => void,
   ): any;
 
-  getContextMenuItems(node: GraphNode): MenuItem[];
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[];
 }
 
 class AuthorNodeStrategy implements INodeStrategy {
@@ -53,9 +56,12 @@ class AuthorNodeStrategy implements INodeStrategy {
     setIsSidebarOpen((prev) => !prev);
   }
 
-  getContextMenuItems(node: GraphNode): MenuItem[] {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on AUTHOR node:", node.id);
-    return ContextMenuItemsProvider.getAuthorMenuItems(node);
+    return menuItemsGetters.getAuthorMenuItems(node);
   }
 }
 
@@ -83,9 +89,12 @@ class TweetNodeStrategy implements INodeStrategy {
     console.log("SingleNodeClick Method not implemented for: TWEET nodes.");
   }
 
-  getContextMenuItems(node: GraphNode): MenuItem[] {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on TWEET node:", node.id);
-    return ContextMenuItemsProvider.getTweetMenuItems(node);
+    return menuItemsGetters.getTweetMenuItems(node);
   }
 }
 
@@ -113,9 +122,12 @@ class HashtagNodeStrategy implements INodeStrategy {
     console.log("SingleNodeClick Method not implemented for: Hashtag nodes.");
   }
 
-  getContextMenuItems(node: GraphNode): MenuItem[] {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on HASHTAG node:", node.id);
-    return ContextMenuItemsProvider.getHashtagMenuItems(node);
+    return menuItemsGetters.getHashtagMenuItems(node);
   }
 }
 
@@ -160,9 +172,12 @@ class NodeStrategy {
     );
   }
 
-  getContextMenuItems(node: GraphNode): MenuItem[] {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     const strategy = this.resolveStrategy(node);
-    return strategy.getContextMenuItems(node);
+    return strategy.getContextMenuItems(node, menuItemsGetters);
   }
 
   private resolveStrategy(node: GraphNode) {
