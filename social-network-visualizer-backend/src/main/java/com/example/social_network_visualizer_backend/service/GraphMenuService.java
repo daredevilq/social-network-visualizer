@@ -1,9 +1,11 @@
 package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.repository.GraphMenuRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,10 @@ public class GraphMenuService {
   private final GraphMenuRepository graphMenuRepository;
   private final WorkspaceService workspaceService;
 
-  public void getTweetAuthor(TweetNodeDto tweetNodeDto) {
+  public void addTweetAuthorToWorkspace(TweetNodeDto tweetNodeDto) {
     AuthorNodeDto author =
         graphMenuRepository
-            .getTweetAuthor(tweetNodeDto.getId())
+            .findAuthorByTweetId(tweetNodeDto.getId())
             .orElseThrow(
                 () ->
                     new ProjectException(
@@ -27,5 +29,28 @@ public class GraphMenuService {
                         HttpStatus.NOT_FOUND));
 
     workspaceService.updateWorkspaceMembership(author, true);
+  }
+
+  public void addTweetHashtagsToWorkspace(TweetNodeDto tweetNodeDto) {
+    List<HashtagNodeDto> hashtags = graphMenuRepository.findHashtagsByTweetId(tweetNodeDto.getId());
+    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addMentionedAuthorsToWorkspace(TweetNodeDto tweetNodeDto) {
+    List<AuthorNodeDto> authors =
+        graphMenuRepository.findMentionedAuthorsByTweetId(tweetNodeDto.getId());
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addTopAuthorsForHashtag(HashtagNodeDto hashtagNodeDto) {
+    List<HashtagNodeDto> hashtags =
+        graphMenuRepository.findTopAuthorsByHashtagId(hashtagNodeDto.getId());
+    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addTopTweetsByHashtag(HashtagNodeDto hashtagNodeDto) {
+    List<HashtagNodeDto> hashtags =
+        graphMenuRepository.findTopTweetsByHashtagId(hashtagNodeDto.getId());
+    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 }

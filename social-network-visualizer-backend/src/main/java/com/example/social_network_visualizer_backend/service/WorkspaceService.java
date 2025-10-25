@@ -227,8 +227,4 @@ public class WorkspaceService {
         log.warn("Unknown node type: {}", node.getNodeType());
     }
   }
-
-  public void updateWorkspaceMembership(List<NodeDto> nodes, boolean isInWorkspace) {
-    nodes.forEach(node -> updateWorkspaceMembership(node, isInWorkspace));
-  }
 }
