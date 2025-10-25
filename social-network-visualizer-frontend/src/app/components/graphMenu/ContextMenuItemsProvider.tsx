@@ -1,5 +1,5 @@
 import { MenuItem } from "@/app/interface/Menu";
-import {GraphLink, GraphNode} from "@/types/GraphTypes";
+import { GraphLink, GraphNode } from "@/types/GraphTypes";
 import {
   ConnectionsIcon,
   HashtagIcon,
