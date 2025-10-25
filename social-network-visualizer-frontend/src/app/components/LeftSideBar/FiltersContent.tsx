@@ -2,11 +2,12 @@
 
 import { useProject } from "@/app/context/ProjectContext";
 import { useEffect, useState } from "react";
-import { Network, Layers } from "lucide-react";
+import { Network, Layers, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { RelationType, NodeType } from "@/types/GraphTypes";
 import { GraphQueryRequest } from "@/types/GraphQueryRequest";
+import { isRelationAvailable } from "@/app/utils/nodeRelationMap";
 
 export default function FiltersContent() {
   const {
@@ -25,6 +26,11 @@ export default function FiltersContent() {
   const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(
     selectedRelationTypes,
   );
+
+  const [nodeTypesExpanded, setNodeTypesExpanded] = useState(true);
+  const [relationTypesExpanded, setRelationTypesExpanded] = useState(true);
+  const [nodeSearchQuery, setNodeSearchQuery] = useState("");
+  const [relationSearchQuery, setRelationSearchQuery] = useState("");
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
@@ -84,78 +90,172 @@ export default function FiltersContent() {
     });
   };
 
+  const filteredNodeTypes = Object.values(NodeType).filter((nodeType) =>
+    nodeType.toLowerCase().includes(nodeSearchQuery.toLowerCase()),
+  );
+
+  const filteredRelationTypes = Object.values(RelationType).filter(
+    (relationType) =>
+      relationType.toLowerCase().includes(relationSearchQuery.toLowerCase()),
+  );
+
   return (
-    <div className="relative h-full flex flex-col text-white px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">
+    <div className="relative h-full flex flex-col text-[#FAFAFA] px-4 pt-4">
+      <h1 className="text-2xl font-bold border-b border-[#FAFAFA] pb-2 mb-4">
         Graph Filters
       </h1>
 
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Layers className="w-5 h-5" />
-          Node Types
-        </h2>
-        <div className="space-y-2">
-          {Object.values(NodeType).map((nodeType) => (
-            <button
-              key={nodeType}
-              onClick={() => toggleNodeType(nodeType)}
-              className="group flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors"
-            >
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                  tempNodeTypes.includes(nodeType)
-                    ? "border-[#7140F4] bg-[#7140F4]"
-                    : "border-gray-500"
-                }`}
-              >
-                {tempNodeTypes.includes(nodeType) && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-              <span className="truncate transition-colors group-hover:text-[#7140F4] focus-visible:text-[#7140F4]">
-                {nodeType}
+      <div className="flex-1 overflow-y-auto space-y-4 scrollbar-dark">
+        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+          <button
+            onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
+            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[#FAFAFA]" />
+              <h2 className="text-lg font-semibold">Nodes</h2>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
+                {tempNodeTypes.length} selected
               </span>
-            </button>
-          ))}
+            </div>
+            {nodeTypesExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+
+          {nodeTypesExpanded && (
+            <div className="p-3 pt-0">
+              {Object.values(NodeType).length > 5 && (
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search node types..."
+                    value={nodeSearchQuery}
+                    onChange={(e) => setNodeSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 bg-[#262631] border border-gray-600 rounded-lg text-sm text-[#FAFAFA] placeholder:text-gray-400 focus:outline-none focus:border-[#7140F4]"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-dark">
+                {filteredNodeTypes.map((nodeType) => (
+                  <button
+                    key={nodeType}
+                    onClick={() => toggleNodeType(nodeType)}
+                    className="group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors hover:bg-[#FAFAFA]/5"
+                  >
+                    <span
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                        tempNodeTypes.includes(nodeType)
+                          ? "bg-[#7140F4]"
+                          : "bg-transparent"
+                      }`}
+                    />
+                    <span
+                      className={`ml-3 truncate transition-colors ${
+                        tempNodeTypes.includes(nodeType)
+                          ? "text-[#7140F4] font-medium"
+                          : "text-[#FAFAFA] group-hover:text-[#7140F4]"
+                      }`}
+                    >
+                      {nodeType}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+          <button
+            onClick={() => setRelationTypesExpanded(!relationTypesExpanded)}
+            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Network className="w-5 h-5 text-[#FAFAFA]" />
+              <h2 className="text-lg font-semibold">Relations</h2>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
+                {tempRelationTypes.length} selected
+              </span>
+            </div>
+            {relationTypesExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+
+          {relationTypesExpanded && (
+            <div className="p-3 pt-0">
+              {Object.values(RelationType).length > 5 && (
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search relation types..."
+                    value={relationSearchQuery}
+                    onChange={(e) => setRelationSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 bg-[#262631] border border-gray-600 rounded-lg text-sm text-[#FAFAFA] placeholder:text-gray-400 focus:outline-none focus:border-[#7140F4]"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-dark">
+                {filteredRelationTypes.map((relationType) => {
+                  const isAvailable = isRelationAvailable(
+                    relationType,
+                    tempNodeTypes,
+                  );
+                  const isSelected = tempRelationTypes.includes(relationType);
+
+                  return (
+                    <button
+                      key={relationType}
+                      onClick={() =>
+                        isAvailable && toggleRelationType(relationType)
+                      }
+                      disabled={!isAvailable}
+                      className={`group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors ${
+                        isAvailable
+                          ? "hover:bg-[#FAFAFA]/5 cursor-pointer"
+                          : "cursor-not-allowed opacity-40"
+                      }`}
+                    >
+                      <span
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                          isSelected && isAvailable
+                            ? "bg-[#7140F4]"
+                            : "bg-transparent"
+                        }`}
+                      />
+                      <span
+                        className={`ml-3 truncate transition-colors ${
+                          !isAvailable
+                            ? "text-gray-600"
+                            : isSelected
+                              ? "text-[#7140F4] font-medium"
+                              : "text-[#FAFAFA] group-hover:text-[#7140F4]"
+                        }`}
+                      >
+                        {relationType}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Network className="w-5 h-5" />
-          Relation Types
-        </h2>
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-dark">
-          {Object.values(RelationType).map((relationType) => (
-            <button
-              key={relationType}
-              onClick={() => toggleRelationType(relationType)}
-              className="group flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors"
-            >
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                  tempRelationTypes.includes(relationType)
-                    ? "border-[#7140F4] bg-[#7140F4]"
-                    : "border-gray-500"
-                }`}
-              >
-                {tempRelationTypes.includes(relationType) && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-              <span className="truncate transition-colors group-hover:text-[#7140F4] focus-visible:text-[#7140F4]">
-                {relationType}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="pt-4 pb-2 border-t border-white/20 mt-4">
+      <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
         <button
           onClick={handleApply}
-          className="w-full py-3 bg-[#7140F4] hover:bg-[#5a33c4] text-white font-semibold rounded-lg transition-colors"
+          className="w-full py-3 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] font-semibold rounded-lg transition-colors"
         >
           Apply Filters
         </button>
