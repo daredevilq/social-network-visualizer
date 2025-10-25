@@ -1,5 +1,5 @@
 import { MenuItem } from "@/app/interface/Menu";
-import { GraphNode } from "@/types/GraphTypes";
+import {GraphLink, GraphNode} from "@/types/GraphTypes";
 import {
   ConnectionsIcon,
   HashtagIcon,
@@ -103,7 +103,6 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       );
       setHasUnsavedChanges(true);
     } catch (error) {
-      console.error("Error fetching top tweets for author:", authorId, error);
       showNotification(
         `Failed to load tweets for "${authorId}"`,
         BannerType.ERROR,

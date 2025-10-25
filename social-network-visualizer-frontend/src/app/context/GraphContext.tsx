@@ -35,14 +35,9 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
     isInWorkspaceMode,
     workspaceData,
     setHasUnsavedChanges,
-    hasUnsavedChanges,
-    openedWorkspaceName,
   } = useWorkspace();
 
   useEffect(() => {
-    if (hasUnsavedChanges) {
-      return;
-    }
 
     setGraphData(isInWorkspaceMode ? workspaceData : projectData);
   }, [isInWorkspaceMode, projectData, workspaceData]);
