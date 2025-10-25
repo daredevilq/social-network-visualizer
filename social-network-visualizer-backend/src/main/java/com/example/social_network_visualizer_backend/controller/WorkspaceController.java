@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import com.example.social_network_visualizer_backend.service.WorkspaceService;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -38,8 +41,8 @@ public class WorkspaceController {
     return ResponseEntity.ok("Workspace " + workspace.getName() + " was saved successfully.");
   }
 
-  @GetMapping("/{workspaceName}/load")
-  public ResponseEntity<String> openWorkspace(
+  @PutMapping("/{workspaceName}")
+  public ResponseEntity<String> loadWorkspace(
       @PathVariable String projectName, @PathVariable String workspaceName) {
 
     workspaceService.loadWorkspace(projectName, workspaceName);
@@ -58,5 +61,14 @@ public class WorkspaceController {
   public ResponseEntity<GraphDataDto> fetchWorkspace(@PathVariable String projectName) {
 
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PutMapping("/update")
+  public ResponseEntity<String> updateNodesInWorkspace(
+      @RequestBody List<NodeDto> nodeDtoList,
+      @RequestParam("isInWorkspace") boolean isInWorkspace) {
+
+    workspaceService.updateWorkspaceMembership(nodeDtoList, isInWorkspace);
+    return ResponseEntity.ok("Workspace status updated successfully.");
   }
 }
