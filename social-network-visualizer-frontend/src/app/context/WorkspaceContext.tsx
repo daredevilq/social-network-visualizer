@@ -103,14 +103,14 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!loadedProjectName) return;
       try {
         const res = await fetch(
-            `${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({}),
-            }
+          `${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+          },
         );
 
         if (!res.ok) {
