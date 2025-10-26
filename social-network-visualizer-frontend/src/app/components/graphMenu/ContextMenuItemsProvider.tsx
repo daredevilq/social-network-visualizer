@@ -1,5 +1,11 @@
 import { MenuItem } from "@/app/interface/Menu";
-import { GraphLink, GraphNode } from "@/types/GraphTypes";
+import {
+  AuthorNode,
+  GraphLink,
+  GraphNode,
+  HashtagNode,
+  TweetNode,
+} from "@/types/GraphTypes";
 import {
   ConnectionsIcon,
   HashtagIcon,
@@ -11,15 +17,17 @@ import { BannerType } from "@/app/components/Popups/Banner";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { GraphApiService } from "@/app/components/graphMenu/GraphMenuApiService";
+import { GraphData } from "@/app/interface/GraphData";
 
 export interface MenuItemsGetters {
-  getAuthorMenuItems: (node: GraphNode) => MenuItem[];
-  getTweetMenuItems: (node: GraphNode) => MenuItem[];
-  getHashtagMenuItems: (node: GraphNode) => MenuItem[];
+  getAuthorMenuItems: (node: AuthorNode) => MenuItem[];
+  getTweetMenuItems: (node: TweetNode) => MenuItem[];
+  getHashtagMenuItems: (node: HashtagNode) => MenuItem[];
 }
 
 export const useContextMenuItems = (): MenuItemsGetters => {
-  const { setWorkspaceData, setHasUnsavedChanges } = useWorkspace();
+  const { workspaceData, setWorkspaceData, setHasUnsavedChanges } =
+    useWorkspace();
   const { showNotification } = useNotification();
 
   const getCommonMenuItems = (node: GraphNode): MenuItem[] => {
@@ -27,23 +35,36 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Remove from workspace",
         icon: <HideIcon />,
-        onClick: () => removeNodeFromWorkspace(node),
+        onMenuItemClick: () => removeNodeFromWorkspace(node),
         isSeparator: true,
       },
     ];
   };
 
-  const getAuthorMenuItems = (node: GraphNode): MenuItem[] => {
+  const getAuthorMenuItems = (node: AuthorNode): MenuItem[] => {
     const authorItems: MenuItem[] = [
       {
-        label: "Show Latest 10 Tweets",
+        label: "Add Latest 10 Tweets",
         icon: <ProfileIcon />,
-        onClick: async () => addLatestTweets(node.id),
+        onMenuItemClick: async () => addLatestTweets(node.id),
       },
       {
-        label: "Show most related users",
+        label: "Add Authors from Community",
         icon: <ConnectionsIcon />,
-        onClick: () => console.log("Show connections:", node.id),
+        submenu: [
+          {
+            label: "Add 10 authors from community",
+            icon: <ConnectionsIcon />,
+            onMenuItemClick: () =>
+              addAuthorCommunityToWorkspace(node.community, 10),
+          },
+          {
+            label: "Add entire community",
+            icon: <ConnectionsIcon />,
+            onMenuItemClick: () =>
+              addAuthorCommunityToWorkspace(node.community, -1),
+          },
+        ],
       },
     ];
 
@@ -55,12 +76,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Show hashtags",
         icon: <TweetIcon />,
-        onClick: () => console.log("Show tweet:", node.id),
+        onMenuItemClick: () => console.log("Show tweet:", node.id),
       },
       {
         label: "Show Author",
         icon: <ProfileIcon />,
-        onClick: () => console.log("Show author for tweet:", node.id),
+        onMenuItemClick: () => console.log("Show author for tweet:", node.id),
       },
     ];
 
@@ -72,12 +93,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Show Top 10 authors",
         icon: <TweetIcon />,
-        onClick: () => console.log("Show Top 10 authors:", node.id),
+        onMenuItemClick: () => console.log("Show Top 10 authors:", node.id),
       },
       {
         label: "Show Top 10 tweets",
         icon: <HashtagIcon />,
-        onClick: () => console.log("Show Top 10 tweets:", node.id),
+        onMenuItemClick: () => console.log("Show Top 10 tweets:", node.id),
       },
     ];
 
@@ -87,8 +108,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const addLatestTweets = async (authorId: string) => {
     try {
       const data = await GraphApiService.addAuthorsLatestTweets(authorId);
-      console.log("Fetched top tweets for author:", authorId, data);
-
+      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
       setWorkspaceData({
         nodes: data.nodes || [],
         links: data.links || [],
@@ -98,7 +118,6 @@ export const useContextMenuItems = (): MenuItemsGetters => {
         `Loaded top 10 tweets for "${authorId}"`,
         BannerType.SUCCESS,
       );
-      setHasUnsavedChanges(true);
     } catch (error) {
       showNotification(
         `Failed to load tweets for "${authorId}"`,
@@ -110,7 +129,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const removeNodeFromWorkspace = async (node: GraphNode) => {
     try {
       const data = await GraphApiService.removeNodeFromWorkspace(node);
-      console.log("Removed node:", node.id, data);
+      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
 
       setWorkspaceData({
         nodes: data.nodes || [],
@@ -118,10 +137,84 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       });
 
       showNotification(`Node "${node.id} removed"`, BannerType.SUCCESS);
-      setHasUnsavedChanges(true);
     } catch (error) {
       showNotification(`Failed to remove node "${node.id}"`, BannerType.ERROR);
     }
+  };
+
+  const addAuthorCommunityToWorkspace = async (
+    communityId: string,
+    numberOfAuthors: number,
+  ) => {
+    try {
+      const data = await GraphApiService.addTopAuthorsFromCommunity(
+        communityId,
+        numberOfAuthors,
+      );
+      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
+      setWorkspaceData({
+        nodes: data.nodes || [],
+        links: data.links || [],
+      });
+
+      const message =
+        numberOfAuthors === -1
+          ? `Entire community "${communityId}" added`
+          : `Top ${numberOfAuthors} authors from community "${communityId}" added`;
+
+      showNotification(message, BannerType.SUCCESS);
+    } catch (error) {
+      showNotification(
+        `Failed to add authors from community "${communityId}"`,
+        BannerType.ERROR,
+      );
+    }
+  };
+
+  const areGraphDataEqual = (
+    currentData: GraphData,
+    newData: GraphData,
+  ): boolean => {
+    if (
+      currentData.nodes.length !== newData.nodes.length &&
+      currentData.links.length !== newData.links.length
+    ) {
+      return false;
+    }
+
+    const currentNodeIds = new Set(currentData.nodes.map((node) => node.id));
+    const newNodeIds = new Set(newData.nodes.map((node) => node.id));
+
+    if (currentNodeIds.size !== newNodeIds.size) {
+      return false;
+    }
+
+    for (const id of newNodeIds) {
+      if (!currentNodeIds.has(id)) {
+        return false;
+      }
+    }
+
+    const currentLinks = new Set(
+      currentData.links.map(
+        (link: GraphLink) => `${link.source}-${link.target}`,
+      ),
+    );
+    const newLinks = new Set(
+      newData.links.map((link: GraphLink) => `${link.source}-${link.target}`),
+    );
+
+    if (currentLinks.size !== newLinks.size) {
+      return false;
+    }
+
+    for (const linkKey of newLinks) {
+      if (!currentLinks.has(linkKey)) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   return {
