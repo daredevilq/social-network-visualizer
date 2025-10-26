@@ -15,6 +15,7 @@ interface GraphContextType {
   >;
   resetGraphData: () => void;
   addNodeToGraph: (node: GraphNode) => void;
+  findNodeInProjectData: (node: GraphNode) => void;
 }
 
 const GraphContext = createContext<GraphContextType>({
@@ -22,6 +23,7 @@ const GraphContext = createContext<GraphContextType>({
   setGraphData: () => {},
   resetGraphData: () => {},
   addNodeToGraph: () => {},
+  findNodeInProjectData: () => {},
 });
 
 export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -88,6 +90,55 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const findNodeInProjectData = async (node: GraphNode) => {
+    setGraphData((prev) => {
+      const projectNode = projectData.nodes.find(
+        (n) => n.id === node.id && n.nodeType === node.nodeType,
+      );
+      if (!projectNode) {
+        showNotification(
+          `Node "${node.id}" not found in project data.`,
+          BannerType.ERROR,
+        );
+        return prev;
+      }
+
+      const nodeExistsInGraph = prev.nodes.some(
+        (n) => n.id === projectNode.id && n.nodeType === projectNode.nodeType,
+      );
+      const updatedNodes = nodeExistsInGraph
+        ? [...prev.nodes]
+        : [...prev.nodes, projectNode];
+      const candidateLinks = projectData.links.filter(
+        (link) =>
+          (link.source === projectNode.id &&
+            prev.nodes.some((n) => n.id === link.target)) ||
+          (link.target === projectNode.id &&
+            prev.nodes.some((n) => n.id === link.source)),
+      );
+
+      const newLinksToAdd = candidateLinks.filter(
+        (cl) =>
+          !prev.links.some(
+            (pl) =>
+              pl.source === cl.source &&
+              pl.target === cl.target &&
+              pl.relation === cl.relation,
+          ),
+      );
+
+      const updatedLinks = [...prev.links, ...newLinksToAdd];
+      if (typeof setHasUnsavedChanges === "function") {
+        setHasUnsavedChanges(true);
+      }
+
+      return {
+        nodes: updatedNodes,
+        links: updatedLinks,
+      };
+    });
+  };
+
   return (
     <GraphContext.Provider
       value={{
@@ -95,6 +146,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
         setGraphData,
         resetGraphData,
         addNodeToGraph,
+        findNodeInProjectData,
       }}
     >
       {children}

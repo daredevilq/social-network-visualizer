@@ -11,6 +11,7 @@ import { GraphData } from "@/app/interface/GraphData";
 import { GraphNode } from "@/types/GraphTypes";
 import { useGraph } from "@/app/context/GraphContext";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
 
 interface SearchAndToggleModeContainerProps {
   searchValue: string;
@@ -41,8 +42,8 @@ const SearchAndToggleModeContainer: React.FC<
     setShowLabels,
     loadedProjectName,
   } = useProject();
-  const { openedWorkspaceName } = useWorkspace();
-  const { addNodeToGraph } = useGraph();
+  const { openedWorkspaceName, isInWorkspaceMode } = useWorkspace();
+  const { addNodeToGraph, findNodeInProjectData } = useGraph();
 
   useEffect(() => {
     if (!loadedProjectName || !openedWorkspaceName) return;
@@ -82,43 +83,71 @@ const SearchAndToggleModeContainer: React.FC<
       setActiveIndex(-1);
       return;
     }
+
+    if (isInWorkspaceMode) {
+      searchInAllData(query);
+    } else {
+      searchInLoadedData(query);
+    }
+
+    setActiveIndex(-1);
+  }, [localSearchValue]);
+
+  const searchInLoadedData = (query: string) => {
     const matches = projectData.nodes.filter((node) =>
       node.id.toLowerCase().includes(query),
     );
 
     setFilteredSuggestions(matches);
     setIsDropdownVisible(matches.length > 0);
-    setActiveIndex(-1);
-  }, [localSearchValue]);
+  };
+
+  const searchInAllData = async (query: string) => {
+    const response = await fetch(
+      `${API_BASE_URL}/graph/search?query=${query}`,
+      {
+        method: "GET",
+      },
+    );
+
+    const data = await response.json();
+
+    setFilteredSuggestions(data);
+    setIsDropdownVisible(data.length > 0);
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLocalSearchValue(e.target.value);
   };
 
-  const selectSuggestion = (suggestion: string) => {
-    setLocalSearchValue(suggestion);
+  const selectSuggestion = (suggestion: GraphNode) => {
     setActiveIndex(-1);
 
-    const node = findNodeByName(projectData, suggestion);
-    if (node) {
-      setNodeFound(node);
-      addNodeToGraph(node);
+    if (isInWorkspaceMode) {
+      setNodeFound(suggestion);
+      addNodeToGraph(suggestion);
     } else {
-      setNodeFound(null);
+      const node = findNodeByName(projectData, suggestion.id);
+      if (node) {
+        setNodeFound(node);
+        findNodeInProjectData(node);
+      } else {
+        setNodeFound(null);
+      }
     }
-    onSearchChange(suggestion);
 
+    onSearchChange(suggestion.id);
     setTimeout(() => setIsDropdownVisible(false), 100);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (!isDropdownVisible) {
+    if (!isDropdownVisible && !isInWorkspaceMode) {
       if (e.key === "Enter") {
         onSearchChange(localSearchValue);
         const node = findNodeByName(projectData, localSearchValue);
         if (node) {
           setNodeFound(node);
-          addNodeToGraph(node);
+          findNodeInProjectData(node);
         } else {
           setNodeFound(null);
         }
@@ -136,7 +165,7 @@ const SearchAndToggleModeContainer: React.FC<
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (activeIndex >= 0 && activeIndex < filteredSuggestions.length) {
-        selectSuggestion(filteredSuggestions[activeIndex].id);
+        selectSuggestion(filteredSuggestions[activeIndex]);
       }
     } else if (e.key === "Escape") {
       setIsDropdownVisible(false);
@@ -216,21 +245,26 @@ const SearchAndToggleModeContainer: React.FC<
           {isDropdownVisible && (
             <ul className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
               {filteredSuggestions.map((suggestion, index) => {
+                const value =
+                  suggestion.nodeType === "TWEET"
+                    ? suggestion.content
+                    : suggestion.id;
+
                 const query = localSearchValue.trim().toLowerCase();
-                const lowerName = suggestion.id.toLowerCase();
+                const lowerName = value.toLowerCase();
                 const matchIndex = lowerName.indexOf(query);
-                const before = suggestion.id.slice(0, matchIndex);
-                const matchText = suggestion.id.slice(
+                const before = value.slice(0, matchIndex);
+                const matchText = value.slice(
                   matchIndex,
                   matchIndex + query.length,
                 );
-                const after = suggestion.id.slice(matchIndex + query.length);
+                const after = value.slice(matchIndex + query.length);
                 const isActive = index === activeIndex;
 
                 return (
                   <li
                     key={`${suggestion.id}-${suggestion.nodeType}`}
-                    onClick={() => selectSuggestion(suggestion.id)}
+                    onClick={() => selectSuggestion(suggestion)}
                     onMouseEnter={() => setActiveIndex(index)}
                     className={`
                                             px-4 py-2 cursor-pointer flex flex-col transition-colors duration-200

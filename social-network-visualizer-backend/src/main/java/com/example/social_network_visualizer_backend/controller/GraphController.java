@@ -1,8 +1,10 @@
 package com.example.social_network_visualizer_backend.controller;
 
+import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.request.GraphQueryRequest;
 import com.example.social_network_visualizer_backend.service.GraphService;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/graph")
 @RequiredArgsConstructor
 public class GraphController {
-
   private final GraphService graphService;
 
   @PostMapping
@@ -28,5 +29,10 @@ public class GraphController {
       @PathVariable Integer communityId, @RequestBody GraphQueryRequest request) {
     GraphDataDto graph = graphService.getGraph(request, Optional.of(communityId));
     return ResponseEntity.ok(graph);
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<List<NodeSearchDto>> getSearchSuggestions(@RequestParam String query) {
+    return ResponseEntity.ok(graphService.getSuggestions(query));
   }
 }
