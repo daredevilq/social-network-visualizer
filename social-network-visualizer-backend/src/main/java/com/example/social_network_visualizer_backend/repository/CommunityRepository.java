@@ -222,6 +222,17 @@ public interface CommunityRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
+      MATCH (a:Author)
+      WHERE a.community = $communityId and a.isInWorkspace = false
+      ORDER BY a.pagerank DESC
+      LIMIT $limit
+      RETURN a
+    """)
+  List<Author> findTopAuthorsByCommunityId(
+      @Param("communityId") int communityId, @Param("limit") int limit);
+
+  @Query(
+      """
         UNWIND range(0,23) AS h
         UNWIND range(1,7) AS d
         OPTIONAL MATCH (a:Author {community:$communityId})-[:POSTED]->(t:Tweet)
