@@ -7,11 +7,10 @@ import {
   ProfileIcon,
   TweetIcon,
 } from "@/app/components/graphMenu/MenuIcons";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { GraphData } from "@/app/interface/GraphData";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { useNotification } from "@/app/context/NotificationProvider";
+import { GraphApiService } from "@/app/components/graphMenu/GraphMenuApiService";
 
 export interface MenuItemsGetters {
   getAuthorMenuItems: (node: GraphNode) => MenuItem[];
@@ -26,11 +25,9 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getCommonMenuItems = (node: GraphNode): MenuItem[] => {
     return [
       {
-        label: "Hide Node",
+        label: "Remove from workspace",
         icon: <HideIcon />,
-        onClick: () => {
-          console.log("Hide node:", node.id);
-        },
+        onClick: () => removeNodeFromWorkspace(node),
         isSeparator: true,
       },
     ];
@@ -89,7 +86,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addLatestTweets = async (authorId: string) => {
     try {
-      const data = await fetchAuthorsLatestTweets(authorId);
+      const data = await GraphApiService.addAuthorsLatestTweets(authorId);
       console.log("Fetched top tweets for author:", authorId, data);
 
       setWorkspaceData({
@@ -110,26 +107,21 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     }
   };
 
-  const fetchAuthorsLatestTweets = async (
-    authorId: string,
-  ): Promise<GraphData> => {
-    const response = await fetch(
-      `${API_BASE_URL}/menu/author/${authorId}/latest-tweets`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+  const removeNodeFromWorkspace = async (node: GraphNode) => {
+    try {
+      const data = await GraphApiService.removeNodeFromWorkspace(node);
+      console.log("Removed node:", node.id, data);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch top tweets for author: ${authorId} (${response.status})`,
-      );
+      setWorkspaceData({
+        nodes: data.nodes || [],
+        links: data.links || [],
+      });
+
+      showNotification(`Node "${node.id} removed"`, BannerType.SUCCESS);
+      setHasUnsavedChanges(true);
+    } catch (error) {
+      showNotification(`Failed to remove node "${node.id}"`, BannerType.ERROR);
     }
-
-    return await response.json();
   };
 
   return {
