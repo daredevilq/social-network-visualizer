@@ -151,7 +151,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        if (!Array.isArray(data?.nodes) || !Array.isArray(data?.edges)) {
+        if (!Array.isArray(data?.nodes) || !Array.isArray(data?.links)) {
           showNotification(
             "Workspace data format is invalid.",
             BannerType.ERROR,
@@ -159,7 +159,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        const links: GraphLink[] = data.edges.map((edge: GraphLink) => ({
+        const links: GraphLink[] = data.links.map((edge: GraphLink) => ({
           source: edge.source,
           target: edge.target,
           relation: edge.relation ?? "unknown",

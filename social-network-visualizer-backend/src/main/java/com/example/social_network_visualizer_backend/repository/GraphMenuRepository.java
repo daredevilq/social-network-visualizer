@@ -10,6 +10,18 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
+    @Query(
+        """
+                  MATCH (a:Author {userName: $authorId})-[:POSTED]->(t:Tweet)
+                  WITH t
+                  ORDER BY t.publicationDate DESC
+                  LIMIT $numberOfTweets
+                  SET t.isInWorkspace = true
+                  RETURN count(t) as addedCount
+              """)
+    void addAuthorsLatestTweetsToWorkspace(String authorId, int numberOfTweets);
+  }
+
   @Query(
       """
            MATCH (a:Author)-[:POSTED]->(t:Tweet)

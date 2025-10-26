@@ -9,14 +9,20 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class GraphMenuService {
   private final GraphMenuRepository graphMenuRepository;
   private final WorkspaceService workspaceService;
+
+  public void addAuthorsLatestTweets(String authorId, int numberOfTweets) {
+    graphMenuRepository.addAuthorsLatestTweetsToWorkspace(authorId, numberOfTweets);
+  }
 
   public void addTweetAuthorToWorkspace(TweetNodeDto tweetNodeDto) {
     AuthorNodeDto author =
