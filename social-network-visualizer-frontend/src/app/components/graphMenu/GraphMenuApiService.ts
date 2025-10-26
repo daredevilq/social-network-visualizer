@@ -28,6 +28,7 @@ export class GraphApiService {
    * AUTHOR
    */
   static async addAuthorsLatestTweets(authorId: string): Promise<GraphData> {
+    console.log("Fetching top tweets for author:", authorId);
     const response = await fetch(
       `${API_BASE_URL}/graph/menu/author/${authorId}/latest-tweets`,
       {
