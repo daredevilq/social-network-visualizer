@@ -4,6 +4,10 @@ import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorN
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.repository.CommunityRepository;
 import com.example.social_network_visualizer_backend.repository.GraphMenuRepository;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,9 +21,27 @@ import org.springframework.stereotype.Service;
 public class GraphMenuService {
   private final GraphMenuRepository graphMenuRepository;
   private final WorkspaceService workspaceService;
+  private final CommunityRepository communityRepository;
 
   public void addAuthorsLatestTweets(String authorId, int numberOfTweets) {
     graphMenuRepository.addAuthorsLatestTweetsToWorkspace(authorId, numberOfTweets);
+  }
+
+  public void addAuthorsCommunity(int communityId, int numberOfAuthors) {
+    List<Author> authorsList;
+    if (numberOfAuthors > 0) {
+      authorsList = communityRepository.findTopAuthorsByCommunityId(communityId, numberOfAuthors);
+    } else {
+      authorsList = communityRepository.findAuthorsByCommunityId(communityId);
+    }
+
+    authorsList.forEach(
+        author -> {
+          NodeDto authorNode = new NodeDto();
+          authorNode.setId(author.getUserName());
+          authorNode.setNodeType(NodeType.AUTHOR);
+          workspaceService.updateWorkspaceMembership(authorNode, true);
+        });
   }
 
   public void addTweetAuthorToWorkspace(TweetNodeDto tweetNodeDto) {

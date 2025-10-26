@@ -7,6 +7,7 @@ import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNo
 import com.example.social_network_visualizer_backend.service.GraphMenuService;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import com.example.social_network_visualizer_backend.service.WorkspaceService;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,14 @@ public class GraphMenuController {
   @PostMapping("/author/{authorId}/latest-tweets")
   public ResponseEntity<GraphDataDto> addAuthorTop10Tweets(@PathVariable String authorId) {
     graphMenuService.addAuthorsLatestTweets(authorId, 10);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/community")
+  public ResponseEntity<GraphDataDto> addAuthorCommunity(@RequestBody Map<String, Integer> body) {
+    Integer communityId = body.get("communityId");
+    Integer numberOfAuthors = body.getOrDefault("numberOfAuthorsToAdd", 10);
+    graphMenuService.addAuthorsCommunity(communityId, numberOfAuthors);
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 

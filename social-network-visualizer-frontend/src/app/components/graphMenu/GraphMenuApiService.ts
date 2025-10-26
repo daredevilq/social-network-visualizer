@@ -49,6 +49,33 @@ export class GraphApiService {
     return await response.json();
   }
 
+  static async addTopAuthorsFromCommunity(
+    communityId: string,
+    numberOfAuthors: number,
+  ): Promise<GraphData> {
+    const response = await fetch(
+      `${API_BASE_URL}/graph/menu/author/community`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          communityId: Number(communityId),
+          numberOfAuthorsToAdd: numberOfAuthors,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to add top 10 authors from community for author: ${communityId} (${response.status})`,
+      );
+    }
+
+    return await response.json();
+  }
+
   /**
    * TWEET
    */
