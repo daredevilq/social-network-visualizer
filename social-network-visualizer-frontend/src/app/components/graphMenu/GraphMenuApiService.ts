@@ -1,19 +1,21 @@
 import { API_BASE_URL } from "@/app/configuration/urlConfig";
 import { GraphData } from "@/app/interface/GraphData";
 import { GraphNode } from "@/types/GraphTypes";
+import { BannerType } from "@/app/components/Popups/Banner";
 
 export class GraphApiService {
   static async removeNodeFromWorkspace(node: GraphNode): Promise<GraphData> {
-    const response = await fetch(`${API_BASE_URL}/graph/menu/node/remove`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${API_BASE_URL}/graph/menu/membership?add=false`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: node.id,
+          nodeType: node.nodeType,
+        }),
       },
-      body: JSON.stringify({
-        id: node.id,
-        nodeType: node.nodeType,
-      }),
-    });
+    );
 
     if (!response.ok) {
       throw new Error(
@@ -61,13 +63,6 @@ export class GraphApiService {
       body: JSON.stringify({
         id: tweetNode.id,
         nodeType: tweetNode.nodeType,
-        ...(tweetNode.nodeType === "TWEET" && {
-          content: tweetNode.content,
-          authorName: tweetNode.authorName,
-          likesCount: tweetNode.likesCount,
-          retweetsCount: tweetNode.retweetsCount,
-          community: tweetNode.community,
-        }),
       }),
     });
 
@@ -91,13 +86,6 @@ export class GraphApiService {
       body: JSON.stringify({
         id: tweetNode.id,
         nodeType: tweetNode.nodeType,
-        ...(tweetNode.nodeType === "TWEET" && {
-          content: tweetNode.content,
-          authorName: tweetNode.authorName,
-          likesCount: tweetNode.likesCount,
-          retweetsCount: tweetNode.retweetsCount,
-          community: tweetNode.community,
-        }),
       }),
     });
 
@@ -123,13 +111,6 @@ export class GraphApiService {
         body: JSON.stringify({
           id: tweetNode.id,
           nodeType: tweetNode.nodeType,
-          ...(tweetNode.nodeType === "TWEET" && {
-            content: tweetNode.content,
-            authorName: tweetNode.authorName,
-            likesCount: tweetNode.likesCount,
-            retweetsCount: tweetNode.retweetsCount,
-            community: tweetNode.community,
-          }),
         }),
       },
     );
@@ -160,10 +141,6 @@ export class GraphApiService {
         body: JSON.stringify({
           id: hashtagNode.id,
           nodeType: hashtagNode.nodeType,
-          ...(hashtagNode.nodeType === "HASHTAG" && {
-            frequency: hashtagNode.frequency,
-            community: hashtagNode.community,
-          }),
         }),
       },
     );
@@ -177,20 +154,26 @@ export class GraphApiService {
     return await response.json();
   }
 
-  static async addHashtagTopAuthors(hashtagId: string): Promise<GraphData> {
+  static async addHashtagTopAuthors(
+    hashtagNode: GraphNode,
+  ): Promise<GraphData> {
     const response = await fetch(
-      `${API_BASE_URL}/menu/hashtag/${hashtagId}/top-authors`,
+      `${API_BASE_URL}/graph/menu/hashtag/top-tweets`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          id: hashtagNode.id,
+          nodeType: hashtagNode.nodeType,
+        }),
       },
     );
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch top authors for hashtag: ${hashtagId} (${response.status})`,
+        `Failed to fetch top authors for hashtag: ${hashtagNode.id} (${response.status})`,
       );
     }
 

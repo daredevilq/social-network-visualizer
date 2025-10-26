@@ -6,15 +6,13 @@ import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNo
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.repository.GraphMenuRepository;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @AllArgsConstructor
 public class GraphMenuService {
   private final GraphMenuRepository graphMenuRepository;
@@ -49,14 +47,14 @@ public class GraphMenuService {
   }
 
   public void addTopAuthorsForHashtag(HashtagNodeDto hashtagNodeDto) {
-    List<HashtagNodeDto> hashtags =
+    List<AuthorNodeDto> authors =
         graphMenuRepository.findTopAuthorsByHashtagId(hashtagNodeDto.getId());
-    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 
   public void addTopTweetsByHashtag(HashtagNodeDto hashtagNodeDto) {
-    List<HashtagNodeDto> hashtags =
+    List<TweetNodeDto> tweets =
         graphMenuRepository.findTopTweetsByHashtagId(hashtagNodeDto.getId());
-    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+    tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 }

@@ -5,6 +5,8 @@ import { useNotification } from "@/app/context/NotificationProvider";
 import { useProject } from "@/app/context/ProjectContext";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { BannerType } from "@/app/components/Popups/Banner";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { GraphData } from "@/app/interface/GraphData";
 
 interface GraphContextType {
   graphData: { nodes: GraphNode[]; links: GraphLink[] };
@@ -38,6 +40,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
     loadWorkspace,
     openedWorkspaceName,
     fetchWorkspaceData,
+    setWorkspaceData,
   } = useWorkspace();
 
   useEffect(() => {
@@ -53,52 +56,36 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addNodeToGraph = async (node: GraphNode) => {
-    setGraphData((prev) => {
-      const projectNode = projectData.nodes.find(
-        (n) => n.id === node.id && n.nodeType === node.nodeType,
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/graph/menu/membership?add=true`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: node.id,
+            nodeType: node.nodeType,
+          }),
+        },
       );
-      if (!projectNode) {
-        showNotification(
-          `Node "${node.id}" not found in project data.`,
-          BannerType.ERROR,
-        );
-        return prev;
+
+      if (!response.ok) {
+        throw new Error(`Failed to find node: ${node.id} (${response.status})`);
       }
 
-      const nodeExistsInGraph = prev.nodes.some(
-        (n) => n.id === projectNode.id && n.nodeType === projectNode.nodeType,
-      );
-      const updatedNodes = nodeExistsInGraph
-        ? [...prev.nodes]
-        : [...prev.nodes, projectNode];
-      const candidateLinks = projectData.links.filter(
-        (link) =>
-          (link.source === projectNode.id &&
-            prev.nodes.some((n) => n.id === link.target)) ||
-          (link.target === projectNode.id &&
-            prev.nodes.some((n) => n.id === link.source)),
-      );
+      const data: GraphData = await response.json();
 
-      const newLinksToAdd = candidateLinks.filter(
-        (cl) =>
-          !prev.links.some(
-            (pl) =>
-              pl.source === cl.source &&
-              pl.target === cl.target &&
-              pl.relation === cl.relation,
-          ),
-      );
+      setWorkspaceData({
+        nodes: data.nodes,
+        links: data.links,
+      });
 
-      const updatedLinks = [...prev.links, ...newLinksToAdd];
-      if (typeof setHasUnsavedChanges === "function") {
-        setHasUnsavedChanges(true);
-      }
+      showNotification(`Node "${node.id}" found`, BannerType.SUCCESS);
 
-      return {
-        nodes: updatedNodes,
-        links: updatedLinks,
-      };
-    });
+      setHasUnsavedChanges(true);
+    } catch (_error) {
+      showNotification(`Failed to add node "${node.id}"`, BannerType.ERROR);
+    }
   };
 
   return (
