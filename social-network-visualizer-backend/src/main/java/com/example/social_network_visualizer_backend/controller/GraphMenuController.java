@@ -32,12 +32,6 @@ public class GraphMenuController {
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
-  //  @PostMapping("/node/remove")
-  //  public ResponseEntity<GraphDataDto> removeNodeFromWorkspace(@RequestBody NodeDto nodeDto) {
-  //    workspaceService.updateWorkspaceMembership(nodeDto, false);
-  //    return ResponseEntity.ok(graphService.fetchWorkspaceData());
-  //  }
-
   @PostMapping("/membership")
   public ResponseEntity<GraphDataDto> updateWorkspaceMembership(
       @RequestBody NodeDto nodeDto, @RequestParam boolean add) {
