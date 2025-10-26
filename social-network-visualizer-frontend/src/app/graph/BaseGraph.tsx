@@ -298,8 +298,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     if (!fgInstance.current) return;
 
     if (
-        graphData.nodes.length === prevNodeCount.current &&
-        graphData.links.length === prevLinkCount.current
+      graphData.nodes.length === prevNodeCount.current &&
+      graphData.links.length === prevLinkCount.current
     ) {
       console.log("Optymalizacja: Liczba węzłów i linków bez zmian. Pomijam.");
       return; // Zatrzymaj funkcję tutaj
@@ -313,23 +313,43 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     // --- LOGIKA WYKRYWANIA I MROŻENIA ---
 
     // 1. Pobierz aktualne węzły *z symulacji* (mają pozycje x, y)
-    const currentNodesInGraph: (GraphNode & { x?: number, y?: number, fx?: number, fy?: number })[] = fgInstance.current.graphData().nodes;
-    const currentNodesMap = new Map(currentNodesInGraph.map(node => [node.id, node]));
+    const currentNodesInGraph: (GraphNode & {
+      x?: number;
+      y?: number;
+      fx?: number;
+      fy?: number;
+    })[] = fgInstance.current.graphData().nodes;
+    const currentNodesMap = new Map(
+      currentNodesInGraph.map((node) => [node.id, node]),
+    );
 
     // 2. KROK 1 (Wykrywanie): Sprawdź, czy dodajemy węzły
-    const isAddingNodes = graphData.nodes.length > prevNodeCount.current && prevNodeCount.current > 0;
+    const isAddingNodes =
+      graphData.nodes.length > prevNodeCount.current &&
+      prevNodeCount.current > 0;
 
     // 3. KROK 3 (Pozycja startowa): Znajdź pozycję "rodzica"
     let sourceNodePosition = { x: 0, y: 0 };
     if (isAddingNodes) {
-      const firstNewNode = graphData.nodes.find(n => !currentNodesMap.has(n.id));
+      const firstNewNode = graphData.nodes.find(
+        (n) => !currentNodesMap.has(n.id),
+      );
       if (firstNewNode) {
-        const link = graphData.links.find(l => l.source === firstNewNode.id || l.target === firstNewNode.id);
+        const link = graphData.links.find(
+          (l) => l.source === firstNewNode.id || l.target === firstNewNode.id,
+        );
         if (link) {
-          const parentId = link.source === firstNewNode.id ? link.target : link.source;
+          const parentId =
+            link.source === firstNewNode.id ? link.target : link.source;
           const parentNode = currentNodesMap.get(parentId);
           // Sprawdzamy, czy rodzic ma poprawną pozycję
-          if (parentNode && typeof parentNode.x === 'number' && typeof parentNode.y === 'number' && isFinite(parentNode.x) && isFinite(parentNode.y)) {
+          if (
+            parentNode &&
+            typeof parentNode.x === "number" &&
+            typeof parentNode.y === "number" &&
+            isFinite(parentNode.x) &&
+            isFinite(parentNode.y)
+          ) {
             sourceNodePosition = { x: parentNode.x, y: parentNode.y };
           }
         }
@@ -356,15 +376,18 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     // --- NOWA LOGIKA TWORZENIA FINALNEJ LISTY WĘZŁÓW ---
 
-    const finalNodes = topNodes.map(node => {
+    const finalNodes = topNodes.map((node) => {
       const existingNode = currentNodesMap.get(node.id);
 
       if (isAddingNodes) {
         // POPRAWKA 2: Bardziej rygorystyczne mrożenie
         // Mrozimy (fx, fy) TYLKO WTEDY, gdy stary węzeł ma już poprawną pozycję.
-        if (existingNode &&
-            typeof existingNode.x === 'number' && isFinite(existingNode.x) &&
-            typeof existingNode.y === 'number' && isFinite(existingNode.y)
+        if (
+          existingNode &&
+          typeof existingNode.x === "number" &&
+          isFinite(existingNode.x) &&
+          typeof existingNode.y === "number" &&
+          isFinite(existingNode.y)
         ) {
           // KROK 2 (Mrożenie): To STARY węzeł z poprawną pozycją. Zamroź go.
           return { ...node, fx: existingNode.x, fy: existingNode.y };
@@ -373,7 +396,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
           return {
             ...node,
             x: sourceNodePosition.x + (Math.random() - 0.5) * 5, // Mały losowy rozrzut
-            y: sourceNodePosition.y + (Math.random() - 0.5) * 5
+            y: sourceNodePosition.y + (Math.random() - 0.5) * 5,
           };
         }
         // Jeśli to stary węzeł, ale bez poprawnej pozycji (np. jeszcze się ładuje),
@@ -388,11 +411,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     const topNodesIds = new Set(finalNodes.map((n) => n.id));
     const relevantLinks = graphData.links
-        .filter(
-            (link: GraphLink) =>
-                topNodesIds.has(link.source) && topNodesIds.has(link.target),
-        )
-        .map((link: GraphLink) => ({ ...link }));
+      .filter(
+        (link: GraphLink) =>
+          topNodesIds.has(link.source) && topNodesIds.has(link.target),
+      )
+      .map((link: GraphLink) => ({ ...link }));
 
     // Zaktualizuj licznik węzłów na potrzeby następnego renderowania
     prevNodeCount.current = finalNodes.length;
@@ -408,25 +431,27 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         if (!fgInstance.current) return;
 
         // 1. Odmrożenie WSZYSTKICH węzłów
-        fgInstance.current.graphData().nodes.forEach((node: GraphNode & { fx?: number, fy?: number }) => {
-          node.fx = undefined;
-          node.fy = undefined;
-        });
+        fgInstance.current
+          .graphData()
+          .nodes.forEach((node: GraphNode & { fx?: number; fy?: number }) => {
+            node.fx = undefined;
+            node.fy = undefined;
+          });
 
         // 2. Rozpocznij PŁYNNĄ RAMPĘ WSZYSTKICH SIŁ
 
         // --- Definicje sił ---
-        const startCharge = 0;         // Zaczynamy od braku odpychania
-        const endCharge = -200;        // Docelowa siła
+        const startCharge = 0; // Zaczynamy od braku odpychania
+        const endCharge = -200; // Docelowa siła
 
-        const startLink = 0.01;        // Prawie zerowe przyciąganie linków
-        const endLink = 0.7;           // Docelowa siła
+        const startLink = 0.01; // Prawie zerowe przyciąganie linków
+        const endLink = 0.7; // Docelowa siła
 
-        const startCollide = 0.01;     // Prawie zerowa kolizja
-        const endCollide = 0.3;        // Docelowa siła
+        const startCollide = 0.01; // Prawie zerowa kolizja
+        const endCollide = 0.3; // Docelowa siła
 
-        const duration = 1500;     // Czas animacji (1.5 sekundy)
-        const steps = 30;          // Liczba kroków (płynność)
+        const duration = 1500; // Czas animacji (1.5 sekundy)
+        const steps = 30; // Liczba kroków (płynność)
         const stepDuration = duration / steps;
         let currentStep = 0;
 
@@ -439,20 +464,20 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         // --- "Obudź" symulację z minimalnymi siłami ---
         // Ważne: musimy re-definiować całą siłę, łącznie z jej parametrami (.id, .radius)
         fgInstance.current.d3Force(
-            "charge",
-            forceManyBody().distanceMin(10).strength(startCharge)
+          "charge",
+          forceManyBody().distanceMin(10).strength(startCharge),
         );
         fgInstance.current.d3Force(
-            "link",
-            forceLink<GraphNode, GraphLink>()
-                .id((d: GraphNode) => d.id)
-                .strength(startLink)
+          "link",
+          forceLink<GraphNode, GraphLink>()
+            .id((d: GraphNode) => d.id)
+            .strength(startLink),
         );
         fgInstance.current.d3Force(
-            "collide",
-            forceCollide()
-                .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-                .strength(startCollide)
+          "collide",
+          forceCollide()
+            .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+            .strength(startCollide),
         );
 
         // --- Rozpocznij interwał, który będzie zwiększał siłę ---
@@ -460,7 +485,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         forceRampInterval.current = setInterval(() => {
           if (!fgInstance.current) {
             // @ts-ignore
-            if (forceRampInterval.current) clearInterval(forceRampInterval.current);
+            if (forceRampInterval.current)
+              clearInterval(forceRampInterval.current);
             return;
           }
 
@@ -471,50 +497,51 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
           // Oblicz nowe siły na podstawie "easingu"
           const newCharge = startCharge + (endCharge - startCharge) * easedT;
           const newLink = startLink + (endLink - startLink) * easedT;
-          const newCollide = startCollide + (endCollide - startCollide) * easedT;
+          const newCollide =
+            startCollide + (endCollide - startCollide) * easedT;
 
           // Zastosuj WSZYSTKIE trzy siły
           fgInstance.current.d3Force(
-              "charge",
-              forceManyBody().distanceMin(10).strength(newCharge)
+            "charge",
+            forceManyBody().distanceMin(10).strength(newCharge),
           );
           fgInstance.current.d3Force(
-              "link",
-              forceLink<GraphNode, GraphLink>()
-                  .id((d: GraphNode) => d.id)
-                  .strength(newLink)
+            "link",
+            forceLink<GraphNode, GraphLink>()
+              .id((d: GraphNode) => d.id)
+              .strength(newLink),
           );
           fgInstance.current.d3Force(
-              "collide",
-              forceCollide()
-                  .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-                  .strength(newCollide)
+            "collide",
+            forceCollide()
+              .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+              .strength(newCollide),
           );
 
           // Zakończ interwał po osiągnięciu celu
           if (currentStep >= steps) {
             // @ts-ignore
-            if (forceRampInterval.current) clearInterval(forceRampInterval.current);
+            if (forceRampInterval.current)
+              clearInterval(forceRampInterval.current);
             // Na wszelki wypadek ustaw finalne siły
             fgInstance.current.d3Force(
-                "charge",
-                forceManyBody().distanceMin(10).strength(endCharge)
+              "charge",
+              forceManyBody().distanceMin(10).strength(endCharge),
             );
             fgInstance.current.d3Force(
-                "link",
-                forceLink<GraphNode, GraphLink>()
-                    .id((d: GraphNode) => d.id)
-                    .strength(endLink)
+              "link",
+              forceLink<GraphNode, GraphLink>()
+                .id((d: GraphNode) => d.id)
+                .strength(endLink),
             );
             fgInstance.current.d3Force(
-                "collide",
-                forceCollide()
-                    .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-                    .strength(endCollide)
+              "collide",
+              forceCollide()
+                .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+                .strength(endCollide),
             );
           }
         }, stepDuration) as unknown as NodeJS.Timeout;
-
       }, 3000); // Odmroź po 3 sekundach
     }
   };

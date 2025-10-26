@@ -51,11 +51,14 @@ export default function StandardGraph() {
           return nodeStrategy.getColor(node);
         }}
         linkColor={(link: GraphLink) => {
-          return shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : linkStrategy.getColor(link);
-        //   return shortestPath.includes(link.source) &&
-        //     shortestPath.includes(link.target)
-        //     ? NodeColors.getRedColor()
-        //     : "#0D0630";
+          return shortestPath.includes(link.source) &&
+            shortestPath.includes(link.target)
+            ? NodeColors.getRedColor()
+            : linkStrategy.getColor(link);
+          //   return shortestPath.includes(link.source) &&
+          //     shortestPath.includes(link.target)
+          //     ? NodeColors.getRedColor()
+          //     : "#0D0630";
         }}
         linkWidth={(link: GraphLink) =>
           shortestPath.includes(link.source) &&
