@@ -1,5 +1,7 @@
 import { AuthorNode, GraphNode, NodeType } from "@/types/GraphTypes";
 import NodeColors from "@/app/model/NodeColors";
+import { MenuItem } from "@/app/interface/Menu";
+import { MenuItemsGetters } from "@/app/components/graphMenu/ContextMenuItemsProvider";
 
 export interface INodeStrategy {
   getColor(node: GraphNode): string;
@@ -19,7 +21,10 @@ export interface INodeStrategy {
     ) => void,
   ): any;
 
-  handleNodeRightClick(node: GraphNode): any;
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[];
 }
 
 class AuthorNodeStrategy implements INodeStrategy {
@@ -51,8 +56,12 @@ class AuthorNodeStrategy implements INodeStrategy {
     setIsSidebarOpen((prev) => !prev);
   }
 
-  handleNodeRightClick(node: GraphNode) {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on AUTHOR node:", node.id);
+    return menuItemsGetters.getAuthorMenuItems(node);
   }
 }
 
@@ -80,8 +89,12 @@ class TweetNodeStrategy implements INodeStrategy {
     console.log("SingleNodeClick Method not implemented for: TWEET nodes.");
   }
 
-  handleNodeRightClick(node: GraphNode) {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on TWEET node:", node.id);
+    return menuItemsGetters.getTweetMenuItems(node);
   }
 }
 
@@ -109,8 +122,12 @@ class HashtagNodeStrategy implements INodeStrategy {
     console.log("SingleNodeClick Method not implemented for: Hashtag nodes.");
   }
 
-  handleNodeRightClick(node: GraphNode) {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     console.log("Right click on HASHTAG node:", node.id);
+    return menuItemsGetters.getHashtagMenuItems(node);
   }
 }
 
@@ -155,9 +172,12 @@ class NodeStrategy {
     );
   }
 
-  handleNodeRightClick(node: GraphNode) {
+  getContextMenuItems(
+    node: GraphNode,
+    menuItemsGetters: MenuItemsGetters,
+  ): MenuItem[] {
     const strategy = this.resolveStrategy(node);
-    return strategy.handleNodeRightClick(node);
+    return strategy.getContextMenuItems(node, menuItemsGetters);
   }
 
   private resolveStrategy(node: GraphNode) {
