@@ -20,11 +20,13 @@ public class AuthorNodeQueryStrategy implements NodeQueryStrategy {
   private final AuthorRepository authorRepository;
 
   @Override
-  public List<? extends NodeDto> fetchNodes(Optional<Integer> communityId, boolean inWorkspace) {
+  public List<? extends NodeDto> fetchNodes(
+      Optional<Integer> communityId, boolean inWorkspace, Integer limit) {
+
     if (communityId.isPresent()) {
       return authorRepository.findAuthorsWithCommunity(communityId.get());
     } else {
-      return authorRepository.findAuthors(inWorkspace).stream()
+      return authorRepository.findAuthors(inWorkspace, limit).stream()
           .sorted(Comparator.comparingDouble(AuthorNodeDto::getPagerank).reversed())
           .collect(Collectors.toList());
     }

@@ -154,8 +154,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
+                LIMIT $limit
             """)
-  List<AuthorNodeDto> findAuthors(@Param("inWorkspace") boolean inWorkspace);
+  List<AuthorNodeDto> findAuthors(
+      @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
 
   @Query(
       """

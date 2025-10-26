@@ -38,8 +38,10 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                 h.hashtag AS id,
                 'HASHTAG' AS nodeType
                 ORDER BY h.hashtag
+                LIMIT $limit
             """)
-  List<HashtagNodeDto> findHashtag(@Param("inWorkspace") boolean inWorkspace);
+  List<HashtagNodeDto> findHashtag(
+      @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
 
   @Query(
       """

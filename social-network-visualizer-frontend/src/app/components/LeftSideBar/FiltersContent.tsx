@@ -2,12 +2,20 @@
 
 import { useProject } from "@/app/context/ProjectContext";
 import { useEffect, useState } from "react";
-import { Network, Layers, ChevronDown, ChevronUp, Search } from "lucide-react";
+import {
+  Network,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Settings,
+} from "lucide-react";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { RelationType, NodeType } from "@/types/GraphTypes";
-import { GraphQueryRequest } from "@/types/GraphQueryRequest";
+import { GraphQueryRequest, FetchConfig } from "@/types/GraphQueryRequest";
 import { isRelationAvailable } from "@/app/utils/nodeRelationMap";
+import FetchConfigModal from "@/app/components/Popups/FetchConfigModal";
 
 export default function FiltersContent() {
   const {
@@ -17,6 +25,8 @@ export default function FiltersContent() {
     setSelectedNodeTypes,
     runWithLoading,
     fetchGraphData,
+    fetchConfig,
+    setFetchConfig,
   } = useProject();
 
   const { showNotification } = useNotification();
@@ -29,8 +39,10 @@ export default function FiltersContent() {
 
   const [nodeTypesExpanded, setNodeTypesExpanded] = useState(true);
   const [relationTypesExpanded, setRelationTypesExpanded] = useState(true);
+  const [fetchConfigExpanded, setFetchConfigExpanded] = useState(true);
   const [nodeSearchQuery, setNodeSearchQuery] = useState("");
   const [relationSearchQuery, setRelationSearchQuery] = useState("");
+  const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
@@ -78,6 +90,7 @@ export default function FiltersContent() {
         const request: GraphQueryRequest = {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
+          fetchConfig: fetchConfig,
         };
         await fetchGraphData(request);
         showNotification("Filters applied successfully", BannerType.INFO);
@@ -250,6 +263,53 @@ export default function FiltersContent() {
             </div>
           )}
         </div>
+
+        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+          <button
+            onClick={() => setFetchConfigExpanded(!fetchConfigExpanded)}
+            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#FAFAFA]" />
+              <h2 className="text-lg font-semibold">Fetch Limits</h2>
+            </div>
+            {fetchConfigExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+
+          {fetchConfigExpanded && (
+            <div className="p-3 pt-0">
+              <p className="text-sm text-gray-400 mb-3">
+                Control how many nodes to fetch from the database for each type.
+              </p>
+
+              <div className="space-y-2 mb-3">
+                {tempNodeTypes.map((nodeType) => {
+                  const limit = fetchConfig.nodeLimits?.[nodeType] ?? 100;
+                  return (
+                    <div
+                      key={nodeType}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <span className="text-[#FAFAFA]">{nodeType}</span>
+                      <span className="text-[#7140F4] font-mono">{limit}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setFetchConfigModalOpen(true)}
+                className="w-full py-2 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] font-semibold rounded-lg transition-colors"
+              >
+                Configure Limits
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
@@ -260,6 +320,14 @@ export default function FiltersContent() {
           Apply Filters
         </button>
       </div>
+
+      <FetchConfigModal
+        open={fetchConfigModalOpen}
+        onClose={() => setFetchConfigModalOpen(false)}
+        onApply={(config: FetchConfig) => setFetchConfig(config)}
+        currentConfig={fetchConfig}
+        selectedNodeTypes={tempNodeTypes}
+      />
     </div>
   );
 }

@@ -7,7 +7,8 @@ import java.util.Optional;
 
 public interface NodeQueryStrategy {
 
-  default List<? extends NodeDto> fetchNodes(Optional<Integer> communityId, boolean inWorkspace) {
+  default List<? extends NodeDto> fetchNodes(
+      Optional<Integer> communityId, boolean inWorkspace, Integer limit) {
     return null;
   }
 

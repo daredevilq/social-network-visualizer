@@ -194,8 +194,10 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     a.userName AS authorName,
                     COALESCE(a.community, -1) AS community
                 ORDER BY t.publicationDate DESC
+                LIMIT $limit
             """)
-  List<TweetNodeDto> findTweets(@Param("inWorkspace") boolean inWorkspace);
+  List<TweetNodeDto> findTweets(
+      @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
 
   @Query(
       """
