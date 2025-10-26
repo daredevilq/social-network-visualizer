@@ -10,7 +10,7 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
 }) => {
   if (!items || items.length === 0) return null;
 
-  const handleItemClick = (handler: () => void) => {
+  const handleItemClickAndCloseMenu = (handler: () => void) => {
     handler();
     onClose();
   };
@@ -33,8 +33,10 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
             <MenuItem
               label={menuItem.label}
               icon={menuItem.icon}
-              onClick={() => handleItemClick(menuItem.onClick)}
+              onMenuItemClick={menuItem.onMenuItemClick}
               isActive={menuItem.isActive}
+              submenu={menuItem.submenu}
+              onItemActivated={handleItemClickAndCloseMenu}
             />
           </React.Fragment>
         ))}
