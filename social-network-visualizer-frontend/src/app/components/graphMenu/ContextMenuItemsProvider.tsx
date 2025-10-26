@@ -76,17 +76,17 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Show Author",
         icon: <ProfileIcon />,
-          onMenuItemClick: async () => addTweetAuthorToWorkspace(node),
+        onMenuItemClick: async () => addTweetAuthorToWorkspace(node),
       },
       {
         label: "Show hashtags",
         icon: <TweetIcon />,
-          onMenuItemClick: async () => addTweetHashtagsToWorkspace(node),
+        onMenuItemClick: async () => addTweetHashtagsToWorkspace(node),
       },
       {
         label: "Show mentioned users",
         icon: <ProfileIcon />,
-          onMenuItemClick: async () => addMentionedAuthorsToWorkspace(node),
+        onMenuItemClick: async () => addMentionedAuthorsToWorkspace(node),
       },
     ];
 
@@ -98,12 +98,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Show Top 10 authors",
         icon: <TweetIcon />,
-          onMenuItemClick: async () => highlightUsersForHashtag(node),
+        onMenuItemClick: async () => highlightUsersForHashtag(node),
       },
       {
         label: "Show Top 10 tweets",
         icon: <HashtagIcon />,
-          onMenuItemClick: async () => addHashtagTopAuthors(node),
+        onMenuItemClick: async () => addHashtagTopAuthors(node),
       },
     ];
 
@@ -190,29 +190,17 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     communityId: string,
     numberOfAuthors: number,
   ) => {
-    try {
-      const data = await GraphApiService.addTopAuthorsFromCommunity(
-        communityId,
-        numberOfAuthors,
-      );
-      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
-      setWorkspaceData({
-        nodes: data.nodes || [],
-        links: data.links || [],
-      });
-
-      const message =
-        numberOfAuthors === -1
-          ? `Entire community "${communityId}" added`
-          : `Top ${numberOfAuthors} authors from community "${communityId}" added`;
-
-      showNotification(message, BannerType.SUCCESS);
-    } catch (error) {
-      showNotification(
-        `Failed to add authors from community "${communityId}"`,
-        BannerType.ERROR,
-      );
-    }
+    handleGraphUpdate(
+      () =>
+        GraphApiService.addTopAuthorsFromCommunity(
+          communityId,
+          numberOfAuthors,
+        ),
+      numberOfAuthors === -1
+        ? `Entire community "${communityId}" added`
+        : `Top ${numberOfAuthors} authors from community "${communityId}" added`,
+      `Failed to add authors from community "${communityId}"`,
+    );
   };
 
   const areGraphDataEqual = (

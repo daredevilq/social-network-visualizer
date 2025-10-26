@@ -2,10 +2,10 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
-import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
-import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.Author;
 import com.example.social_network_visualizer_backend.repository.CommunityRepository;
 import com.example.social_network_visualizer_backend.repository.GraphMenuRepository;
