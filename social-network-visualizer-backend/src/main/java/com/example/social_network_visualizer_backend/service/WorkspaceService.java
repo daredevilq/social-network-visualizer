@@ -183,7 +183,7 @@ public class WorkspaceService {
     projectRepository.save(project);
   }
 
-  private void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
+  public void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
     if (node == null || node.getNodeType() == null) {
       log.warn("Node or node type is null – cannot update workspace flag.");
       return;
