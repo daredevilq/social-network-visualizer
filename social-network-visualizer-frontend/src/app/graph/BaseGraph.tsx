@@ -412,7 +412,19 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         {selectedNodeIds.length > 0 && (
           <button
             onClick={() => analyzeSelectedNodes()}
-            className="px-3 py-2 bg-[#384EB3] text-white border-none rounded-md cursor-pointer"
+            // TODO remove that in the future and implement logic for working in workspace mode
+            disabled={isInWorkspaceMode}
+            className={`
+                  px-3 py-2 rounded-md border-none
+                  bg-[#384EB3] text-white cursor-pointer
+                  hover:bg-[#2d3f99]
+                  transition-colors
+              
+                  disabled:bg-[#7382D1]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                  disabled:hover:bg-[#7382D1]
+                `}
           >
             Analyze
           </button>

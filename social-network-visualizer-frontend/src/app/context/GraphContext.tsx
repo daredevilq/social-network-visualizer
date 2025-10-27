@@ -50,8 +50,10 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isInWorkspaceMode, projectData, workspaceData]);
 
   const resetGraphData = async () => {
-    await loadWorkspace(openedWorkspaceName!);
-    await fetchWorkspaceData(openedWorkspaceName!);
+    if (isInWorkspaceMode) {
+      await loadWorkspace(openedWorkspaceName!);
+      await fetchWorkspaceData(openedWorkspaceName!);
+    }
     setGraphData(isInWorkspaceMode ? workspaceData : projectData);
     setHasUnsavedChanges(false);
     showNotification("Graph has been reset.", BannerType.INFO);

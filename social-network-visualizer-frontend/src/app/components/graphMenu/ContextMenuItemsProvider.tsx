@@ -130,7 +130,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   }
 
   const addLatestTweets = async (authorId: string) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.addAuthorsLatestTweets(authorId),
       `Loaded top 10 tweets for "${authorId}"`,
       `Failed to load tweets for "${authorId}"`,
@@ -138,7 +138,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const removeNodeFromWorkspace = async (node: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.removeNodeFromWorkspace(node),
       `Node "${node.id}" removed`,
       `Failed to remove node "${node.id}"`,
@@ -146,7 +146,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const addTweetAuthorToWorkspace = async (tweetNode: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.addTweetAuthorToWorkspace(tweetNode),
       `Added author of tweet "${tweetNode.id}"`,
       `Failed to add author of tweet "${tweetNode.id}"`,
@@ -154,7 +154,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const addTweetHashtagsToWorkspace = async (tweetNode: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.addTweetHashtagsToWorkspace(tweetNode),
       `Added hashtags from tweet "${tweetNode.id}"`,
       `Failed to add hashtags from tweet "${tweetNode.id}"`,
@@ -162,7 +162,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const addMentionedAuthorsToWorkspace = async (tweetNode: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.addMentionedAuthorsToWorkspace(tweetNode),
       `Added mentioned authors from tweet  "${tweetNode.id}"`,
       `Failed to add mentioned authors from tweet "${tweetNode.id}"`,
@@ -170,7 +170,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.highlightUsersForHashtag(hashtagNode),
       `Highlighted top 10 users for hashtag"${hashtagNode.id}"`,
       `Failed to highlight top users for hashtag "${hashtagNode.id}"`,
@@ -178,7 +178,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const addHashtagTopAuthors = async (hashtagNode: GraphNode) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () => GraphApiService.addHashtagTopAuthors(hashtagNode),
       `Added top 5 tweets for hashtag "${hashtagNode.id}"`,
       `Failed to add top tweets for hashtag "${hashtagNode.id}"`,
@@ -189,7 +189,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     communityId: string,
     numberOfAuthors: number,
   ) => {
-    handleGraphUpdate(
+    await handleGraphUpdate(
       () =>
         GraphApiService.addTopAuthorsFromCommunity(
           communityId,
@@ -207,7 +207,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     newData: GraphData,
   ): boolean => {
     if (
-      currentData.nodes.length !== newData.nodes.length &&
+      currentData.nodes.length !== newData.nodes.length ||
       currentData.links.length !== newData.links.length
     ) {
       return false;
