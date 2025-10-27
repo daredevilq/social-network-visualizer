@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
@@ -125,5 +126,9 @@ public class GraphService {
     }
 
     return new GraphQueryRequest(nodeTypes, relationTypes);
+  }
+
+  public List<NodeSearchDto> getSuggestions(String query) {
+    return graphRepository.performSearch(query);
   }
 }

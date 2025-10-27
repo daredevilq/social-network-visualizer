@@ -44,7 +44,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getAuthorMenuItems = (node: AuthorNode): MenuItem[] => {
     const authorItems: MenuItem[] = [
       {
-        label: "Add Latest 10 Tweets",
+        label: "Add latest 10 tweets",
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addLatestTweets(node.id),
       },
@@ -74,14 +74,19 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getTweetMenuItems = (node: GraphNode): MenuItem[] => {
     const tweetItems: MenuItem[] = [
       {
-        label: "Show hashtags",
-        icon: <TweetIcon />,
-        onMenuItemClick: () => console.log("Show tweet:", node.id),
-      },
-      {
         label: "Show Author",
         icon: <ProfileIcon />,
-        onMenuItemClick: () => console.log("Show author for tweet:", node.id),
+        onMenuItemClick: async () => addTweetAuthorToWorkspace(node),
+      },
+      {
+        label: "Show hashtags",
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addTweetHashtagsToWorkspace(node),
+      },
+      {
+        label: "Show mentioned users",
+        icon: <ProfileIcon />,
+        onMenuItemClick: async () => addMentionedAuthorsToWorkspace(node),
       },
     ];
 
@@ -93,82 +98,108 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       {
         label: "Show Top 10 authors",
         icon: <TweetIcon />,
-        onMenuItemClick: () => console.log("Show Top 10 authors:", node.id),
+        onMenuItemClick: async () => highlightUsersForHashtag(node),
       },
       {
         label: "Show Top 10 tweets",
         icon: <HashtagIcon />,
-        onMenuItemClick: () => console.log("Show Top 10 tweets:", node.id),
+        onMenuItemClick: async () => addHashtagTopAuthors(node),
       },
     ];
 
     return [...hashtagItems, ...getCommonMenuItems(node)];
   };
 
-  const addLatestTweets = async (authorId: string) => {
+  async function handleGraphUpdate<T>(
+    action: () => Promise<GraphData>,
+    successMessage: string,
+    errorMessage: string,
+  ) {
     try {
-      const data = await GraphApiService.addAuthorsLatestTweets(authorId);
+      const data = await action();
       setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
       setWorkspaceData({
-        nodes: data.nodes || [],
-        links: data.links || [],
+        nodes: data.nodes,
+        links: data.links,
       });
 
-      showNotification(
-        `Loaded top 10 tweets for "${authorId}"`,
-        BannerType.SUCCESS,
-      );
-    } catch (error) {
-      showNotification(
-        `Failed to load tweets for "${authorId}"`,
-        BannerType.ERROR,
-      );
+      showNotification(successMessage, BannerType.SUCCESS);
+    } catch (_err) {
+      showNotification(errorMessage, BannerType.ERROR);
     }
+  }
+
+  const addLatestTweets = async (authorId: string) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addAuthorsLatestTweets(authorId),
+      `Loaded top 10 tweets for "${authorId}"`,
+      `Failed to load tweets for "${authorId}"`,
+    );
   };
 
   const removeNodeFromWorkspace = async (node: GraphNode) => {
-    try {
-      const data = await GraphApiService.removeNodeFromWorkspace(node);
-      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
+    await handleGraphUpdate(
+      () => GraphApiService.removeNodeFromWorkspace(node),
+      `Node "${node.id}" removed`,
+      `Failed to remove node "${node.id}"`,
+    );
+  };
 
-      setWorkspaceData({
-        nodes: data.nodes || [],
-        links: data.links || [],
-      });
+  const addTweetAuthorToWorkspace = async (tweetNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addTweetAuthorToWorkspace(tweetNode),
+      `Added author of tweet "${tweetNode.id}"`,
+      `Failed to add author of tweet "${tweetNode.id}"`,
+    );
+  };
 
-      showNotification(`Node "${node.id} removed"`, BannerType.SUCCESS);
-    } catch (error) {
-      showNotification(`Failed to remove node "${node.id}"`, BannerType.ERROR);
-    }
+  const addTweetHashtagsToWorkspace = async (tweetNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addTweetHashtagsToWorkspace(tweetNode),
+      `Added hashtags from tweet "${tweetNode.id}"`,
+      `Failed to add hashtags from tweet "${tweetNode.id}"`,
+    );
+  };
+
+  const addMentionedAuthorsToWorkspace = async (tweetNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addMentionedAuthorsToWorkspace(tweetNode),
+      `Added mentioned authors from tweet  "${tweetNode.id}"`,
+      `Failed to add mentioned authors from tweet "${tweetNode.id}"`,
+    );
+  };
+
+  const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.highlightUsersForHashtag(hashtagNode),
+      `Highlighted top 10 users for hashtag"${hashtagNode.id}"`,
+      `Failed to highlight top users for hashtag "${hashtagNode.id}"`,
+    );
+  };
+
+  const addHashtagTopAuthors = async (hashtagNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addHashtagTopAuthors(hashtagNode),
+      `Added top 5 tweets for hashtag "${hashtagNode.id}"`,
+      `Failed to add top tweets for hashtag "${hashtagNode.id}"`,
+    );
   };
 
   const addAuthorCommunityToWorkspace = async (
     communityId: string,
     numberOfAuthors: number,
   ) => {
-    try {
-      const data = await GraphApiService.addTopAuthorsFromCommunity(
-        communityId,
-        numberOfAuthors,
-      );
-      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
-      setWorkspaceData({
-        nodes: data.nodes || [],
-        links: data.links || [],
-      });
-
-      const message =
-        numberOfAuthors === -1
-          ? `Entire community "${communityId}" added`
-          : `Top ${numberOfAuthors} authors from community "${communityId}" added`;
-
-      showNotification(message, BannerType.SUCCESS);
-    } catch (error) {
-      showNotification(
-        `Failed to add authors from community "${communityId}"`,
-        BannerType.ERROR,
-      );
-    }
+    await handleGraphUpdate(
+      () =>
+        GraphApiService.addTopAuthorsFromCommunity(
+          communityId,
+          numberOfAuthors,
+        ),
+      numberOfAuthors === -1
+        ? `Entire community "${communityId}" added`
+        : `Top ${numberOfAuthors} authors from community "${communityId}" added`,
+      `Failed to add authors from community "${communityId}"`,
+    );
   };
 
   const areGraphDataEqual = (
@@ -176,7 +207,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     newData: GraphData,
   ): boolean => {
     if (
-      currentData.nodes.length !== newData.nodes.length &&
+      currentData.nodes.length !== newData.nodes.length ||
       currentData.links.length !== newData.links.length
     ) {
       return false;
