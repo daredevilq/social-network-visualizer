@@ -1,85 +1,19 @@
 "use client";
-
 import React from "react";
-import { NodeType } from "@/types/GraphTypes";
-import { MenuComponentProps, MenuItem } from "@/app/interface/Menu";
-import {
-  ConnectionsIcon,
-  HashtagIcon,
-  HideIcon,
-  ProfileIcon,
-  TweetIcon,
-} from "./MenuIcons";
+import { MenuComponentProps, MenuDefinition } from "@/app/interface/Menu";
+import MenuItem from "@/app/components/graphMenu/MenuItem";
 
 const MenuComponent: React.FC<MenuComponentProps> = ({
-  node,
+  items,
   position,
   onClose,
 }) => {
-  if (!node) return null;
+  if (!items || items.length === 0) return null;
 
-  const getMenuItems = (nodeType: NodeType): MenuItem[] => {
-    const commonHideItem: MenuItem = {
-      label: "Hide Node",
-      icon: <HideIcon />,
-      onClick: () => console.log("Hide node:", node.id),
-      isSeparator: true,
-    };
-
-    switch (nodeType) {
-      case NodeType.AUTHOR:
-        return [
-          {
-            label: "Show Top 10 Tweets",
-            icon: <ProfileIcon />,
-            onClick: () => console.log("Show Top 10 Tweets:", node.id),
-          },
-          {
-            label: "Show most related users",
-            icon: <ConnectionsIcon />,
-            onClick: () => console.log("Show connections:", node.id),
-          },
-          commonHideItem,
-        ];
-      case NodeType.TWEET:
-        return [
-          {
-            label: "Show hashtags",
-            icon: <TweetIcon />,
-            onClick: () => console.log("Show tweet:", node.id),
-          },
-          {
-            label: "Show Author",
-            icon: <ProfileIcon />,
-            onClick: () => console.log("Show author for tweet:", node.id),
-          },
-          commonHideItem,
-        ];
-      case NodeType.HASHTAG:
-        return [
-          {
-            label: "Show Top 10 authors",
-            icon: <TweetIcon />,
-            onClick: () => console.log("Show Top 10 authors:", node.id),
-          },
-          {
-            label: "Show Top 10 tweets",
-            icon: <HashtagIcon />,
-            onClick: () => console.log("Show Top 10 tweets:", node.id),
-          },
-          commonHideItem,
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const handleItemClick = (handler: () => void) => {
+  const handleItemClickAndCloseMenu = (handler: () => void) => {
     handler();
     onClose();
   };
-
-  const menuItems = getMenuItems(node.nodeType);
 
   return (
     <>
@@ -90,16 +24,20 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
         style={{ top: position.y, left: position.x }}
         onClick={(e) => e.stopPropagation()}
       >
-        {menuItems.map((item, index) => (
-          <React.Fragment key={index}>
-            {item.isSeparator && <div className="h-[1px] bg-[#3f3f4d] my-1" />}
-            <div
-              className="flex items-center gap-3 px-3 py-1.5 text-sm text-neutral-200 hover:bg-[#3f3f4d] cursor-pointer transition-colors duration-150 rounded-md mx-1"
-              onClick={() => handleItemClick(item.onClick)}
-            >
-              <span className="text-neutral-400">{item.icon}</span>
-              <span>{item.label}</span>
-            </div>
+        {items.map((menuItem: MenuDefinition, index: number) => (
+          <React.Fragment key={`${menuItem.label}-${index}`}>
+            {menuItem.isSeparator && (
+              <div className="h-[1px] bg-[#3f3f4d] my-1" role="separator" />
+            )}
+
+            <MenuItem
+              label={menuItem.label}
+              icon={menuItem.icon}
+              onMenuItemClick={menuItem.onMenuItemClick}
+              isActive={menuItem.isActive}
+              submenu={menuItem.submenu}
+              onItemActivated={handleItemClickAndCloseMenu}
+            />
           </React.Fragment>
         ))}
       </div>
@@ -114,6 +52,10 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
             opacity: 1;
             transform: scale(1);
           }
+        }
+
+        .animate-fade-in-scale {
+          animation: fadeInScale 0.1s ease-out forwards;
         }
       `}</style>
     </>

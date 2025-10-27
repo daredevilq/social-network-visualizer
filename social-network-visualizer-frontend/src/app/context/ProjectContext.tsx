@@ -240,11 +240,11 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (!Array.isArray(data?.nodes) || !Array.isArray(data?.edges)) {
+        if (!Array.isArray(data?.nodes) || !Array.isArray(data?.links)) {
           showNotification("Graph data format is invalid.", BannerType.ERROR);
           return;
         }
-        const links: GraphLink[] = data.edges.map((edge: GraphLink) => ({
+        const links: GraphLink[] = data.links.map((edge: GraphLink) => ({
           source: edge.source,
           target: edge.target,
           relation: edge.relation ?? "unknown",

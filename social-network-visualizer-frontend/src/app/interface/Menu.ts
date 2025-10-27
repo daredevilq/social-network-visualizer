@@ -1,20 +1,33 @@
-import { JSX } from "react";
-import { GraphNode } from "@/types/GraphTypes";
+import React from "react";
 
 export interface Position {
   x: number;
   y: number;
 }
 
-export interface MenuComponentProps {
-  node: GraphNode | null;
-  position: Position;
-  onClose: () => void;
-}
-
 export interface MenuItem {
   label: string;
-  icon: JSX.Element;
-  onClick: () => void;
+  icon?: React.ReactNode;
+  onMenuItemClick?: () => void;
+  isActive?: boolean;
   isSeparator?: boolean;
+  submenu?: MenuItem[];
+}
+
+export interface MenuState {
+  items: MenuItem[];
+  position: Position;
+}
+
+export interface MenuDefinition extends MenuItem {}
+
+export interface MenuComponentProps {
+  items: MenuItem[];
+  position: Position;
+  onClose: () => void;
+  subMenu?: boolean;
+}
+
+export interface MenuItemComponentProps extends MenuItem {
+  onItemActivated: (handler: () => void) => void;
 }
