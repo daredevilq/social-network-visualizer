@@ -1,4 +1,10 @@
-import { AuthorNode, GraphNode, NodeType } from "@/types/GraphTypes";
+import {
+  AuthorNode,
+  GraphNode,
+  HashtagNode,
+  NodeType,
+  TweetNode,
+} from "@/types/GraphTypes";
 import NodeColors from "@/app/model/NodeColors";
 import { MenuItem } from "@/app/interface/Menu";
 import { MenuItemsGetters } from "@/app/components/graphMenu/ContextMenuItemsProvider";
@@ -60,8 +66,7 @@ class AuthorNodeStrategy implements INodeStrategy {
     node: GraphNode,
     menuItemsGetters: MenuItemsGetters,
   ): MenuItem[] {
-    console.log("Right click on AUTHOR node:", node.id);
-    return menuItemsGetters.getAuthorMenuItems(node);
+    return menuItemsGetters.getAuthorMenuItems(node as AuthorNode);
   }
 }
 
@@ -93,8 +98,7 @@ class TweetNodeStrategy implements INodeStrategy {
     node: GraphNode,
     menuItemsGetters: MenuItemsGetters,
   ): MenuItem[] {
-    console.log("Right click on TWEET node:", node.id);
-    return menuItemsGetters.getTweetMenuItems(node);
+    return menuItemsGetters.getTweetMenuItems(node as TweetNode);
   }
 }
 
@@ -126,8 +130,7 @@ class HashtagNodeStrategy implements INodeStrategy {
     node: GraphNode,
     menuItemsGetters: MenuItemsGetters,
   ): MenuItem[] {
-    console.log("Right click on HASHTAG node:", node.id);
-    return menuItemsGetters.getHashtagMenuItems(node);
+    return menuItemsGetters.getHashtagMenuItems(node as HashtagNode);
   }
 }
 

@@ -8,9 +8,10 @@ export interface Position {
 export interface MenuItem {
   label: string;
   icon?: React.ReactNode;
-  onClick: () => void;
+  onMenuItemClick?: () => void;
   isActive?: boolean;
   isSeparator?: boolean;
+  submenu?: MenuItem[];
 }
 
 export interface MenuState {
@@ -24,4 +25,9 @@ export interface MenuComponentProps {
   items: MenuItem[];
   position: Position;
   onClose: () => void;
+  subMenu?: boolean;
+}
+
+export interface MenuItemComponentProps extends MenuItem {
+  onItemActivated: (handler: () => void) => void;
 }

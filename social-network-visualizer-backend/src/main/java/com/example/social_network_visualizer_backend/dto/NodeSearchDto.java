@@ -1,0 +1,17 @@
+package com.example.social_network_visualizer_backend.dto;
+
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class NodeSearchDto extends NodeDto {
+  private String content = null;
+}
