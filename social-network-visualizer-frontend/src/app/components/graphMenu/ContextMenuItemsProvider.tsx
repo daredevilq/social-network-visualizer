@@ -124,7 +124,6 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       });
 
       showNotification(successMessage, BannerType.SUCCESS);
-      setHasUnsavedChanges(true);
     } catch (_err) {
       showNotification(errorMessage, BannerType.ERROR);
     }
