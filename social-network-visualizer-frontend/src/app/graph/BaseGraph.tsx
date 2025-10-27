@@ -31,6 +31,19 @@ import MenuComponent from "@/app/components/graphMenu/MenuComponent";
 import { MenuItem, MenuState } from "../interface/Menu";
 import { useContextMenuItems } from "@/app/components/graphMenu/ContextMenuItemsProvider";
 
+interface ForceParameters {
+  charge?: number;
+  link?: number;
+  collide?: number;
+  centerX?: number;
+  centerY?: number;
+  containerStrength?: number;
+}
+
+const easeInOutQuad = (t: number) => {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+};
+
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
     graphData,
@@ -54,8 +67,9 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const prevNodeCount = useRef(0);
   const prevLinkCount = useRef(0);
 
-  const unfreezeTimer = useRef<NodeJS.Timeout>(null);
-  const forceRampInterval = useRef<NodeJS.Timer | null>(null);
+  const unfreezeTimer = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const animationStartRef = useRef<number | null>(null);
 
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -66,7 +80,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     items: [],
     position: { x: 0, y: 0 },
   });
-
   const {
     setIsSidebarOpen,
     setSelectedUserData,
@@ -82,38 +95,94 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   } = useWorkspace();
   const { setGraphData, resetGraphData } = useGraph();
 
+  const applyForces = useCallback((params: ForceParameters) => {
+    if (!fgInstance.current) return;
+
+    const { charge, link, collide, centerX, centerY, containerStrength } =
+      params;
+
+    if (link !== undefined) {
+      fgInstance.current.d3Force(
+        "link",
+        forceLink<GraphNode, GraphLink>()
+          .id((d: GraphNode) => d.id)
+          .strength(link),
+      );
+    }
+    if (collide !== undefined) {
+      fgInstance.current.d3Force(
+        "collide",
+        forceCollide()
+          .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+          .strength(collide),
+      );
+    }
+    if (charge !== undefined)
+      fgInstance.current.d3Force(
+        "charge",
+        forceManyBody().distanceMin(10).strength(charge),
+      );
+    if (centerX !== undefined)
+      fgInstance.current.d3Force(
+        "container_x",
+        forceX(centerX).strength(containerStrength ?? 0.005),
+      );
+    if (centerY !== undefined)
+      fgInstance.current.d3Force(
+        "container_y",
+        forceY(centerY).strength(containerStrength ?? 0.005),
+      );
+  }, []);
+
+  const handleNodeLeftClick = useCallback((node: GraphNode) => {
+    nodeStrategy.handleNodeLeftClick(
+      node,
+      setSelectedUserData,
+      setIsSidebarOpen,
+    );
+  }, []);
+
+  const handleNodeRightClick = useCallback(
+    (node: GraphNode, event: MouseEvent) => {
+      if (isInWorkspaceMode) {
+        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(
+          node,
+          menuItemsGetters,
+        );
+        setMenu({
+          items: menuItems,
+          position: { x: event.clientX, y: event.clientY },
+        });
+      }
+    },
+    [isInWorkspaceMode],
+  );
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(
       containerRef.current,
     );
-    fgInstance.current.d3Force(
-      "charge",
-      forceManyBody().distanceMin(10).strength(-200),
-    );
-    fgInstance.current.d3Force(
-      "collide",
-      forceCollide()
-        .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-        .strength(0.3),
-    );
-    fgInstance.current.d3Force("container_x", forceX(0).strength(0.005));
-    fgInstance.current.d3Force("container_y", forceY(0).strength(0.005));
-    fgInstance.current.d3Force(
-      "link",
-      forceLink<GraphNode, GraphLink>()
-        .id((d: GraphNode) => d.id)
-        .strength(0.7),
-    );
+
+    applyForces({
+      charge: -200,
+      collide: 0.3,
+      centerX: 0,
+      centerY: 0,
+      link: 0.7,
+    });
+
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
         const { offsetWidth, offsetHeight } = containerRef.current;
-        fgInstance.current
-          .width(offsetWidth)
-          .height(offsetHeight)
-          .d3Force("container_x", forceX(offsetWidth / 2).strength(0.01))
-          .d3Force("container_y", forceY(offsetHeight / 2).strength(0.01));
+        fgInstance.current.width(offsetWidth).height(offsetHeight);
+
+        applyForces({
+          centerX: offsetWidth / 2,
+          centerY: offsetHeight / 2,
+          containerStrength: 0.01,
+        });
       }
     };
 
@@ -121,13 +190,19 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     handleResize();
 
     return () => {
+      if (unfreezeTimer.current) {
+        clearTimeout(unfreezeTimer.current);
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       if (fgInstance.current) {
         fgInstance.current._destructor();
       }
       fgInstance.current = null;
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [applyForces]);
 
   useEffect(() => {
     displayGraphData();
@@ -239,31 +314,10 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     linkDirectionalArrowLength,
     linkDirectionalArrowRelPos,
     selectedNodeIds,
+    handleNodeLeftClick,
+    handleNodeRightClick,
+    showLabels,
   ]);
-
-  const handleNodeLeftClick = useCallback((node: GraphNode) => {
-    nodeStrategy.handleNodeLeftClick(
-      node,
-      setSelectedUserData,
-      setIsSidebarOpen,
-    );
-  }, []);
-
-  const handleNodeRightClick = useCallback(
-    (node: GraphNode, event: MouseEvent) => {
-      if (isInWorkspaceMode) {
-        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(
-          node,
-          menuItemsGetters,
-        );
-        setMenu({
-          items: menuItems,
-          position: { x: event.clientX, y: event.clientY },
-        });
-      }
-    },
-    [isInWorkspaceMode],
-  );
 
   const handleCloseMenu = useCallback(() => {
     setMenu((prev: MenuState) => ({ ...prev, items: [] }));
@@ -294,24 +348,71 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setFocusedCommunityId(undefined);
   };
 
-  const displayGraphData = () => {
+  const startForceAnimation = useCallback(() => {
+    const startCharge = 0,
+      endCharge = -200;
+    const startLink = 0.01,
+      endLink = 0.7;
+    const startCollide = 0.01,
+      endCollide = 0.3;
+    const duration = 1500;
+
+    applyForces({
+      charge: startCharge,
+      link: startLink,
+      collide: startCollide,
+    });
+
+    animationStartRef.current = performance.now();
+    animationFrameRef.current = requestAnimationFrame(animateForces);
+
+    function animateForces(now: number) {
+      if (!animationStartRef.current || !fgInstance.current) return;
+
+      const elapsed = now - animationStartRef.current;
+      let t = elapsed / duration;
+
+      if (t >= 1) {
+        applyForces({ charge: endCharge, link: endLink, collide: endCollide });
+        animationStartRef.current = null;
+        animationFrameRef.current = null;
+        return;
+      }
+
+      // W trakcie animacji
+      const easedT = easeInOutQuad(t);
+      const newCharge = startCharge + (endCharge - startCharge) * easedT;
+      const newLink = startLink + (endLink - startLink) * easedT;
+      const newCollide = startCollide + (endCollide - startCollide) * easedT;
+
+      applyForces({ charge: newCharge, link: newLink, collide: newCollide });
+
+      // Kontynuuj pętlę
+      animationFrameRef.current = requestAnimationFrame(animateForces);
+    }
+  }, [applyForces]); // Zależność od applyForces
+
+  const displayGraphData = useCallback(() => {
     if (!fgInstance.current) return;
 
     if (
       graphData.nodes.length === prevNodeCount.current &&
       graphData.links.length === prevLinkCount.current
     ) {
-      console.log("Optymalizacja: Liczba węzłów i linków bez zmian. Pomijam.");
-      return; // Zatrzymaj funkcję tutaj
+      return;
     }
 
-    // KROK 4 (Odmrażanie): Wyczyść poprzedni timer, jeśli istnieje
     if (unfreezeTimer.current) {
       clearTimeout(unfreezeTimer.current);
+      unfreezeTimer.current = null;
     }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    animationStartRef.current = null;
 
     // --- LOGIKA WYKRYWANIA I MROŻENIA ---
-
     // 1. Pobierz aktualne węzły *z symulacji* (mają pozycje x, y)
     const currentNodesInGraph: (GraphNode & {
       x?: number;
@@ -320,7 +421,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       fy?: number;
     })[] = fgInstance.current.graphData().nodes;
     const currentNodesMap = new Map(
-      currentNodesInGraph.map((node) => [node.id, node]),
+      currentNodesInGraph.map((node: GraphNode) => [node.id, node]),
     );
 
     // 2. KROK 1 (Wykrywanie): Sprawdź, czy dodajemy węzły
@@ -331,12 +432,13 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     // 3. KROK 3 (Pozycja startowa): Znajdź pozycję "rodzica"
     let sourceNodePosition = { x: 0, y: 0 };
     if (isAddingNodes) {
-      const firstNewNode = graphData.nodes.find(
-        (n) => !currentNodesMap.has(n.id),
+      const firstNewNode: GraphNode | undefined = graphData.nodes.find(
+        (n: GraphNode) => !currentNodesMap.has(n.id),
       );
       if (firstNewNode) {
-        const link = graphData.links.find(
-          (l) => l.source === firstNewNode.id || l.target === firstNewNode.id,
+        const link: GraphLink | undefined = graphData.links.find(
+          (l: GraphLink) =>
+            l.source === firstNewNode.id || l.target === firstNewNode.id,
         );
         if (link) {
           const parentId =
@@ -359,7 +461,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     // --- TWOJA OBECNA LOGIKA FILTROWANIA (bez zmian) ---
 
     const nodesByType = new Map<NodeType, GraphNode[]>();
-    graphData.nodes.forEach((node) => {
+    graphData.nodes.forEach((node: GraphNode) => {
       if (!nodesByType.has(node.nodeType)) {
         nodesByType.set(node.nodeType, []);
       }
@@ -376,8 +478,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     // --- NOWA LOGIKA TWORZENIA FINALNEJ LISTY WĘZŁÓW ---
 
-    const finalNodes = topNodes.map((node) => {
-      const existingNode = currentNodesMap.get(node.id);
+    const finalNodes: GraphNode[] = topNodes.map((node: GraphNode) => {
+      const existingNode: GraphNode | undefined = currentNodesMap.get(node.id);
 
       if (isAddingNodes) {
         // POPRAWKA 2: Bardziej rygorystyczne mrożenie
@@ -426,8 +528,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     // KROK 4: PŁYNNE ODMRAŻANIE (WERSJA OSTATECZNA)
     if (isAddingNodes) {
-      // @ts-ignore
-      unfreezeTimer.current = setTimeout(() => {
+      unfreezeTimer.current = window.setTimeout(() => {
         if (!fgInstance.current) return;
 
         // 1. Odmrożenie WSZYSTKICH węzłów
@@ -440,111 +541,10 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
         // 2. Rozpocznij PŁYNNĄ RAMPĘ WSZYSTKICH SIŁ
 
-        // --- Definicje sił ---
-        const startCharge = 0; // Zaczynamy od braku odpychania
-        const endCharge = -200; // Docelowa siła
-
-        const startLink = 0.01; // Prawie zerowe przyciąganie linków
-        const endLink = 0.7; // Docelowa siła
-
-        const startCollide = 0.01; // Prawie zerowa kolizja
-        const endCollide = 0.3; // Docelowa siła
-
-        const duration = 1500; // Czas animacji (1.5 sekundy)
-        const steps = 30; // Liczba kroków (płynność)
-        const stepDuration = duration / steps;
-        let currentStep = 0;
-
-        // --- Funkcja "easing" (dla naturalnego ruchu) ---
-        // To jest "ease-in-out": wolno rusza, przyspiesza w środku, wolno zwalnia
-        const easeInOutQuad = (t: number) => {
-          return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        };
-
-        // --- "Obudź" symulację z minimalnymi siłami ---
-        // Ważne: musimy re-definiować całą siłę, łącznie z jej parametrami (.id, .radius)
-        fgInstance.current.d3Force(
-          "charge",
-          forceManyBody().distanceMin(10).strength(startCharge),
-        );
-        fgInstance.current.d3Force(
-          "link",
-          forceLink<GraphNode, GraphLink>()
-            .id((d: GraphNode) => d.id)
-            .strength(startLink),
-        );
-        fgInstance.current.d3Force(
-          "collide",
-          forceCollide()
-            .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-            .strength(startCollide),
-        );
-
-        // --- Rozpocznij interwał, który będzie zwiększał siłę ---
-        // @ts-ignore
-        forceRampInterval.current = setInterval(() => {
-          if (!fgInstance.current) {
-            // @ts-ignore
-            if (forceRampInterval.current)
-              clearInterval(forceRampInterval.current);
-            return;
-          }
-
-          currentStep++;
-          const t = currentStep / steps; // Progres liniowy (0.0 do 1.0)
-          const easedT = easeInOutQuad(t); // Progres z "easingiem"
-
-          // Oblicz nowe siły na podstawie "easingu"
-          const newCharge = startCharge + (endCharge - startCharge) * easedT;
-          const newLink = startLink + (endLink - startLink) * easedT;
-          const newCollide =
-            startCollide + (endCollide - startCollide) * easedT;
-
-          // Zastosuj WSZYSTKIE trzy siły
-          fgInstance.current.d3Force(
-            "charge",
-            forceManyBody().distanceMin(10).strength(newCharge),
-          );
-          fgInstance.current.d3Force(
-            "link",
-            forceLink<GraphNode, GraphLink>()
-              .id((d: GraphNode) => d.id)
-              .strength(newLink),
-          );
-          fgInstance.current.d3Force(
-            "collide",
-            forceCollide()
-              .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-              .strength(newCollide),
-          );
-
-          // Zakończ interwał po osiągnięciu celu
-          if (currentStep >= steps) {
-            // @ts-ignore
-            if (forceRampInterval.current)
-              clearInterval(forceRampInterval.current);
-            // Na wszelki wypadek ustaw finalne siły
-            fgInstance.current.d3Force(
-              "charge",
-              forceManyBody().distanceMin(10).strength(endCharge),
-            );
-            fgInstance.current.d3Force(
-              "link",
-              forceLink<GraphNode, GraphLink>()
-                .id((d: GraphNode) => d.id)
-                .strength(endLink),
-            );
-            fgInstance.current.d3Force(
-              "collide",
-              forceCollide()
-                .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-                .strength(endCollide),
-            );
-          }
-        }, stepDuration) as unknown as NodeJS.Timeout;
+        startForceAnimation();
       }, 3000); // Odmroź po 3 sekundach
     }
-  };
+  }, [graphData, startForceAnimation]);
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     setIsSidebarOpen(false);
