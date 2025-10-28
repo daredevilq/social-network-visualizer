@@ -4,6 +4,9 @@ import { Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { NodeType } from "@/types/GraphTypes";
 import { FetchConfig } from "@/types/GraphQueryRequest";
+import { BannerType } from "@/app/components/Popups/Banner";
+import { useNotification } from "@/app/context/NotificationProvider";
+import { DEFAULT_FETCH_CONFIG } from "@/app/utils/defaultFetchConfig";
 
 interface Props {
   open: boolean;
@@ -20,11 +23,10 @@ export default function FetchConfigModal({
   currentConfig,
   selectedNodeTypes,
 }: Props) {
-  const [localLimits, setLocalLimits] = useState<Record<NodeType, number>>({
-    [NodeType.AUTHOR]: 100,
-    [NodeType.TWEET]: 100,
-    [NodeType.HASHTAG]: 100,
-  });
+  const [localLimits, setLocalLimits] = useState<Record<NodeType, number>>(
+    DEFAULT_FETCH_CONFIG.nodeLimits!,
+  );
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (open && currentConfig.nodeLimits) {
@@ -37,6 +39,7 @@ export default function FetchConfigModal({
       ...currentConfig,
       nodeLimits: localLimits,
     });
+    showNotification("Fetch limits saved", BannerType.INFO);
     onClose();
   };
 

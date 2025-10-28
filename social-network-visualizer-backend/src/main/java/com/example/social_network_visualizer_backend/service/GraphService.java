@@ -95,13 +95,6 @@ public class GraphService {
             nodeType -> {
               NodeQueryStrategy strategy = findStrategyForNodeType(nodeType);
               Integer limit = fetchConfig.getLimitForNodeType(nodeType);
-
-              log.debug(
-                  "Fetching nodes: type={}, limit={}, strategy={}",
-                  nodeType,
-                  limit != null ? limit : "UNLIMITED",
-                  fetchConfig.strategy());
-
               return strategy.fetchNodes(communityId, inWorkspace, limit).stream();
             })
         .collect(Collectors.toList());

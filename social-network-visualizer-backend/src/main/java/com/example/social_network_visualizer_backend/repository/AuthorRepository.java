@@ -147,14 +147,16 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
       """
                 MATCH (a:Author)
                 WHERE $inWorkspace = false OR a.isInWorkspace = true
-                ORDER BY a.pagerank DESC
+                OPTIONAL MATCH (a)-[r]-()
+                WITH a, count(r) AS relationshipCount
+                ORDER BY relationshipCount DESC
+                LIMIT $limit
                 RETURN
                     a.userName AS id,
                     'AUTHOR' AS nodeType,
                     a.pagerank AS pagerank,
                     a.degreeCentrality AS centrality,
                     a.community AS community
-                LIMIT $limit
             """)
   List<AuthorNodeDto> findAuthors(
       @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);

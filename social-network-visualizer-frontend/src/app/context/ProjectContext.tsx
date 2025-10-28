@@ -30,6 +30,7 @@ import {
   FetchStrategy,
   GraphQueryRequest,
 } from "@/types/GraphQueryRequest";
+import { DEFAULT_FETCH_CONFIG } from "@/app/utils/defaultFetchConfig";
 
 interface Context {
   loadedProjectName: string | null;
@@ -99,14 +100,7 @@ const ProjectContext = createContext<Context>({
   setSelectedGraphType: () => {},
   showLabels: false,
   setShowLabels: () => {},
-  fetchConfig: {
-    strategy: FetchStrategy.LIMIT_PER_TYPE,
-    nodeLimits: {
-      [NodeType.AUTHOR]: 100,
-      [NodeType.TWEET]: 100,
-      [NodeType.HASHTAG]: 100,
-    },
-  },
+  fetchConfig: DEFAULT_FETCH_CONFIG,
   setFetchConfig: () => {},
 });
 
@@ -140,14 +134,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     GraphType.STANDARD,
   );
   const [showLabels, setShowLabels] = useState(false);
-  const [fetchConfig, setFetchConfig] = useState<FetchConfig>({
-    strategy: FetchStrategy.LIMIT_PER_TYPE,
-    nodeLimits: {
-      [NodeType.AUTHOR]: 100,
-      [NodeType.TWEET]: 100,
-      [NodeType.HASHTAG]: 100,
-    },
-  });
+  const [fetchConfig, setFetchConfig] =
+    useState<FetchConfig>(DEFAULT_FETCH_CONFIG);
   const { showNotification } = useNotification();
 
   useEffect(() => {

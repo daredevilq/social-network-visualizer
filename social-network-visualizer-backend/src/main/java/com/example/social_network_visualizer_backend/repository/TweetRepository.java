@@ -172,6 +172,10 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
       """
                 MATCH (t:Tweet)
                 WHERE $inWorkspace = false OR t.isInWorkspace = true
+                OPTIONAL MATCH (t)-[r]-()
+                WITH t, count(r) AS relationshipCount
+                ORDER BY relationshipCount DESC
+                LIMIT $limit
                 OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
                 RETURN
                     t.id AS id,
@@ -193,8 +197,6 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.likesCount AS likesCount,
                     a.userName AS authorName,
                     COALESCE(a.community, -1) AS community
-                ORDER BY t.publicationDate DESC
-                LIMIT $limit
             """)
   List<TweetNodeDto> findTweets(
       @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);

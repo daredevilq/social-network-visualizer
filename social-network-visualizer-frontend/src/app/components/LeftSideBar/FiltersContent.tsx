@@ -1,7 +1,7 @@
 "use client";
 
 import { useProject } from "@/app/context/ProjectContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Network,
   Layers,
@@ -43,11 +43,35 @@ export default function FiltersContent() {
   const [nodeSearchQuery, setNodeSearchQuery] = useState("");
   const [relationSearchQuery, setRelationSearchQuery] = useState("");
   const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
     setTempRelationTypes(selectedRelationTypes);
   }, [selectedNodeTypes, selectedRelationTypes]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      const isScrollable = container.scrollHeight > container.clientHeight;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 10;
+      setShowScrollHint(isScrollable && !isAtBottom);
+    };
+
+    checkScroll();
+    container.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+
+    return () => {
+      container.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [nodeTypesExpanded, relationTypesExpanded, fetchConfigExpanded]);
 
   const toggleNodeType = (nodeType: NodeType) => {
     setTempNodeTypes((prev) =>
@@ -93,7 +117,7 @@ export default function FiltersContent() {
           fetchConfig: fetchConfig,
         };
         await fetchGraphData(request);
-        showNotification("Filters applied successfully", BannerType.INFO);
+        showNotification("Filters applied successfully", BannerType.SUCCESS);
       } catch (err: any) {
         showNotification(
           `Error updating graph: ${err.message || err}`,
@@ -118,7 +142,10 @@ export default function FiltersContent() {
         Graph Filters
       </h1>
 
-      <div className="flex-1 overflow-y-auto space-y-4 scrollbar-dark">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto space-y-4 scrollbar-none"
+      >
         <div className="border border-gray-700 rounded-lg bg-[#30303d]">
           <button
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
@@ -311,6 +338,12 @@ export default function FiltersContent() {
           )}
         </div>
       </div>
+
+      {showScrollHint && (
+        <div className="absolute bottom-16 left-0 right-0 h-8 pointer-events-none flex items-center justify-center">
+          <ChevronDown className="w-5 h-5 text-[#7140F4] animate-bounce" />
+        </div>
+      )}
 
       <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
         <button
