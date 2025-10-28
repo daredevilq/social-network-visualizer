@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
+import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.model.Author;
 import java.util.List;
@@ -111,4 +112,33 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
     SET n.isInWorkspace = false
     """)
   void clearWorkspaceMembership();
+
+  @Query(
+      """
+                MATCH (a:Author)
+                WHERE toLower(a.userName) CONTAINS toLower($query)
+                RETURN
+                  a.userName AS id,
+                  'AUTHOR' AS nodeType,
+                  null AS content
+
+                UNION
+
+                MATCH (h:Hashtag)
+                WHERE toLower(h.hashtag) CONTAINS toLower($query)
+                RETURN
+                  h.hashtag AS id,
+                  'HASHTAG' AS nodeType,
+                  null AS content
+
+                UNION
+
+                MATCH (t:Tweet)
+                WHERE toLower(t.content) CONTAINS toLower($query)
+                RETURN
+                  t.id AS id,
+                  'TWEET' AS nodeType,
+                  t.content AS content
+            """)
+  List<NodeSearchDto> performSearch(@Param("query") String query);
 }

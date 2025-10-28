@@ -150,6 +150,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     fetchProjectState();
   }, []);
 
+  useEffect(() => {
+    if (loadedProjectName) {
+      fetchGraphData();
+    }
+  }, [loadedProjectName]);
+
   const runWithLoading = async <T,>(fn: () => Promise<T>): Promise<T> => {
     if (loading) return fn();
     setLoading(true);
@@ -170,7 +176,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         if (!res.ok) {
           throw new Error(`Failed to import project: ${res.statusText}`);
         }
-
         setLoadedProjectName(name);
         await setProjectName(name);
         setNodeFound(null);
@@ -179,8 +184,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           `Successfully loaded project: ${name}`,
           BannerType.SUCCESS,
         );
-
-        if (fetchData) await fetchGraphData(undefined, name);
       } catch (err) {
         showNotification(`Error loading project "${name}".`, BannerType.ERROR);
       }

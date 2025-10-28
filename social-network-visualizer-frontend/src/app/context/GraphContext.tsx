@@ -5,6 +5,8 @@ import { useNotification } from "@/app/context/NotificationProvider";
 import { useProject } from "@/app/context/ProjectContext";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
 import { BannerType } from "@/app/components/Popups/Banner";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { GraphData } from "@/app/interface/GraphData";
 
 interface GraphContextType {
   graphData: { nodes: GraphNode[]; links: GraphLink[] };
@@ -13,6 +15,7 @@ interface GraphContextType {
   >;
   resetGraphData: () => void;
   addNodeToGraph: (node: GraphNode) => void;
+  findNodeInProjectData: (node: GraphNode) => void;
 }
 
 const GraphContext = createContext<GraphContextType>({
@@ -20,6 +23,7 @@ const GraphContext = createContext<GraphContextType>({
   setGraphData: () => {},
   resetGraphData: () => {},
   addNodeToGraph: () => {},
+  findNodeInProjectData: () => {},
 });
 
 export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -38,6 +42,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
     loadWorkspace,
     openedWorkspaceName,
     fetchWorkspaceData,
+    setWorkspaceData,
   } = useWorkspace();
 
   useEffect(() => {
@@ -45,14 +50,49 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isInWorkspaceMode, projectData, workspaceData]);
 
   const resetGraphData = async () => {
-    await loadWorkspace(openedWorkspaceName!);
-    await fetchWorkspaceData(openedWorkspaceName!);
+    if (isInWorkspaceMode) {
+      await loadWorkspace(openedWorkspaceName!);
+      await fetchWorkspaceData(openedWorkspaceName!);
+    }
     setGraphData(isInWorkspaceMode ? workspaceData : projectData);
     setHasUnsavedChanges(false);
     showNotification("Graph has been reset.", BannerType.INFO);
   };
 
   const addNodeToGraph = async (node: GraphNode) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/graph/menu/membership?add=true`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: node.id,
+            nodeType: node.nodeType,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to find node: ${node.id} (${response.status})`);
+      }
+
+      const data: GraphData = await response.json();
+
+      setWorkspaceData({
+        nodes: data.nodes,
+        links: data.links,
+      });
+
+      showNotification(`Node "${node.id}" found`, BannerType.SUCCESS);
+
+      setHasUnsavedChanges(true);
+    } catch (_error) {
+      showNotification(`Failed to add node "${node.id}"`, BannerType.ERROR);
+    }
+  };
+
+  const findNodeInProjectData = async (node: GraphNode) => {
     setGraphData((prev) => {
       const projectNode = projectData.nodes.find(
         (n) => n.id === node.id && n.nodeType === node.nodeType,
@@ -108,6 +148,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({
         setGraphData,
         resetGraphData,
         addNodeToGraph,
+        findNodeInProjectData,
       }}
     >
       {children}
