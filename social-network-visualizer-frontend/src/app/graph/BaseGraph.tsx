@@ -45,7 +45,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     nodeFound,
   } = props;
 
-  const NODE_DISPLAY_LIMIT: number = 1000;
+  const NODE_DISPLAY_LIMIT: number = 1500;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(
     null,
@@ -290,32 +290,20 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const displayGraphData = () => {
     if (!fgInstance.current) return;
 
-    const nodesByType = new Map<NodeType, GraphNode[]>();
-    graphData.nodes.forEach((node) => {
-      if (!nodesByType.has(node.nodeType)) {
-        nodesByType.set(node.nodeType, []);
-      }
-      nodesByType.get(node.nodeType)!.push(node);
-    });
+    const displayNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
+    const displayNodeIds = new Set(displayNodes.map((n) => n.id));
 
-    const nodeTypes = Array.from(nodesByType.keys());
-    const nodesPerType = Math.floor(NODE_DISPLAY_LIMIT / nodeTypes.length);
-
-    const topNodes: GraphNode[] = [];
-    nodesByType.forEach((nodes) => {
-      topNodes.push(...nodes.slice(0, nodesPerType).map((n) => ({ ...n })));
-    });
-
-    const topNodesIds = new Set(topNodes.map((n) => n.id));
-
-    const relevantLinks = graphData.links
+    const displayLinks = graphData.links
       .filter(
         (link: GraphLink) =>
-          topNodesIds.has(link.source) && topNodesIds.has(link.target),
+          displayNodeIds.has(link.source) && displayNodeIds.has(link.target),
       )
       .map((link: GraphLink) => ({ ...link }));
 
-    fgInstance.current.graphData({ nodes: topNodes, links: relevantLinks });
+    fgInstance.current.graphData({
+      nodes: displayNodes,
+      links: displayLinks,
+    });
   };
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {

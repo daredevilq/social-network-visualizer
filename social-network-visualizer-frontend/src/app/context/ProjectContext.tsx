@@ -25,7 +25,12 @@ import {
   RelationType,
   TweetNode,
 } from "@/types/GraphTypes";
-import { GraphQueryRequest } from "@/types/GraphQueryRequest";
+import {
+  FetchConfig,
+  FetchStrategy,
+  GraphQueryRequest,
+} from "@/types/GraphQueryRequest";
+import { DEFAULT_FETCH_CONFIG } from "@/app/utils/defaultFetchConfig";
 
 interface Context {
   loadedProjectName: string | null;
@@ -62,6 +67,8 @@ interface Context {
   setSelectedGraphType: (g: GraphType) => void;
   showLabels: boolean;
   setShowLabels: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchConfig: FetchConfig;
+  setFetchConfig: React.Dispatch<React.SetStateAction<FetchConfig>>;
 }
 
 const ProjectContext = createContext<Context>({
@@ -93,6 +100,8 @@ const ProjectContext = createContext<Context>({
   setSelectedGraphType: () => {},
   showLabels: false,
   setShowLabels: () => {},
+  fetchConfig: DEFAULT_FETCH_CONFIG,
+  setFetchConfig: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -125,6 +134,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     GraphType.STANDARD,
   );
   const [showLabels, setShowLabels] = useState(false);
+  const [fetchConfig, setFetchConfig] =
+    useState<FetchConfig>(DEFAULT_FETCH_CONFIG);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -192,6 +203,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         const graphQuery: GraphQueryRequest = request ?? {
           nodeTypes: selectedNodeTypes,
           relationTypes: selectedRelationTypes,
+          fetchConfig: fetchConfig,
         };
 
         const res = await fetch(`${API_BASE_URL}/graph`, {
@@ -313,6 +325,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setSelectedGraphType,
         showLabels,
         setShowLabels,
+        fetchConfig,
+        setFetchConfig,
       }}
     >
       {children}

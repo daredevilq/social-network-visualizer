@@ -10,6 +10,7 @@ import { AuthorNode, GraphLink, GraphNode, NodeType } from "@/types/GraphTypes";
 import NodeColors from "../model/NodeColors";
 import { useGraph } from "@/app/context/GraphContext";
 import { useWorkspace } from "@/app/context/WorkspaceContext";
+import { API_BASE_URL } from "@/app/configuration/urlConfig";
 
 const BaseGraph = dynamic(() => import("./BaseGraph"), { ssr: false });
 export default function CommunityGraph() {
@@ -30,7 +31,7 @@ export default function CommunityGraph() {
     if (!loadedProjectName || isInWorkspaceMode) return;
 
     const fetchTopIds = fetch(
-      `http://localhost:8080/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`,
+      `${API_BASE_URL}/community/top-ids?limit=${NUMBER_OF_COMMUNITIES}`,
     )
       .then((res) => {
         if (!res.ok) throw new Error(`top‑ids${res.status}`);

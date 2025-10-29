@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.dto.request.FetchConfig;
 import com.example.social_network_visualizer_backend.dto.request.GraphQueryRequest;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.RelationType;
@@ -28,15 +29,18 @@ public class GraphService {
   public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
-    List<NodeDto> nodes = fetchRequestedNodes(finalRequest.nodeTypes(), communityId, false);
+    List<NodeDto> nodes =
+        fetchRequestedNodes(
+            finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
     List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
     List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
 
     log.info(
-        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | nodes: {} total, {} unique | links: {}",
+        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} total, {} unique | links: {}",
         communityId.map(String::valueOf).orElse("null"),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
+        finalRequest.fetchConfig().strategy(),
         nodes.size(),
         uniqueNodes.size(),
         links.size());
@@ -47,7 +51,10 @@ public class GraphService {
   public GraphDataDto fetchWorkspaceData() {
     List<NodeDto> nodes =
         fetchRequestedNodes(
-            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG), Optional.empty(), true);
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
+            FetchConfig.defaultConfig(),
+            Optional.empty(),
+            true);
     List<LinkDto> links = graphRepository.findWorkspaceRelationships();
 
     return new GraphDataDto(nodes, links);
@@ -75,7 +82,10 @@ public class GraphService {
   }
 
   private List<NodeDto> fetchRequestedNodes(
-      Set<NodeType> nodeTypes, Optional<Integer> communityId, boolean inWorkspace) {
+      Set<NodeType> nodeTypes,
+      FetchConfig fetchConfig,
+      Optional<Integer> communityId,
+      boolean inWorkspace) {
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       log.warn("No node types requested, returning empty list");
       return Collections.emptyList();
@@ -85,7 +95,8 @@ public class GraphService {
         .flatMap(
             nodeType -> {
               NodeQueryStrategy strategy = findStrategyForNodeType(nodeType);
-              return strategy.fetchNodes(communityId, inWorkspace).stream();
+              Integer limit = fetchConfig.getLimitForNodeType(nodeType);
+              return strategy.fetchNodes(communityId, inWorkspace, limit).stream();
             })
         .collect(Collectors.toList());
   }
@@ -117,6 +128,7 @@ public class GraphService {
   private GraphQueryRequest validateRequest(GraphQueryRequest request) {
     Set<NodeType> nodeTypes = request.nodeTypes();
     Set<RelationType> relationTypes = request.relationTypes();
+    FetchConfig fetchConfig = request.fetchConfig();
 
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       nodeTypes = Set.of(NodeType.AUTHOR);
@@ -124,8 +136,11 @@ public class GraphService {
     if (relationTypes == null || relationTypes.isEmpty()) {
       relationTypes = Set.of(RelationType.MENTIONS);
     }
+    if (fetchConfig == null) {
+      fetchConfig = FetchConfig.defaultConfig();
+    }
 
-    return new GraphQueryRequest(nodeTypes, relationTypes);
+    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig);
   }
 
   public List<NodeSearchDto> getSuggestions(String query) {

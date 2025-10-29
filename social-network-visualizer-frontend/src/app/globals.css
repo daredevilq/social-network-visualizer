@@ -42,4 +42,11 @@ body {
   .scrollbar-dark:hover::-webkit-scrollbar-thumb {
     background-color: #7140f4;
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }

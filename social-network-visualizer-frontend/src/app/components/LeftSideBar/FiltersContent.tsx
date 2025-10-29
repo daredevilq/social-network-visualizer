@@ -1,13 +1,21 @@
 "use client";
 
 import { useProject } from "@/app/context/ProjectContext";
-import { useEffect, useState } from "react";
-import { Network, Layers, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import {
+  Network,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Settings,
+} from "lucide-react";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { RelationType, NodeType } from "@/types/GraphTypes";
-import { GraphQueryRequest } from "@/types/GraphQueryRequest";
+import { GraphQueryRequest, FetchConfig } from "@/types/GraphQueryRequest";
 import { isRelationAvailable } from "@/app/utils/nodeRelationMap";
+import FetchConfigModal from "@/app/components/Popups/FetchConfigModal";
 
 export default function FiltersContent() {
   const {
@@ -17,6 +25,8 @@ export default function FiltersContent() {
     setSelectedNodeTypes,
     runWithLoading,
     fetchGraphData,
+    fetchConfig,
+    setFetchConfig,
   } = useProject();
 
   const { showNotification } = useNotification();
@@ -29,13 +39,39 @@ export default function FiltersContent() {
 
   const [nodeTypesExpanded, setNodeTypesExpanded] = useState(true);
   const [relationTypesExpanded, setRelationTypesExpanded] = useState(true);
+  const [fetchConfigExpanded, setFetchConfigExpanded] = useState(true);
   const [nodeSearchQuery, setNodeSearchQuery] = useState("");
   const [relationSearchQuery, setRelationSearchQuery] = useState("");
+  const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
     setTempRelationTypes(selectedRelationTypes);
   }, [selectedNodeTypes, selectedRelationTypes]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const checkScroll = () => {
+      const isScrollable = container.scrollHeight > container.clientHeight;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <=
+        container.clientHeight + 10;
+      setShowScrollHint(isScrollable && !isAtBottom);
+    };
+
+    checkScroll();
+    container.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+
+    return () => {
+      container.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [nodeTypesExpanded, relationTypesExpanded, fetchConfigExpanded]);
 
   const toggleNodeType = (nodeType: NodeType) => {
     setTempNodeTypes((prev) =>
@@ -78,9 +114,10 @@ export default function FiltersContent() {
         const request: GraphQueryRequest = {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
+          fetchConfig: fetchConfig,
         };
         await fetchGraphData(request);
-        showNotification("Filters applied successfully", BannerType.INFO);
+        showNotification("Filters applied successfully", BannerType.SUCCESS);
       } catch (err: any) {
         showNotification(
           `Error updating graph: ${err.message || err}`,
@@ -105,7 +142,10 @@ export default function FiltersContent() {
         Graph Filters
       </h1>
 
-      <div className="flex-1 overflow-y-auto space-y-4 scrollbar-dark">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto space-y-4 scrollbar-none"
+      >
         <div className="border border-gray-700 rounded-lg bg-[#30303d]">
           <button
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
@@ -250,7 +290,60 @@ export default function FiltersContent() {
             </div>
           )}
         </div>
+
+        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+          <button
+            onClick={() => setFetchConfigExpanded(!fetchConfigExpanded)}
+            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#FAFAFA]" />
+              <h2 className="text-lg font-semibold">Fetch Limits</h2>
+            </div>
+            {fetchConfigExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+
+          {fetchConfigExpanded && (
+            <div className="p-3 pt-0">
+              <p className="text-sm text-gray-400 mb-3">
+                Control how many nodes to fetch from the database for each type.
+              </p>
+
+              <div className="space-y-2 mb-3">
+                {tempNodeTypes.map((nodeType) => {
+                  const limit = fetchConfig.nodeLimits?.[nodeType] ?? 100;
+                  return (
+                    <div
+                      key={nodeType}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <span className="text-[#FAFAFA]">{nodeType}</span>
+                      <span className="text-[#7140F4] font-mono">{limit}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setFetchConfigModalOpen(true)}
+                className="w-full py-2 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] font-semibold rounded-lg transition-colors"
+              >
+                Configure Limits
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {showScrollHint && (
+        <div className="absolute bottom-16 left-0 right-0 h-8 pointer-events-none flex items-center justify-center">
+          <ChevronDown className="w-5 h-5 text-[#7140F4] animate-bounce" />
+        </div>
+      )}
 
       <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
         <button
@@ -260,6 +353,14 @@ export default function FiltersContent() {
           Apply Filters
         </button>
       </div>
+
+      <FetchConfigModal
+        open={fetchConfigModalOpen}
+        onClose={() => setFetchConfigModalOpen(false)}
+        onApply={(config: FetchConfig) => setFetchConfig(config)}
+        currentConfig={fetchConfig}
+        selectedNodeTypes={tempNodeTypes}
+      />
     </div>
   );
 }
