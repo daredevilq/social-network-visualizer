@@ -1,7 +1,6 @@
 import { API_BASE_URL } from "@/app/configuration/urlConfig";
 import { GraphData } from "@/app/interface/GraphData";
 import { GraphNode } from "@/types/GraphTypes";
-import { BannerType } from "@/app/components/Popups/Banner";
 
 export class GraphApiService {
   static async removeNodeFromWorkspace(node: GraphNode): Promise<GraphData> {
