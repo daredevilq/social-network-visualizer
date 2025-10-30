@@ -1,5 +1,5 @@
-import { GraphLink, RelationType } from "@/types/GraphTypes";
-import NodeColors from "../NodeColors";
+import { GraphLink, RelationType } from '@/types/GraphTypes';
+import NodeColors from '../NodeColors';
 
 export interface ILinkStrategy {
   getColor(link: GraphLink): string;

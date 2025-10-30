@@ -1,25 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ChevronRightIcon } from "lucide-react";
-import { MenuItemComponentProps } from "@/app/interface/Menu";
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronRightIcon } from 'lucide-react';
+import { MenuItemComponentProps } from '@/app/interface/Menu';
 
-const MenuItem: React.FC<MenuItemComponentProps> = ({
-  label,
-  icon,
-  onMenuItemClick,
-  isActive = false,
-  submenu,
-  onItemActivated,
-}) => {
+const MenuItem: React.FC<MenuItemComponentProps> = ({ label, icon, onMenuItemClick, isActive = false, submenu, onItemActivated }) => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const baseClasses =
-    "flex items-center gap-3 px-3 py-1.5 text-sm transition-colors duration-150 rounded-md mx-1";
-  const stateClasses = isActive
-    ? "text-neutral-100 bg-[#3f3f4d] cursor-pointer"
-    : "text-neutral-200 hover:bg-[#3f3f4d] cursor-pointer";
+  const baseClasses = 'flex items-center gap-3 px-3 py-1.5 text-sm transition-colors duration-150 rounded-md mx-1';
+  const stateClasses = isActive ? 'text-neutral-100 bg-[#3f3f4d] cursor-pointer' : 'text-neutral-200 hover:bg-[#3f3f4d] cursor-pointer';
 
   const hasSubmenu = submenu && submenu.length > 0;
 
@@ -124,9 +114,7 @@ const MenuItem: React.FC<MenuItemComponentProps> = ({
         >
           {submenu.map((subItem, index) => (
             <React.Fragment key={`${subItem.label}-${index}`}>
-              {subItem.isSeparator && (
-                <div className="h-[1px] bg-[#3f3f4d] my-1" role="separator" />
-              )}
+              {subItem.isSeparator && <div className="h-[1px] bg-[#3f3f4d] my-1" role="separator" />}
               <MenuItem {...subItem} onItemActivated={onItemActivated} />
             </React.Fragment>
           ))}

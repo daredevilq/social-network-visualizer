@@ -1,12 +1,12 @@
-"use client";
-import { motion } from "framer-motion";
-import { useEffect, ReactNode } from "react";
+'use client';
+import { motion } from 'framer-motion';
+import { useEffect, ReactNode } from 'react';
 
 export enum BannerType {
-  ERROR = "error",
-  SUCCESS = "success",
-  INFO = "info",
-  WARNING = "warning",
+  ERROR = 'error',
+  SUCCESS = 'success',
+  INFO = 'info',
+  WARNING = 'warning',
 }
 
 interface BannerProps {
@@ -17,30 +17,13 @@ interface BannerProps {
 }
 
 const SuccessIcon = () => (
-  <svg
-    className="w-6 h-6 text-[#22C55E]"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-    ></path>
+  <svg className="w-6 h-6 text-[#22C55E]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
   </svg>
 );
 
 const ErrorIcon = () => (
-  <svg
-    className="w-6 h-6 text-[#8B0000]"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg className="w-6 h-6 text-[#8B0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -51,30 +34,13 @@ const ErrorIcon = () => (
 );
 
 const InfoIcon = () => (
-  <svg
-    className="w-6 h-6 text-[#5C37E6]"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    ></path>
+  <svg className="w-6 h-6 text-[#5C37E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
   </svg>
 );
 
 const WarningIcon = () => (
-  <svg
-    className="w-6 h-6 text-[#FF9F40]"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg className="w-6 h-6 text-[#FF9F40]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -108,12 +74,7 @@ const typeStyles: Record<string, TypeStyle> = {
   },
 };
 
-export default function Banner({
-  message,
-  type = BannerType.INFO,
-  duration = 3000,
-  onClose,
-}: BannerProps) {
+export default function Banner({ message, type = BannerType.INFO, duration = 3000, onClose }: BannerProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose?.();
@@ -125,9 +86,9 @@ export default function Banner({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, x: "-50%" }}
-      animate={{ opacity: 1, y: 0, x: "-50%" }}
-      exit={{ opacity: 0, y: -20, x: "-50%" }}
+      initial={{ opacity: 0, y: -20, x: '-50%' }}
+      animate={{ opacity: 1, y: 0, x: '-50%' }}
+      exit={{ opacity: 0, y: -20, x: '-50%' }}
       transition={{ duration: 0.3 }}
       className={`fixed top-5 left-1/2 flex items-center gap-3 w-full max-w-md p-4 
                          bg-[#3A3A4A] text-white rounded-md shadow-md border-l-4 ${styles.borderColor}

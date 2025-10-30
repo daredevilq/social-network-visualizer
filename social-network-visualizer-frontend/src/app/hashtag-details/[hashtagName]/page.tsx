@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import HashtagAnalysisContainer from "@/app/components/Analysis/Hashtag/HashtagAnalysisContainer";
+import { useParams } from 'next/navigation';
+import HashtagAnalysisContainer from '@/app/components/Analysis/Hashtag/HashtagAnalysisContainer';
 
 export default function HashtagDetailsPage() {
   const params = useParams();
