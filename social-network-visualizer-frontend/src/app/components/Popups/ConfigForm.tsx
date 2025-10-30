@@ -1,20 +1,10 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import {
-  MetricConfig,
-  MetricType,
-  NodeType,
-  Orientation,
-  ProjectConfig,
-  RelationType,
-} from "@/types/GraphTypes";
-import { useConfigMeta } from "@/app/hooks/useConfigMeta";
-import {
-  filterValidRelations,
-  isRelationAvailable,
-} from "@/app/utils/nodeRelationMap";
-import PopoverIcon from "@/app/components/Popups/PopoverIcon";
+import React, { useEffect, useState } from 'react';
+import { MetricConfig, MetricType, NodeType, Orientation, ProjectConfig, RelationType } from '@/types/GraphTypes';
+import { useConfigMeta } from '@/app/hooks/useConfigMeta';
+import { filterValidRelations, isRelationAvailable } from '@/app/utils/nodeRelationMap';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 interface ConfigFormProps {
   projectName: string;
@@ -23,11 +13,7 @@ interface ConfigFormProps {
   defaultConfig: MetricConfig[];
 }
 
-export default function ConfigForm({
-  initialConfig,
-  defaultConfig,
-  onChange,
-}: ConfigFormProps) {
+export default function ConfigForm({ initialConfig, defaultConfig, onChange }: ConfigFormProps) {
   const { meta, loading, error, loadMetaConfig } = useConfigMeta();
 
   const getInitialMetrics = (): MetricConfig[] => {
@@ -70,15 +56,12 @@ export default function ConfigForm({
         const updated = { ...row, ...patch };
 
         if (patch.nodeLabels) {
-          const validRelations = filterValidRelations(
-            updated.relationTypes,
-            updated.nodeLabels,
-          );
+          const validRelations = filterValidRelations(updated.relationTypes, updated.nodeLabels);
           updated.relationTypes = validRelations;
         }
 
         return updated;
-      }),
+      })
     );
   };
 
@@ -93,21 +76,14 @@ export default function ConfigForm({
   };
 
   if (loading) {
-    return (
-      <div className="text-sm text-gray-400 py-2">
-        Loading configuration options…
-      </div>
-    );
+    return <div className="text-sm text-gray-400 py-2">Loading configuration options…</div>;
   }
 
   if (error) {
     return (
       <div className="text-sm text-red-400 py-2">
-        Failed to load config options.{" "}
-        <button
-          onClick={loadMetaConfig}
-          className="underline hover:text-red-300"
-        >
+        Failed to load config options.{' '}
+        <button onClick={loadMetaConfig} className="underline hover:text-red-300">
           Retry
         </button>
       </div>
@@ -119,15 +95,10 @@ export default function ConfigForm({
   return (
     <div className="space-y-4">
       {metrics.map((metric, idx) => (
-        <div
-          key={idx}
-          className="border border-gray-600 rounded-lg p-4 space-y-3 bg-[#30303d]"
-        >
+        <div key={idx} className="border border-gray-600 rounded-lg p-4 space-y-3 bg-[#30303d]">
           <div className="flex items-center justify-between pb-2 border-b border-gray-700">
             <div className="flex items-center">
-              <h4 className="text-base font-semibold text-[#FAFAFA]">
-                {metric.type}
-              </h4>
+              <h4 className="text-base font-semibold text-[#FAFAFA]">{metric.type}</h4>
               {metric.type === MetricType.PAGERANK && (
                 <PopoverIcon
                   message={`The **PageRank** algorithm measures the importance of nodes in a graph based on the number and quality of incoming and outgoing relationships. Useful for identifying influential authors.`}
@@ -143,20 +114,16 @@ export default function ConfigForm({
                 />
               )}
             </div>
-            <span className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300">
-              {metric.orientation}
-            </span>
+            <span className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300">{metric.orientation}</span>
           </div>
 
           <div>
             <div className="flex items-center">
-              <label className="block text-xs text-gray-300 font-medium">
-                Orientation
-              </label>
+              <label className="block text-xs text-gray-300 font-medium">Orientation</label>
               <PopoverIcon
                 message={`Defines how relationship direction is treated during the algorithm: **NATURAL** uses the original direction of relationships in the graph **UNDIRECTED** treats all relationships as bidirectional (ignores direction)`}
                 scale={0.9}
-                position={"right"}
+                position={'right'}
               />
             </div>
             <div className="flex gap-2">
@@ -165,8 +132,8 @@ export default function ConfigForm({
                   key={o}
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded border cursor-pointer transition-all ${
                     metric.orientation === o
-                      ? "border-[#7140F4] bg-[#7140F4]/20 text-white"
-                      : "border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500"
+                      ? 'border-[#7140F4] bg-[#7140F4]/20 text-white'
+                      : 'border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500'
                   }`}
                 >
                   <input
@@ -188,27 +155,25 @@ export default function ConfigForm({
 
           <div>
             <div className="flex items-center">
-              <label className="block text-xs text-gray-300 font-medium">
-                Node Labels
-              </label>
+              <label className="block text-xs text-gray-300 font-medium">Node Labels</label>
               <PopoverIcon
                 message={`Select which node labels will be analyzed by the algorithm. You can specify analysis only for **AUTHOR** type.`}
                 scale={0.9}
-                position={"right"}
+                position={'right'}
               />
             </div>
             <div className="flex flex-wrap gap-2">
               {meta.nodeLabels.map((nl: string) => {
-                const isDisabled = nl !== "AUTHOR";
+                const isDisabled = nl !== 'AUTHOR';
                 return (
                   <label
                     key={nl}
                     className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded border transition-all ${
                       isDisabled
-                        ? "border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50"
+                        ? 'border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50'
                         : metric.nodeLabels.includes(nl as NodeType)
-                          ? "border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer"
-                          : "border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer"
+                          ? 'border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer'
+                          : 'border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer'
                     }`}
                   >
                     <input
@@ -218,10 +183,7 @@ export default function ConfigForm({
                       disabled={isDisabled}
                       onChange={() => {
                         if (!isDisabled) {
-                          const updated = toggleArrayItem(
-                            metric.nodeLabels,
-                            nl as NodeType,
-                          );
+                          const updated = toggleArrayItem(metric.nodeLabels, nl as NodeType);
                           if (updated.length > 0) {
                             updateMetric(idx, {
                               nodeLabels: updated,
@@ -239,34 +201,27 @@ export default function ConfigForm({
 
           <div>
             <div className="flex items-center">
-              <label className="block text-xs text-gray-300 font-medium">
-                Relation Types
-              </label>
+              <label className="block text-xs text-gray-300 font-medium">Relation Types</label>
               <PopoverIcon
                 message={`Choose which relationship types should be included in the analysis. Only relationships connecting the selected node labels will be used.`}
                 scale={0.9}
-                position={"right"}
+                position={'right'}
               />
             </div>
             <div className="flex flex-wrap gap-2">
               {meta.relationTypes.map((rt: string) => {
-                const isAvailable = isRelationAvailable(
-                  rt as RelationType,
-                  metric.nodeLabels,
-                );
-                const isChecked = metric.relationTypes.includes(
-                  rt as RelationType,
-                );
+                const isAvailable = isRelationAvailable(rt as RelationType, metric.nodeLabels);
+                const isChecked = metric.relationTypes.includes(rt as RelationType);
 
                 return (
                   <label
                     key={rt}
                     className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded border transition-all ${
                       !isAvailable
-                        ? "border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50"
+                        ? 'border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50'
                         : isChecked
-                          ? "border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer"
-                          : "border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer"
+                          ? 'border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer'
+                          : 'border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer'
                     }`}
                   >
                     <input
@@ -276,10 +231,7 @@ export default function ConfigForm({
                       disabled={!isAvailable}
                       onChange={() => {
                         if (isAvailable) {
-                          const updated = toggleArrayItem(
-                            metric.relationTypes,
-                            rt as RelationType,
-                          );
+                          const updated = toggleArrayItem(metric.relationTypes, rt as RelationType);
                           if (updated.length > 0) {
                             updateMetric(idx, {
                               relationTypes: updated,

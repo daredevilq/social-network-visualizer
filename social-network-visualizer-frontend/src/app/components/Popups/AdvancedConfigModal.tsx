@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Dialog } from "@headlessui/react";
-import ConfigForm from "@/app/components/Popups/ConfigForm";
-import type { MetricConfig, ProjectConfig } from "@/types/GraphTypes";
-import { Settings } from "lucide-react";
-import PopoverIcon from "@/app/components/Popups/PopoverIcon";
-import React from "react";
+import { Dialog } from '@headlessui/react';
+import ConfigForm from '@/app/components/Popups/ConfigForm';
+import type { MetricConfig, ProjectConfig } from '@/types/GraphTypes';
+import { Settings } from 'lucide-react';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
+import React from 'react';
 
 interface AdvancedConfigModalProps {
   open: boolean;
@@ -25,18 +25,8 @@ export default function AdvancedConfigModal({
   onChange,
 }: AdvancedConfigModalProps) {
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      className="fixed inset-0 z-[60] flex items-center justify-center"
-    >
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/60"
-          aria-hidden="true"
-          onClick={onClose}
-        />
-      )}
+    <Dialog open={open} onClose={onClose} className="fixed inset-0 z-[60] flex items-center justify-center">
+      {open && <div className="fixed inset-0 bg-black/60" aria-hidden="true" onClick={onClose} />}
 
       <div
         className="bg-[#262631] rounded-xl p-6 w-full max-w-3xl z-50 relative shadow-2xl text-white max-h-[85vh] overflow-y-auto scrollbar-dark"
@@ -44,9 +34,7 @@ export default function AdvancedConfigModal({
       >
         <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-700">
           <Settings className="w-6 h-6 text-[#7140F4]" />
-          <Dialog.Title className="text-2xl font-bold">
-            Advanced Metrics Configuration
-          </Dialog.Title>
+          <Dialog.Title className="text-2xl font-bold">Advanced Metrics Configuration</Dialog.Title>
           <PopoverIcon
             message={`Configure advanced metrics: choose metrics, orientations, node labels, and relation types for your project.`}
             scale={1.8}
@@ -55,19 +43,11 @@ export default function AdvancedConfigModal({
         </div>
 
         <p className="text-sm text-gray-400 mb-1">
-          Configure how each metric will be computed for your project. Select
-          node labels and relation types that should be included in the
+          Configure how each metric will be computed for your project. Select node labels and relation types that should be included in the
           analysis.
         </p>
-        <p className="text-xs text-red-400 font-bold mb-6">
-          Once the project is created, these settings cannot be changed!
-        </p>
-        <ConfigForm
-          projectName={projectName}
-          initialConfig={currentConfig}
-          defaultConfig={defaultMetricsConfig}
-          onChange={onChange}
-        />
+        <p className="text-xs text-red-400 font-bold mb-6">Once the project is created, these settings cannot be changed!</p>
+        <ConfigForm projectName={projectName} initialConfig={currentConfig} defaultConfig={defaultMetricsConfig} onChange={onChange} />
 
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-700">
           <button
