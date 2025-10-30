@@ -1,4 +1,4 @@
-import { NodeType, RelationType } from "@/types/GraphTypes";
+import { NodeType, RelationType } from '@/types/GraphTypes';
 
 export const RELATION_NODE_MAP: Record<RelationType, [NodeType, NodeType]> = {
   [RelationType.MENTIONS]: [NodeType.AUTHOR, NodeType.AUTHOR],
@@ -16,10 +16,7 @@ export const RELATION_NODE_MAP: Record<RelationType, [NodeType, NodeType]> = {
   [RelationType.HAS_HASHTAG]: [NodeType.TWEET, NodeType.HASHTAG],
 };
 
-export function isRelationAvailable(
-  relationType: RelationType,
-  selectedNodeTypes: NodeType[],
-): boolean {
+export function isRelationAvailable(relationType: RelationType, selectedNodeTypes: NodeType[]): boolean {
   const nodeTypes = RELATION_NODE_MAP[relationType];
   if (!nodeTypes) return false;
 
@@ -29,11 +26,6 @@ export function isRelationAvailable(
   return selectedSet.has(sourceType) && selectedSet.has(targetType);
 }
 
-export function filterValidRelations(
-  relationTypes: RelationType[],
-  selectedNodeTypes: NodeType[],
-): RelationType[] {
-  return relationTypes.filter((rel) =>
-    isRelationAvailable(rel, selectedNodeTypes),
-  );
+export function filterValidRelations(relationTypes: RelationType[], selectedNodeTypes: NodeType[]): RelationType[] {
+  return relationTypes.filter((rel) => isRelationAvailable(rel, selectedNodeTypes));
 }

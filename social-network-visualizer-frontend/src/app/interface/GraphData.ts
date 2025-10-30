@@ -1,4 +1,4 @@
-import { GraphLink, GraphNode } from "@/types/GraphTypes";
+import { GraphLink, GraphNode } from '@/types/GraphTypes';
 
 export interface GraphData {
   nodes: GraphNode[];

@@ -1,13 +1,7 @@
-import {
-  AuthorNode,
-  GraphNode,
-  HashtagNode,
-  NodeType,
-  TweetNode,
-} from "@/types/GraphTypes";
-import NodeColors from "@/app/model/NodeColors";
-import { MenuItem } from "@/app/interface/Menu";
-import { MenuItemsGetters } from "@/app/components/graphMenu/ContextMenuItemsProvider";
+import { AuthorNode, GraphNode, HashtagNode, NodeType, TweetNode } from '@/types/GraphTypes';
+import NodeColors from '@/app/model/NodeColors';
+import { MenuItem } from '@/app/interface/Menu';
+import { MenuItemsGetters } from '@/app/components/graphMenu/ContextMenuItemsProvider';
 
 export interface INodeStrategy {
   getColor(node: GraphNode): string;
@@ -18,21 +12,11 @@ export interface INodeStrategy {
 
   handleNodeLeftClick(
     node: GraphNode,
-    setSelectedUserData: (
-      value:
-        | ((prevState: BasicUserData | null) => BasicUserData | null)
-        | BasicUserData
-        | null,
-    ) => void,
-    setIsSidebarOpen: (
-      value: ((prevState: boolean) => boolean) | boolean,
-    ) => void,
+    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
+    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ): any;
 
-  getContextMenuItems(
-    node: GraphNode,
-    menuItemsGetters: MenuItemsGetters,
-  ): MenuItem[];
+  getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[];
 }
 
 class AuthorNodeStrategy implements INodeStrategy {
@@ -51,15 +35,8 @@ class AuthorNodeStrategy implements INodeStrategy {
 
   handleNodeLeftClick(
     node: GraphNode,
-    setSelectedUserData: (
-      value:
-        | ((prevState: BasicUserData | null) => BasicUserData | null)
-        | BasicUserData
-        | null,
-    ) => void,
-    setIsSidebarOpen: (
-      value: ((prevState: boolean) => boolean) | boolean,
-    ) => void,
+    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
+    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ) {
     setSelectedUserData({
       name: node.id,
@@ -68,10 +45,7 @@ class AuthorNodeStrategy implements INodeStrategy {
     setIsSidebarOpen((prev) => !prev);
   }
 
-  getContextMenuItems(
-    node: GraphNode,
-    menuItemsGetters: MenuItemsGetters,
-  ): MenuItem[] {
+  getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
     return menuItemsGetters.getAuthorMenuItems(node as AuthorNode);
   }
 }
@@ -89,30 +63,18 @@ class TweetNodeStrategy implements INodeStrategy {
     const tweetNode = node as TweetNode;
     const maxLength = 15;
 
-    return tweetNode.content.length > maxLength
-      ? tweetNode.content.substring(0, maxLength) + "..."
-      : tweetNode.content;
+    return tweetNode.content.length > maxLength ? tweetNode.content.substring(0, maxLength) + '...' : tweetNode.content;
   }
 
   handleNodeLeftClick(
     node: GraphNode,
-    setSelectedUserData: (
-      value:
-        | ((prevState: BasicUserData | null) => BasicUserData | null)
-        | BasicUserData
-        | null,
-    ) => void,
-    setIsSidebarOpen: (
-      value: ((prevState: boolean) => boolean) | boolean,
-    ) => void,
+    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
+    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ) {
-    console.log("SingleNodeClick Method not implemented for: TWEET nodes.");
+    console.log('SingleNodeClick Method not implemented for: TWEET nodes.');
   }
 
-  getContextMenuItems(
-    node: GraphNode,
-    menuItemsGetters: MenuItemsGetters,
-  ): MenuItem[] {
+  getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
     return menuItemsGetters.getTweetMenuItems(node as TweetNode);
   }
 }
@@ -132,23 +94,13 @@ class HashtagNodeStrategy implements INodeStrategy {
 
   handleNodeLeftClick(
     node: GraphNode,
-    setSelectedUserData: (
-      value:
-        | ((prevState: BasicUserData | null) => BasicUserData | null)
-        | BasicUserData
-        | null,
-    ) => void,
-    setIsSidebarOpen: (
-      value: ((prevState: boolean) => boolean) | boolean,
-    ) => void,
+    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
+    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ) {
-    console.log("SingleNodeClick Method not implemented for: Hashtag nodes.");
+    console.log('SingleNodeClick Method not implemented for: Hashtag nodes.');
   }
 
-  getContextMenuItems(
-    node: GraphNode,
-    menuItemsGetters: MenuItemsGetters,
-  ): MenuItem[] {
+  getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
     return menuItemsGetters.getHashtagMenuItems(node as HashtagNode);
   }
 }
@@ -181,28 +133,14 @@ class NodeStrategy {
 
   handleNodeLeftClick(
     node: GraphNode,
-    setSelectedUserData: (
-      value:
-        | ((prevState: BasicUserData | null) => BasicUserData | null)
-        | BasicUserData
-        | null,
-    ) => void,
-    setIsSidebarOpen: (
-      value: ((prevState: boolean) => boolean) | boolean,
-    ) => void,
+    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
+    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ) {
     const strategy = this.resolveStrategy(node);
-    return strategy.handleNodeLeftClick(
-      node,
-      setSelectedUserData,
-      setIsSidebarOpen,
-    );
+    return strategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
   }
 
-  getContextMenuItems(
-    node: GraphNode,
-    menuItemsGetters: MenuItemsGetters,
-  ): MenuItem[] {
+  getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
     const strategy = this.resolveStrategy(node);
     return strategy.getContextMenuItems(node, menuItemsGetters);
   }

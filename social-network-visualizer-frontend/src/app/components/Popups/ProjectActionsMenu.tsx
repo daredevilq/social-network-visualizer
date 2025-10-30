@@ -1,5 +1,5 @@
-"use client";
-import { useState, useRef, useEffect } from "react";
+'use client';
+import { useState, useRef, useEffect } from 'react';
 
 interface Props {
   disabled: boolean;
@@ -8,21 +8,15 @@ interface Props {
   onViewConfig: () => void;
 }
 
-export default function ProjectActionsMenu({
-  disabled,
-  onDelete,
-  onEdit,
-  onViewConfig,
-}: Props) {
+export default function ProjectActionsMenu({ disabled, onDelete, onEdit, onViewConfig }: Props) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null!);
 
   useEffect(() => {
     if (!open) return;
-    const handler = (e: MouseEvent) =>
-      !buttonRef.current?.contains(e.target as Node) && setOpen(false);
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
+    const handler = (e: MouseEvent) => !buttonRef.current?.contains(e.target as Node) && setOpen(false);
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
   }, [open]);
 
   return (

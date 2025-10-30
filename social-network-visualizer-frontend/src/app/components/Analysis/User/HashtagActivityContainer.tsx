@@ -1,5 +1,5 @@
-import { Hash, Tag } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Hash, Tag } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface HashtagActivity {
   name: string;
@@ -10,9 +10,7 @@ interface TopHashtagsContainerProps {
   topHashtags: HashtagActivity[];
 }
 
-export function HashtagActivityContainer({
-  topHashtags,
-}: TopHashtagsContainerProps) {
+export function HashtagActivityContainer({ topHashtags }: TopHashtagsContainerProps) {
   const router = useRouter();
 
   return (
@@ -35,9 +33,7 @@ export function HashtagActivityContainer({
                   <Hash className="flex-shrink-0 w-4 h-4 text-[#7140F4] mr-2" />
                   <span className="truncate">{hashtag.name}</span>
                 </div>
-                <span className="text-gray-300 font-medium ml-auto">
-                  {hashtag.frequency}
-                </span>
+                <span className="text-gray-300 font-medium ml-auto">{hashtag.frequency}</span>
               </div>
             ))}
           </div>

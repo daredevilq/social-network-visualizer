@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { AuthorNode } from "@/app/interface/AuthorNode";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { BannerType } from "@/app/components/Popups/Banner";
+import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { AuthorNode } from '@/app/interface/AuthorNode';
+import { useNotification } from '@/app/context/NotificationProvider';
+import { BannerType } from '@/app/components/Popups/Banner';
 
 export function useCommunityAuthors(communityId: number | string) {
   const [data, setData] = useState<AuthorNode[] | null>(null);
@@ -27,10 +27,7 @@ export function useCommunityAuthors(communityId: number | string) {
       })
       .catch((err) => {
         if (mounted) {
-          showNotification(
-            `Failed to load community authors: ${err.message}`,
-            BannerType.ERROR,
-          );
+          showNotification(`Failed to load community authors: ${err.message}`, BannerType.ERROR);
         }
       })
       .finally(() => {

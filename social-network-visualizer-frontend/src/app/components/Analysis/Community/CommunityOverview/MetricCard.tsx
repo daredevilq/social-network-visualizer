@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import CountUp from "react-countup";
+import CountUp from 'react-countup';
 
 interface Props {
   label: string;
@@ -11,9 +11,7 @@ export default function MetricCard({ label, value }: Props) {
   const numericValue = Number(value);
   const hasDecimals = !Number.isInteger(numericValue);
 
-  const decimals = hasDecimals
-    ? (value.toString().split(".")[1]?.length ?? 0)
-    : 0;
+  const decimals = hasDecimals ? (value.toString().split('.')[1]?.length ?? 0) : 0;
 
   return (
     <div className="bg-[#3D3D4E] p-4 rounded-lg flex flex-col items-center">

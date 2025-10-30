@@ -1,34 +1,16 @@
-import {
-  forwardRef,
-  MouseEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 // @ts-ignore
-import ForceGraph, { ForceGraphInstance } from "force-graph";
-import {
-  forceManyBody,
-  forceCollide,
-  forceX,
-  forceY,
-  forceLink,
-} from "d3-force";
-import {
-  GraphLink,
-  GraphNode,
-  GraphProps,
-  SelectionBox,
-} from "@/types/GraphTypes";
-import { useProject } from "@/app/context/ProjectContext";
-import nodeStrategy from "@/app/model/strategies/NodeStrategy";
-import NodeColors from "@/app/model/NodeColors";
-import { useWorkspace } from "@/app/context/WorkspaceContext";
-import { useGraph } from "@/app/context/GraphContext";
-import MenuComponent from "@/app/components/graphMenu/MenuComponent";
-import { MenuItem, MenuState } from "../interface/Menu";
-import { useContextMenuItems } from "@/app/components/graphMenu/ContextMenuItemsProvider";
+import ForceGraph, { ForceGraphInstance } from 'force-graph';
+import { forceManyBody, forceCollide, forceX, forceY, forceLink } from 'd3-force';
+import { GraphLink, GraphNode, GraphProps, SelectionBox } from '@/types/GraphTypes';
+import { useProject } from '@/app/context/ProjectContext';
+import nodeStrategy from '@/app/model/strategies/NodeStrategy';
+import NodeColors from '@/app/model/NodeColors';
+import { useWorkspace } from '@/app/context/WorkspaceContext';
+import { useGraph } from '@/app/context/GraphContext';
+import MenuComponent from '@/app/components/graphMenu/MenuComponent';
+import { MenuItem, MenuState } from '../interface/Menu';
+import { useContextMenuItems } from '@/app/components/graphMenu/ContextMenuItemsProvider';
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
@@ -46,9 +28,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const NODE_DISPLAY_LIMIT: number = 1500;
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(
-    null,
-  );
+  const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(null);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState<GraphNode[]>([]);
@@ -59,44 +39,29 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     position: { x: 0, y: 0 },
   });
 
-  const {
-    setIsSidebarOpen,
-    setSelectedUserData,
-    setFocusedCommunityId,
-    showLabels,
-  } = useProject();
+  const { setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
-  const {
-    isInWorkspaceMode,
-    saveWorkspaceData,
-    hasUnsavedChanges,
-    setHasUnsavedChanges,
-  } = useWorkspace();
+  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, setHasUnsavedChanges } = useWorkspace();
   const { setGraphData, resetGraphData } = useGraph();
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    fgInstance.current = new ForceGraph<GraphNode, GraphLink>(
-      containerRef.current,
-    );
+    fgInstance.current = new ForceGraph<GraphNode, GraphLink>(containerRef.current);
+    fgInstance.current.d3Force('charge', forceManyBody().distanceMin(10).strength(-200));
     fgInstance.current.d3Force(
-      "charge",
-      forceManyBody().distanceMin(10).strength(-200),
-    );
-    fgInstance.current.d3Force(
-      "collide",
+      'collide',
       forceCollide()
         .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-        .strength(0.3),
+        .strength(0.3)
     );
-    fgInstance.current.d3Force("container_x", forceX(0).strength(0.005));
-    fgInstance.current.d3Force("container_y", forceY(0).strength(0.005));
+    fgInstance.current.d3Force('container_x', forceX(0).strength(0.005));
+    fgInstance.current.d3Force('container_y', forceY(0).strength(0.005));
     fgInstance.current.d3Force(
-      "link",
+      'link',
       forceLink<GraphNode, GraphLink>()
         .id((d: GraphNode) => d.id)
-        .strength(0.7),
+        .strength(0.7)
     );
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
@@ -104,12 +69,12 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         fgInstance.current
           .width(offsetWidth)
           .height(offsetHeight)
-          .d3Force("container_x", forceX(offsetWidth / 2).strength(0.01))
-          .d3Force("container_y", forceY(offsetHeight / 2).strength(0.01));
+          .d3Force('container_x', forceX(offsetWidth / 2).strength(0.01))
+          .d3Force('container_y', forceY(offsetHeight / 2).strength(0.01));
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
     handleResize();
 
     return () => {
@@ -117,7 +82,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         fgInstance.current._destructor();
       }
       fgInstance.current = null;
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -128,12 +93,9 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   useEffect(() => {
     if (!fgInstance.current || !nodeFound) return;
     const graphCurrentData = fgInstance.current.graphData();
-    const node = graphCurrentData.nodes.find(
-      (n: GraphNode) =>
-        n.id === nodeFound?.id && n.nodeType === nodeFound?.nodeType,
-    );
+    const node = graphCurrentData.nodes.find((n: GraphNode) => n.id === nodeFound?.id && n.nodeType === nodeFound?.nodeType);
 
-    if (node && "x" in node && "y" in node) {
+    if (node && 'x' in node && 'y' in node) {
       fgInstance.current.centerAt(node.x, node.y, 1000);
       fgInstance.current.zoom(6, 1000);
     }
@@ -154,74 +116,59 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkCurvature((link: GraphLink) => link.curvature)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
-      .nodeCanvasObject(
-        (
-          node: GraphNode & { x: number; y: number },
-          ctx: CanvasRenderingContext2D,
-          globalScale: any,
-        ) => {
-          if (!isFinite(node.x) || !isFinite(node.y)) {
-            return;
-          }
+      .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
+        if (!isFinite(node.x) || !isFinite(node.y)) {
+          return;
+        }
 
-          const radius = nodeStrategy.getRadius(node);
-          const baseColor = nodeColor
-            ? nodeColor(node)
-            : NodeColors.getDefaultAuthorColor();
+        const radius = nodeStrategy.getRadius(node);
+        const baseColor = nodeColor ? nodeColor(node) : NodeColors.getDefaultAuthorColor();
 
-          if (!isFinite(radius) || radius <= 0) {
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, 0.5 / globalScale, 0, 2 * Math.PI, false);
-            ctx.fillStyle = baseColor;
-            ctx.fill();
-            return;
-          }
-
-          ctx.save();
-          ctx.shadowColor = baseColor;
-          ctx.shadowBlur = 10;
-
+        if (!isFinite(radius) || radius <= 0) {
           ctx.beginPath();
-          ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+          ctx.arc(node.x, node.y, 0.5 / globalScale, 0, 2 * Math.PI, false);
           ctx.fillStyle = baseColor;
           ctx.fill();
+          return;
+        }
+
+        ctx.save();
+        ctx.shadowColor = baseColor;
+        ctx.shadowBlur = 10;
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = baseColor;
+        ctx.fill();
+
+        ctx.restore();
+
+        if (selectedNodeIds.includes(node.id)) {
+          ctx.save();
+          ctx.shadowColor = 'white';
+          ctx.shadowBlur = 10;
+
+          ctx.lineWidth = 2 / globalScale;
+          ctx.strokeStyle = 'white';
+
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius + 1 / globalScale, 0, 2 * Math.PI, false);
+          ctx.stroke();
 
           ctx.restore();
+        }
 
-          if (selectedNodeIds.includes(node.id)) {
-            ctx.save();
-            ctx.shadowColor = "white";
-            ctx.shadowBlur = 10;
-
-            ctx.lineWidth = 2 / globalScale;
-            ctx.strokeStyle = "white";
-
-            ctx.beginPath();
-            ctx.arc(
-              node.x,
-              node.y,
-              radius + 1 / globalScale,
-              0,
-              2 * Math.PI,
-              false,
-            );
-            ctx.stroke();
-
-            ctx.restore();
-          }
-
-          const fontSize = 12 / globalScale;
-          if (showLabels) {
-            const nLabel = nodeLabel(node);
-            const textYPosition = node.y + radius + 4;
-            ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            ctx.fillText(nLabel, node.x, textYPosition);
-          }
-        },
-      );
+        const fontSize = 12 / globalScale;
+        if (showLabels) {
+          const nLabel = nodeLabel(node);
+          const textYPosition = node.y + radius + 4;
+          ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(nLabel, node.x, textYPosition);
+        }
+      });
   }, [
     nodeVal,
     nodeLabel,
@@ -235,27 +182,20 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   ]);
 
   const handleNodeLeftClick = useCallback((node: GraphNode) => {
-    nodeStrategy.handleNodeLeftClick(
-      node,
-      setSelectedUserData,
-      setIsSidebarOpen,
-    );
+    nodeStrategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
   }, []);
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
       if (isInWorkspaceMode) {
-        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(
-          node,
-          menuItemsGetters,
-        );
+        const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node, menuItemsGetters);
         setMenu({
           items: menuItems,
           position: { x: event.clientX, y: event.clientY },
         });
       }
     },
-    [isInWorkspaceMode],
+    [isInWorkspaceMode]
   );
 
   const handleCloseMenu = useCallback(() => {
@@ -268,9 +208,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     if (selectedNodeIds.length !== 0) {
       const nodes = selectedNodes;
       const links = graphData.links.filter(
-        (l) =>
-          selectedNodes.find((n) => n.id === l.source) &&
-          selectedNodes.find((n) => n.id === l.target),
+        (l) => selectedNodes.find((n) => n.id === l.source) && selectedNodes.find((n) => n.id === l.target)
       );
 
       setGraphData({ nodes: nodes, links: links });
@@ -294,10 +232,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const displayNodeIds = new Set(displayNodes.map((n) => n.id));
 
     const displayLinks = graphData.links
-      .filter(
-        (link: GraphLink) =>
-          displayNodeIds.has(link.source) && displayNodeIds.has(link.target),
-      )
+      .filter((link: GraphLink) => displayNodeIds.has(link.source) && displayNodeIds.has(link.target))
       .map((link: GraphLink) => ({ ...link }));
 
     fgInstance.current.graphData({
@@ -323,9 +258,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     e.preventDefault();
     e.stopPropagation();
     if (isSelecting) {
-      setSelectionBox((prev) =>
-        prev ? { ...prev, endX: e.clientX, endY: e.clientY } : null,
-      );
+      setSelectionBox((prev) => (prev ? { ...prev, endX: e.clientX, endY: e.clientY } : null));
     }
   };
 
@@ -346,16 +279,12 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const checkNodesInBox = (box: SelectionBox) => {
     if (!fgInstance.current || !fgInstance.current.screen2GraphCoords) return;
 
-    const startCoords = fgInstance.current.screen2GraphCoords(
-      box.startX,
-      box.startY,
-    );
+    const startCoords = fgInstance.current.screen2GraphCoords(box.startX, box.startY);
     const endCoords = fgInstance.current.screen2GraphCoords(box.endX, box.endY);
 
     const nodes: GraphNode[] = fgInstance.current.graphData().nodes;
     const selectedNodes = nodes.filter((node: GraphNode) => {
-      if (typeof node.x !== "number" || typeof node.y !== "number")
-        return false;
+      if (typeof node.x !== 'number' || typeof node.y !== 'number') return false;
       return (
         node.x >= Math.min(startCoords.x, endCoords.x) &&
         node.x <= Math.max(startCoords.x, endCoords.x) &&
@@ -379,11 +308,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         onContextMenu={handleContextMenu}
       />
 
-      <MenuComponent
-        items={menu.items}
-        position={menu.position}
-        onClose={handleCloseMenu}
-      />
+      <MenuComponent items={menu.items} position={menu.position} onClose={handleCloseMenu} />
       {selectionBox && (
         <div
           className="absolute border-2 border-dashed border-[#783CDC] bg-[#783CDC33] pointer-events-none z-10"
@@ -425,10 +350,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
             Save workspace
           </button>
         )}
-        <button
-          onClick={() => resetGraph()}
-          className="px-3 py-2 bg-[#8B0000] text-white border-none rounded-md cursor-pointer"
-        >
+        <button onClick={() => resetGraph()} className="px-3 py-2 bg-[#8B0000] text-white border-none rounded-md cursor-pointer">
           Reset graph
         </button>
       </div>

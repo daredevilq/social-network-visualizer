@@ -1,18 +1,8 @@
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  ChartEvent,
-  ActiveElement,
-  Chart,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { ChartData, ChartOptions } from "chart.js";
-import { ChartColumnDecreasing } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ChartEvent, ActiveElement, Chart } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { ChartData, ChartOptions } from 'chart.js';
+import { ChartColumnDecreasing } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -29,43 +19,43 @@ export function HashtagActivityChartContainer({ data }: HashtagActivityProps) {
   const router = useRouter();
   const hasData = Array.isArray(data) && data.length > 0;
 
-  const chartData: ChartData<"bar"> = {
+  const chartData: ChartData<'bar'> = {
     labels: hasData ? data.map((item) => item.name) : [],
     datasets: [
       {
-        label: "Frequency",
+        label: 'Frequency',
         data: hasData ? data.map((item) => item.frequency) : [],
-        backgroundColor: "rgba(113, 64, 244, 0.7)",
+        backgroundColor: 'rgba(113, 64, 244, 0.7)',
         borderRadius: 6,
         barThickness: 24,
       },
     ],
   };
 
-  const chartOptions: ChartOptions<"bar"> = {
+  const chartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: {
-        mode: "index",
+        mode: 'index',
         intersect: false,
-        backgroundColor: "rgba(50, 50, 63, 0.9)",
-        titleColor: "rgba(255, 255, 255, 0.9)",
-        bodyColor: "rgba(255, 255, 255, 0.9)",
-        borderColor: "rgba(92, 55, 230, 0.5)",
+        backgroundColor: 'rgba(50, 50, 63, 0.9)',
+        titleColor: 'rgba(255, 255, 255, 0.9)',
+        bodyColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(92, 55, 230, 0.5)',
         borderWidth: 1,
       },
     },
     scales: {
       x: {
         beginAtZero: true,
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { color: "rgba(255, 255, 255, 0.7)" },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: 'rgba(255, 255, 255, 0.7)' },
       },
       y: {
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { color: "rgba(255, 255, 255, 0.7)" },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: 'rgba(255, 255, 255, 0.7)' },
       },
     },
     onClick(event: ChartEvent, elements: ActiveElement[], chart: Chart) {
@@ -78,7 +68,7 @@ export function HashtagActivityChartContainer({ data }: HashtagActivityProps) {
     onHover: (event, elements) => {
       const canvas = event.native?.target as HTMLCanvasElement;
       if (canvas) {
-        canvas.style.cursor = elements.length > 0 ? "pointer" : "default";
+        canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
       }
     },
   };

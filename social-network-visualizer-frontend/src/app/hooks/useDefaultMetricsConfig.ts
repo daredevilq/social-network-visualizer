@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { MetricConfig } from "@/types/GraphTypes";
+import { useCallback, useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { MetricConfig } from '@/types/GraphTypes';
 
 export function useDefaultMetricsConfig(lazy = false) {
   const [data, setData] = useState<MetricConfig[]>([]);
@@ -16,7 +16,7 @@ export function useDefaultMetricsConfig(lazy = false) {
       const json = (await res.json()) as MetricConfig[];
       setData(json);
     } catch (e: any) {
-      setError(e?.message ?? "Failed to fetch default metrics");
+      setError(e?.message ?? 'Failed to fetch default metrics');
     } finally {
       setLoading(false);
     }

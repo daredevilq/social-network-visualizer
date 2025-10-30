@@ -1,5 +1,5 @@
-import { Tag } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Tag } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface HashtagActivity {
   name: string;
@@ -10,9 +10,7 @@ interface TopHashtagsContainerProps {
   topHashtags: HashtagActivity[];
 }
 
-export function TopHashtagsContainer({
-  topHashtags,
-}: TopHashtagsContainerProps) {
+export function TopHashtagsContainer({ topHashtags }: TopHashtagsContainerProps) {
   const router = useRouter();
   const getSubtleVariantColor = (index: number) => {
     const baseR = 92;
@@ -43,7 +41,7 @@ export function TopHashtagsContainer({
       colors[index] = getSubtleVariantColor(index);
       return colors;
     },
-    {} as Record<number, string>,
+    {} as Record<number, string>
   );
 
   return (

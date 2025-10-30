@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useRef, useState, useEffect, useCallback } from "react";
-import { Dialog } from "@headlessui/react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import AdvancedConfigModal from "@/app/components/Popups/AdvancedConfigModal";
-import { useDefaultMetricsConfig } from "@/app/hooks/useDefaultMetricsConfig";
-import { ProjectConfig } from "@/types/GraphTypes";
-import { Settings } from "lucide-react";
+import { useRef, useState, useEffect, useCallback } from 'react';
+import { Dialog } from '@headlessui/react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import AdvancedConfigModal from '@/app/components/Popups/AdvancedConfigModal';
+import { useDefaultMetricsConfig } from '@/app/hooks/useDefaultMetricsConfig';
+import { ProjectConfig } from '@/types/GraphTypes';
+import { Settings } from 'lucide-react';
 
 interface ProjectUploadModalProps {
   open: boolean;
@@ -19,7 +19,7 @@ interface ProjectUploadModalProps {
 
 export default function ProjectUploadModal({
   open,
-  defaultName = "",
+  defaultName = '',
   pendingFiles,
   onCancel,
   onFilesChange,
@@ -29,20 +29,19 @@ export default function ProjectUploadModal({
   const [projectName, setProjectName] = useState<string>(defaultName);
   const [isNameError, setIsNameError] = useState(false);
   const [isFileError, setIsFileError] = useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = useState("");
-  const [fileErrorMessage, setFileErrorMessage] = useState("");
+  const [nameErrorMessage, setNameErrorMessage] = useState('');
+  const [fileErrorMessage, setFileErrorMessage] = useState('');
   const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
   const [config, setConfig] = useState<ProjectConfig | null>(null);
-  const { defaultMetrics, loading: loadingDefaults } =
-    useDefaultMetricsConfig();
+  const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
 
   useEffect(() => {
     if (open) {
-      setProjectName("");
+      setProjectName('');
       setIsNameError(false);
       setIsFileError(false);
-      setNameErrorMessage("");
-      setFileErrorMessage("");
+      setNameErrorMessage('');
+      setFileErrorMessage('');
       setConfig(null);
       setShowAdvancedConfig(false);
     }
@@ -58,9 +57,9 @@ export default function ProjectUploadModal({
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       onFilesChange([...pendingFiles, ...filesArray]);
-      e.target.value = "";
+      e.target.value = '';
       setIsFileError(false);
-      setFileErrorMessage("");
+      setFileErrorMessage('');
     }
   };
 
@@ -69,19 +68,19 @@ export default function ProjectUploadModal({
 
     setIsNameError(false);
     setIsFileError(false);
-    setNameErrorMessage("");
-    setFileErrorMessage("");
+    setNameErrorMessage('');
+    setFileErrorMessage('');
 
     let hasError = false;
 
     if (!trimmedName) {
-      setNameErrorMessage("Please enter a project name.");
+      setNameErrorMessage('Please enter a project name.');
       setIsNameError(true);
       hasError = true;
     }
 
     if (pendingFiles.length === 0) {
-      setFileErrorMessage("Please add at least one file.");
+      setFileErrorMessage('Please add at least one file.');
       setIsFileError(true);
       hasError = true;
     }
@@ -89,30 +88,28 @@ export default function ProjectUploadModal({
     if (hasError) return;
 
     const formData = new FormData();
-    pendingFiles.forEach((file) => formData.append("files", file));
+    pendingFiles.forEach((file) => formData.append('files', file));
 
     if (config) {
-      formData.append("config", JSON.stringify(config));
+      formData.append('config', JSON.stringify(config));
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/project/${trimmedName}`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
       } as RequestInit);
 
       const text = await response.text();
       if (!response.ok) {
-        let message = "Upload failed.";
+        let message = 'Upload failed.';
         try {
           const json = JSON.parse(text);
           if (json.error) message = json.error;
         } catch {}
 
-        if (message.includes("already exists")) {
-          setNameErrorMessage(
-            `Project with name '${trimmedName}' already exists.`,
-          );
+        if (message.includes('already exists')) {
+          setNameErrorMessage(`Project with name '${trimmedName}' already exists.`);
           setIsNameError(true);
         } else {
           setFileErrorMessage(message);
@@ -122,11 +119,11 @@ export default function ProjectUploadModal({
       }
 
       onSuccess(trimmedName);
-      setProjectName("");
+      setProjectName('');
       onFilesChange([]);
       setConfig(null);
     } catch (err: any) {
-      console.error("Upload error:", err);
+      console.error('Upload error:', err);
     }
   };
 
@@ -142,70 +139,41 @@ export default function ProjectUploadModal({
 
   return (
     <>
-      <Dialog
-        open={open && !showAdvancedConfig}
-        onClose={onCancel}
-        className="fixed inset-0 z-50 flex items-center justify-center"
-      >
-        {open && !showAdvancedConfig && (
-          <div
-            className="fixed inset-0 bg-black/50"
-            aria-hidden="true"
-            onClick={onCancel}
-          />
-        )}
+      <Dialog open={open && !showAdvancedConfig} onClose={onCancel} className="fixed inset-0 z-50 flex items-center justify-center">
+        {open && !showAdvancedConfig && <div className="fixed inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />}
 
-        <div
-          className="fixed inset-0 bg-black/50"
-          aria-hidden="true"
-          onClick={onCancel}
-        />
+        <div className="fixed inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
 
         <div
           className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
           onClick={(e) => e.stopPropagation()}
         >
-          <Dialog.Title className="text-2xl font-bold text-center mb-4">
-            Upload New Project
-          </Dialog.Title>
+          <Dialog.Title className="text-2xl font-bold text-center mb-4">Upload New Project</Dialog.Title>
 
           <input
             value={projectName}
             onChange={(e) => {
               setProjectName(e.target.value);
               setIsNameError(false);
-              setNameErrorMessage("");
+              setNameErrorMessage('');
             }}
             placeholder="Project name"
             className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
-              isNameError ? "border-red-500" : "border-gray-600"
+              isNameError ? 'border-red-500' : 'border-gray-600'
             }`}
           />
-          {isNameError && (
-            <p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>
-          )}
+          {isNameError && <p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>}
 
-          <div
-            className={`mb-1 p-2 rounded ${
-              isFileError
-                ? "border-2 border-red-300"
-                : "border-2 border-gray-600"
-            }`}
-          >
+          <div className={`mb-1 p-2 rounded ${isFileError ? 'border-2 border-red-300' : 'border-2 border-gray-600'}`}>
             <p className="font-semibold mb-1">Selected files:</p>
             <ul className="max-h-32 overflow-y-auto text-sm list-disc list-inside bg-[#30303d] p-2 rounded">
               {pendingFiles.length === 0 ? (
-                <li className="italic text-gray-400">
-                  No files added yet. Please select files.
-                </li>
+                <li className="italic text-gray-400">No files added yet. Please select files.</li>
               ) : (
                 pendingFiles.map((file, idx) => (
                   <li key={idx} className="flex justify-between items-center">
                     <span>{file.name}</span>
-                    <button
-                      onClick={() => removeFile(idx)}
-                      className="text-red-400 hover:text-red-500 ml-2"
-                    >
+                    <button onClick={() => removeFile(idx)} className="text-red-400 hover:text-red-500 ml-2">
                       ✖
                     </button>
                   </li>
@@ -213,36 +181,22 @@ export default function ProjectUploadModal({
               )}
             </ul>
           </div>
-          {isFileError && (
-            <p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>
-          )}
+          {isFileError && <p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>}
 
           <div className="flex justify-between items-center mb-4 mt-4">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
-            >
+            <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black">
               Add files
             </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept=".json"
-              onChange={handleFilesSelected}
-              className="hidden"
-            />
+            <input ref={fileInputRef} type="file" multiple accept=".json" onChange={handleFilesSelected} className="hidden" />
           </div>
 
           <div className="mb-4 flex items-center justify-between p-3 bg-[#30303d] rounded-lg border border-gray-600">
             <div>
-              <p className="text-sm font-medium text-gray-200">
-                Metrics Configuration
-              </p>
+              <p className="text-sm font-medium text-gray-200">Metrics Configuration</p>
               <p className="text-xs text-gray-400 mt-0.5 mr-5">
                 {loadingDefaults
-                  ? "Loading default configuration..."
-                  : "Default: PAGERANK, COMMUNITY with AUTHOR nodes and MENTIONS relations"}
+                  ? 'Loading default configuration...'
+                  : 'Default: PAGERANK, COMMUNITY with AUTHOR nodes and MENTIONS relations'}
               </p>
             </div>
             <button
@@ -250,9 +204,7 @@ export default function ProjectUploadModal({
               onClick={() => setShowAdvancedConfig(true)}
               disabled={loadingDefaults}
               className={`px-4 py-2 rounded text-black ${
-                loadingDefaults
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-gray-300 hover:bg-gray-400"
+                loadingDefaults ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400'
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -264,18 +216,15 @@ export default function ProjectUploadModal({
               onClick={() => {
                 setIsFileError(false);
                 setIsNameError(false);
-                setNameErrorMessage("");
-                setFileErrorMessage("");
+                setNameErrorMessage('');
+                setFileErrorMessage('');
                 onCancel();
               }}
               className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
             >
               Cancel
             </button>
-            <button
-              onClick={handleUpload}
-              className="px-4 py-2 rounded bg-[#7140F4] hover:bg-[#5b30c9]"
-            >
+            <button onClick={handleUpload} className="px-4 py-2 rounded bg-[#7140F4] hover:bg-[#5b30c9]">
               Upload
             </button>
           </div>

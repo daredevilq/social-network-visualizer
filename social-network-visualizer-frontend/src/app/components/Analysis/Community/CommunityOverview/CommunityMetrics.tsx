@@ -1,6 +1,6 @@
-import React from "react";
-import { User2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import React from 'react';
+import { User2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   topAuthor: string;
@@ -8,11 +8,7 @@ interface Props {
   topHashtags: string[];
 }
 
-export default function CommunityMetrics({
-  topAuthor,
-  topPageRank,
-  topHashtags,
-}: Props) {
+export default function CommunityMetrics({ topAuthor, topPageRank, topHashtags }: Props) {
   const tagsToShow = topHashtags.slice(0, 3);
   const router = useRouter();
 
@@ -35,14 +31,11 @@ export default function CommunityMetrics({
         <span className="opacity-70">Hashtags&nbsp;</span>
         {tagsToShow.length
           ? tagsToShow.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 bg-[#7140F4]/20 rounded-full text-xs"
-              >
+              <span key={tag} className="px-2 py-0.5 bg-[#7140F4]/20 rounded-full text-xs">
                 #{tag}
               </span>
             ))
-          : "—"}
+          : '—'}
       </span>
     </div>
   );
