@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Dialog } from "@headlessui/react";
 import { API_BASE_URL } from "@/app/configuration/urlConfig";
 import AdvancedConfigModal from "@/app/components/Popups/AdvancedConfigModal";
 import { useDefaultMetricsConfig } from "@/app/hooks/useDefaultMetricsConfig";
 import { ProjectConfig } from "@/types/GraphTypes";
 import { Settings } from "lucide-react";
+import PopoverIcon from "@/app/components/Popups/PopoverIcon";
 
 interface ProjectUploadModalProps {
   open: boolean;
@@ -177,8 +178,8 @@ export default function ProjectUploadModal({
               setNameErrorMessage("");
             }}
             placeholder="Project name"
-            className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
-              isNameError ? "border-red-500" : "border-gray-600"
+            className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border-1 ${
+              isNameError ? "border-red-400" : "border-gray-600"
             }`}
           />
           {isNameError && (
@@ -188,8 +189,8 @@ export default function ProjectUploadModal({
           <div
             className={`mb-1 p-2 rounded ${
               isFileError
-                ? "border-2 border-red-300"
-                : "border-2 border-gray-600"
+                ? "border-1 border-red-400"
+                : "border-1 border-gray-600"
             }`}
           >
             <p className="font-semibold mb-1">Selected files:</p>
@@ -236,9 +237,16 @@ export default function ProjectUploadModal({
 
           <div className="mb-4 flex items-center justify-between p-3 bg-[#30303d] rounded-lg border border-gray-600">
             <div>
-              <p className="text-sm font-medium text-gray-200">
-                Metrics Configuration
-              </p>
+              <div className="flex items-center">
+                <p className="text-sm font-medium text-gray-200">
+                  Metrics Configuration
+                </p>
+                <PopoverIcon
+                  message={`Configure which metrics will be computed for your project, including node labels, relation types, and orientations.`}
+                  scale={1.1}
+                  position="top"
+                />
+              </div>
               <p className="text-xs text-gray-400 mt-0.5 mr-5">
                 {loadingDefaults
                   ? "Loading default configuration..."

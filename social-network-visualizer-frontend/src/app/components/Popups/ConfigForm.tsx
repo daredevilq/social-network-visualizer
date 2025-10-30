@@ -1,18 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type {
+import {
   MetricConfig,
-  ProjectConfig,
-  Orientation,
+  MetricType,
   NodeType,
+  Orientation,
+  ProjectConfig,
   RelationType,
 } from "@/types/GraphTypes";
 import { useConfigMeta } from "@/app/hooks/useConfigMeta";
 import {
-  isRelationAvailable,
   filterValidRelations,
+  isRelationAvailable,
 } from "@/app/utils/nodeRelationMap";
+import PopoverIcon from "@/app/components/Popups/PopoverIcon";
 
 interface ConfigFormProps {
   projectName: string;
@@ -122,18 +124,41 @@ export default function ConfigForm({
           className="border border-gray-600 rounded-lg p-4 space-y-3 bg-[#30303d]"
         >
           <div className="flex items-center justify-between pb-2 border-b border-gray-700">
-            <h4 className="text-base font-semibold text-white">
-              {metric.type}
-            </h4>
+            <div className="flex items-center">
+              <h4 className="text-base font-semibold text-[#FAFAFA]">
+                {metric.type}
+              </h4>
+              {metric.type === MetricType.PAGERANK && (
+                <PopoverIcon
+                  message={`The **PageRank** algorithm measures the importance of nodes in a graph based on the number and quality of incoming and outgoing relationships. Useful for identifying influential authors.`}
+                  scale={1.1}
+                  position="right"
+                />
+              )}
+              {metric.type === MetricType.COMMUNITY && (
+                <PopoverIcon
+                  message={`The **Community Detection** algorithm identifies clusters of nodes that are densely connected internally. Useful for discovering social groups or thematic communities within your data.`}
+                  scale={1.1}
+                  position="right"
+                />
+              )}
+            </div>
             <span className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300">
               {metric.orientation}
             </span>
           </div>
 
           <div>
-            <label className="block text-xs text-gray-300 mb-1.5 font-medium">
-              Orientation
-            </label>
+            <div className="flex items-center">
+              <label className="block text-xs text-gray-300 font-medium">
+                Orientation
+              </label>
+              <PopoverIcon
+                message={`Defines how relationship direction is treated during the algorithm: **NATURAL** uses the original direction of relationships in the graph **UNDIRECTED** treats all relationships as bidirectional (ignores direction)`}
+                scale={0.9}
+                position={"right"}
+              />
+            </div>
             <div className="flex gap-2">
               {meta.orientations.map((o: string) => (
                 <label
@@ -162,9 +187,16 @@ export default function ConfigForm({
           </div>
 
           <div>
-            <label className="block text-xs text-gray-300 mb-1.5 font-medium">
-              Node Labels
-            </label>
+            <div className="flex items-center">
+              <label className="block text-xs text-gray-300 font-medium">
+                Node Labels
+              </label>
+              <PopoverIcon
+                message={`Select which node labels will be analyzed by the algorithm. You can specify analysis only for **AUTHOR** type.`}
+                scale={0.9}
+                position={"right"}
+              />
+            </div>
             <div className="flex flex-wrap gap-2">
               {meta.nodeLabels.map((nl: string) => {
                 const isDisabled = nl !== "AUTHOR";
@@ -206,9 +238,16 @@ export default function ConfigForm({
           </div>
 
           <div>
-            <label className="block text-xs text-gray-300 mb-1.5 font-medium">
-              Relation Types
-            </label>
+            <div className="flex items-center">
+              <label className="block text-xs text-gray-300 font-medium">
+                Relation Types
+              </label>
+              <PopoverIcon
+                message={`Choose which relationship types should be included in the analysis. Only relationships connecting the selected node labels will be used.`}
+                scale={0.9}
+                position={"right"}
+              />
+            </div>
             <div className="flex flex-wrap gap-2">
               {meta.relationTypes.map((rt: string) => {
                 const isAvailable = isRelationAvailable(
