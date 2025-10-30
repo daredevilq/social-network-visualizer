@@ -64,9 +64,7 @@ export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
             setNameErrorMessage('');
           }}
           placeholder="Workspace name"
-          className={`w-full mb-3 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
-            isNameError ? 'border-red-500' : 'border-gray-600'
-          }`}
+          className={`w-full mb-3 p-2 rounded placeholder:text-gray-400 bg-transparent border ${isNameError ? 'border-red-500' : 'border-gray-600'}`}
         />
         {isNameError && <p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>}
 

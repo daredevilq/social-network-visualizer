@@ -162,9 +162,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
               className={`w-12 h-6 rounded-full transition-colors duration-300 ${isLabelsMode ? 'bg-indigo-500' : 'bg-gray-300'} relative`}
             >
               <span
-                className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${
-                  isLabelsMode ? 'translate-x-6' : ''
-                }`}
+                className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${isLabelsMode ? 'translate-x-6' : ''}`}
               />
             </div>
             <div className="flex sm:hidden ml-1">

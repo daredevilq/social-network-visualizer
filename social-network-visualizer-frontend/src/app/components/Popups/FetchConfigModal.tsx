@@ -61,9 +61,7 @@ export default function FetchConfigModal({ open, onClose, onApply, currentConfig
                 <div className="flex items-center justify-between">
                   <label className={`text-base font-semibold ${!isEnabled ? 'text-gray-500' : 'text-white'}`}>{nodeType}</label>
                   <span
-                    className={`text-sm font-mono px-2 py-1 rounded ${
-                      !isEnabled ? 'bg-gray-700 text-gray-500' : 'bg-[#7140F4]/20 text-[#7140F4]'
-                    }`}
+                    className={`text-sm font-mono px-2 py-1 rounded ${!isEnabled ? 'bg-gray-700 text-gray-500' : 'bg-[#7140F4]/20 text-[#7140F4]'}`}
                   >
                     {limit}
                   </span>
@@ -81,9 +79,7 @@ export default function FetchConfigModal({ open, onClose, onApply, currentConfig
                       [nodeType]: parseInt(e.target.value),
                     })
                   }
-                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
-                    !isEnabled ? 'bg-gray-700' : 'bg-gray-600 accent-[#7140F4]'
-                  }`}
+                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${!isEnabled ? 'bg-gray-700' : 'bg-gray-600 accent-[#7140F4]'}`}
                   style={{
                     background: isEnabled
                       ? `linear-gradient(to right, #7140F4 0%, #7140F4 ${(limit / 500) * 100}%, #4b5563 ${(limit / 500) * 100}%, #4b5563 100%)`

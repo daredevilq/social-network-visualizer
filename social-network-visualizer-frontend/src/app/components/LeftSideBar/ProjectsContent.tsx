@@ -140,9 +140,7 @@ export default function ProjectsContent() {
         {projects.map((project) => (
           <div key={project.name} className="relative mb-2">
             <div
-              className={`py-3 flex items-center justify-between ${
-                loadedProjectName === project.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'
-              }`}
+              className={`py-3 flex items-center justify-between ${loadedProjectName === project.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'}`}
             >
               <button
                 disabled={loading}

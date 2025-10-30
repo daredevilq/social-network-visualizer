@@ -158,9 +158,7 @@ export default function ProjectUploadModal({
               setNameErrorMessage('');
             }}
             placeholder="Project name"
-            className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${
-              isNameError ? 'border-red-500' : 'border-gray-600'
-            }`}
+            className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border ${isNameError ? 'border-red-500' : 'border-gray-600'}`}
           />
           {isNameError && <p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>}
 
@@ -203,9 +201,7 @@ export default function ProjectUploadModal({
               type="button"
               onClick={() => setShowAdvancedConfig(true)}
               disabled={loadingDefaults}
-              className={`px-4 py-2 rounded text-black ${
-                loadingDefaults ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400'
-              }`}
+              className={`px-4 py-2 rounded text-black ${loadingDefaults ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400'}`}
             >
               <Settings className="w-4 h-4" />
             </button>
