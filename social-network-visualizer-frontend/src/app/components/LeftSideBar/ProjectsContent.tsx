@@ -95,7 +95,9 @@ export default function ProjectsContent() {
 
   const deleteWorkspace = async (workspaceName: string) => {
     await runWithLoading(async () => {
-      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, {
+        method: 'DELETE',
+      });
       if (!res.ok) throw new Error('Failed to delete workspace');
 
       if (workspaceName === openedWorkspaceName) {
@@ -140,7 +142,9 @@ export default function ProjectsContent() {
         {projects.map((project) => (
           <div key={project.name} className="relative mb-2">
             <div
-              className={`py-3 flex items-center justify-between ${loadedProjectName === project.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'}`}
+              className={`py-3 flex items-center justify-between ${
+                loadedProjectName === project.name ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4]'
+              }`}
             >
               <button
                 disabled={loading}

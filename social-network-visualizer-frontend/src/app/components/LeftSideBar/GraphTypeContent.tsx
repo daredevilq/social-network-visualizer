@@ -24,7 +24,9 @@ export default function GraphTypeContent() {
                 showNotification(`Switched to ${label}`, BannerType.INFO);
               }}
               disabled={selectedGraphType === value}
-              className={`w-full text-left transition-colors ${selectedGraphType === value ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4] cursor-pointer'}`}
+              className={`w-full text-left transition-colors ${
+                selectedGraphType === value ? 'text-[#7140F4] font-semibold' : 'text-white hover:text-[#7140F4] cursor-pointer'
+              }`}
             >
               {label}
             </button>

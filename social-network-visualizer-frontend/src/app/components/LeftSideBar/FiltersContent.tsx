@@ -145,10 +145,14 @@ export default function FiltersContent() {
                     className="group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors hover:bg-[#FAFAFA]/5"
                   >
                     <span
-                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${tempNodeTypes.includes(nodeType) ? 'bg-[#7140F4]' : 'bg-transparent'}`}
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                        tempNodeTypes.includes(nodeType) ? 'bg-[#7140F4]' : 'bg-transparent'
+                      }`}
                     />
                     <span
-                      className={`ml-3 truncate transition-colors ${tempNodeTypes.includes(nodeType) ? 'text-[#7140F4] font-medium' : 'text-[#FAFAFA] group-hover:text-[#7140F4]'}`}
+                      className={`ml-3 truncate transition-colors ${
+                        tempNodeTypes.includes(nodeType) ? 'text-[#7140F4] font-medium' : 'text-[#FAFAFA] group-hover:text-[#7140F4]'
+                      }`}
                     >
                       {nodeType}
                     </span>
@@ -202,10 +206,18 @@ export default function FiltersContent() {
                       }`}
                     >
                       <span
-                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${isSelected && isAvailable ? 'bg-[#7140F4]' : 'bg-transparent'}`}
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                          isSelected && isAvailable ? 'bg-[#7140F4]' : 'bg-transparent'
+                        }`}
                       />
                       <span
-                        className={`ml-3 truncate transition-colors ${!isAvailable ? 'text-gray-600' : isSelected ? 'text-[#7140F4] font-medium' : 'text-[#FAFAFA] group-hover:text-[#7140F4]'}`}
+                        className={`ml-3 truncate transition-colors ${
+                          !isAvailable
+                            ? 'text-gray-600'
+                            : isSelected
+                              ? 'text-[#7140F4] font-medium'
+                              : 'text-[#FAFAFA] group-hover:text-[#7140F4]'
+                        }`}
                       >
                         {relationType}
                       </span>

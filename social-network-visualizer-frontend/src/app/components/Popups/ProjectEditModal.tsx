@@ -57,7 +57,10 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
       const fd = new FormData();
       filesToUpload.forEach((f) => fd.append('files', f));
 
-      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`, { method: 'PUT', body: fd });
+      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`, {
+        method: 'PUT',
+        body: fd,
+      });
       if (!res.ok) throw new Error('Failed to upload to current project');
 
       const data = await res.json();
@@ -76,7 +79,10 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
       const fd = new FormData();
       filesToUpload.forEach((f) => fd.append('files', f));
 
-      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}`, { method: 'PUT', body: fd });
+      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}`, {
+        method: 'PUT',
+        body: fd,
+      });
 
       if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
       const data = await res.json();

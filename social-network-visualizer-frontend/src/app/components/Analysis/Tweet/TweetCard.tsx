@@ -63,7 +63,9 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
 
       {tweet.photos && tweet.photos.length > 0 && (
         <div
-          className={`grid gap-2 mb-3 ${tweet.photos.length === 1 ? 'grid-cols-1' : tweet.photos.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}
+          className={`grid gap-2 mb-3 ${
+            tweet.photos.length === 1 ? 'grid-cols-1' : tweet.photos.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'
+          }`}
         >
           {tweet.photos.map((photo, idx) => (
             <div key={idx} className="rounded-lg overflow-hidden max-h-[50vh]">
