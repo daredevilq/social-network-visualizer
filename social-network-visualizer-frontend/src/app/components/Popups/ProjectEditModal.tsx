@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { Dialog } from "@headlessui/react";
-import { useProject } from "@/app/context/ProjectContext";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { useWorkspace } from "@/app/context/WorkspaceContext";
+import { useEffect, useRef, useState } from 'react';
+import { Dialog } from '@headlessui/react';
+import { useProject } from '@/app/context/ProjectContext';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { useWorkspace } from '@/app/context/WorkspaceContext';
 
 interface Props {
   projectName: string | null;
@@ -29,9 +29,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
 
   const loadFileList = async () => {
     if (!projectName) return;
-    const res = await fetch(
-      `${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`,
-    );
+    const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`);
     setFilesOnServer(await res.json());
   };
 
@@ -57,20 +55,20 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
 
     try {
       const fd = new FormData();
-      filesToUpload.forEach((f) => fd.append("files", f));
+      filesToUpload.forEach((f) => fd.append('files', f));
 
-      const res = await fetch(
-        `${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`,
-        { method: "PUT", body: fd },
-      );
-      if (!res.ok) throw new Error("Failed to upload to current project");
+      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file`, {
+        method: 'PUT',
+        body: fd,
+      });
+      if (!res.ok) throw new Error('Failed to upload to current project');
 
       const data = await res.json();
       showStatus(data.message);
 
       setFilesToUpload([]);
     } catch (err: any) {
-      showStatus(err.message || "Failed to upload files");
+      showStatus(err.message || 'Failed to upload files');
     }
   };
 
@@ -79,12 +77,12 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
 
     try {
       const fd = new FormData();
-      filesToUpload.forEach((f) => fd.append("files", f));
+      filesToUpload.forEach((f) => fd.append('files', f));
 
-      const res = await fetch(
-        `${API_BASE_URL}/project/${encodeURIComponent(projectName)}`,
-        { method: "PUT", body: fd },
-      );
+      const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}`, {
+        method: 'PUT',
+        body: fd,
+      });
 
       if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
       const data = await res.json();
@@ -92,7 +90,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
 
       setFilesToUpload([]);
     } catch (err: any) {
-      showStatus(err.message || "Failed to upload files");
+      showStatus(err.message || 'Failed to upload files');
     }
   };
 
@@ -101,16 +99,15 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
 
     try {
       for (const fileName of filesToDelete) {
-        const res = await fetch(
-          `${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file/${encodeURIComponent(fileName)}`,
-          { method: "DELETE" },
-        );
+        const res = await fetch(`${API_BASE_URL}/project/${encodeURIComponent(projectName)}/file/${encodeURIComponent(fileName)}`, {
+          method: 'DELETE',
+        });
         if (!res.ok) throw new Error(`Failed to delete ${fileName}`);
       }
-      showStatus("Marked files deleted");
+      showStatus('Marked files deleted');
       setFilesToDelete([]);
     } catch (err: any) {
-      showStatus(err.message || "Failed to delete files");
+      showStatus(err.message || 'Failed to delete files');
     }
   };
 
@@ -122,9 +119,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
   };
 
   const handleMarkFileForDeletion = (fileName: string) => {
-    setFilesToDelete((prev) =>
-      prev.includes(fileName) ? prev : [...prev, fileName],
-    );
+    setFilesToDelete((prev) => (prev.includes(fileName) ? prev : [...prev, fileName]));
     setFilesOnServer((prev) => prev.filter((name) => name !== fileName));
   };
 
@@ -133,20 +128,11 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
   }, [projectName]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleCancel}
-      className="fixed inset-0 z-50 flex items-center justify-center"
-    >
+    <Dialog open={open} onClose={handleCancel} className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50" />
 
-      <div
-        className="bg-[#262631] rounded-xl p-6 w-full max-w-lg z-50 relative shadow-xl text-white"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Dialog.Title className="text-2xl font-bold mb-4 text-center">
-          Edit {projectName}
-        </Dialog.Title>
+      <div className="bg-[#262631] rounded-xl p-6 w-full max-w-lg z-50 relative shadow-xl text-white" onClick={(e) => e.stopPropagation()}>
+        <Dialog.Title className="text-2xl font-bold mb-4 text-center">Edit {projectName}</Dialog.Title>
 
         <h3 className="font-semibold mb-2">Existing files</h3>
         <ul className="max-h-48 flex flex-col bg-[#262631] overflow-y-auto scrollbar-dark p-2 rounded mb-4 pr-2">
@@ -156,11 +142,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
             filesOnServer.map((fn) => (
               <li key={fn} className="flex justify-between items-center">
                 <span>{fn}</span>
-                <button
-                  disabled={loading}
-                  onClick={() => handleMarkFileForDeletion(fn)}
-                  className="text-red-400 hover:text-red-500 ml-2"
-                >
+                <button disabled={loading} onClick={() => handleMarkFileForDeletion(fn)} className="text-red-400 hover:text-red-500 ml-2">
                   ✖
                 </button>
               </li>
@@ -192,11 +174,8 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
               accept=".json"
               onChange={(e) => {
                 if (e.target.files) {
-                  setFilesToUpload([
-                    ...filesToUpload,
-                    ...Array.from(e.target.files),
-                  ]);
-                  e.target.value = "";
+                  setFilesToUpload([...filesToUpload, ...Array.from(e.target.files)]);
+                  e.target.value = '';
                 }
               }}
               className="hidden"
@@ -205,26 +184,16 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
         </div>
 
         <div className="flex justify-end gap-4">
-          <button
-            disabled={loading}
-            onClick={handleCancel}
-            className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500"
-          >
+          <button disabled={loading} onClick={handleCancel} className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500">
             Cancel
           </button>
 
-          <button
-            disabled={loading}
-            onClick={() => handleSave()}
-            className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5b30c9]"
-          >
+          <button disabled={loading} onClick={() => handleSave()} className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5b30c9]">
             Reload changes
           </button>
         </div>
 
-        {status && (
-          <p className="text-center text-sm text-[#7140F4] pt-2">{status}</p>
-        )}
+        {status && <p className="text-center text-sm text-[#7140F4] pt-2">{status}</p>}
       </div>
     </Dialog>
   );

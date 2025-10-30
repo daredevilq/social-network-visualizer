@@ -1,28 +1,22 @@
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import HashtagStatsContainer from "@/app/components/Analysis/Hashtag/HashtagStatsContainer";
-import HashtagActivityTimelineContainer from "./HashtagActivityTimelineContainer";
-import HashtagUsersContainer from "@/app/components/Analysis/Hashtag/HashtagUserContainer";
-import HashtagHeatMapContainer from "./HashtagHeatMapContainer";
-import RelatedHashtagsContainer from "./RelatedHashtagsContainer";
-import ViralTweetsWithHashtagContainer from "./ViralTweetsWithHashtagContainer";
-import { Hash } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import HashtagStatsContainer from '@/app/components/Analysis/Hashtag/HashtagStatsContainer';
+import HashtagActivityTimelineContainer from './HashtagActivityTimelineContainer';
+import HashtagUsersContainer from '@/app/components/Analysis/Hashtag/HashtagUserContainer';
+import HashtagHeatMapContainer from './HashtagHeatMapContainer';
+import RelatedHashtagsContainer from './RelatedHashtagsContainer';
+import ViralTweetsWithHashtagContainer from './ViralTweetsWithHashtagContainer';
+import { Hash } from 'lucide-react';
 
-export default function HashtagAnalysisContainer({
-  hashtagName,
-}: {
-  hashtagName: string;
-}) {
+export default function HashtagAnalysisContainer({ hashtagName }: { hashtagName: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedHashTagName, setSelectedHashTagName] = useState<string | null>(
-    null,
-  );
+  const [selectedHashTagName, setSelectedHashTagName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hashtagName) {
-      router.push("/");
+      router.push('/');
       return;
     }
 
@@ -37,8 +31,8 @@ export default function HashtagAnalysisContainer({
         // const data = await userDataRes.json()
         // setUserData(data)
       } catch (err) {
-        setError("Failed to load hashtag data. Please try again later.");
-        console.error("Error fetching hashtag data:", err);
+        setError('Failed to load hashtag data. Please try again later.');
+        console.error('Error fetching hashtag data:', err);
       } finally {
         setLoading(false);
       }
@@ -55,18 +49,8 @@ export default function HashtagAnalysisContainer({
             onClick={() => router.back()}
             className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Graph
           </button>

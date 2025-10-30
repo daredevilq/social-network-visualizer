@@ -1,21 +1,14 @@
-"use client";
+'use client';
 
-import { useProject } from "@/app/context/ProjectContext";
-import { useEffect, useState, useRef } from "react";
-import {
-  Network,
-  Layers,
-  ChevronDown,
-  ChevronUp,
-  Search,
-  Settings,
-} from "lucide-react";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { BannerType } from "@/app/components/Popups/Banner";
-import { RelationType, NodeType } from "@/types/GraphTypes";
-import { GraphQueryRequest, FetchConfig } from "@/types/GraphQueryRequest";
-import { isRelationAvailable } from "@/app/utils/nodeRelationMap";
-import FetchConfigModal from "@/app/components/Popups/FetchConfigModal";
+import { useProject } from '@/app/context/ProjectContext';
+import { useEffect, useState, useRef } from 'react';
+import { Network, Layers, ChevronDown, ChevronUp, Search, Settings } from 'lucide-react';
+import { useNotification } from '@/app/context/NotificationProvider';
+import { BannerType } from '@/app/components/Popups/Banner';
+import { RelationType, NodeType } from '@/types/GraphTypes';
+import { GraphQueryRequest, FetchConfig } from '@/types/GraphQueryRequest';
+import { isRelationAvailable } from '@/app/utils/nodeRelationMap';
+import FetchConfigModal from '@/app/components/Popups/FetchConfigModal';
 
 export default function FiltersContent() {
   const {
@@ -31,17 +24,14 @@ export default function FiltersContent() {
 
   const { showNotification } = useNotification();
 
-  const [tempNodeTypes, setTempNodeTypes] =
-    useState<NodeType[]>(selectedNodeTypes);
-  const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(
-    selectedRelationTypes,
-  );
+  const [tempNodeTypes, setTempNodeTypes] = useState<NodeType[]>(selectedNodeTypes);
+  const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(selectedRelationTypes);
 
   const [nodeTypesExpanded, setNodeTypesExpanded] = useState(true);
   const [relationTypesExpanded, setRelationTypesExpanded] = useState(true);
   const [fetchConfigExpanded, setFetchConfigExpanded] = useState(true);
-  const [nodeSearchQuery, setNodeSearchQuery] = useState("");
-  const [relationSearchQuery, setRelationSearchQuery] = useState("");
+  const [nodeSearchQuery, setNodeSearchQuery] = useState('');
+  const [relationSearchQuery, setRelationSearchQuery] = useState('');
   const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -57,52 +47,36 @@ export default function FiltersContent() {
 
     const checkScroll = () => {
       const isScrollable = container.scrollHeight > container.clientHeight;
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <=
-        container.clientHeight + 10;
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 10;
       setShowScrollHint(isScrollable && !isAtBottom);
     };
 
     checkScroll();
-    container.addEventListener("scroll", checkScroll);
-    window.addEventListener("resize", checkScroll);
+    container.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
 
     return () => {
-      container.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
+      container.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
     };
   }, [nodeTypesExpanded, relationTypesExpanded, fetchConfigExpanded]);
 
   const toggleNodeType = (nodeType: NodeType) => {
-    setTempNodeTypes((prev) =>
-      prev.includes(nodeType)
-        ? prev.filter((t) => t !== nodeType)
-        : [...prev, nodeType],
-    );
+    setTempNodeTypes((prev) => (prev.includes(nodeType) ? prev.filter((t) => t !== nodeType) : [...prev, nodeType]));
   };
 
   const toggleRelationType = (relationType: RelationType) => {
-    setTempRelationTypes((prev) =>
-      prev.includes(relationType)
-        ? prev.filter((t) => t !== relationType)
-        : [...prev, relationType],
-    );
+    setTempRelationTypes((prev) => (prev.includes(relationType) ? prev.filter((t) => t !== relationType) : [...prev, relationType]));
   };
 
   const handleApply = async () => {
     if (tempNodeTypes.length === 0) {
-      showNotification(
-        "Please select at least one node type",
-        BannerType.ERROR,
-      );
+      showNotification('Please select at least one node type', BannerType.ERROR);
       return;
     }
 
     if (tempRelationTypes.length === 0) {
-      showNotification(
-        "Please select at least one relation type",
-        BannerType.ERROR,
-      );
+      showNotification('Please select at least one relation type', BannerType.ERROR);
       return;
     }
 
@@ -117,35 +91,24 @@ export default function FiltersContent() {
           fetchConfig: fetchConfig,
         };
         await fetchGraphData(request);
-        showNotification("Filters applied successfully", BannerType.SUCCESS);
+        showNotification('Filters applied successfully', BannerType.SUCCESS);
       } catch (err: any) {
-        showNotification(
-          `Error updating graph: ${err.message || err}`,
-          BannerType.ERROR,
-        );
+        showNotification(`Error updating graph: ${err.message || err}`, BannerType.ERROR);
       }
     });
   };
 
-  const filteredNodeTypes = Object.values(NodeType).filter((nodeType) =>
-    nodeType.toLowerCase().includes(nodeSearchQuery.toLowerCase()),
-  );
+  const filteredNodeTypes = Object.values(NodeType).filter((nodeType) => nodeType.toLowerCase().includes(nodeSearchQuery.toLowerCase()));
 
-  const filteredRelationTypes = Object.values(RelationType).filter(
-    (relationType) =>
-      relationType.toLowerCase().includes(relationSearchQuery.toLowerCase()),
+  const filteredRelationTypes = Object.values(RelationType).filter((relationType) =>
+    relationType.toLowerCase().includes(relationSearchQuery.toLowerCase())
   );
 
   return (
     <div className="relative h-full flex flex-col text-[#FAFAFA] px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-[#FAFAFA] pb-2 mb-4">
-        Graph Filters
-      </h1>
+      <h1 className="text-2xl font-bold border-b border-[#FAFAFA] pb-2 mb-4">Graph Filters</h1>
 
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto space-y-4 scrollbar-none"
-      >
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
         <div className="border border-gray-700 rounded-lg bg-[#30303d]">
           <button
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
@@ -154,15 +117,9 @@ export default function FiltersContent() {
             <div className="flex items-center gap-2">
               <Layers className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Nodes</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
-                {tempNodeTypes.length} selected
-              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">{tempNodeTypes.length} selected</span>
             </div>
-            {nodeTypesExpanded ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
+            {nodeTypesExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
 
           {nodeTypesExpanded && (
@@ -189,16 +146,12 @@ export default function FiltersContent() {
                   >
                     <span
                       className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
-                        tempNodeTypes.includes(nodeType)
-                          ? "bg-[#7140F4]"
-                          : "bg-transparent"
+                        tempNodeTypes.includes(nodeType) ? 'bg-[#7140F4]' : 'bg-transparent'
                       }`}
                     />
                     <span
                       className={`ml-3 truncate transition-colors ${
-                        tempNodeTypes.includes(nodeType)
-                          ? "text-[#7140F4] font-medium"
-                          : "text-[#FAFAFA] group-hover:text-[#7140F4]"
+                        tempNodeTypes.includes(nodeType) ? 'text-[#7140F4] font-medium' : 'text-[#FAFAFA] group-hover:text-[#7140F4]'
                       }`}
                     >
                       {nodeType}
@@ -218,15 +171,9 @@ export default function FiltersContent() {
             <div className="flex items-center gap-2">
               <Network className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Relations</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
-                {tempRelationTypes.length} selected
-              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">{tempRelationTypes.length} selected</span>
             </div>
-            {relationTypesExpanded ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
+            {relationTypesExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
 
           {relationTypesExpanded && (
@@ -246,39 +193,30 @@ export default function FiltersContent() {
 
               <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-dark">
                 {filteredRelationTypes.map((relationType) => {
-                  const isAvailable = isRelationAvailable(
-                    relationType,
-                    tempNodeTypes,
-                  );
+                  const isAvailable = isRelationAvailable(relationType, tempNodeTypes);
                   const isSelected = tempRelationTypes.includes(relationType);
 
                   return (
                     <button
                       key={relationType}
-                      onClick={() =>
-                        isAvailable && toggleRelationType(relationType)
-                      }
+                      onClick={() => isAvailable && toggleRelationType(relationType)}
                       disabled={!isAvailable}
                       className={`group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors ${
-                        isAvailable
-                          ? "hover:bg-[#FAFAFA]/5 cursor-pointer"
-                          : "cursor-not-allowed opacity-40"
+                        isAvailable ? 'hover:bg-[#FAFAFA]/5 cursor-pointer' : 'cursor-not-allowed opacity-40'
                       }`}
                     >
                       <span
                         className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
-                          isSelected && isAvailable
-                            ? "bg-[#7140F4]"
-                            : "bg-transparent"
+                          isSelected && isAvailable ? 'bg-[#7140F4]' : 'bg-transparent'
                         }`}
                       />
                       <span
                         className={`ml-3 truncate transition-colors ${
                           !isAvailable
-                            ? "text-gray-600"
+                            ? 'text-gray-600'
                             : isSelected
-                              ? "text-[#7140F4] font-medium"
-                              : "text-[#FAFAFA] group-hover:text-[#7140F4]"
+                              ? 'text-[#7140F4] font-medium'
+                              : 'text-[#FAFAFA] group-hover:text-[#7140F4]'
                         }`}
                       >
                         {relationType}
@@ -300,27 +238,18 @@ export default function FiltersContent() {
               <Settings className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Fetch Limits</h2>
             </div>
-            {fetchConfigExpanded ? (
-              <ChevronUp className="w-5 h-5" />
-            ) : (
-              <ChevronDown className="w-5 h-5" />
-            )}
+            {fetchConfigExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
 
           {fetchConfigExpanded && (
             <div className="p-3 pt-0">
-              <p className="text-sm text-gray-400 mb-3">
-                Control how many nodes to fetch from the database for each type.
-              </p>
+              <p className="text-sm text-gray-400 mb-3">Control how many nodes to fetch from the database for each type.</p>
 
               <div className="space-y-2 mb-3">
                 {tempNodeTypes.map((nodeType) => {
                   const limit = fetchConfig.nodeLimits?.[nodeType] ?? 100;
                   return (
-                    <div
-                      key={nodeType}
-                      className="flex items-center justify-between text-sm"
-                    >
+                    <div key={nodeType} className="flex items-center justify-between text-sm">
                       <span className="text-[#FAFAFA]">{nodeType}</span>
                       <span className="text-[#7140F4] font-mono">{limit}</span>
                     </div>

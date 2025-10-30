@@ -1,5 +1,5 @@
-import { User2, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { User2, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Author {
   username: string;
@@ -32,13 +32,9 @@ export function TopAuthorsContainer({ authors }: TopAuthorsProps) {
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md">
                   <User2 size={18} />
                 </div>
-                <span className="truncate font-medium text-gray-200">
-                  {author.username}
-                </span>
+                <span className="truncate font-medium text-gray-200">{author.username}</span>
               </div>
-              <span className="text-gray-300 font-medium ml-auto">
-                {author.count}
-              </span>
+              <span className="text-gray-300 font-medium ml-auto">{author.count}</span>
             </div>
           ))}
         </div>

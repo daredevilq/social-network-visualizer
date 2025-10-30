@@ -1,13 +1,9 @@
-"use client";
-import React from "react";
-import { MenuComponentProps, MenuDefinition } from "@/app/interface/Menu";
-import MenuItem from "@/app/components/graphMenu/MenuItem";
+'use client';
+import React from 'react';
+import { MenuComponentProps, MenuDefinition } from '@/app/interface/Menu';
+import MenuItem from '@/app/components/graphMenu/MenuItem';
 
-const MenuComponent: React.FC<MenuComponentProps> = ({
-  items,
-  position,
-  onClose,
-}) => {
+const MenuComponent: React.FC<MenuComponentProps> = ({ items, position, onClose }) => {
   if (!items || items.length === 0) return null;
 
   const handleItemClickAndCloseMenu = (handler: () => void) => {
@@ -26,9 +22,7 @@ const MenuComponent: React.FC<MenuComponentProps> = ({
       >
         {items.map((menuItem: MenuDefinition, index: number) => (
           <React.Fragment key={`${menuItem.label}-${index}`}>
-            {menuItem.isSeparator && (
-              <div className="h-[1px] bg-[#3f3f4d] my-1" role="separator" />
-            )}
+            {menuItem.isSeparator && <div className="h-[1px] bg-[#3f3f4d] my-1" role="separator" />}
 
             <MenuItem
               label={menuItem.label}

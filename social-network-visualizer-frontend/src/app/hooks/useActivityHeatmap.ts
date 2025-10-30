@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { ActivityHeatmap } from "@/app/interface/ActivityHeatmap";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { BannerType } from "@/app/components/Popups/Banner";
+import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { ActivityHeatmap } from '@/app/interface/ActivityHeatmap';
+import { useNotification } from '@/app/context/NotificationProvider';
+import { BannerType } from '@/app/components/Popups/Banner';
 
-type Params =
-  | { communityId: number; authorName?: never }
-  | { communityId?: never; authorName: string };
+type Params = { communityId: number; authorName?: never } | { communityId?: never; authorName: string };
 
 export function useActivityHeatmap({ communityId, authorName }: Params) {
   const [data, setData] = useState<ActivityHeatmap[] | null>(null);
@@ -32,10 +30,7 @@ export function useActivityHeatmap({ communityId, authorName }: Params) {
       .then((json) => alive && setData(json))
       .catch((err) => {
         if (alive) {
-          showNotification(
-            `Failed to load heatmap: ${err.message}`,
-            BannerType.ERROR,
-          );
+          showNotification(`Failed to load heatmap: ${err.message}`, BannerType.ERROR);
         }
       })
       .finally(() => alive && setLoading(false));

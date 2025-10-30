@@ -1,19 +1,12 @@
-"use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { BannerType } from "@/app/components/Popups/Banner";
-import {
-  AuthorNode,
-  GraphLink,
-  GraphNode,
-  HashtagNode,
-  NodeType,
-  TweetNode,
-} from "@/types/GraphTypes";
-import { useNotification } from "@/app/context/NotificationProvider";
-import { useProject } from "@/app/context/ProjectContext";
-import LeaveConfirmModal from "@/app/components/Popups/LeaveConfirmModal";
-import { useSaveWorkspaceChanges } from "@/app/hooks/useSaveWorkspaceChanges";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
+'use client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { BannerType } from '@/app/components/Popups/Banner';
+import { AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode } from '@/types/GraphTypes';
+import { useNotification } from '@/app/context/NotificationProvider';
+import { useProject } from '@/app/context/ProjectContext';
+import LeaveConfirmModal from '@/app/components/Popups/LeaveConfirmModal';
+import { useSaveWorkspaceChanges } from '@/app/hooks/useSaveWorkspaceChanges';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 interface WorkspaceContextType {
   isInWorkspaceMode: boolean;
@@ -21,15 +14,10 @@ interface WorkspaceContextType {
   openedWorkspaceName: string | null;
   setOpenedWorkspaceName: (workspace: string | null) => void;
   workspaceData: { nodes: GraphNode[]; links: GraphLink[] };
-  setWorkspaceData: React.Dispatch<
-    React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>
-  >;
+  setWorkspaceData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
   loadWorkspace: (workspaceName: string) => void;
   fetchWorkspaceData: (workspaceName: string) => Promise<void>;
-  saveWorkspaceData: (graphData: {
-    nodes: GraphNode[];
-    links: GraphLink[];
-  }) => Promise<void>;
+  saveWorkspaceData: (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => Promise<void>;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
   setIsConfirmModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -45,10 +33,7 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   setWorkspaceData: () => {},
   loadWorkspace: (workspaceName: string) => {},
   fetchWorkspaceData: async (workspaceName: string) => {},
-  saveWorkspaceData: async (graphData: {
-    nodes: GraphNode[];
-    links: GraphLink[];
-  }) => {},
+  saveWorkspaceData: async (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => {},
   hasUnsavedChanges: false,
   setHasUnsavedChanges: () => {},
   setIsConfirmModalOpen: () => {},
@@ -57,13 +42,9 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   },
 });
 
-export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInWorkspaceMode, setIsInWorkspaceMode] = useState<boolean>(false);
-  const [openedWorkspaceName, setOpenedWorkspaceName] = useState<string | null>(
-    null,
-  );
+  const [openedWorkspaceName, setOpenedWorkspaceName] = useState<string | null>(null);
   const [workspaceData, setWorkspaceData] = useState<{
     nodes: GraphNode[];
     links: GraphLink[];
@@ -73,9 +54,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
   const { saveCurrentGraphData } = useSaveWorkspaceChanges();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(
-    undefined,
-  );
+  const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
 
   useEffect(() => {
     fetchWorkspaceData();
@@ -85,16 +64,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = "";
-        return "";
+        e.returnValue = '';
+        return '';
       }
       return undefined;
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
 
@@ -102,16 +81,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     runWithLoading(async () => {
       if (!loadedProjectName) return;
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({}),
+        const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({}),
+        });
 
         if (!res.ok) {
           const message = `Failed to load workspace data: ${res.status} ${res.statusText}`;
@@ -130,9 +106,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     runWithLoading(async () => {
       if (!openedWorkspaceName || !loadedProjectName) return;
       try {
-        const res = await fetch(
-          `http://localhost:8080/project/${loadedProjectName}/workspace`,
-        );
+        const res = await fetch(`http://localhost:8080/project/${loadedProjectName}/workspace`);
 
         if (!res.ok) {
           const message = `Failed to fetch workspace data: ${res.status} ${res.statusText}`;
@@ -144,25 +118,19 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           data = await res.json();
         } catch (parseErr) {
-          showNotification(
-            "Invalid response format from server.",
-            BannerType.ERROR,
-          );
+          showNotification('Invalid response format from server.', BannerType.ERROR);
           return;
         }
 
         if (!Array.isArray(data?.nodes) || !Array.isArray(data?.links)) {
-          showNotification(
-            "Workspace data format is invalid.",
-            BannerType.ERROR,
-          );
+          showNotification('Workspace data format is invalid.', BannerType.ERROR);
           return;
         }
 
         const links: GraphLink[] = data.links.map((edge: GraphLink) => ({
           source: edge.source,
           target: edge.target,
-          relation: edge.relation ?? "unknown",
+          relation: edge.relation ?? 'unknown',
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
@@ -176,7 +144,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
               return {
                 ...baseNode,
                 nodeType: NodeType.AUTHOR,
-                community: raw.community?.toString() ?? "",
+                community: raw.community?.toString() ?? '',
                 pagerank: raw.pagerank ?? 0,
                 centrality: raw.centrality ?? 0,
               } as AuthorNode;
@@ -185,11 +153,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
               return {
                 ...baseNode,
                 nodeType: NodeType.TWEET,
-                content: raw.content ?? "",
-                authorName: raw.authorName ?? "",
+                content: raw.content ?? '',
+                authorName: raw.authorName ?? '',
                 likesCount: raw.likesCount ?? 0,
                 retweetsCount: raw.retweetsCount ?? 0,
-                community: raw.community?.toString() ?? "",
+                community: raw.community?.toString() ?? '',
               } as TweetNode;
 
             case NodeType.HASHTAG:
@@ -199,10 +167,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
               } as HashtagNode;
 
             default:
-              console.error(
-                `Unknown node type encountered: ${raw.nodeType}`,
-                raw,
-              );
+              console.error(`Unknown node type encountered: ${raw.nodeType}`, raw);
               return {
                 ...baseNode,
                 nodeType: NodeType.HASHTAG,
@@ -211,36 +176,27 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         });
         setWorkspaceData({ nodes, links });
         setIsInWorkspaceMode(true);
-        showNotification(
-          `Workspace "${openedWorkspaceName}" loaded successfully.`,
-          BannerType.SUCCESS,
-        );
+        showNotification(`Workspace "${openedWorkspaceName}" loaded successfully.`, BannerType.SUCCESS);
       } catch (err: any) {
         showNotification(`Load error: ${err.message}`, BannerType.ERROR);
       }
     });
 
-  const saveWorkspaceData = async (graphData: {
-    nodes: GraphNode[];
-    links: GraphLink[];
-  }) =>
+  const saveWorkspaceData = async (graphData: { nodes: GraphNode[]; links: GraphLink[] }) =>
     runWithLoading(async () => {
       if (!openedWorkspaceName || !loadedProjectName) return;
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/project/${loadedProjectName}/workspace`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: openedWorkspaceName,
-              nodes: graphData.nodes,
-              edges: graphData.links,
-            }),
+        const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({
+            name: openedWorkspaceName,
+            nodes: graphData.nodes,
+            edges: graphData.links,
+          }),
+        });
 
         if (!res.ok) {
           const message = `Failed to save workspace: ${res.status} ${res.statusText}`;
@@ -250,17 +206,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
 
         showNotification(`Workspace saved successfully.`, BannerType.SUCCESS);
       } catch (err) {
-        showNotification(
-          "Unexpected error while saving workspace data.",
-          BannerType.ERROR,
-        );
+        showNotification('Unexpected error while saving workspace data.', BannerType.ERROR);
       }
       setHasUnsavedChanges(false);
     });
 
-  const runWithUnsavedCheck = async <T,>(
-    fn: () => Promise<T>,
-  ): Promise<void> => {
+  const runWithUnsavedCheck = async <T,>(fn: () => Promise<T>): Promise<void> => {
     if (hasUnsavedChanges && isInWorkspaceMode) {
       setPendingAction(() => fn);
       setIsConfirmModalOpen(true);
@@ -287,7 +238,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
         setOpenedWorkspaceName(null);
         setWorkspaceData({ nodes: [], links: [] });
       } catch (err) {
-        showNotification("Error executing pending action.", BannerType.ERROR);
+        showNotification('Error executing pending action.', BannerType.ERROR);
       }
     }
 
@@ -321,12 +272,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({
     >
       {children}
 
-      <LeaveConfirmModal
-        open={isConfirmModalOpen}
-        onSave={handleSave}
-        onDiscard={handleDiscard}
-        onCancel={handleCancel}
-      />
+      <LeaveConfirmModal open={isConfirmModalOpen} onSave={handleSave} onDiscard={handleDiscard} onCancel={handleCancel} />
     </WorkspaceContext.Provider>
   );
 };

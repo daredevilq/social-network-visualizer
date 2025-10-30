@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { CommunityOverview } from "@/app/interface/CommunityOverview";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
+import { useEffect, useState } from 'react';
+import { CommunityOverview } from '@/app/interface/CommunityOverview';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 export function useCommunityOverview() {
   const [data, setData] = useState<CommunityOverview | null>(null);

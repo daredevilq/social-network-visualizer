@@ -1,9 +1,9 @@
-"use server";
+'use server';
 
-import { GraphType } from "@/app/interface/GraphType";
+import { GraphType } from '@/app/interface/GraphType';
 
 let projectName: string | null = null;
-let graphType: string = "mentions";
+let graphType: string = 'mentions';
 let graphUiType: GraphType = GraphType.STANDARD;
 
 export async function setProjectName(name: string): Promise<void> {

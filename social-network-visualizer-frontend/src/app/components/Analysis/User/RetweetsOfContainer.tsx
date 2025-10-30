@@ -1,14 +1,12 @@
-import { useRouter } from "next/navigation";
-import { MessageSquareQuote } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { MessageSquareQuote } from 'lucide-react';
+import { useState } from 'react';
 
 interface RetweetsOfContainerProps {
   retweetingUsers: string[];
 }
 
-export function RetweetsOfContainer({
-  retweetingUsers,
-}: RetweetsOfContainerProps) {
+export function RetweetsOfContainer({ retweetingUsers }: RetweetsOfContainerProps) {
   const router = useRouter();
   const [hoveredUser, setHoveredUser] = useState<string | null>(null);
 
@@ -32,9 +30,7 @@ export function RetweetsOfContainer({
               <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-xs sm:text-sm mr-2 sm:mr-3 flex-shrink-0">
                 {user.substring(0, 1).toUpperCase()}
               </div>
-              <div className="font-medium text-sm sm:text-base truncate max-w-full">
-                {user}
-              </div>
+              <div className="font-medium text-sm sm:text-base truncate max-w-full">{user}</div>
 
               {hoveredUser === user && (
                 <div className="absolute z-10 left-1/2 transform -translate-x-1/2 -top-10 bg-[#1E1E2A] px-3 py-1.5 rounded-md shadow-lg text-sm whitespace-nowrap">

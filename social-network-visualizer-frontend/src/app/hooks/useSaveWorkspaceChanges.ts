@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useWorkspace } from "@/app/context/WorkspaceContext";
-import { useGraph } from "@/app/context/GraphContext";
+import { useWorkspace } from '@/app/context/WorkspaceContext';
+import { useGraph } from '@/app/context/GraphContext';
 
 export const useSaveWorkspaceChanges = () => {
   const { saveWorkspaceData } = useWorkspace();
