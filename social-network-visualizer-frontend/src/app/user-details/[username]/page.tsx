@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import UserDetailsContainer from "@/app/components/Analysis/User/UserDetailsContainer";
-import { useParams } from "next/navigation";
+import UserDetailsContainer from '@/app/components/Analysis/User/UserDetailsContainer';
+import { useParams } from 'next/navigation';
 
 export default function UserDetailsPage() {
   const params = useParams();

@@ -1,11 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  ConfigMeta,
-  NodeType,
-  RelationType,
-  MetricType,
-  Orientation,
-} from "@/types/GraphTypes";
+import { useCallback, useEffect, useState } from 'react';
+import { ConfigMeta, NodeType, RelationType, MetricType, Orientation } from '@/types/GraphTypes';
 
 export function useConfigMeta() {
   const [meta, setMeta] = useState<ConfigMeta | null>(null);
@@ -24,7 +18,7 @@ export function useConfigMeta() {
       };
       setMeta(configMeta);
     } catch (e: any) {
-      setError(e?.message ?? "Failed to load config metadata");
+      setError(e?.message ?? 'Failed to load config metadata');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
-import { Heart, Repeat, MessageCircle, Globe, Info } from "lucide-react";
-import { Tweet } from "@/types/tweetTypes";
+import { Heart, Repeat, MessageCircle, Globe, Info } from 'lucide-react';
+import { Tweet } from '@/types/tweetTypes';
 
 interface TweetCardProps {
   tweet: Tweet;
@@ -11,7 +11,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
 
   return (
     <div
-      className={`bg-[#3D3D4E] rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:-translate-y-1 p-5 ${highlight ? "ring-2 ring-yellow-400/50 bg-gradient-to-r from-yellow-400/10 to-transparent" : "border border-[#4D4D6A]"} mb-4`}
+      className={`bg-[#3D3D4E] rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:-translate-y-1 p-5 ${highlight ? 'ring-2 ring-yellow-400/50 bg-gradient-to-r from-yellow-400/10 to-transparent' : 'border border-[#4D4D6A]'} mb-4`}
     >
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center mb-2">
@@ -29,9 +29,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
             >
               {tweet.authorName}
             </a>
-            <div className="text-xs text-gray-400">
-              @{tweet.authorName.toLowerCase()}
-            </div>
+            <div className="text-xs text-gray-400">@{tweet.authorName.toLowerCase()}</div>
           </div>
         </div>
 
@@ -54,10 +52,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
       {tweet.hashtags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {tweet.hashtags.map((tag) => (
-            <span
-              key={tag}
-              className="flex items-center px-2 py-1 bg-gray-700 rounded-full text-xs"
-            >
+            <span key={tag} className="flex items-center px-2 py-1 bg-gray-700 rounded-full text-xs">
               #{tag}
             </span>
           ))}
@@ -69,20 +64,12 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
       {tweet.photos && tweet.photos.length > 0 && (
         <div
           className={`grid gap-2 mb-3 ${
-            tweet.photos.length === 1
-              ? "grid-cols-1"
-              : tweet.photos.length === 2
-                ? "grid-cols-2"
-                : "grid-cols-2 md:grid-cols-3"
+            tweet.photos.length === 1 ? 'grid-cols-1' : tweet.photos.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'
           }`}
         >
           {tweet.photos.map((photo, idx) => (
             <div key={idx} className="rounded-lg overflow-hidden max-h-[50vh]">
-              <img
-                src={photo}
-                alt={`Tweet photo ${idx + 1}`}
-                className="h-full object-contain object-top"
-              />
+              <img src={photo} alt={`Tweet photo ${idx + 1}`} className="h-full object-contain object-top" />
             </div>
           ))}
         </div>
@@ -91,15 +78,8 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
       {tweet.videos && tweet.videos.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {tweet.videos.map((video, idx) => (
-            <div
-              key={idx}
-              className="rounded-lg overflow-hidden bg-gray-700 p-1"
-            >
-              <video
-                src={video}
-                controls
-                className="max-w-full max-h-[60vh] object-contain rounded"
-              >
+            <div key={idx} className="rounded-lg overflow-hidden bg-gray-700 p-1">
+              <video src={video} controls className="max-w-full max-h-[60vh] object-contain rounded">
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -111,7 +91,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
         <div className="flex flex-col space-y-2 text-gray-300">
           <div className="flex space-x-2 text-xs text-gray-400">
             <Globe className="w-4 h-4" />
-            <span>{tweet.language || "Unknown"}</span>
+            <span>{tweet.language || 'Unknown'}</span>
           </div>
 
           <div className="flex space-x-4 text-sm">
@@ -139,12 +119,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
           </div>
         </div>
 
-        <a
-          href={tweet.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:underline text-sm"
-        >
+        <a href={tweet.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
           View on Twitter
         </a>
       </div>

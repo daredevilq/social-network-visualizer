@@ -1,5 +1,5 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import { useEffect, useState } from 'react';
 
 interface Props {
   open: boolean;
@@ -8,15 +8,10 @@ interface Props {
   onConfirm: (name: string) => void;
 }
 
-export default function ProjectNameModal({
-  open,
-  defaultName,
-  onCancel,
-  onConfirm,
-}: Props) {
-  const [name, setName] = useState(defaultName ?? "");
+export default function ProjectNameModal({ open, defaultName, onCancel, onConfirm }: Props) {
+  const [name, setName] = useState(defaultName ?? '');
 
-  useEffect(() => setName(defaultName ?? ""), [defaultName]);
+  useEffect(() => setName(defaultName ?? ''), [defaultName]);
 
   if (!open) return null;
 
@@ -34,14 +29,11 @@ export default function ProjectNameModal({
         />
 
         <div className="flex justify-end gap-4">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
-          >
+          <button onClick={onCancel} className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white">
             Cancel
           </button>
           <button
-            disabled={name.trim() === ""}
+            disabled={name.trim() === ''}
             onClick={() => onConfirm(name.trim())}
             className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5d34c7] text-white disabled:opacity-40"
           >

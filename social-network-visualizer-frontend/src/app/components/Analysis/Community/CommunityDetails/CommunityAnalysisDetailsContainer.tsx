@@ -1,36 +1,31 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useCommunitySummary } from "@/app/hooks/useCommunitySummary";
-import { useCommunityAuthors } from "@/app/hooks/useCommunityAuthors";
-import LoadingOverlay from "@/app/components/Loading/LoadingOverlay";
-import { TopHashtagsContainer } from "@/app/components/Analysis/User/TopHashtagsContainer";
-import { useActivityHeatmap } from "@/app/hooks/useActivityHeatmap";
-import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
-import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
-import { useProject } from "@/app/context/ProjectContext";
-import { GraphType } from "@/app/interface/GraphType";
-import { setGraphUiType } from "@/app/project-state";
-import { User2, Users } from "lucide-react";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useCommunitySummary } from '@/app/hooks/useCommunitySummary';
+import { useCommunityAuthors } from '@/app/hooks/useCommunityAuthors';
+import LoadingOverlay from '@/app/components/Loading/LoadingOverlay';
+import { TopHashtagsContainer } from '@/app/components/Analysis/User/TopHashtagsContainer';
+import { useActivityHeatmap } from '@/app/hooks/useActivityHeatmap';
+import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
+import ActivityChartCard from '@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard';
+import { useProject } from '@/app/context/ProjectContext';
+import { GraphType } from '@/app/interface/GraphType';
+import { setGraphUiType } from '@/app/project-state';
+import { User2, Users } from 'lucide-react';
 
-export default function CommunityAnalysisDetailsContainer({
-  communityId,
-}: {
-  communityId: string;
-}) {
+export default function CommunityAnalysisDetailsContainer({ communityId }: { communityId: string }) {
   const id = Number(communityId);
   const { data: summary, loading: loadingSummary } = useCommunitySummary(id);
   const { data: authors, loading: loadingAuthors } = useCommunityAuthors(id);
-  const { data: communityHeatMap, loading: loadingHeatMap } =
-    useActivityHeatmap({ communityId: id });
+  const { data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({ communityId: id });
   const { setFocusedCommunityId, setSelectedGraphType } = useProject();
 
   const openGraph = async () => {
     setFocusedCommunityId(communityId);
     await setGraphUiType(GraphType.COMMUNITY);
     setSelectedGraphType(GraphType.COMMUNITY);
-    router.push("/");
+    router.push('/');
   };
 
   const router = useRouter();
@@ -51,28 +46,16 @@ export default function CommunityAnalysisDetailsContainer({
       <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
         <header className="mb-6 flex items-center justify-between gap-4 w-full">
           <button
-            onClick={() => router.push("/community-analysis")}
+            onClick={() => router.push('/community-analysis')}
             className="flex items-center gap-2 text-white hover:text-gray-300 cursor-pointer transition-colors"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to overview
           </button>
 
-          <h1 className="flex-1 text-center text-2xl md:text-3xl font-bold">
-            Community #{communityId}
-          </h1>
+          <h1 className="flex-1 text-center text-2xl md:text-3xl font-bold">Community #{communityId}</h1>
 
           <button
             onClick={openGraph}
@@ -94,22 +77,16 @@ export default function CommunityAnalysisDetailsContainer({
             </h2>
             <div className="flex items-center justify-between">
               <div
-                onClick={() =>
-                  router.push(`/user-details/${summary?.topAuthor}`)
-                }
+                onClick={() => router.push(`/user-details/${summary?.topAuthor}`)}
                 className="flex items-center gap-3 px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer"
               >
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md flex-shrink-0">
                   <User2 size={18} />
                 </div>
 
-                <span className="truncate font-medium text-gray-200">
-                  {summary.topAuthor}
-                </span>
+                <span className="truncate font-medium text-gray-200">{summary.topAuthor}</span>
               </div>
-              <span className="text-sm text-gray-400">
-                PageRank: {summary.topPageRank.toFixed(2)}
-              </span>
+              <span className="text-sm text-gray-400">PageRank: {summary.topPageRank.toFixed(2)}</span>
             </div>
           </div>
 
@@ -137,17 +114,11 @@ export default function CommunityAnalysisDetailsContainer({
                     <User2 size={18} />
                   </div>
 
-                  <span className="truncate font-medium text-gray-200">
-                    {username}
-                  </span>
+                  <span className="truncate font-medium text-gray-200">{username}</span>
                 </div>
               ))}
             </div>
-            {usernamesInCommunity.length === 0 && (
-              <p className="text-gray-400 text-center py-4">
-                No community members found
-              </p>
-            )}
+            {usernamesInCommunity.length === 0 && <p className="text-gray-400 text-center py-4">No community members found</p>}
           </div>
         </div>
       </div>

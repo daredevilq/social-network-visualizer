@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import StandardGraph from "@/app/graph/StandardGraph";
-import { useProject } from "@/app/context/ProjectContext";
-import { GraphType } from "@/app/interface/GraphType";
+import dynamic from 'next/dynamic';
+import StandardGraph from '@/app/graph/StandardGraph';
+import { useProject } from '@/app/context/ProjectContext';
+import { GraphType } from '@/app/interface/GraphType';
 
-const CommunityGraph = dynamic(() => import("../graph/CommunityGraph"), {
+const CommunityGraph = dynamic(() => import('../graph/CommunityGraph'), {
   ssr: false,
 });
 
@@ -22,9 +22,5 @@ export default function GraphContainer() {
     }
   })();
 
-  return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden text-[#FAFAFA]">
-      {graph}
-    </div>
-  );
+  return <div className="flex flex-col h-screen w-screen overflow-hidden text-[#FAFAFA]">{graph}</div>;
 }

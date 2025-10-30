@@ -1,5 +1,5 @@
-"use client";
-import { useState, useRef, useEffect } from "react";
+'use client';
+import { useState, useRef, useEffect } from 'react';
 
 interface Props {
   disabled: boolean;
@@ -12,10 +12,9 @@ export default function WorkspaceActionMenu({ disabled, onDelete }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    const handler = (e: MouseEvent) =>
-      !buttonRef.current?.contains(e.target as Node) && setOpen(false);
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
+    const handler = (e: MouseEvent) => !buttonRef.current?.contains(e.target as Node) && setOpen(false);
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
   }, [open]);
 
   return (

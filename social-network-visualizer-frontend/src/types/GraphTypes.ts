@@ -1,19 +1,19 @@
-import { NodeObject, LinkObject } from "force-graph";
+import { NodeObject, LinkObject } from 'force-graph';
 
 export enum NodeType {
-  AUTHOR = "AUTHOR",
-  TWEET = "TWEET",
-  HASHTAG = "HASHTAG",
+  AUTHOR = 'AUTHOR',
+  TWEET = 'TWEET',
+  HASHTAG = 'HASHTAG',
 }
 
 export enum MetricType {
-  PAGERANK = "PAGERANK",
-  COMMUNITY = "COMMUNITY",
+  PAGERANK = 'PAGERANK',
+  COMMUNITY = 'COMMUNITY',
 }
 
 export enum Orientation {
-  NATURAL = "NATURAL",
-  UNDIRECTED = "UNDIRECTED",
+  NATURAL = 'NATURAL',
+  UNDIRECTED = 'UNDIRECTED',
 }
 
 export interface BaseNode extends NodeObject {
@@ -44,19 +44,19 @@ export interface HashtagNode extends BaseNode {
 export type GraphNode = AuthorNode | TweetNode | HashtagNode;
 
 export enum RelationType {
-  MENTIONS = "MENTIONS",
-  RETWEETS = "RETWEETS",
-  REPLIES = "REPLIES",
-  QUOTED = "QUOTED",
-  SHARES_HASHTAG = "SHARES_HASHTAG",
-  HAS_HASHTAG = "HAS_HASHTAG",
-  HAS_REPLY = "HAS_REPLY",
-  USES_HASHTAG = "USES_HASHTAG",
-  RETWEETED = "RETWEETED",
-  HAS_PARENT = "HAS_PARENT",
-  MENTION = "MENTION",
-  REPLY_TO = "REPLY_TO",
-  POSTED = "POSTED",
+  MENTIONS = 'MENTIONS',
+  RETWEETS = 'RETWEETS',
+  REPLIES = 'REPLIES',
+  QUOTED = 'QUOTED',
+  SHARES_HASHTAG = 'SHARES_HASHTAG',
+  HAS_HASHTAG = 'HAS_HASHTAG',
+  HAS_REPLY = 'HAS_REPLY',
+  USES_HASHTAG = 'USES_HASHTAG',
+  RETWEETED = 'RETWEETED',
+  HAS_PARENT = 'HAS_PARENT',
+  MENTION = 'MENTION',
+  REPLY_TO = 'REPLY_TO',
+  POSTED = 'POSTED',
 }
 
 export interface GraphLink extends LinkObject {

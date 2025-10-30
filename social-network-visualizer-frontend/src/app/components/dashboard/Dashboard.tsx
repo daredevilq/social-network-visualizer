@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "@/app/configuration/urlConfig";
-import { useRouter } from "next/navigation";
-import { ViralTweet } from "@/types/tweetTypes";
-import { HashtagActivityContainer } from "@/app/components/Analysis/User/HashtagActivityContainer";
-import { ViralTweetsContainer } from "@/app/components/Analysis/User/ViralTweetsContainer";
-import { ProjectStatsContainer } from "@/app/components/dashboard/ProjectStatsContainer";
-import { ActivityPoint } from "@/app/interface/ActivityPoint";
-import ActivityChartCard from "@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard";
-import { ProjectStatsChart } from "@/app/components/dashboard/ProjectStatsChart";
-import { TopMentionsContainer } from "@/app/components/dashboard/TopMentionsContainer";
-import { TopAuthorsContainer } from "@/app/components/dashboard/TopAuthorsContainer";
-import { HashtagActivityChartContainer } from "@/app/components/dashboard/HashtagActivityChartContainer";
-import HeatMapChartCard from "@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard";
-import { ActivityHeatmap } from "@/app/interface/ActivityHeatmap";
-import { BannerType } from "@/app/components/Popups/Banner";
-import { useNotification } from "@/app/context/NotificationProvider";
+import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { useRouter } from 'next/navigation';
+import { ViralTweet } from '@/types/tweetTypes';
+import { HashtagActivityContainer } from '@/app/components/Analysis/User/HashtagActivityContainer';
+import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
+import { ProjectStatsContainer } from '@/app/components/dashboard/ProjectStatsContainer';
+import { ActivityPoint } from '@/app/interface/ActivityPoint';
+import ActivityChartCard from '@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard';
+import { ProjectStatsChart } from '@/app/components/dashboard/ProjectStatsChart';
+import { TopMentionsContainer } from '@/app/components/dashboard/TopMentionsContainer';
+import { TopAuthorsContainer } from '@/app/components/dashboard/TopAuthorsContainer';
+import { HashtagActivityChartContainer } from '@/app/components/dashboard/HashtagActivityChartContainer';
+import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
+import { ActivityHeatmap } from '@/app/interface/ActivityHeatmap';
+import { BannerType } from '@/app/components/Popups/Banner';
+import { useNotification } from '@/app/context/NotificationProvider';
 
 interface ProjectData {
   tweetsCount: number;
@@ -36,12 +36,8 @@ const Dashboard = () => {
   const [projectActivity, setProjectActivity] = useState<ActivityPoint[]>([]);
   const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
   const [viralTweets, setViralTweets] = useState<ViralTweet[]>([]);
-  const [topAuthors, setTopAuthors] = useState<
-    { username: string; count: number }[]
-  >([]);
-  const [topMentions, setTopMentions] = useState<
-    { username: string; count: number }[]
-  >([]);
+  const [topAuthors, setTopAuthors] = useState<{ username: string; count: number }[]>([]);
+  const [topMentions, setTopMentions] = useState<{ username: string; count: number }[]>([]);
   const [heatMap, setHeatMap] = useState<ActivityHeatmap[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { showNotification } = useNotification();
@@ -54,49 +50,42 @@ const Dashboard = () => {
     setLoading(true);
 
     try {
-      const userDataRes = await fetch(
-        `${API_BASE_URL}/dashboard/project-stats`,
-      );
-      if (!userDataRes.ok) throw new Error("Failed to load project stats");
+      const userDataRes = await fetch(`${API_BASE_URL}/dashboard/project-stats`);
+      if (!userDataRes.ok) throw new Error('Failed to load project stats');
       const data = await userDataRes.json();
       setProjectData(data);
 
       const activityRes = await fetch(`${API_BASE_URL}/dashboard/activity`);
-      if (!activityRes.ok) throw new Error("Failed to load activity");
+      if (!activityRes.ok) throw new Error('Failed to load activity');
       const activity = await activityRes.json();
       setProjectActivity(activity);
 
       const topHashtagsRes = await fetch(`${API_BASE_URL}/dashboard/hashtags`);
-      if (!topHashtagsRes.ok) throw new Error("Failed to load hashtags");
+      if (!topHashtagsRes.ok) throw new Error('Failed to load hashtags');
       const topHashtagsData = await topHashtagsRes.json();
       setTopHashtags(topHashtagsData);
 
-      const viralTweetsRes = await fetch(
-        `${API_BASE_URL}/dashboard/viral-tweets`,
-      );
-      if (!viralTweetsRes.ok) throw new Error("Failed to load viral tweets");
+      const viralTweetsRes = await fetch(`${API_BASE_URL}/dashboard/viral-tweets`);
+      if (!viralTweetsRes.ok) throw new Error('Failed to load viral tweets');
       const viralTweetsData = await viralTweetsRes.json();
       setViralTweets(viralTweetsData);
 
       const authorsRes = await fetch(`${API_BASE_URL}/dashboard/top-authors`);
-      if (!authorsRes.ok) throw new Error("Failed to load top authors");
+      if (!authorsRes.ok) throw new Error('Failed to load top authors');
       const authorsData = await authorsRes.json();
       setTopAuthors(authorsData);
 
       const mentionsRes = await fetch(`${API_BASE_URL}/dashboard/top-mentions`);
-      if (!mentionsRes.ok) throw new Error("Failed to load top mentions");
+      if (!mentionsRes.ok) throw new Error('Failed to load top mentions');
       const mentionsData = await mentionsRes.json();
       setTopMentions(mentionsData);
 
       const heatRes = await fetch(`${API_BASE_URL}/dashboard/heat-map`);
-      if (!heatRes.ok) throw new Error("Failed to load heat map");
+      if (!heatRes.ok) throw new Error('Failed to load heat map');
       const heatMapData = await heatRes.json();
       setHeatMap(heatMapData);
     } catch (err: any) {
-      showNotification(
-        err.message || "Failed to load dashboard data",
-        BannerType.ERROR,
-      );
+      showNotification(err.message || 'Failed to load dashboard data', BannerType.ERROR);
     } finally {
       setLoading(false);
     }
@@ -114,27 +103,17 @@ const Dashboard = () => {
           <div className="mx-auto pl-6">
             <div className="flex items-center justify-between mb-8">
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push('/')}
                 className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                 </svg>
                 Back to Graph
               </button>
 
               <button
-                onClick={() => router.push("/tweet-analysis")}
+                onClick={() => router.push('/tweet-analysis')}
                 className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer"
               >
                 <svg
@@ -163,9 +142,7 @@ const Dashboard = () => {
               <TopMentionsContainer mentions={topMentions} />
 
               <ActivityChartCard activity={projectActivity} />
-              <HashtagActivityContainer
-                topHashtags={topHashtags.slice(0, 10)}
-              />
+              <HashtagActivityContainer topHashtags={topHashtags.slice(0, 10)} />
 
               <HeatMapChartCard heat={heatMap} />
               <HashtagActivityChartContainer data={topHashtags} />

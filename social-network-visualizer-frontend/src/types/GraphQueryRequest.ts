@@ -1,8 +1,8 @@
-import { NodeType, RelationType } from "./GraphTypes";
+import { NodeType, RelationType } from './GraphTypes';
 
 export enum FetchStrategy {
-  LIMIT_PER_TYPE = "LIMIT_PER_TYPE",
-  ALL = "ALL",
+  LIMIT_PER_TYPE = 'LIMIT_PER_TYPE',
+  ALL = 'ALL',
 }
 
 export interface FetchConfig {

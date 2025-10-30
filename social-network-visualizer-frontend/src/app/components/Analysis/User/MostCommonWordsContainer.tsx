@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+import { TrendingUp } from 'lucide-react';
 
 interface MostCommonWordsProps {
   words: string[];
