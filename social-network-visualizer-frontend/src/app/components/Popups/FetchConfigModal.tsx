@@ -1,12 +1,13 @@
 "use client";
 
 import { Dialog } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NodeType } from "@/types/GraphTypes";
 import { FetchConfig } from "@/types/GraphQueryRequest";
 import { BannerType } from "@/app/components/Popups/Banner";
 import { useNotification } from "@/app/context/NotificationProvider";
 import { DEFAULT_FETCH_CONFIG } from "@/app/utils/defaultFetchConfig";
+import PopoverIcon from "@/app/components/Popups/PopoverIcon";
 
 interface Props {
   open: boolean;
@@ -64,9 +65,16 @@ export default function FetchConfigModal({
         className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
         onClick={(e) => e.stopPropagation()}
       >
-        <Dialog.Title className="text-2xl font-bold mb-6 text-center">
-          Configure Fetch Limits
-        </Dialog.Title>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <Dialog.Title className="text-2xl font-bold">
+            Configure Fetch Limits
+          </Dialog.Title>
+          <PopoverIcon
+            message={`Adjust how many **nodes** of each selected type are loaded into the graph. Unavailable node types are **grayed out** until you include them in filters section.`}
+            scale={1.6}
+            position="right"
+          />
+        </div>
 
         <div className="space-y-6 mb-6">
           {allNodeTypes.map((nodeType) => {

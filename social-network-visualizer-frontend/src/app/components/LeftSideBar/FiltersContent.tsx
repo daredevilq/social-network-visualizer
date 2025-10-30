@@ -1,7 +1,7 @@
 "use client";
 
 import { useProject } from "@/app/context/ProjectContext";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Network,
   Layers,
@@ -16,6 +16,7 @@ import { RelationType, NodeType } from "@/types/GraphTypes";
 import { GraphQueryRequest, FetchConfig } from "@/types/GraphQueryRequest";
 import { isRelationAvailable } from "@/app/utils/nodeRelationMap";
 import FetchConfigModal from "@/app/components/Popups/FetchConfigModal";
+import PopoverIcon from "@/app/components/Popups/PopoverIcon";
 
 export default function FiltersContent() {
   const {
@@ -151,12 +152,17 @@ export default function FiltersContent() {
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Layers className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Nodes</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
+              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
                 {tempNodeTypes.length} selected
               </span>
+              <PopoverIcon
+                message={`Select which **node types** will appear in your graph. These define the main entities included in the analysis.`}
+                scale={1.4}
+                position="right"
+              />
             </div>
             {nodeTypesExpanded ? (
               <ChevronUp className="w-5 h-5" />
@@ -215,12 +221,17 @@ export default function FiltersContent() {
             onClick={() => setRelationTypesExpanded(!relationTypesExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Network className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Relations</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
+              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
                 {tempRelationTypes.length} selected
               </span>
+              <PopoverIcon
+                message={`Choose **relation types** connecting your selected nodes. Some relations are **unavailable** until their related node types are selected.`}
+                scale={1.4}
+                position="right"
+              />
             </div>
             {relationTypesExpanded ? (
               <ChevronUp className="w-5 h-5" />
@@ -296,9 +307,14 @@ export default function FiltersContent() {
             onClick={() => setFetchConfigExpanded(!fetchConfigExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Settings className="w-5 h-5 text-[#FAFAFA]" />
               <h2 className="text-lg font-semibold">Fetch Limits</h2>
+              <PopoverIcon
+                message={`Set how many nodes of each type will be **fetched** from the database. Use this to control performance and data volume.`}
+                scale={1.4}
+                position="right"
+              />
             </div>
             {fetchConfigExpanded ? (
               <ChevronUp className="w-5 h-5" />
