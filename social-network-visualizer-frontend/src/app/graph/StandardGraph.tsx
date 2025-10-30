@@ -6,6 +6,7 @@ import { GraphLink, GraphNode } from "@/types/GraphTypes";
 import nodeStrategy from "../model/strategies/NodeStrategy";
 import NodeColors from "@/app/model/NodeColors";
 import { useGraph } from "@/app/context/GraphContext";
+import linkStrategy from "@/app/model/strategies/LinkStrategy";
 
 const BaseGraph = dynamic(() => import("./BaseGraph"), { ssr: false });
 
@@ -36,7 +37,7 @@ export default function StandardGraph() {
             200,
           )
         }
-        nodeLabel={(node: GraphNode) => `${node.id}`}
+        nodeLabel={(node: GraphNode) => nodeStrategy.getLabel(node)}
         nodeColor={(node: GraphNode) => {
           if (
             node.id === nodeFound?.id &&
@@ -49,13 +50,12 @@ export default function StandardGraph() {
           }
           return nodeStrategy.getColor(node);
         }}
-        linkColor={(link: GraphLink) => {
-          // return shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : linkStrategy.getColor(link);
-          return shortestPath.includes(link.source) &&
-            shortestPath.includes(link.target)
+        linkColor={(link: GraphLink) =>
+          shortestPath.includes(link.source) &&
+          shortestPath.includes(link.target)
             ? NodeColors.getRedColor()
-            : "#0D0630";
-        }}
+            : linkStrategy.getColor(link)
+        }
         linkWidth={(link: GraphLink) =>
           shortestPath.includes(link.source) &&
           shortestPath.includes(link.target)

@@ -19,7 +19,6 @@ import {
   GraphLink,
   GraphNode,
   GraphProps,
-  NodeType,
   SelectionBox,
 } from "@/types/GraphTypes";
 import { useProject } from "@/app/context/ProjectContext";
@@ -152,6 +151,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkCurvature((link: GraphLink) => link.curvature)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject(

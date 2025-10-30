@@ -25,11 +25,7 @@ import {
   RelationType,
   TweetNode,
 } from "@/types/GraphTypes";
-import {
-  FetchConfig,
-  FetchStrategy,
-  GraphQueryRequest,
-} from "@/types/GraphQueryRequest";
+import { FetchConfig, GraphQueryRequest } from "@/types/GraphQueryRequest";
 import { DEFAULT_FETCH_CONFIG } from "@/app/utils/defaultFetchConfig";
 
 interface Context {
@@ -239,6 +235,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           source: edge.source,
           target: edge.target,
           relation: edge.relation ?? "unknown",
+          curvature: Math.random() - 0.5,
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
