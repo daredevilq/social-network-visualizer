@@ -23,10 +23,19 @@ type DeleteTarget = {
 
 export default function ProjectsContent() {
   const { loadedProjectName, loading, loadProject, runWithLoading, setProjectData } = useProject();
-  const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, runWithUnsavedCheck, loadWorkspace } = useWorkspace();
+  const {
+    setIsInWorkspaceMode,
+    openedWorkspaceName,
+    setOpenedWorkspaceName,
+    runWithUnsavedCheck,
+    loadWorkspace,
+    workspaces,
+    setWorkspaces,
+    refreshWorkspaces,
+    createWorkspace,
+  } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
-  const [workspaces, setWorkspaces] = useState<string[]>([]);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -83,16 +92,6 @@ export default function ProjectsContent() {
     await refreshWorkspaces(projectName);
   };
 
-  const refreshWorkspaces = async (projectName: string) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/project/${projectName}/workspace/list`);
-      if (!res.ok) throw new Error('Failed to load workspace list');
-      setWorkspaces(await res.json());
-    } catch (err: any) {
-      showNotification(`Load error: ${err.message}`, BannerType.ERROR);
-    }
-  };
-
   const deleteWorkspace = async (workspaceName: string) => {
     await runWithLoading(async () => {
       const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, {
@@ -109,29 +108,6 @@ export default function ProjectsContent() {
     }).catch((err: any) => {
       showNotification(`Delete error: ${err.message}`, BannerType.ERROR);
     });
-  };
-
-  const createWorkspace = async (workspaceName: string) => {
-    setCreateWorkspaceModalOpen(false);
-
-    await runWithLoading(async () => {
-      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: workspaceName,
-          nodes: [],
-          edges: [],
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to create workspace');
-      showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
-    }).catch((err: any) => {
-      showNotification(`Create error: ${err.message}`, BannerType.ERROR);
-    });
-    await refreshWorkspaces(loadedProjectName!);
-    loadWorkspace(workspaceName);
   };
 
   return (
@@ -246,7 +222,10 @@ export default function ProjectsContent() {
         open={createWorkspaceModalOpen}
         projectName={loadedProjectName!}
         onCancel={() => setCreateWorkspaceModalOpen(false)}
-        handleCreateWorkspace={(workspaceName: string) => createWorkspace(workspaceName)}
+        handleCreateWorkspace={(workspaceName: string) => {
+          createWorkspace(workspaceName);
+          setCreateWorkspaceModalOpen(false);
+        }}
         workspaceList={workspaces}
       />
 
