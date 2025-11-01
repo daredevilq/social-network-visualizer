@@ -190,7 +190,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           source: edge.source,
           target: edge.target,
           relation: edge.relation ?? 'unknown',
-          curvature: Math.random() - 0.5,
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {

@@ -62,7 +62,6 @@ export enum RelationType {
 export interface GraphLink extends LinkObject {
   source: string;
   target: string;
-  curvature?: number;
   relation: RelationType;
 }
 
