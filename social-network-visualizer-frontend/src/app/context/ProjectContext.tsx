@@ -7,7 +7,7 @@ import { getGraphUiType, getProjectName, setProjectName } from '@/app/project-st
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode } from '@/types/GraphTypes';
-import { FetchConfig, FetchStrategy, GraphQueryRequest } from '@/types/GraphQueryRequest';
+import { FetchConfig, GraphQueryRequest } from '@/types/GraphQueryRequest';
 import { DEFAULT_FETCH_CONFIG } from '@/app/utils/defaultFetchConfig';
 
 interface Context {

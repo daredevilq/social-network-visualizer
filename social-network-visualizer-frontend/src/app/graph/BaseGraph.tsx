@@ -2,7 +2,7 @@ import { forwardRef, MouseEvent, useCallback, useEffect, useRef, useState } from
 // @ts-ignore
 import ForceGraph, { ForceGraphInstance } from 'force-graph';
 import { forceManyBody, forceCollide, forceX, forceY, forceLink } from 'd3-force';
-import { GraphLink, GraphNode, GraphProps, NodeType, SelectionBox } from '@/types/GraphTypes';
+import { GraphLink, GraphNode, GraphProps, SelectionBox } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
 import NodeColors from '@/app/model/NodeColors';
@@ -113,6 +113,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkCurvature(Math.random() - 0.5)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
