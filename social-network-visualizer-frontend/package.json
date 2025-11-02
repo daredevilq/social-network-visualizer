@@ -21,6 +21,7 @@
     "force-graph": "^1.49.5",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.503.0",
+    "marked": "^16.4.1",
     "next": "15.2.3",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
