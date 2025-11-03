@@ -1,5 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
+import com.example.social_network_visualizer_backend.dto.author.TopAuthorsDto;
+import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
 import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.model.Hashtag;
@@ -53,4 +55,38 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                 LIMIT 20
             """)
   List<HashtagFrequency> findTopHashtags();
+
+  @Query(
+      """
+                  MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
+                  WHERE h.hashtag = $hashtag
+                  WITH a, COUNT(t) AS count
+                  RETURN a.userName AS username, count
+                  ORDER BY count DESC
+                  LIMIT 7
+              """)
+  List<TopAuthorsDto> findTopUsersByHashtag(@Param("hashtag") String hashtag);
+
+  @Query(
+      """
+                 MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
+                 WHERE h.hashtag = $hashtag
+                 WITH a, t,
+                      t.likesCount AS likes,
+                      t.retweetsCount AS retweets,
+                      t.repliesCount AS replies,
+                      (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
+                 RETURN
+                     a.userName AS userName,
+                     t.id AS tweetId,
+                     t.contentPreview AS preview,
+                     t.url AS tweetUrl,
+                     likes,
+                     retweets,
+                     replies,
+                     engagementScore
+                 ORDER BY engagementScore DESC
+                 LIMIT 3
+              """)
+  List<ViralTweetDto> findTopTweetsByHashtag(@Param("hashtag") String hashtag);
 }

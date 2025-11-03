@@ -2,11 +2,13 @@ package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetDetailsDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -211,6 +213,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
              (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
         RETURN
             a.userName as userName,
+            t.id AS tweetId,
             t.contentPreview AS preview,
             t.url AS tweetUrl,
             likes,
@@ -221,4 +224,50 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         LIMIT 10
     """)
   List<ViralTweetDto> findTheMostViralTweets();
+
+  @Query(
+      """
+          MATCH (t:Tweet {id: $tweetId})
+          OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
+          OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+          OPTIONAL MATCH (t)-[:MENTION]->(m:Author)
+          OPTIONAL MATCH (t)-[:REPLY_TO]->(parent:Tweet)
+
+          MATCH (allT:Tweet)
+          WITH
+              t, a, h, m, parent,
+              avg(coalesce(allT.likesCount, 0)) AS avgLikes,
+              avg(coalesce(allT.retweetsCount, 0)) AS avgRetweets,
+              avg(coalesce(allT.repliesCount, 0)) AS avgReplies
+
+          WITH
+              t,
+              a,
+              collect(DISTINCT h.hashtag) AS hashtags,
+              collect(DISTINCT m.userName) AS mentions,
+              parent,
+              (coalesce(t.likesCount,0) + coalesce(t.retweetsCount,0) + coalesce(t.repliesCount,0)) AS totalEngagement,
+              ((coalesce(t.likesCount,0) + coalesce(t.retweetsCount,0) + coalesce(t.repliesCount,0))
+                  / (avgLikes + avgRetweets + avgReplies)) * 100 AS engagement
+
+          RETURN
+              t.id AS id,
+              t.url AS url,
+              a.userName AS authorName,
+              t.content AS content,
+              t.photos AS photos,
+              t.videos AS videos,
+              t.likesCount AS likesCount,
+              t.retweetsCount AS retweetsCount,
+              t.repliesCount AS repliesCount,
+              engagement,
+            false AS isHighEngagement,
+            t.language AS language,
+              t.objectType AS objectType,
+              hashtags,
+              mentions,
+              parent.id AS replyToId,
+              parent.content AS replyToContent
+    """)
+  Optional<TweetDetailsDto> findTweetDetailsById(@Param("tweetId") String tweetId);
 }

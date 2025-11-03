@@ -33,7 +33,7 @@ export interface TweetNode extends BaseNode {
   authorName: string;
   likesCount: number;
   retweetsCount: number;
-  community: number;
+  community: string;
 }
 export interface HashtagNode extends BaseNode {
   nodeType: NodeType.HASHTAG;
