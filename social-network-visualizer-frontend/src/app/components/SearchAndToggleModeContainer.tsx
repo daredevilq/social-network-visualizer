@@ -87,7 +87,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   }, [localSearchValue]);
 
   const searchInLoadedData = (query: string) => {
-    const matches = projectData.nodes.filter((node) => node.id.toLowerCase().includes(query));
+    const matches = projectData.nodes.filter((node) => node.name.toLowerCase().includes(query));
     setFilteredSuggestions(matches);
     setIsDropdownVisible(matches.length > 0);
   };

@@ -14,6 +14,7 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
       """
                 UNWIND $hashtags AS hashtag
                 CREATE (h:Hashtag {
+                    id: hashtag.id,
                     hashtag: hashtag.hashtag,
                     isInWorkspace: hashtag.isInWorkspace
                 })
@@ -39,7 +40,8 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                 ORDER BY relationshipCount DESC
                 LIMIT $limit
                 RETURN
-                h.hashtag AS id,
+                h.id AS id,
+                h.hashtag AS name,
                 'HASHTAG' AS nodeType
             """)
   List<HashtagNodeDto> findHashtag(

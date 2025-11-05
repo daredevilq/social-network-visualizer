@@ -272,6 +272,7 @@ public class ProjectParser {
 
   private Map<String, Object> buildHashtagNode(String hashtagStr) {
     Map<String, Object> map = new HashMap<>();
+    map.put("id", UUID.randomUUID().toString());
     map.put("hashtag", hashtagStr);
     map.put("isInWorkspace", false);
     return map;

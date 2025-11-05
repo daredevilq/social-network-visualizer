@@ -30,7 +30,7 @@ class AuthorNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
-    return `${node.id}`;
+    return `${node.name}`;
   }
 
   handleNodeLeftClick(
@@ -39,7 +39,7 @@ class AuthorNodeStrategy implements INodeStrategy {
     setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
   ) {
     setSelectedUserData({
-      name: node.id,
+      name: node.name,
       community: node.community,
     } as BasicUserData);
     setIsSidebarOpen((prev) => !prev);
@@ -60,10 +60,8 @@ class TweetNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
-    const tweetNode = node as TweetNode;
     const maxLength = 15;
-
-    return tweetNode.content.length > maxLength ? tweetNode.content.substring(0, maxLength) + '...' : tweetNode.content;
+    return node.name.length > maxLength ? node.name.substring(0, maxLength) + '...' : node.name;
   }
 
   handleNodeLeftClick(
@@ -89,7 +87,7 @@ class HashtagNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
-    return `${node.id}`;
+    return `${node.name}`;
   }
 
   handleNodeLeftClick(

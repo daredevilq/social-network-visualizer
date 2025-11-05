@@ -77,11 +77,11 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         links: data.links,
       });
 
-      showNotification(`Node "${node.id}" found`, BannerType.SUCCESS);
+      showNotification(`Node "${node.name}" found`, BannerType.SUCCESS);
 
       setHasUnsavedChanges(true);
     } catch (_error) {
-      showNotification(`Failed to add node "${node.id}"`, BannerType.ERROR);
+      showNotification(`Failed to add node "${node.name}"`, BannerType.ERROR);
     }
   };
 
@@ -89,7 +89,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setGraphData((prev) => {
       const projectNode = projectData.nodes.find((n) => n.id === node.id && n.nodeType === node.nodeType);
       if (!projectNode) {
-        showNotification(`Node "${node.id}" not found in project data.`, BannerType.ERROR);
+        showNotification(`Node "${node.name}" not found in project data.`, BannerType.ERROR);
         return prev;
       }
 

@@ -26,26 +26,76 @@ public class GraphService {
   private final AuthorRepository authorRepository;
   private final List<NodeQueryStrategy> nodeQueryStrategies;
 
+  // temp changes all down below
+  record NodePreview(String id, String name, NodeType nodeType) {}
+
+  record LinkPreview(String source, String target, RelationType type) {}
+
   public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
     List<NodeDto> nodes =
         fetchRequestedNodes(
             finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
-    List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
-    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
+    List<LinkDto> allLinks = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
+
+    Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
+
+    List<LinkDto> validLinks =
+        allLinks.stream()
+            .filter(link -> link.source() != null && link.target() != null)
+            .collect(Collectors.toList());
+
+    long selfLoopsCount =
+        validLinks.stream()
+            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
+            .filter(link -> link.source().equals(link.target()))
+            .count();
+
+    List<LinkDto> links =
+        validLinks.stream()
+            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
+            .filter(link -> !link.source().equals(link.target()))
+            .collect(Collectors.toList());
 
     log.info(
-        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} total, {} unique | links: {}",
+        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {} (filtered from {}, removed {} self-loops, {} null links)",
         communityId.map(String::valueOf).orElse("null"),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
         nodes.size(),
-        uniqueNodes.size(),
-        links.size());
+        links.size(),
+        allLinks.size(),
+        selfLoopsCount,
+        allLinks.size() - validLinks.size());
 
-    return new GraphDataDto(uniqueNodes, links);
+    int nodeLimit = Math.min(nodes.size(), 5);
+    int linkLimit = Math.min(links.size(), 10);
+
+    List<NodePreview> nodePreview =
+        nodes.stream()
+            .limit(nodeLimit)
+            .map(
+                n ->
+                    new NodePreview(
+                        n.getId(),
+                        n.getName().substring(0, Math.min(15, n.getName().length())),
+                        n.getNodeType()))
+            .toList();
+
+    List<LinkPreview> linkPreview =
+        links.stream()
+            .limit(linkLimit)
+            .map(l -> new LinkPreview(l.source(), l.target(), l.relation()))
+            .toList();
+
+    log.info("---------------------------");
+    log.info("nodes preview: {}", nodePreview);
+    log.info("links preview: {}", linkPreview);
+    log.info("---------------------------");
+
+    return new GraphDataDto(nodes, links);
   }
 
   public GraphDataDto fetchWorkspaceData() {
@@ -55,30 +105,22 @@ public class GraphService {
             FetchConfig.defaultConfig(),
             Optional.empty(),
             true);
-    List<LinkDto> links = graphRepository.findWorkspaceRelationships();
+    List<LinkDto> allLinks = graphRepository.findWorkspaceRelationships();
+
+    Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
+
+    List<LinkDto> validLinks =
+        allLinks.stream()
+            .filter(link -> link.source() != null && link.target() != null)
+            .collect(Collectors.toList());
+
+    List<LinkDto> links =
+        validLinks.stream()
+            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
+            .filter(link -> !link.source().equals(link.target()))
+            .collect(Collectors.toList());
 
     return new GraphDataDto(nodes, links);
-  }
-
-  // TODO: the the problem is that we need to change the logic of displaying nodes and links
-  // when we have HashtagDtp.name = "Google" and AuthorDto.name = "Google" (its real example)
-  // frontend doesnt know that relation MENTIONS only apply to AUTHOR->AUTHOR and it linsk
-  // HASHTAG->AUTHOR too
-  // because we dont have information in LinkDto what type of node source and target is
-  // fix shouldnt be complicated but we should do this in the next PR, for now we deduplicate by
-  // name
-
-  private List<NodeDto> deduplicateNodesByName(List<NodeDto> nodes) {
-    Map<String, NodeDto> uniqueNodesMap = new LinkedHashMap<>();
-
-    for (NodeDto node : nodes) {
-      String nodeName = node.getId();
-      if (nodeName != null && !uniqueNodesMap.containsKey(nodeName)) {
-        uniqueNodesMap.put(nodeName, node);
-      }
-    }
-
-    return new ArrayList<>(uniqueNodesMap.values());
   }
 
   private List<NodeDto> fetchRequestedNodes(

@@ -121,48 +121,48 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const removeNodeFromWorkspace = async (node: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.removeNodeFromWorkspace(node),
-      `Node "${node.id}" removed`,
-      `Failed to remove node "${node.id}"`
+      `Node "${node.name}" removed`,
+      `Failed to remove node "${node.name}"`
     );
   };
 
   const addTweetAuthorToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetAuthorToWorkspace(tweetNode),
-      `Added author of tweet "${tweetNode.id}"`,
-      `Failed to add author of tweet "${tweetNode.id}"`
+      `Added author of tweet "${tweetNode.name}"`,
+      `Failed to add author of tweet "${tweetNode.name}"`
     );
   };
 
   const addTweetHashtagsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetHashtagsToWorkspace(tweetNode),
-      `Added hashtags from tweet "${tweetNode.id}"`,
-      `Failed to add hashtags from tweet "${tweetNode.id}"`
+      `Added hashtags from tweet "${tweetNode.name}"`,
+      `Failed to add hashtags from tweet "${tweetNode.name}"`
     );
   };
 
   const addMentionedAuthorsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addMentionedAuthorsToWorkspace(tweetNode),
-      `Added mentioned authors from tweet  "${tweetNode.id}"`,
-      `Failed to add mentioned authors from tweet "${tweetNode.id}"`
+      `Added mentioned authors from tweet  "${tweetNode.name}"`,
+      `Failed to add mentioned authors from tweet "${tweetNode.name}"`
     );
   };
 
   const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.highlightUsersForHashtag(hashtagNode),
-      `Highlighted top 10 users for hashtag"${hashtagNode.id}"`,
-      `Failed to highlight top users for hashtag "${hashtagNode.id}"`
+      `Highlighted top 10 users for hashtag"${hashtagNode.name}"`,
+      `Failed to highlight top users for hashtag "${hashtagNode.name}"`
     );
   };
 
   const addHashtagTopAuthors = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addHashtagTopAuthors(hashtagNode),
-      `Added top 5 tweets for hashtag "${hashtagNode.id}"`,
-      `Failed to add top tweets for hashtag "${hashtagNode.id}"`
+      `Added top 5 tweets for hashtag "${hashtagNode.name}"`,
+      `Failed to add top tweets for hashtag "${hashtagNode.name}"`
     );
   };
 

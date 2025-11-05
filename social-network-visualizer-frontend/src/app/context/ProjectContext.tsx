@@ -182,6 +182,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        console.log(data);
+
         if (!Array.isArray(data?.nodes) || !Array.isArray(data?.links)) {
           showNotification('Graph data format is invalid.', BannerType.ERROR);
           return;
@@ -195,6 +197,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
           const baseNode: GraphNode = {
             id: raw.id,
+            name: raw.name,
             nodeType: raw.nodeType,
           };
 

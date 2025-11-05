@@ -42,17 +42,17 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 MATCH (a1:Author)-[r]->(a2:Author)
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation
 
                 UNION
 
                 MATCH (a:Author)-[r]->(t:Tweet)
-                RETURN a.userName AS source, t.id AS target, type(r) AS relation
+                RETURN a.id AS source, t.id AS target, type(r) AS relation
 
                 UNION
 
                 MATCH (t:Tweet)-[r]->(h:Hashtag)
-                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation
+                RETURN t.id AS source, h.id AS target, type(r) AS relation
 
                 UNION
 
@@ -62,7 +62,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 UNION
 
                 MATCH (a:Author)-[r]->(h:Hashtag)
-                RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation
+                RETURN a.id AS source, h.id AS target, type(r) AS relation
             """)
   List<LinkDto> findAllRelations();
 
@@ -71,19 +71,19 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 MATCH (a1:Author)-[r]->(a2:Author)
                 WHERE a1.isInWorkspace = true AND a2.isInWorkspace = true
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation
 
                 UNION
 
                 MATCH (a:Author)-[r]->(t:Tweet)
                 WHERE a.isInWorkspace = true AND t.isInWorkspace = true
-                RETURN a.userName AS source, t.id AS target, type(r) AS relation
+                RETURN a.id AS source, t.id AS target, type(r) AS relation
 
                 UNION
 
                 MATCH (t:Tweet)-[r]->(h:Hashtag)
                 WHERE t.isInWorkspace = true AND h.isInWorkspace = true
-                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation
+                RETURN t.id AS source, h.id AS target, type(r) AS relation
 
                 UNION
 
@@ -95,7 +95,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 MATCH (a:Author)-[r]->(h:Hashtag)
                 WHERE a.isInWorkspace = true AND h.isInWorkspace = true
-                RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation
+                RETURN a.id AS source, h.id AS target, type(r) AS relation
             """)
   List<LinkDto> findWorkspaceRelationships();
 

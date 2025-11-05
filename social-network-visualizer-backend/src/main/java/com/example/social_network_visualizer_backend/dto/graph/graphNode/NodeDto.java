@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 public class NodeDto {
   private String id;
+  private String name;
   private NodeType nodeType;
 }

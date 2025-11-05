@@ -152,10 +152,11 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY relationshipCount DESC
                 LIMIT $limit
                 RETURN
-                    a.userName AS id,
+                    a.id AS id,
                     'AUTHOR' AS nodeType,
-                    a.pagerank AS pagerank,
-                    a.degreeCentrality AS centrality,
+                    a.userName AS name,
+                    COALESCE(a.pagerank, 0.0) AS pagerank,
+                    COALESCE(a.degreeCentrality, 0.0) AS centrality,
                     a.community AS community
             """)
   List<AuthorNodeDto> findAuthors(
@@ -167,9 +168,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE a.community = $communityId
                 ORDER BY a.pagerank DESC
                 RETURN
-                    a.userName AS id,
-                    a.pagerank AS pagerank,
-                    a.degreeCentrality AS centrality,
+                    a.id AS id,
+                    a.userName AS name,
+                    COALESCE(a.pagerank, 0.0) AS pagerank,
+                    COALESCE(a.degreeCentrality, 0.0) AS centrality,
                     a.community AS community
             """)
   List<AuthorNodeDto> findAuthorsWithCommunity(@Param("communityId") int communityId);
@@ -180,7 +182,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE type(r) IN $relations
                   AND a1.community = $communityId
                   AND a2.community = $communityId
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation
             """)
   List<LinkDto> findAuthorRelationsWithinCommunity(
       @Param("relations") Set<RelationType> relations, @Param("communityId") int communityId);

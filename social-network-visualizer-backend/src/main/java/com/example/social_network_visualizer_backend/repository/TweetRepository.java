@@ -179,6 +179,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
                 RETURN
                     t.id AS id,
+                    t.contentPreview AS name,
                     'TWEET' AS nodeType,
                     t.objectCreatedAt AS objectCreatedAt,
                     t.publicationDate AS publicationDate,
