@@ -36,19 +36,19 @@ export default class NodeColors {
   }
 
   static getMentionsColor(): string {
-    return '#FACC15';
+    return '#5EEAD4';
   }
 
   static getRetweetsColor(): string {
-    return '#4ADE80';
+    return '#0D9488';
   }
 
   static getRepliesColor(): string {
-    return '#FB923C';
+    return '#2DD4BF';
   }
 
   static getQuotedColor(): string {
-    return '#60A5FA';
+    return '#14B8A6';
   }
 
   static getSharesHashtagColor(): string {
@@ -56,6 +56,6 @@ export default class NodeColors {
   }
 
   static getPostedColor(): string {
-    return '#5EEAD4';
+    return '#9370F9';
   }
 }

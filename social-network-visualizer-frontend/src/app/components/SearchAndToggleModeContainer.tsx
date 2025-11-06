@@ -6,6 +6,8 @@ import { GraphNode } from '@/types/GraphTypes';
 import { useGraph } from '@/app/context/GraphContext';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import { useNotification } from '@/app/context/NotificationProvider';
+import { BannerType } from '@/app/components/Popups/Banner';
 
 interface SearchAndToggleModeContainerProps {
   searchValue: string;
@@ -13,18 +15,22 @@ interface SearchAndToggleModeContainerProps {
   searchPlaceholder?: string;
 }
 
-const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> = (
-  searchAndToggleModeContainer: SearchAndToggleModeContainerProps
-) => {
-  const { searchValue, onSearchChange, searchPlaceholder = 'Search graph data...' } = searchAndToggleModeContainer;
+const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> = ({
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = 'Search graph data...',
+}) => {
   const [localSearchValue, setLocalSearchValue] = useState(searchValue || '');
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<GraphNode[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { isLabelsMode, setIsLabelsMode, projectData, nodeFound, setNodeFound, setShowLabels, loadedProjectName } = useProject();
   const { openedWorkspaceName, isInWorkspaceMode } = useWorkspace();
   const { addNodeToGraph, findNodeInProjectData } = useGraph();
+  const { showNotification } = useNotification();
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -75,13 +81,21 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
       return;
     }
 
-    if (isInWorkspaceMode) {
-      searchInAllData(query);
-    } else {
-      searchInLoadedData(query);
-    }
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
 
-    setActiveIndex(-1);
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (isInWorkspaceMode) {
+        searchInAllData(query);
+      } else {
+        searchInLoadedData(query);
+      }
+      setActiveIndex(-1);
+    }, 500);
+
+    return () => {
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+    };
   }, [localSearchValue]);
 
   const searchInLoadedData = (query: string) => {
@@ -92,14 +106,27 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   };
 
   const searchInAllData = async (query: string) => {
-    const response = await fetch(`${API_BASE_URL}/graph/search?query=${query}`, {
-      method: 'GET',
-    });
+    if (abortControllerRef.current) abortControllerRef.current.abort();
 
-    const data = await response.json();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-    setFilteredSuggestions(data);
-    setIsDropdownVisible(data.length > 0);
+    try {
+      const response = await fetch(`${API_BASE_URL}/graph/search?query=${query}`, {
+        method: 'GET',
+        signal: controller.signal,
+      });
+
+      if (!response.ok) throw new Error('Network error');
+
+      const data: GraphNode[] = await response.json();
+
+      setFilteredSuggestions(data);
+      setIsDropdownVisible(data.length > 0);
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
+      showNotification('Search request failed', BannerType.ERROR);
+    }
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -224,7 +251,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             </button>
           )}
 
-          {/* Dropdown z suggestions */}
+          {/* Dropdown */}
           {isDropdownVisible && (
             <ul
                 ref={listRef}
@@ -232,7 +259,6 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             >
               {filteredSuggestions.map((suggestion, index) => {
                 const value = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
-
                 const query = localSearchValue.trim().toLowerCase();
                 const lowerName = value.toLowerCase();
                 const matchIndex = lowerName.indexOf(query);
@@ -246,12 +272,9 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
                     key={`${suggestion.id}-${suggestion.nodeType}`}
                     onClick={() => selectSuggestion(suggestion)}
                     onMouseEnter={() => setActiveIndex(index)}
-                    className={`
-                                            px-4 py-2 cursor-pointer flex flex-col transition-colors duration-200
-                                            text-gray-800
-                                            ${isActive ? 'bg-indigo-100' : ''}
-                                            hover:bg-indigo-100
-                                        `}
+                    className={`px-4 py-2 cursor-pointer flex flex-col transition-colors duration-200 text-gray-800 ${
+                      isActive ? 'bg-indigo-100' : ''
+                    } hover:bg-indigo-100`}
                   >
                     <span className="text-sm">
                       {before}

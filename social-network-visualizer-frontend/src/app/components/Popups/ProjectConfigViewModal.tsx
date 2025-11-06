@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { X, Settings, Hash } from 'lucide-react';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
-import type { ProjectConfig } from '@/types/GraphTypes';
+import { MetricType, ProjectConfig } from '@/types/GraphTypes';
 import LoadingOverlay from '@/app/components/Loading/LoadingOverlay';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 interface ProjectConfigViewModalProps {
   projectName: string | null;
@@ -55,12 +56,18 @@ export default function ProjectConfigViewModal({ projectName, onClose }: Project
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Settings className="w-6 h-6 text-[#7140F4]" />
-            <Dialog.Title className="text-2xl font-bold">Project Configuration</Dialog.Title>
+            <Dialog.Title className="text-2xl font-bold">Advanced Metrics Configuration</Dialog.Title>
+            <PopoverIcon
+              message={`Displays the project's predefined advanced metric setup — showing selected metrics, orientations, node labels, and relation types.`}
+              scale={1.8}
+              position="bottom"
+            />
           </div>
+
           <button onClick={onClose} className="p-1.5 rounded-md hover:bg-gray-700 transition-colors">
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-300 hover:text-white transition-colors" />
           </button>
         </div>
 
@@ -98,12 +105,35 @@ export default function ProjectConfigViewModal({ projectName, onClose }: Project
                 {config.metrics.map((metric, idx) => (
                   <div key={idx} className="border border-gray-600 rounded-lg p-4 space-y-3 bg-[#30303d]">
                     <div className="flex items-center justify-between pb-2 border-b border-gray-700">
-                      <h4 className="text-base font-semibold text-white">{metric.type}</h4>
-                      <span className="text-xs px-2.5 py-1 rounded bg-gray-700 text-gray-300 font-medium">{metric.orientation}</span>
+                      <div className="flex items-center">
+                        <h4 className="text-base font-semibold text-[#FAFAFA]">{metric.type}</h4>
+                        {metric.type === MetricType.PAGERANK && (
+                          <PopoverIcon
+                            message={`The **PageRank** algorithm evaluates node importance based on incoming and outgoing relationships. This setting defines how influence is measured in your graph.`}
+                            scale={1.1}
+                            position="right"
+                          />
+                        )}
+                        {metric.type === MetricType.COMMUNITY && (
+                          <PopoverIcon
+                            message={`The **Community Detection** algorithm identifies tightly connected groups of nodes, helping reveal communities or thematic clusters within the graph.`}
+                            scale={1.1}
+                            position="right"
+                          />
+                        )}
+                      </div>
+                      <span className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300 font-medium">{metric.orientation}</span>
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-400 mb-2 font-medium">Node Labels</label>
+                      <div className="flex items-center">
+                        <label className="block text-xs text-gray-300 font-medium">Node Labels</label>
+                        <PopoverIcon
+                          message={`Indicates which node labels were included during metric computation. Only nodes with these labels were analyzed.`}
+                          scale={0.9}
+                          position={'right'}
+                        />
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {metric.nodeLabels.map((label) => (
                           <span key={label} className="text-xs px-2.5 py-1.5 rounded border border-[#7140F4] bg-[#7140F4]/20 text-white">
@@ -114,7 +144,14 @@ export default function ProjectConfigViewModal({ projectName, onClose }: Project
                     </div>
 
                     <div>
-                      <label className="block text-xs text-gray-400 mb-2 font-medium">Relation Types</label>
+                      <div className="flex items-center">
+                        <label className="block text-xs text-gray-300 font-medium">Relation Types</label>
+                        <PopoverIcon
+                          message={`Shows the relationship types that were part of the analysis. Metrics were computed only on these connections.`}
+                          scale={0.9}
+                          position={'right'}
+                        />
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {metric.relationTypes.map((rel) => (
                           <span key={rel} className="text-xs px-2.5 py-1.5 rounded border border-[#7140F4] bg-[#7140F4]/20 text-white">

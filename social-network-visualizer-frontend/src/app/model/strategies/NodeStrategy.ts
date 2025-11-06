@@ -8,6 +8,8 @@ export interface INodeStrategy {
 
   getRadius(node: GraphNode): number;
 
+  getLabel(node: GraphNode): string;
+
   handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
@@ -25,6 +27,10 @@ class AuthorNodeStrategy implements INodeStrategy {
   getRadius(node: GraphNode): number {
     const authorNode = node as AuthorNode;
     return authorNode.pagerank ? authorNode.pagerank * 10 + 15 : 15;
+  }
+
+  getLabel(node: GraphNode): string {
+    return `${node.id}`;
   }
 
   handleNodeLeftClick(
@@ -53,6 +59,13 @@ class TweetNodeStrategy implements INodeStrategy {
     return 10;
   }
 
+  getLabel(node: GraphNode): string {
+    const tweetNode = node as TweetNode;
+    const maxLength = 15;
+
+    return tweetNode.content.length > maxLength ? tweetNode.content.substring(0, maxLength) + '...' : tweetNode.content;
+  }
+
   handleNodeLeftClick(
     node: GraphNode,
     setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
@@ -73,6 +86,10 @@ class HashtagNodeStrategy implements INodeStrategy {
 
   getRadius(): number {
     return 7;
+  }
+
+  getLabel(node: GraphNode): string {
+    return `${node.id}`;
   }
 
   handleNodeLeftClick(
@@ -107,6 +124,11 @@ class NodeStrategy {
   getRadius(node: GraphNode): number {
     const strategy = this.resolveStrategy(node);
     return strategy.getRadius(node);
+  }
+
+  getLabel(node: GraphNode): string {
+    const strategy = this.resolveStrategy(node);
+    return strategy.getLabel(node);
   }
 
   handleNodeLeftClick(

@@ -1,12 +1,13 @@
 'use client';
 
 import { Dialog } from '@headlessui/react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NodeType } from '@/types/GraphTypes';
 import { FetchConfig } from '@/types/GraphQueryRequest';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { DEFAULT_FETCH_CONFIG } from '@/app/utils/defaultFetchConfig';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 interface Props {
   open: boolean;
@@ -49,7 +50,14 @@ export default function FetchConfigModal({ open, onClose, onApply, currentConfig
       <div className="fixed inset-0 bg-black/50" />
 
       <div className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white" onClick={(e) => e.stopPropagation()}>
-        <Dialog.Title className="text-2xl font-bold mb-6 text-center">Configure Fetch Limits</Dialog.Title>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <Dialog.Title className="text-2xl font-bold">Configure Fetch Limits</Dialog.Title>
+          <PopoverIcon
+            message={`Adjust how many **nodes** of each selected type are loaded into the graph. Unavailable node types are **grayed out** until you include them in filters section.`}
+            scale={1.6}
+            position="right"
+          />
+        </div>
 
         <div className="space-y-6 mb-6">
           {allNodeTypes.map((nodeType) => {
@@ -61,7 +69,9 @@ export default function FetchConfigModal({ open, onClose, onApply, currentConfig
                 <div className="flex items-center justify-between">
                   <label className={`text-base font-semibold ${!isEnabled ? 'text-gray-500' : 'text-white'}`}>{nodeType}</label>
                   <span
-                    className={`text-sm font-mono px-2 py-1 rounded ${!isEnabled ? 'bg-gray-700 text-gray-500' : 'bg-[#7140F4]/20 text-[#7140F4]'}`}
+                    className={`text-sm font-mono px-2 py-1 rounded ${
+                      !isEnabled ? 'bg-gray-700 text-gray-500' : 'bg-[#7140F4]/20 text-[#7140F4]'
+                    }`}
                   >
                     {limit}
                   </span>
@@ -79,7 +89,9 @@ export default function FetchConfigModal({ open, onClose, onApply, currentConfig
                       [nodeType]: parseInt(e.target.value),
                     })
                   }
-                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${!isEnabled ? 'bg-gray-700' : 'bg-gray-600 accent-[#7140F4]'}`}
+                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
+                    !isEnabled ? 'bg-gray-700' : 'bg-gray-600 accent-[#7140F4]'
+                  }`}
                   style={{
                     background: isEnabled
                       ? `linear-gradient(to right, #7140F4 0%, #7140F4 ${(limit / 500) * 100}%, #4b5563 ${(limit / 500) * 100}%, #4b5563 100%)`
