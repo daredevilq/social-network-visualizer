@@ -48,7 +48,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     if (!containerRef.current) return;
 
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(containerRef.current);
-    fgInstance.current.d3Force('charge', forceManyBody().distanceMin(10).strength(-200));
+    fgInstance.current.d3Force('charge', forceManyBody().distanceMin(20).strength(-200));
     fgInstance.current.d3Force(
       'collide',
       forceCollide()
@@ -62,6 +62,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       forceLink<GraphNode, GraphLink>()
         .id((d: GraphNode) => d.id)
         .strength(0.7)
+        .distance(50)
     );
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
@@ -113,6 +114,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkCurvature(0.4)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
