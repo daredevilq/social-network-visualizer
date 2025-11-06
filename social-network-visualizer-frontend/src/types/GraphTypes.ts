@@ -63,6 +63,7 @@ export interface GraphLink extends LinkObject {
   source: string;
   target: string;
   relation: RelationType;
+  weight: number;
 }
 
 export interface GraphProps {
