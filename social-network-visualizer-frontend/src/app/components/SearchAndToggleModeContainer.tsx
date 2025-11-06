@@ -22,9 +22,10 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   const [filteredSuggestions, setFilteredSuggestions] = useState<GraphNode[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isLabelsMode, setIsLabelsMode, projectData, setNodeFound, setShowLabels, loadedProjectName } = useProject();
+  const { isLabelsMode, setIsLabelsMode, projectData, nodeFound, setNodeFound, setShowLabels, loadedProjectName } = useProject();
   const { openedWorkspaceName, isInWorkspaceMode } = useWorkspace();
   const { addNodeToGraph, findNodeInProjectData } = useGraph();
+  const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (!loadedProjectName || !openedWorkspaceName) return;
@@ -34,6 +35,18 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
     setActiveIndex(-1);
     setNodeFound(null);
   }, [loadedProjectName, openedWorkspaceName]);
+
+  useEffect(() => {
+    if (listRef.current && activeIndex >= 0) {
+      const activeItem = listRef.current.children[activeIndex] as HTMLElement;
+      if (activeItem) {
+        activeItem.scrollIntoView({
+          block: 'nearest',
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [activeIndex]);
 
   const toggleLabels = () => {
     setShowLabels((prev) => !prev);
@@ -72,7 +85,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   }, [localSearchValue]);
 
   const searchInLoadedData = (query: string) => {
-    const matches = projectData.nodes.filter((node) => node.id.toLowerCase().includes(query));
+    const matches = projectData.nodes.filter((node) => node.id.toLowerCase().includes(query) || node.nodeType.toLowerCase().includes(query));
 
     setFilteredSuggestions(matches);
     setIsDropdownVisible(matches.length > 0);
@@ -96,6 +109,9 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   const selectSuggestion = (suggestion: GraphNode) => {
     setActiveIndex(-1);
 
+    const displayValue = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
+    setLocalSearchValue(displayValue);
+
     if (isInWorkspaceMode) {
       setNodeFound(suggestion);
       addNodeToGraph(suggestion);
@@ -109,13 +125,20 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
       }
     }
 
-    onSearchChange(suggestion.id);
+    onSearchChange(displayValue);
     setTimeout(() => setIsDropdownVisible(false), 100);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (!isDropdownVisible && !isInWorkspaceMode) {
+    if (!isDropdownVisible) {
       if (e.key === 'Enter') {
+        if (nodeFound) {
+          setNodeFound(null);
+          setLocalSearchValue('');
+          onSearchChange('');
+          return;
+        }
+
         onSearchChange(localSearchValue);
         const node = findNodeByName(projectData, localSearchValue);
         if (node) {
@@ -182,7 +205,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={searchPlaceholder}
-            className="w-full h-9 pl-10 pr-4 py-2 text-gray-800 placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-[#FAFAFA]"
+            className="w-full h-9 pl-10 pr-8 py-2 text-gray-800 placeholder-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400 transition bg-[#FAFAFA]"
           />
 
           {localSearchValue && (
@@ -203,7 +226,10 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
           {/* Dropdown z suggestions */}
           {isDropdownVisible && (
-            <ul className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
+            <ul
+                ref={listRef}
+                className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto"
+            >
               {filteredSuggestions.map((suggestion, index) => {
                 const value = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
 

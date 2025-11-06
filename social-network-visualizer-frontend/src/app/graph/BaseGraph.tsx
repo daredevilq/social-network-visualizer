@@ -41,7 +41,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const { setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
-  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, setHasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
+  const { setNodeFound } = useProject();
+  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
   const { resetGraphData } = useGraph();
 
   useEffect(() => {
@@ -181,11 +182,13 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   ]);
 
   const handleNodeLeftClick = useCallback((node: GraphNode) => {
+    setNodeFound(null);
     nodeStrategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
   }, []);
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
+      setNodeFound(null);
       if (isInWorkspaceMode) {
         const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node, menuItemsGetters);
         setMenu({
