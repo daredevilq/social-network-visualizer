@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
@@ -15,6 +15,7 @@ import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 type DeleteTarget = {
   type: 'project' | 'workspace';
@@ -112,7 +113,14 @@ export default function ProjectsContent() {
 
   return (
     <div className="relative h-full flex flex-col text-white px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Projects</h1>
+      <div className="flex items-center border-b border-white pb-2 mb-4">
+        <h1 className="text-2xl font-bold mr-2">Projects</h1>
+        <PopoverIcon
+          message={`Manage your projects and workspaces here. You can upload new projects, edit existing ones, and organize your workspaces for each project.`}
+          scale={1.6}
+          position="bottom"
+        />
+      </div>
 
       <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
         {projects.map((project) => (
