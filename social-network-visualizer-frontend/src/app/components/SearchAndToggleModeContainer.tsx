@@ -99,7 +99,9 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   }, [localSearchValue]);
 
   const searchInLoadedData = (query: string) => {
-    const matches = projectData.nodes.filter((node) => node.id.toLowerCase().includes(query) || node.nodeType.toLowerCase().includes(query));
+    const matches = projectData.nodes.filter(
+      (node) => node.id.toLowerCase().includes(query) || node.nodeType.toLowerCase().includes(query)
+    );
 
     setFilteredSuggestions(matches);
     setIsDropdownVisible(matches.length > 0);
@@ -253,10 +255,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
           {/* Dropdown */}
           {isDropdownVisible && (
-            <ul
-                ref={listRef}
-                className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto"
-            >
+            <ul ref={listRef} className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
               {filteredSuggestions.map((suggestion, index) => {
                 const value = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
                 const query = localSearchValue.trim().toLowerCase();
