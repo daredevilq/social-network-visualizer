@@ -66,7 +66,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:MENTION]->(a)
+                MERGE (t)-[r:MENTION]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
 
@@ -76,7 +78,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:HAS_REPLY]->(a)
+                MERGE (t)-[r:HAS_REPLY]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
 
@@ -86,7 +90,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (p:Tweet {id: data.parentId})
-                CREATE (t)-[:HAS_PARENT]->(p)
+                MERGE (t)-[r:HAS_PARENT]->(p)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
@@ -96,7 +102,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (h:Hashtag {hashtag: data.hashtag})
-                CREATE (t)-[:HAS_HASHTAG]->(h)
+                MERGE (t)-[r:HAS_HASHTAG]->(h)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
 

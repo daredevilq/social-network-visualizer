@@ -56,7 +56,8 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                MERGE (a)-[:POSTED]->(t)
+                MERGE (a)-[r:POSTED]->(t)
+                ON CREATE SET r.weight = 1
             """)
   void createAuthorTweetRelations(
       @Param("authorTweetData") List<Map<String, Object>> authorTweetData);
