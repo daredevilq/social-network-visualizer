@@ -41,8 +41,9 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const { setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
-  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, setHasUnsavedChanges } = useWorkspace();
-  const { setGraphData, resetGraphData } = useGraph();
+  const { setNodeFound } = useProject();
+  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
+  const { resetGraphData } = useGraph();
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -181,11 +182,13 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   ]);
 
   const handleNodeLeftClick = useCallback((node: GraphNode) => {
+    setNodeFound(null);
     nodeStrategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
   }, []);
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
+      setNodeFound(null);
       if (isInWorkspaceMode) {
         const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node, menuItemsGetters);
         setMenu({
@@ -201,7 +204,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setMenu((prev: MenuState) => ({ ...prev, items: [] }));
   }, []);
 
-  const analyzeSelectedNodes = () => {
+  const createNewWorkspaceWithNodes = () => {
     setIsSidebarOpen(false);
 
     if (selectedNodeIds.length !== 0) {
@@ -210,9 +213,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         (l) => selectedNodes.find((n) => n.id === l.source) && selectedNodes.find((n) => n.id === l.target)
       );
 
-      setGraphData({ nodes: nodes, links: links });
+      openWorkspaceCreateModal({ nodes, links });
       setSelectedNodeIds([]);
-      setHasUnsavedChanges(true);
     }
   };
 
@@ -321,24 +323,17 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       )}
 
       <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30 w-[180px]">
-        {selectedNodeIds.length > 0 && (
+        {selectedNodeIds.length > 0 && !isInWorkspaceMode && (
           <button
-            onClick={() => analyzeSelectedNodes()}
-            // TODO remove that in the future and implement logic for working in workspace mode
-            disabled={isInWorkspaceMode}
+            onClick={() => createNewWorkspaceWithNodes()}
             className={`
                   px-3 py-2 rounded-md border-none
                   bg-[#384EB3] text-white cursor-pointer
                   hover:bg-[#2d3f99]
                   transition-colors
-              
-                  disabled:bg-[#7382D1]
-                  disabled:cursor-not-allowed
-                  disabled:opacity-50
-                  disabled:hover:bg-[#7382D1]
                 `}
           >
-            Analyze
+            Create workspace
           </button>
         )}
         {isInWorkspaceMode && hasUnsavedChanges && (
