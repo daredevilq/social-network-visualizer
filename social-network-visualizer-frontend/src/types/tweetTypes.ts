@@ -19,6 +19,12 @@ export interface Tweet {
   isHighEngagement: boolean;
 }
 
+export interface TweetDetails extends Tweet {
+  mentions?: string[];
+  replyToId?: string | null;
+  replyToContent?: string | null;
+}
+
 export interface TweetResponse {
   tweets: Tweet[];
   total: number;
@@ -32,6 +38,7 @@ export interface TweetAnalysisContainerProps {
 
 export interface ViralTweet {
   userName: string;
+  tweetId: string;
   tweetUrl: string;
   preview: string;
   likes: number;

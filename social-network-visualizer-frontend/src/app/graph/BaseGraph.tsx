@@ -39,7 +39,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     position: { x: 0, y: 0 },
   });
 
-  const { setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
+  const { isSidebarOpen, setIsSidebarOpen, selectedUserData, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
   const { setNodeFound } = useProject();
   const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
@@ -181,10 +181,24 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     selectedNodeIds,
   ]);
 
-  const handleNodeLeftClick = useCallback((node: GraphNode) => {
-    setNodeFound(null);
-    nodeStrategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
-  }, []);
+  const handleNodeLeftClick = useCallback(
+    (node: GraphNode) => {
+      setNodeFound(null);
+      if (isSidebarOpen && selectedUserData && selectedUserData.name === node.id && selectedUserData.nodeType === node.nodeType) {
+        setIsSidebarOpen(false);
+        setSelectedUserData(null);
+        return;
+      }
+
+      setSelectedUserData({
+        name: node.id,
+        community: node.community ? node.community : '',
+        nodeType: node.nodeType,
+      });
+      setIsSidebarOpen(true);
+    },
+    [isSidebarOpen, selectedUserData, setIsSidebarOpen, setSelectedUserData]
+  );
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
