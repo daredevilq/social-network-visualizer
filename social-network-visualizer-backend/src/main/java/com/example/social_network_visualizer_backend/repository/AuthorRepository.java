@@ -197,7 +197,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
       """
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
-                    RETURN h.hashtag as id, count(*) AS frequency
+                    RETURN h.hashtag as name, count(*) AS frequency
                     ORDER BY frequency DESC
                     LIMIT 10
             """)
