@@ -29,7 +29,8 @@
     "react-countup": "^6.5.3",
     "react-dom": "^19.0.0",
     "react-force-graph": "^1.25.1",
-    "react-intersection-observer": "^9.16.0"
+    "react-intersection-observer": "^9.16.0",
+    "tailwind-scrollbar": "^4.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.3",

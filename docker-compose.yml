@@ -51,8 +51,8 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./social-network-visualizer-frontend:/app
       - /app/node_modules
+      - /app/.next
     stdin_open: true
     tty: true
     depends_on:
