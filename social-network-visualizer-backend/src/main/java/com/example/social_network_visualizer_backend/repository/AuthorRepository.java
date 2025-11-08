@@ -248,6 +248,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                      (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
                 RETURN
                     a.userName as userName,
+                    t.id AS tweetId,
                     t.contentPreview AS preview,
                     t.url AS tweetUrl,
                     likes,

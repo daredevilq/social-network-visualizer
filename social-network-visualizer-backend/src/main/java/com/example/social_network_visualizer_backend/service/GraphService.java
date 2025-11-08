@@ -26,7 +26,6 @@ public class GraphService {
   private final AuthorRepository authorRepository;
   private final List<NodeQueryStrategy> nodeQueryStrategies;
 
-  // temp changes all down below
   record NodePreview(String id, String name, NodeType nodeType) {}
 
   record LinkPreview(String source, String target, RelationType type) {}
@@ -73,6 +72,7 @@ public class GraphService {
     int nodeLimit = Math.min(nodes.size(), 5);
     int linkLimit = Math.min(links.size(), 10);
 
+    // temp changes for logging purposes below
     List<NodePreview> nodePreview =
         nodes.stream()
             .limit(nodeLimit)

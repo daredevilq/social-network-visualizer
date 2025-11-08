@@ -107,7 +107,14 @@ export default function FiltersContent() {
 
   return (
     <div className="relative h-full flex flex-col text-[#FAFAFA] px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-[#FAFAFA] pb-2 mb-4">Graph Filters</h1>
+      <div className="flex items-center border-b border-white pb-2 mb-4">
+        <h1 className="text-2xl font-bold mr-2">Graph Filters</h1>
+        <PopoverIcon
+          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.`}
+          scale={1.6}
+          position="bottom"
+        />
+      </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
         <div className="border border-gray-700 rounded-lg bg-[#30303d]">

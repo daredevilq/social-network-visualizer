@@ -10,12 +10,6 @@ export interface INodeStrategy {
 
   getLabel(node: GraphNode): string;
 
-  handleNodeLeftClick(
-    node: GraphNode,
-    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
-    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
-  ): any;
-
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[];
 }
 
@@ -33,18 +27,6 @@ class AuthorNodeStrategy implements INodeStrategy {
     return `${node.name}`;
   }
 
-  handleNodeLeftClick(
-    node: GraphNode,
-    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
-    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
-  ) {
-    setSelectedUserData({
-      name: node.name,
-      community: node.community,
-    } as BasicUserData);
-    setIsSidebarOpen((prev) => !prev);
-  }
-
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
     return menuItemsGetters.getAuthorMenuItems(node as AuthorNode);
   }
@@ -60,16 +42,10 @@ class TweetNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
+    const tweetNode = node as TweetNode;
     const maxLength = 15;
-    return node.name.length > maxLength ? node.name.substring(0, maxLength) + '...' : node.name;
-  }
 
-  handleNodeLeftClick(
-    node: GraphNode,
-    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
-    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
-  ) {
-    console.log('SingleNodeClick Method not implemented for: TWEET nodes.');
+    return tweetNode.content.length > maxLength ? tweetNode.content.substring(0, maxLength) + '...' : tweetNode.content;
   }
 
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
@@ -88,14 +64,6 @@ class HashtagNodeStrategy implements INodeStrategy {
 
   getLabel(node: GraphNode): string {
     return `${node.name}`;
-  }
-
-  handleNodeLeftClick(
-    node: GraphNode,
-    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
-    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
-  ) {
-    console.log('SingleNodeClick Method not implemented for: Hashtag nodes.');
   }
 
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
@@ -127,15 +95,6 @@ class NodeStrategy {
   getLabel(node: GraphNode): string {
     const strategy = this.resolveStrategy(node);
     return strategy.getLabel(node);
-  }
-
-  handleNodeLeftClick(
-    node: GraphNode,
-    setSelectedUserData: (value: ((prevState: BasicUserData | null) => BasicUserData | null) | BasicUserData | null) => void,
-    setIsSidebarOpen: (value: ((prevState: boolean) => boolean) | boolean) => void
-  ) {
-    const strategy = this.resolveStrategy(node);
-    return strategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
   }
 
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {

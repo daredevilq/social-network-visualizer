@@ -5,6 +5,7 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { useProject } from '@/app/context/ProjectContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { ViralTweet } from '@/types/tweetTypes';
+import { NodeType } from '@/types/GraphTypes';
 import { UsersMentionedContainer } from '@/app/components/Analysis/User/UsersMentionedContainer';
 import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
 import { UserProfileContainer } from '@/app/components/Analysis/User/UserProfileContainer';
@@ -119,10 +120,21 @@ export default function UserDetailsContainer({ username }: { username: string })
       const data = await userDataRes.json();
       setUserData(data);
 
+      console.log('user data', data);
+
       setSelectedUserData({
+        id: data.id,
         name: data.name,
         community: data.community,
+        nodeType: data.nodeType,
       });
+
+      // setSelectedUserData({
+      //   id: '',
+      //   name: username,
+      //   community: '',
+      //   nodeType: NodeType.AUTHOR,
+      // });
 
       const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`);
       if (!activityRes.ok) throw new Error('Failed to load user data');

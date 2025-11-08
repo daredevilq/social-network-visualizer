@@ -116,27 +116,30 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 MATCH (a:Author)
-                WHERE toLower(a.userName) CONTAINS toLower($query)
+                WHERE toLower(a.userName) CONTAINS toLower($query) OR 'author' CONTAINS toLower($query)
                 RETURN
-                  a.userName AS id,
+                  a.id AS id,
+                  a.userName AS name,
                   'AUTHOR' AS nodeType,
                   null AS content
 
                 UNION
 
                 MATCH (h:Hashtag)
-                WHERE toLower(h.hashtag) CONTAINS toLower($query)
+                WHERE toLower(h.hashtag) CONTAINS toLower($query) OR 'hashtag' CONTAINS toLower($query)
                 RETURN
-                  h.hashtag AS id,
+                  h.id AS id,
+                  h.hashtag AS name,
                   'HASHTAG' AS nodeType,
                   null AS content
 
                 UNION
 
                 MATCH (t:Tweet)
-                WHERE toLower(t.content) CONTAINS toLower($query)
+                WHERE toLower(t.content) CONTAINS toLower($query) OR 'tweet' CONTAINS toLower($query)
                 RETURN
                   t.id AS id,
+                  t.contentPreview AS name,
                   'TWEET' AS nodeType,
                   t.content AS content
             """)

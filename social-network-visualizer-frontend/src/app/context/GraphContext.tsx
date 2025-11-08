@@ -62,6 +62,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: node.id,
+          name: node.name,
           nodeType: node.nodeType,
         }),
       });

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { useRouter } from 'next/navigation';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 export default function FunctionsContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,7 +32,14 @@ export default function FunctionsContent() {
 
   return (
     <div className="relative h-full flex flex-col text-white px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Graph Functions</h1>
+      <div className="flex items-center border-b border-white pb-2 mb-4">
+        <h1 className="text-2xl font-bold mr-2">Graph Functions</h1>
+        <PopoverIcon
+          message={`Use graph functions to analyze network structures and relationships. You can explore communities or find the shortest connection between users to better understand how your network is organized.`}
+          scale={1.6}
+          position="bottom"
+        />
+      </div>
 
       <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
         <div className="py-3">

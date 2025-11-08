@@ -7,6 +7,7 @@ import { useProject } from '@/app/context/ProjectContext';
 import LeaveConfirmModal from '@/app/components/Popups/LeaveConfirmModal';
 import { useSaveWorkspaceChanges } from '@/app/hooks/useSaveWorkspaceChanges';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 
 interface WorkspaceContextType {
   isInWorkspaceMode: boolean;
@@ -20,8 +21,12 @@ interface WorkspaceContextType {
   saveWorkspaceData: (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => Promise<void>;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsConfirmModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   runWithUnsavedCheck: <T>(fn: () => Promise<T>) => Promise<void>;
+  openWorkspaceCreateModal: (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => void;
+  workspaces: string[];
+  setWorkspaces: React.Dispatch<React.SetStateAction<string[]>>;
+  refreshWorkspaces: (projectName: string) => void;
+  createWorkspace: (workspaceName: string) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType>({
@@ -31,15 +36,17 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   setOpenedWorkspaceName: () => {},
   workspaceData: { nodes: [], links: [] },
   setWorkspaceData: () => {},
-  loadWorkspace: (workspaceName: string) => {},
-  fetchWorkspaceData: async (workspaceName: string) => {},
-  saveWorkspaceData: async (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => {},
+  loadWorkspace: async () => {},
+  fetchWorkspaceData: async () => {},
+  saveWorkspaceData: async () => {},
   hasUnsavedChanges: false,
   setHasUnsavedChanges: () => {},
-  setIsConfirmModalOpen: () => {},
-  runWithUnsavedCheck: async (fn) => {
-    return;
-  },
+  runWithUnsavedCheck: async () => {},
+  openWorkspaceCreateModal: (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => {},
+  workspaces: [],
+  setWorkspaces: () => {},
+  refreshWorkspaces: () => {},
+  createWorkspace: async () => {},
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -55,6 +62,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
+  const [isWorkspaceCreateModalOpen, setWorkspaceCreateModalOpen] = useState(false);
+  const [pendingGraphData, setPendingGraphData] = useState<{
+    nodes: GraphNode[];
+    links: GraphLink[];
+  }>({ nodes: [], links: [] });
+  const [workspaces, setWorkspaces] = useState<string[]>([]);
 
   useEffect(() => {
     fetchWorkspaceData();
@@ -76,6 +89,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
+
+  const openWorkspaceCreateModal = (graphData: { nodes: GraphNode[]; links: GraphLink[] }) => {
+    setPendingGraphData(graphData);
+    setWorkspaceCreateModalOpen(true);
+  };
+
+  const closeWorkspaceCreateModal = () => {
+    setPendingGraphData({ nodes: [], links: [] });
+    setWorkspaceCreateModalOpen(false);
+  };
 
   const loadWorkspace = async (workspaceName: string) =>
     runWithLoading(async () => {
@@ -134,8 +157,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
-          const baseNode: GraphNode = {
+          const baseNode = {
             id: raw.id,
+            name: raw.name,
             nodeType: raw.nodeType,
           };
 
@@ -252,6 +276,40 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsConfirmModalOpen(false);
   };
 
+  const refreshWorkspaces = async (projectName: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/project/${projectName}/workspace/list`);
+      if (!res.ok) throw new Error('Failed to load workspace list');
+      setWorkspaces(await res.json());
+    } catch (err: any) {
+      showNotification(`Load error: ${err.message}`, BannerType.ERROR);
+    }
+  };
+
+  const createWorkspace = async (workspaceName: string) => {
+    setIsConfirmModalOpen(false);
+
+    await runWithLoading(async () => {
+      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: workspaceName,
+          nodes: pendingGraphData.nodes,
+          edges: pendingGraphData.links,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to create workspace');
+      showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
+    }).catch((err: any) => {
+      showNotification(`Create error: ${err.message}`, BannerType.ERROR);
+    });
+    await refreshWorkspaces(loadedProjectName!);
+    closeWorkspaceCreateModal();
+    await loadWorkspace(workspaceName);
+  };
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -266,12 +324,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         saveWorkspaceData,
         hasUnsavedChanges,
         setHasUnsavedChanges,
-        setIsConfirmModalOpen,
         runWithUnsavedCheck,
+        openWorkspaceCreateModal,
+        workspaces,
+        setWorkspaces,
+        refreshWorkspaces,
+        createWorkspace,
       }}
     >
       {children}
 
+      <WorkspaceCreateModal
+        open={isWorkspaceCreateModalOpen}
+        projectName={loadedProjectName!}
+        onCancel={() => closeWorkspaceCreateModal()}
+        handleCreateWorkspace={(workspaceName: string) => createWorkspace(workspaceName)}
+        workspaceList={workspaces}
+      />
       <LeaveConfirmModal open={isConfirmModalOpen} onSave={handleSave} onDiscard={handleDiscard} onCancel={handleCancel} />
     </WorkspaceContext.Provider>
   );

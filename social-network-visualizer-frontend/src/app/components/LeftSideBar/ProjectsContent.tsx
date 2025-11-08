@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useProject } from '@/app/context/ProjectContext';
 import { ProjectSummary } from '@/app/interface/ProjectSummary';
 import ProjectActionsMenu from '@/app/components/Popups/ProjectActionsMenu';
@@ -15,6 +15,7 @@ import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
+import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
 type DeleteTarget = {
   type: 'project' | 'workspace';
@@ -23,10 +24,19 @@ type DeleteTarget = {
 
 export default function ProjectsContent() {
   const { loadedProjectName, loading, loadProject, runWithLoading, setProjectData } = useProject();
-  const { setIsInWorkspaceMode, openedWorkspaceName, setOpenedWorkspaceName, runWithUnsavedCheck, loadWorkspace } = useWorkspace();
+  const {
+    setIsInWorkspaceMode,
+    openedWorkspaceName,
+    setOpenedWorkspaceName,
+    runWithUnsavedCheck,
+    loadWorkspace,
+    workspaces,
+    setWorkspaces,
+    refreshWorkspaces,
+    createWorkspace,
+  } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
-  const [workspaces, setWorkspaces] = useState<string[]>([]);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -83,16 +93,6 @@ export default function ProjectsContent() {
     await refreshWorkspaces(projectName);
   };
 
-  const refreshWorkspaces = async (projectName: string) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/project/${projectName}/workspace/list`);
-      if (!res.ok) throw new Error('Failed to load workspace list');
-      setWorkspaces(await res.json());
-    } catch (err: any) {
-      showNotification(`Load error: ${err.message}`, BannerType.ERROR);
-    }
-  };
-
   const deleteWorkspace = async (workspaceName: string) => {
     await runWithLoading(async () => {
       const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}`, {
@@ -111,32 +111,16 @@ export default function ProjectsContent() {
     });
   };
 
-  const createWorkspace = async (workspaceName: string) => {
-    setCreateWorkspaceModalOpen(false);
-
-    await runWithLoading(async () => {
-      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: workspaceName,
-          nodes: [],
-          edges: [],
-        }),
-      });
-
-      if (!res.ok) throw new Error('Failed to create workspace');
-      showNotification(`Workspace created successfully.`, BannerType.SUCCESS);
-    }).catch((err: any) => {
-      showNotification(`Create error: ${err.message}`, BannerType.ERROR);
-    });
-    await refreshWorkspaces(loadedProjectName!);
-    loadWorkspace(workspaceName);
-  };
-
   return (
     <div className="relative h-full flex flex-col text-white px-4 pt-4">
-      <h1 className="text-2xl font-bold border-b border-white pb-2 mb-4">Projects</h1>
+      <div className="flex items-center border-b border-white pb-2 mb-4">
+        <h1 className="text-2xl font-bold mr-2">Projects</h1>
+        <PopoverIcon
+          message={`Manage your projects and workspaces here. You can upload new projects, edit existing ones, and organize your workspaces for each project.`}
+          scale={1.6}
+          position="bottom"
+        />
+      </div>
 
       <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
         {projects.map((project) => (
@@ -246,7 +230,10 @@ export default function ProjectsContent() {
         open={createWorkspaceModalOpen}
         projectName={loadedProjectName!}
         onCancel={() => setCreateWorkspaceModalOpen(false)}
-        handleCreateWorkspace={(workspaceName: string) => createWorkspace(workspaceName)}
+        handleCreateWorkspace={(workspaceName: string) => {
+          createWorkspace(workspaceName);
+          setCreateWorkspaceModalOpen(false);
+        }}
         workspaceList={workspaces}
       />
 
