@@ -31,12 +31,23 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getAuthorMenuItems = (node: AuthorNode): MenuItem[] => {
     const authorItems: MenuItem[] = [
       {
-        label: 'Add latest 10 tweets',
-        icon: <ProfileIcon />,
-        onMenuItemClick: async () => addLatestTweets(node.id),
+        label: 'Add author tweets',
+        icon: <ConnectionsIcon />,
+        submenu: [
+          {
+            label: 'Add latest 10 tweets',
+            icon: <TweetIcon />,
+            onMenuItemClick: async () => addLatestTweets(node.id),
+          },
+          {
+            label: 'Add 10 most popular tweets',
+            icon: <TweetIcon />,
+            onMenuItemClick: () => addMostPopularTweets(node.id),
+          },
+        ],
       },
       {
-        label: 'Add Authors from Community',
+        label: 'Add authors from community',
         icon: <ConnectionsIcon />,
         submenu: [
           {
@@ -51,6 +62,41 @@ export const useContextMenuItems = (): MenuItemsGetters => {
           },
         ],
       },
+      {
+        label: 'Show frequently mentioned users',
+        icon: <ProfileIcon />,
+        onMenuItemClick: async () => addMentionedUsersByAuthor(node),
+      },
+      {
+        label: 'Show users mentioning this author',
+        icon: <ProfileIcon />,
+        onMenuItemClick: async () => addAuthorsMentioningThisAuthor(node),
+      },
+      {
+        label: 'Show users this author often replies to',
+        icon: <ProfileIcon />,
+        onMenuItemClick: async () => addAuthorsMostRepliedToByAuthor(node),
+      },
+      {
+        label: 'Show users often replying to this author',
+        icon: <ProfileIcon />,
+        onMenuItemClick: async () => addAuthorsMostReplyingToAuthor(node),
+      },
+      {
+        label: 'Show last tweets replied to',
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addTweetsRepliedToByAuthor(node),
+      },
+      {
+        label: 'Show tweets mentioning this author',
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addTweetsMentioningAuthor(node),
+      },
+      {
+        label: 'Show hashtags used',
+        icon: <HashtagIcon />,
+        onMenuItemClick: async () => addHashtagsUsedByAuthor(node),
+      },
     ];
 
     return [...authorItems, ...getCommonMenuItems(node)];
@@ -59,19 +105,29 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getTweetMenuItems = (node: GraphNode): MenuItem[] => {
     const tweetItems: MenuItem[] = [
       {
-        label: 'Show Author',
+        label: 'Show author',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addTweetAuthorToWorkspace(node),
-      },
-      {
-        label: 'Show hashtags',
-        icon: <TweetIcon />,
-        onMenuItemClick: async () => addTweetHashtagsToWorkspace(node),
       },
       {
         label: 'Show mentioned users',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addMentionedAuthorsToWorkspace(node),
+      },
+      {
+        label: 'Show tweet parent',
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addTweetParentToWorkspace(node),
+      },
+      {
+        label: 'Show tweet children',
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addChildrenToWorkspace(node),
+      },
+      {
+        label: 'Show hashtags used',
+        icon: <HashtagIcon />,
+        onMenuItemClick: async () => addTweetHashtagsToWorkspace(node),
       },
     ];
 
@@ -81,14 +137,19 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getHashtagMenuItems = (node: GraphNode): MenuItem[] => {
     const hashtagItems: MenuItem[] = [
       {
-        label: 'Show Top 10 authors',
-        icon: <TweetIcon />,
+        label: 'Show 10 authors by usage',
+        icon: <ProfileIcon />,
         onMenuItemClick: async () => highlightUsersForHashtag(node),
       },
       {
-        label: 'Show Top 10 tweets',
+        label: 'Show top 10 most popular tweets',
+        icon: <TweetIcon />,
+        onMenuItemClick: async () => addTopTweetsByHashtag(node),
+      },
+      {
+        label: 'Show related hashtags',
         icon: <HashtagIcon />,
-        onMenuItemClick: async () => addHashtagTopAuthors(node),
+        onMenuItemClick: async () => addRelatedHashtags(node),
       },
     ];
 
@@ -115,6 +176,14 @@ export const useContextMenuItems = (): MenuItemsGetters => {
       () => GraphApiService.addAuthorsLatestTweets(authorId),
       `Loaded top 10 tweets for "${authorId}"`,
       `Failed to load tweets for "${authorId}"`
+    );
+  };
+
+  const addMostPopularTweets = async (authorId: string) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addAuthorsMostPopularTweets(authorId),
+      `Loaded top 10 most popular tweets for "${authorId}"`,
+      `Failed to load top tweets for "${authorId}"`
     );
   };
 
@@ -150,6 +219,22 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     );
   };
 
+  const addTweetParentToWorkspace = async (tweetNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addTweetParentToWorkspace(tweetNode),
+      `Added parent tweet for  "${tweetNode.id}"`,
+      `No parent found for "${tweetNode.id}"`
+    );
+  };
+
+  const addChildrenToWorkspace = async (tweetNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addChildrenToWorkspace(tweetNode),
+      `Added children tweets from tweet  "${tweetNode.id}"`,
+      `Failed to add children tweets from tweet "${tweetNode.id}"`
+    );
+  };
+
   const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.highlightUsersForHashtag(hashtagNode),
@@ -158,11 +243,19 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     );
   };
 
-  const addHashtagTopAuthors = async (hashtagNode: GraphNode) => {
+  const addTopTweetsByHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addHashtagTopAuthors(hashtagNode),
+      () => GraphApiService.addTopTweetsByHashtag(hashtagNode),
       `Added top 5 tweets for hashtag "${hashtagNode.id}"`,
       `Failed to add top tweets for hashtag "${hashtagNode.id}"`
+    );
+  };
+
+  const addRelatedHashtags = async (hashtagNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addRelatedHashtags(hashtagNode),
+      `Added related hashtags for hashtag "${hashtagNode.id}"`,
+      `Failed to add related hashtags for hashtag "${hashtagNode.id}"`
     );
   };
 
@@ -173,6 +266,62 @@ export const useContextMenuItems = (): MenuItemsGetters => {
         ? `Entire community "${communityId}" added`
         : `Top ${numberOfAuthors} authors from community "${communityId}" added`,
       `Failed to add authors from community "${communityId}"`
+    );
+  };
+
+  const addHashtagsUsedByAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addHashtagsUsedByAuthor(authorNode),
+      `Added hashtags used by "${authorNode.id}"`,
+      `Failed to load hashtags used by "${authorNode.id}"`
+    );
+  };
+
+  const addMentionedUsersByAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addMentionedUsersByAuthor(authorNode),
+      `Added users mentioned by "${authorNode.id}"`,
+      `Failed to load mentioned users for "${authorNode.id}"`
+    );
+  };
+
+  const addAuthorsMentioningThisAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addAuthorsMentioningThisAuthor(authorNode),
+      `Added users mentioning "${authorNode.id}"`,
+      `Failed to load users mentioning "${authorNode.id}"`
+    );
+  };
+
+  const addAuthorsMostRepliedToByAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addAuthorsMostRepliedToByAuthor(authorNode),
+      `Added users "${authorNode.id}" replies to most often`,
+      `Failed to load users "${authorNode.id}" replies to`
+    );
+  };
+
+  const addAuthorsMostReplyingToAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addAuthorsMostReplyingToAuthor(authorNode),
+      `Added users replying to "${authorNode.id}" most often`,
+      `Failed to load users replying to "${authorNode.id}"`
+    );
+  };
+
+  const addTweetsRepliedToByAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addTweetsRepliedToByAuthor(authorNode),
+      `Added tweets replied to by "${authorNode.id}"`,
+      `Failed to load replies for "${authorNode.id}"`
+    );
+  };
+
+  const addTweetsMentioningAuthor = async (authorNode: GraphNode) => {
+    await handleGraphUpdate(
+      () => GraphApiService.addTweetsMentioningAuthor(authorNode),
+      `Added tweets mentioning "${authorNode.id}"`,
+      `Failed to load tweets mentioning "${authorNode.id}"`
     );
   };
 

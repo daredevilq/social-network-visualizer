@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
@@ -33,11 +34,66 @@ public class GraphMenuController {
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
+  @PostMapping("/author/{authorId}/popular-tweets")
+  public ResponseEntity<GraphDataDto> addAuthorMostPopularTweets(@PathVariable String authorId) {
+    graphMenuService.addAuthorsMostPopularTweets(authorId, 10);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
   @PostMapping("/author/community")
   public ResponseEntity<GraphDataDto> addAuthorCommunity(@RequestBody Map<String, Integer> body) {
     Integer communityId = body.get("communityId");
     Integer numberOfAuthors = body.getOrDefault("numberOfAuthorsToAdd", 10);
     graphMenuService.addAuthorsCommunity(communityId, numberOfAuthors);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/used-hashtags")
+  public ResponseEntity<GraphDataDto> addHashtagsUsedByAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addHashtagsUsedByAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/mentioned-users")
+  public ResponseEntity<GraphDataDto> addMentionedUsersByAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addMentionedUsersByAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/mentioning-authors")
+  public ResponseEntity<GraphDataDto> addAuthorsMentioningThisAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addAuthorsMentioningThisAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/replied-to-authors")
+  public ResponseEntity<GraphDataDto> addAuthorsMostRepliedToByAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addAuthorsMostRepliedToByAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/replying-authors")
+  public ResponseEntity<GraphDataDto> addAuthorsMostReplyingToAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addAuthorsMostReplyingToAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/replied-tweets")
+  public ResponseEntity<GraphDataDto> addTweetsRepliedToByAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addTweetsRepliedToByAuthor(authorNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/author/mentioned-in-tweets")
+  public ResponseEntity<GraphDataDto> addTweetsMentioningAuthor(
+      @RequestBody AuthorNodeDto authorNodeDto) {
+    graphMenuService.addTweetsMentioningAuthor(authorNodeDto);
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
@@ -69,6 +125,20 @@ public class GraphMenuController {
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
+  @PostMapping("/tweet/parent-tweet")
+  public ResponseEntity<GraphDataDto> addParentTweetToWorkspace(
+      @RequestBody TweetNodeDto tweetNodeDto) {
+    graphMenuService.addParentTweetToWorkspace(tweetNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/tweet/children-tweets")
+  public ResponseEntity<GraphDataDto> addTweetChildrenToWorkspace(
+      @RequestBody TweetNodeDto tweetNodeDto) {
+    graphMenuService.addTweetChildrenToWorkspace(tweetNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
   @PostMapping("/hashtag/highlight-authors")
   public ResponseEntity<GraphDataDto> highlightUsersForHashtag(
       @RequestBody HashtagNodeDto hashtagNodeDto) {
@@ -80,6 +150,13 @@ public class GraphMenuController {
   public ResponseEntity<GraphDataDto> addTopTweetsByHashtag(
       @RequestBody HashtagNodeDto hashtagNodeDto) {
     graphMenuService.addTopTweetsByHashtag(hashtagNodeDto);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("hashtag/related-hashtags")
+  public ResponseEntity<GraphDataDto> addRelatedHashtags(
+      @RequestBody HashtagNodeDto hashtagNodeDto) {
+    graphMenuService.addRelatedHashtags(hashtagNodeDto);
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 }

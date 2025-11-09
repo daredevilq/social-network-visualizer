@@ -73,6 +73,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
   useEffect(() => {
     const query = localSearchValue.trim().toLowerCase();
+    if (!isDropdownVisible && nodeFound) return;
 
     if (query.length === 0) {
       setFilteredSuggestions([]);
@@ -137,6 +138,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
   const selectSuggestion = (suggestion: GraphNode) => {
     setActiveIndex(-1);
+    setIsDropdownVisible(false);
 
     const displayValue = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
     setLocalSearchValue(displayValue);

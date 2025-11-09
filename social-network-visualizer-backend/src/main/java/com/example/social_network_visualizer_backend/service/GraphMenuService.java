@@ -44,6 +44,54 @@ public class GraphMenuService {
         });
   }
 
+  public void addAuthorsMostPopularTweets(String authorId, int numberOfTweets) {
+    List<TweetNodeDto> tweets =
+        graphMenuRepository.findAuthorsMostPopularTweets(authorId, numberOfTweets);
+    tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addHashtagsUsedByAuthor(AuthorNodeDto authorNodeDto) {
+    List<HashtagNodeDto> hashtags =
+        graphMenuRepository.findHashtagsUsedByAuthor(authorNodeDto.getId());
+    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addMentionedUsersByAuthor(AuthorNodeDto authorNodeDto) {
+    List<AuthorNodeDto> authors =
+        graphMenuRepository.findMentionedUsersByAuthor(authorNodeDto.getId());
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addAuthorsMentioningThisAuthor(AuthorNodeDto authorNodeDto) {
+    List<AuthorNodeDto> authors =
+        graphMenuRepository.findAuthorsMentioningThisAuthor(authorNodeDto.getId());
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addAuthorsMostRepliedToByAuthor(AuthorNodeDto authorNodeDto) {
+    List<AuthorNodeDto> authors =
+        graphMenuRepository.findAuthorsMostRepliedToByAuthor(authorNodeDto.getId());
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addAuthorsMostReplyingToAuthor(AuthorNodeDto authorNodeDto) {
+    List<AuthorNodeDto> authors =
+        graphMenuRepository.findAuthorsMostReplyingToAuthor(authorNodeDto.getId());
+    authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addTweetsRepliedToByAuthor(AuthorNodeDto authorNodeDto) {
+    List<TweetNodeDto> tweets =
+        graphMenuRepository.findTweetsRepliedToByAuthor(authorNodeDto.getId());
+    tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addTweetsMentioningAuthor(AuthorNodeDto authorNodeDto) {
+    List<TweetNodeDto> tweets =
+        graphMenuRepository.findTweetsMentioningAuthor(authorNodeDto.getId());
+    tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
   public void addTweetAuthorToWorkspace(TweetNodeDto tweetNodeDto) {
     AuthorNodeDto author =
         graphMenuRepository
@@ -68,6 +116,23 @@ public class GraphMenuService {
     authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 
+  public void addParentTweetToWorkspace(TweetNodeDto tweetNodeDto) {
+    TweetNodeDto tweet =
+        graphMenuRepository
+            .findParentByTweetId(tweetNodeDto.getId())
+            .orElseThrow(
+                () ->
+                    new ProjectException(
+                        "Parent not found for tweet: " + tweetNodeDto.getId(),
+                        HttpStatus.NOT_FOUND));
+    workspaceService.updateWorkspaceMembership(tweet, true);
+  }
+
+  public void addTweetChildrenToWorkspace(TweetNodeDto tweetNodeDto) {
+    List<TweetNodeDto> tweets = graphMenuRepository.findChildrenByTweetId(tweetNodeDto.getId());
+    tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
   public void addTopAuthorsForHashtag(HashtagNodeDto hashtagNodeDto) {
     List<AuthorNodeDto> authors =
         graphMenuRepository.findTopAuthorsByHashtagId(hashtagNodeDto.getId());
@@ -78,5 +143,10 @@ public class GraphMenuService {
     List<TweetNodeDto> tweets =
         graphMenuRepository.findTopTweetsByHashtagId(hashtagNodeDto.getId());
     tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
+  public void addRelatedHashtags(HashtagNodeDto hashtagNodeDto) {
+    List<HashtagNodeDto> hashtags = graphMenuRepository.findRelatedHashtags(hashtagNodeDto.getId());
+    hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 }
