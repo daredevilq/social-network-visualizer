@@ -27,6 +27,7 @@ interface WorkspaceContextType {
   setWorkspaces: React.Dispatch<React.SetStateAction<string[]>>;
   refreshWorkspaces: (projectName: string) => void;
   createWorkspace: (workspaceName: string) => Promise<void>;
+  exportWorkspace: (workspaceName: string) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType>({
@@ -47,6 +48,7 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   setWorkspaces: () => {},
   refreshWorkspaces: () => {},
   createWorkspace: async () => {},
+  exportWorkspace: async () => {},
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -309,6 +311,37 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     await loadWorkspace(workspaceName);
   };
 
+  const exportWorkspace = async (workspaceName: string) => {
+    if (!loadedProjectName) {
+      showNotification('No project loaded', BannerType.ERROR);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}/export`);
+
+      if (!res.ok) {
+        throw new Error(`Failed to export workspace: ${res.status} ${res.statusText}`);
+      }
+
+      const workspaceData = await res.json();
+      const dataStr = JSON.stringify(workspaceData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${workspaceName}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showNotification(`Workspace "${workspaceName}" exported successfully.`, BannerType.SUCCESS);
+    } catch (err: any) {
+      showNotification(`Export error: ${err.message}`, BannerType.ERROR);
+    }
+  };
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -329,6 +362,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setWorkspaces,
         refreshWorkspaces,
         createWorkspace,
+        exportWorkspace,
       }}
     >
       {children}

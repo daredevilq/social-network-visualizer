@@ -34,6 +34,7 @@ export default function ProjectsContent() {
     setWorkspaces,
     refreshWorkspaces,
     createWorkspace,
+    exportWorkspace,
   } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -178,6 +179,7 @@ export default function ProjectsContent() {
                     <WorkspaceActionMenu
                       disabled={loading}
                       onDelete={() => runWithUnsavedCheck(async () => askDeleteWorkspace(workspace))}
+                      onExport={() => exportWorkspace(workspace)}
                     />
                   </div>
                 ))}

@@ -60,4 +60,12 @@ public class WorkspaceController {
 
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
+
+  @GetMapping("/{workspaceName}/export")
+  public ResponseEntity<Workspace> exportWorkspace(
+      @PathVariable String projectName, @PathVariable String workspaceName) {
+
+    Workspace workspace = workspaceService.getWorkspaceByName(projectName, workspaceName);
+    return ResponseEntity.ok(workspace);
+  }
 }

@@ -183,6 +183,43 @@ public class WorkspaceService {
     projectRepository.save(project);
   }
 
+  public Workspace getWorkspaceByName(String projectName, String workspaceName) {
+    if (workspaceName == null || workspaceName.isBlank()) {
+      throw new ProjectException("Workspace name cannot be null or empty", HttpStatus.BAD_REQUEST);
+    }
+
+    Project project =
+        projectRepository
+            .findByName(projectName)
+            .orElseThrow(
+                () ->
+                    new ProjectException(
+                        "Project with name '" + projectName + "' does not exist",
+                        HttpStatus.NOT_FOUND));
+
+    if (project.getWorkspaces() == null || project.getWorkspaces().isEmpty()) {
+      throw new ProjectException(
+          "Project '" + projectName + "' has no workspaces", HttpStatus.NOT_FOUND);
+    }
+
+    Workspace workspace =
+        project.getWorkspaces().stream()
+            .filter(ws -> ws.getName() != null && ws.getName().equalsIgnoreCase(workspaceName))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new ProjectException(
+                        "Workspace with name '"
+                            + workspaceName
+                            + "' not found in project '"
+                            + projectName
+                            + "'",
+                        HttpStatus.NOT_FOUND));
+
+    log.info("Workspace '{}' retrieved successfully from project '{}'", workspaceName, projectName);
+    return workspace;
+  }
+
   public void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
     if (node == null || node.getNodeType() == null) {
       log.warn("Node or node type is null – cannot update workspace flag.");
