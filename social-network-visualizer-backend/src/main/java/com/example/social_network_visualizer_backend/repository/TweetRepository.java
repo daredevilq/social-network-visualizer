@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetDetailsDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
@@ -9,6 +10,7 @@ import com.example.social_network_visualizer_backend.model.Tweet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -270,4 +272,14 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
               parent.content AS replyToContent
     """)
   Optional<TweetDetailsDto> findTweetDetailsById(@Param("tweetId") String tweetId);
+
+  @Query(
+      """
+      MATCH (t:Tweet)
+      WHERE t.id IN $ids
+      RETURN
+          t.id AS id,
+          'TWEET' AS nodeType
+      """)
+  List<NodeDto> findExistingTweetNodes(@Param("ids") Set<String> ids);
 }

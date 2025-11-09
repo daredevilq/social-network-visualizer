@@ -1,22 +1,22 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.exceptions.WorkspaceException;
 import com.example.social_network_visualizer_backend.model.project.Project;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
-import com.example.social_network_visualizer_backend.repository.AuthorRepository;
-import com.example.social_network_visualizer_backend.repository.GraphRepository;
-import com.example.social_network_visualizer_backend.repository.HashtagRepository;
-import com.example.social_network_visualizer_backend.repository.ProjectRepository;
-import com.example.social_network_visualizer_backend.repository.TweetRepository;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.example.social_network_visualizer_backend.repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -27,6 +27,7 @@ public class WorkspaceService {
   private final AuthorRepository authorRepository;
   private final TweetRepository tweetRepository;
   private final HashtagRepository hashtagRepository;
+  private final ObjectMapper objectMapper;
 
   public List<String> getAllWorkspaces(String projectName) {
     Project project =
@@ -262,6 +263,165 @@ public class WorkspaceService {
 
       default:
         log.warn("Unknown node type: {}", node.getNodeType());
+    }
+  }
+
+  public WorkspaceImportResult validateAndImportWorkspace(
+      String projectName, MultipartFile workspaceFile) {
+
+    Workspace workspaceCandidate = parseAndValidateWorkspaceFileFormat(workspaceFile);
+    verifyProjectAndWorkspaceUniqueness(projectName, workspaceCandidate);
+
+    List<NodeDto> validNodes = extractValidNodes(workspaceCandidate);
+    List<LinkDto> validEdges = extractValidEdges(workspaceCandidate, validNodes);
+
+    if (validNodes.isEmpty() && validEdges.isEmpty()) {
+      throw new WorkspaceException(
+          "Failed to import workspace: No valid nodes or edges found in the database.",
+          HttpStatus.BAD_REQUEST,
+          "error");
+    }
+
+    Workspace validWorkspace = new Workspace();
+    validWorkspace.setName(workspaceCandidate.getName());
+    validWorkspace.setNodes(validNodes);
+    validWorkspace.setEdges(validEdges);
+    saveWorkspace(projectName, validWorkspace);
+
+    return WorkspaceImportResult.fromImportStats(
+        workspaceCandidate.getName(),
+        workspaceCandidate.getNodes() != null ? workspaceCandidate.getNodes().size() : 0,
+        validNodes.size(),
+        workspaceCandidate.getEdges() != null ? workspaceCandidate.getEdges().size() : 0,
+        validEdges.size());
+  }
+
+  private List<LinkDto> extractValidEdges(Workspace workspaceCandidate, List<NodeDto> validNodes) {
+
+    Set<String> validNodeIds = validNodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
+
+    List<LinkDto> edgesToValidate =
+        workspaceCandidate.getEdges() == null
+            ? Collections.emptyList()
+            : workspaceCandidate.getEdges().stream()
+                .filter(edge -> edge != null && edge.source() != null && edge.target() != null)
+                .filter(
+                    edge ->
+                        validNodeIds.contains(edge.source())
+                            && validNodeIds.contains(edge.target()))
+                .toList();
+
+    List<LinkDto> validEdges = Collections.emptyList();
+    if (!edgesToValidate.isEmpty()) {
+      List<Map<String, String>> edgeMaps =
+          edgesToValidate.stream()
+              .map(
+                  edge -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("source", edge.source());
+                    map.put("target", edge.target());
+                    map.put("relation", edge.relation().toString());
+                    return map;
+                  })
+              .toList();
+      validEdges = graphRepository.findExistingRelations(edgeMaps);
+    }
+    return validEdges;
+  }
+
+  private List<NodeDto> extractValidNodes(Workspace workspace) {
+
+    Map<NodeType, Set<String>> nodeIdsByType = groupNodeIdsByType(workspace.getNodes());
+    List<NodeDto> validNodes = new ArrayList<>();
+
+    if (nodeIdsByType.containsKey(NodeType.AUTHOR)) {
+      List<NodeDto> authorNodes =
+          authorRepository.findExistingAuthorNodes(nodeIdsByType.get(NodeType.AUTHOR));
+      authorNodes.forEach(node -> node.setNodeType(NodeType.AUTHOR));
+      validNodes.addAll(authorNodes);
+    }
+
+    if (nodeIdsByType.containsKey(NodeType.TWEET)) {
+      List<NodeDto> tweetNodes =
+          tweetRepository.findExistingTweetNodes(nodeIdsByType.get(NodeType.TWEET));
+      tweetNodes.forEach(node -> node.setNodeType(NodeType.TWEET));
+      validNodes.addAll(tweetNodes);
+    }
+
+    if (nodeIdsByType.containsKey(NodeType.HASHTAG)) {
+      List<NodeDto> hashtagNodes =
+          hashtagRepository.findExistingHashtagNodes(nodeIdsByType.get(NodeType.HASHTAG));
+      hashtagNodes.forEach(node -> node.setNodeType(NodeType.HASHTAG));
+      validNodes.addAll(hashtagNodes);
+    }
+    return validNodes;
+  }
+
+  private Map<NodeType, Set<String>> groupNodeIdsByType(List<NodeDto> nodes) {
+    if (nodes == null) {
+      return Collections.emptyMap();
+    }
+
+    return nodes.stream()
+        .filter(node -> node != null && node.getId() != null && node.getNodeType() != null)
+        .collect(
+            Collectors.groupingBy(
+                NodeDto::getNodeType, Collectors.mapping(NodeDto::getId, Collectors.toSet())));
+  }
+
+  private Workspace parseAndValidateWorkspaceFileFormat(MultipartFile file) {
+    String filename = file.getOriginalFilename();
+    if (filename == null || !filename.endsWith(".json")) {
+      throw new WorkspaceException("Only JSON files are allowed", HttpStatus.BAD_REQUEST);
+    }
+
+    Workspace workspace;
+    try {
+      workspace = objectMapper.readValue(file.getInputStream(), Workspace.class);
+    } catch (Exception e) {
+      log.error("IO error reading workspace file: {}", e.getMessage());
+      throw new WorkspaceException(
+          "Failed to read workspace file. The file may be corrupted.", e, HttpStatus.BAD_REQUEST);
+    }
+
+    if (workspace == null || workspace.getName() == null || workspace.getName().isBlank()) {
+      throw new WorkspaceException("Invalid workspace: name is required", HttpStatus.BAD_REQUEST);
+    }
+    if (workspace.getNodes() == null) {
+      workspace.setNodes(new ArrayList<>());
+    }
+    if (workspace.getEdges() == null) {
+      workspace.setEdges(new ArrayList<>());
+    }
+
+    return workspace;
+  }
+
+  private void verifyProjectAndWorkspaceUniqueness(String projectName, Workspace workspace) {
+    Project project =
+        projectRepository
+            .findByName(projectName)
+            .orElseThrow(
+                () ->
+                    new WorkspaceException(
+                        "Project with name '" + projectName + "' does not exist",
+                        HttpStatus.NOT_FOUND));
+
+    boolean workspaceExists =
+        project.getWorkspaces() != null
+            && project.getWorkspaces().stream()
+                .anyMatch(
+                    ws ->
+                        ws.getName() != null && ws.getName().equalsIgnoreCase(workspace.getName()));
+
+    if (workspaceExists) {
+      throw new WorkspaceException(
+          "Workspace with name '"
+              + workspace.getName()
+              + "' already exists in project '"
+              + projectName
+              + "'",
+          HttpStatus.CONFLICT);
     }
   }
 }

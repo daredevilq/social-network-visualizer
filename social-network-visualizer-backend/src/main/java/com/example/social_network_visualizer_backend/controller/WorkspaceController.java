@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.controller;
 
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
+import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.model.project.Workspace;
 import com.example.social_network_visualizer_backend.service.GraphService;
 import com.example.social_network_visualizer_backend.service.WorkspaceService;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -67,5 +70,13 @@ public class WorkspaceController {
 
     Workspace workspace = workspaceService.getWorkspaceByName(projectName, workspaceName);
     return ResponseEntity.ok(workspace);
+  }
+
+  @PostMapping("/import")
+  public ResponseEntity<WorkspaceImportResult> importWorkspace(
+      @PathVariable String projectName, @RequestParam("file") MultipartFile file) {
+
+    WorkspaceImportResult result = workspaceService.validateAndImportWorkspace(projectName, file);
+    return ResponseEntity.ok(result);
   }
 }

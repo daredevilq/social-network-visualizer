@@ -28,6 +28,7 @@ interface WorkspaceContextType {
   refreshWorkspaces: (projectName: string) => void;
   createWorkspace: (workspaceName: string) => Promise<void>;
   exportWorkspace: (workspaceName: string) => Promise<void>;
+  importWorkspace: (file: File) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType>({
@@ -49,6 +50,7 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   refreshWorkspaces: () => {},
   createWorkspace: async () => {},
   exportWorkspace: async () => {},
+  importWorkspace: async () => {},
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -342,6 +344,40 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const importWorkspace = async (file: File) => {
+    if (!loadedProjectName) {
+      showNotification('No project loaded. Please load a project first.', BannerType.ERROR);
+      return;
+    }
+
+    if (!file.name.endsWith('.json')) {
+      showNotification('Only JSON files are allowed', BannerType.ERROR);
+      return;
+    }
+
+    await runWithLoading(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/import`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await res.json();
+        const bannerType = (result.bannerType as BannerType) || BannerType.ERROR;
+        showNotification(result.message, bannerType);
+
+        if (bannerType === BannerType.SUCCESS || bannerType === BannerType.WARNING) {
+          await refreshWorkspaces(loadedProjectName);
+        }
+      } catch (err: any) {
+        showNotification(`Import error: ${err.message || 'Unknown error occurred'}`, BannerType.ERROR);
+      }
+    });
+  };
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -363,6 +399,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         refreshWorkspaces,
         createWorkspace,
         exportWorkspace,
+        importWorkspace,
       }}
     >
       {children}

@@ -6,6 +6,7 @@ import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -270,4 +271,14 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER  BY d, h;
             """)
   List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
+
+  @Query(
+      """
+      MATCH (a:Author)
+      WHERE a.userName IN $ids
+      RETURN
+          a.userName AS id,
+          'AUTHOR' AS nodeType
+      """)
+  List<NodeDto> findExistingAuthorNodes(@Param("ids") Set<String> ids);
 }

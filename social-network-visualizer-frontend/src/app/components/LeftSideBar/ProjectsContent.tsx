@@ -14,6 +14,7 @@ import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
+import WorkspaceImportModal from '@/app/components/Popups/WorkspaceImportModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 
@@ -35,11 +36,13 @@ export default function ProjectsContent() {
     refreshWorkspaces,
     createWorkspace,
     exportWorkspace,
+    importWorkspace,
   } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
+  const [importWorkspaceModalOpen, setImportWorkspaceModalOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -190,7 +193,22 @@ export default function ProjectsContent() {
                     className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
                   >
                     <img src="/icons/leftSideBar/plus_icon.png" className="w-4 h-4 mr-2" alt="Add" />
-                    <span>Add workspace</span>
+                    <span>Add new workspace</span>
+                  </button>
+                  <button
+                    disabled={loading}
+                    onClick={() => runWithUnsavedCheck(async () => setImportWorkspaceModalOpen(true))}
+                    className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white mt-2"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <span>Import workspace</span>
                   </button>
                 </div>
               </div>
@@ -237,6 +255,15 @@ export default function ProjectsContent() {
           setCreateWorkspaceModalOpen(false);
         }}
         workspaceList={workspaces}
+      />
+
+      <WorkspaceImportModal
+        open={importWorkspaceModalOpen}
+        onCancel={() => setImportWorkspaceModalOpen(false)}
+        onImport={async (file: File) => {
+          await importWorkspace(file);
+          setImportWorkspaceModalOpen(false);
+        }}
       />
 
       <ConfirmModal

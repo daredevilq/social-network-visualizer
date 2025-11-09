@@ -1,7 +1,9 @@
 package com.example.social_network_visualizer_backend.handler;
 
+import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
+import com.example.social_network_visualizer_backend.exceptions.WorkspaceException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,14 @@ public class GlobalExceptionHandler {
       DatabaseUnavailableException ex) {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(Map.of("error", "Database is not available", "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(WorkspaceException.class)
+  public ResponseEntity<WorkspaceImportResult> handleWorkspaceException(WorkspaceException e) {
+    log.error("Workspace operation error: {}", e.getMessage());
+    WorkspaceImportResult errorResult =
+        new WorkspaceImportResult(e.getMessage(), e.getBannerType());
+    return ResponseEntity.status(e.getStatus()).body(errorResult);
   }
 
   @ExceptionHandler(Exception.class)

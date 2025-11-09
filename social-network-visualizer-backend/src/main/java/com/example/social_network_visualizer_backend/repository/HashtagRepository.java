@@ -3,10 +3,12 @@ package com.example.social_network_visualizer_backend.repository;
 import com.example.social_network_visualizer_backend.dto.author.TopAuthorsDto;
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.model.Hashtag;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -89,4 +91,14 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                  LIMIT 3
               """)
   List<ViralTweetDto> findTopTweetsByHashtag(@Param("hashtag") String hashtag);
+
+  @Query(
+      """
+      MATCH (h:Hashtag)
+      WHERE h.hashtag IN $ids
+      RETURN
+          h.hashtag AS id,
+          'HASHTAG' AS nodeType
+      """)
+  List<NodeDto> findExistingHashtagNodes(@Param("ids") Set<String> ids);
 }

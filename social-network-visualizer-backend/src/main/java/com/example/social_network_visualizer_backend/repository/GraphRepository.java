@@ -141,4 +141,27 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                   t.content AS content
             """)
   List<NodeSearchDto> performSearch(@Param("query") String query);
+
+  @Query(
+      """
+                UNWIND $edges AS edge
+                OPTIONAL MATCH (source:Author {userName: edge.source})
+                OPTIONAL MATCH (source2:Tweet {id: edge.source})
+                OPTIONAL MATCH (source3:Hashtag {hashtag: edge.source})
+                WITH edge, COALESCE(source, source2, source3) AS sourceNode
+
+                OPTIONAL MATCH (target:Author {userName: edge.target})
+                OPTIONAL MATCH (target2:Tweet {id: edge.target})
+                OPTIONAL MATCH (target3:Hashtag {hashtag: edge.target})
+                WITH edge, sourceNode, COALESCE(target, target2, target3) AS targetNode
+
+                WHERE sourceNode IS NOT NULL AND targetNode IS NOT NULL
+                OPTIONAL MATCH (sourceNode)-[r]->(targetNode)
+                WHERE type(r) = edge.relation
+
+                WITH edge, r
+                WHERE r IS NOT NULL
+                RETURN edge.source AS source, edge.target AS target, edge.relation AS relation
+            """)
+  List<LinkDto> findExistingRelations(@Param("edges") List<Map<String, String>> edges);
 }
