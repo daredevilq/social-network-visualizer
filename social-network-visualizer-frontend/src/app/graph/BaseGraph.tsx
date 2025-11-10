@@ -11,6 +11,7 @@ import { useGraph } from '@/app/context/GraphContext';
 import MenuComponent from '@/app/components/graphMenu/MenuComponent';
 import { MenuItem, MenuState } from '../interface/Menu';
 import { useContextMenuItems } from '@/app/components/graphMenu/ContextMenuItemsProvider';
+import { useContextMultiMenuItems } from '@/app/components/graphMenu/ContextMultiMenuItemsProvider';
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
@@ -41,9 +42,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const { isSidebarOpen, setIsSidebarOpen, selectedUserData, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
+  const { getMultiMenuItems } = useContextMultiMenuItems();
   const { setNodeFound } = useProject();
   const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
   const { resetGraphData } = useGraph();
+  const wasSelectingRef = useRef(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -86,6 +89,17 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const handleDocumentContextMenu = (e: globalThis.MouseEvent) => {
+      if (menu.items.length > 0 || selectedNodes.length > 0) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleDocumentContextMenu);
+    return () => document.removeEventListener('contextmenu', handleDocumentContextMenu);
+  }, [menu, selectedNodes]);
 
   useEffect(() => {
     displayGraphData();
@@ -202,6 +216,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
+      if (wasSelectingRef.current) return;
+
       setNodeFound(null);
       if (isInWorkspaceMode) {
         const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node, menuItemsGetters);
@@ -261,6 +277,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     e.preventDefault();
     e.stopPropagation();
     setIsSelecting(true);
+    wasSelectingRef.current = true;
     setSelectionBox({
       startX: e.clientX,
       startY: e.clientY,
@@ -282,8 +299,12 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     e.stopPropagation();
     if (isSelecting && selectionBox) {
       setIsSelecting(false);
-      checkNodesInBox(selectionBox);
+      checkNodesInBox(selectionBox, e.clientX, e.clientY);
       setSelectionBox(null);
+
+      setTimeout(() => {
+        wasSelectingRef.current = false;
+      }, 50);
     }
   };
 
@@ -291,7 +312,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     e.preventDefault();
   };
 
-  const checkNodesInBox = (box: SelectionBox) => {
+  const checkNodesInBox = (box: SelectionBox, clientX: number, clientY: number) => {
     if (!fgInstance.current || !fgInstance.current.screen2GraphCoords) return;
 
     const startCoords = fgInstance.current.screen2GraphCoords(box.startX, box.startY);
@@ -310,6 +331,13 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     setSelectedNodeIds(selectedNodes.map((n) => n.id));
     setSelectedNodes(selectedNodes);
+
+    if (isInWorkspaceMode && selectedNodes.length > 0) {
+      setMenu({
+        items: getMultiMenuItems(selectedNodes),
+        position: { x: clientX, y: clientY },
+      });
+    }
   };
 
   return (
