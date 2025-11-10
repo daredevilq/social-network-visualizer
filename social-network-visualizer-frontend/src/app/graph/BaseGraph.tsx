@@ -46,7 +46,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const { setNodeFound } = useProject();
   const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
   const { resetGraphData } = useGraph();
-  const wasSelectingRef = useRef(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -216,7 +215,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
-      if (wasSelectingRef.current) return;
+      if (selectedNodeIds.length > 1) return;
 
       setNodeFound(null);
       if (isInWorkspaceMode) {
@@ -227,7 +226,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         });
       }
     },
-    [isInWorkspaceMode]
+    [isInWorkspaceMode, menuItemsGetters, selectedNodeIds]
   );
 
   const handleCloseMenu = useCallback(() => {
@@ -277,7 +276,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     e.preventDefault();
     e.stopPropagation();
     setIsSelecting(true);
-    wasSelectingRef.current = true;
     setSelectionBox({
       startX: e.clientX,
       startY: e.clientY,
@@ -301,10 +299,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       setIsSelecting(false);
       checkNodesInBox(selectionBox, e.clientX, e.clientY);
       setSelectionBox(null);
-
-      setTimeout(() => {
-        wasSelectingRef.current = false;
-      }, 50);
     }
   };
 
