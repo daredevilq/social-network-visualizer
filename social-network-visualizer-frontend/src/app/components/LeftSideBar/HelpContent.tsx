@@ -1,6 +1,6 @@
 'use client';
 
-import NodeColors from '@/app/model/NodeColors';
+import Colors from '@/app/utils/Colors';
 
 interface LegendItemProps {
   icon: React.JSX.Element;
@@ -29,19 +29,19 @@ interface LinkIconBaseProps {
 }
 
 const linkStyles = {
-  POSTED: { color: NodeColors.getPostedColor() },
-  MENTIONS: { color: NodeColors.getMentionsColor() },
-  MENTION: { color: NodeColors.getMentionsColor() },
-  RETWEETS: { color: NodeColors.getRetweetsColor() },
-  RETWEETED: { color: NodeColors.getRetweetsColor() },
-  REPLIES: { color: NodeColors.getRepliesColor() },
-  REPLY_TO: { color: NodeColors.getRepliesColor() },
-  HAS_REPLY: { color: NodeColors.getRepliesColor() },
-  HAS_PARENT: { color: NodeColors.getRepliesColor() },
-  QUOTED: { color: NodeColors.getQuotedColor() },
-  USES_HASHTAG: { color: NodeColors.getSharesHashtagColor() },
-  HAS_HASHTAG: { color: NodeColors.getSharesHashtagColor() },
-  SHARES_HASHTAG: { color: NodeColors.getSharesHashtagColor() },
+  POSTED: { color: Colors.AuthorTweetLinkColorLow() },
+  MENTIONS: { color: Colors.AuthorAuthorLinkColorLow() },
+  MENTION: { color: Colors.AuthorTweetLinkColorLow() },
+  RETWEETS: { color: Colors.AuthorAuthorLinkColorLow() },
+  RETWEETED: { color: Colors.TweetTweetLinkColorLow() },
+  REPLIES: { color: Colors.AuthorAuthorLinkColorLow() },
+  REPLY_TO: { color: Colors.TweetTweetLinkColorLow() },
+  HAS_REPLY: { color: Colors.AuthorTweetLinkColorLow() },
+  HAS_PARENT: { color: Colors.TweetTweetLinkColorLow() },
+  QUOTED: { color: Colors.TweetTweetLinkColorLow() },
+  USES_HASHTAG: { color: Colors.AuthorHashtagLinkColorLow() },
+  HAS_HASHTAG: { color: Colors.TweetHashtagLinkColorLow() },
+  SHARES_HASHTAG: { color: Colors.AuthorAuthorLinkColorLow() },
 };
 
 const LinkIconBase = ({ color }: LinkIconBaseProps) => (
