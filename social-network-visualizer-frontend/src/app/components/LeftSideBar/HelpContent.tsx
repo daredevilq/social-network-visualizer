@@ -90,23 +90,23 @@ export default function HelpContent() {
         </div>
         <div>
           <ul className="divide-y divide-gray-700 max-w-sm">
-            <LegendItem icon={<LinkIcon_POSTED />} title="POSTED" description="Author published a tweet." />
-            <LegendItem icon={<LinkIcon_MENTIONS />} title="MENTIONS" description="Tweet mentions a user." />
-            <LegendItem icon={<LinkIcon_MENTION />} title="MENTION" description="A mention relationship (synonym of MENTIONS)." />
-            <LegendItem icon={<LinkIcon_REPLIES />} title="REPLIES" description="Tweet is a reply to another." />
-            <LegendItem icon={<LinkIcon_REPLY_TO />} title="REPLY_TO" description="A reply relationship to a tweet/author." />
-            <LegendItem icon={<LinkIcon_HAS_REPLY />} title="HAS_REPLY" description="Tweet has a reply." />
+            <LegendItem icon={<LinkIcon_MENTIONS />} title="MENTIONS" description="Author mentions another author" />
+            <LegendItem icon={<LinkIcon_REPLIES />} title="REPLIES" description="Author repplied to another author" />
+            <LegendItem icon={<LinkIcon_RETWEETS />} title="RETWEETS" description="Author retweeted another author" />
             <LegendItem
-              icon={<LinkIcon_HAS_PARENT />}
-              title="HAS_PARENT"
-              description="Tweet has a parent relationship (e.g., is a reply)."
+              icon={<LinkIcon_SHARES_HASHTAG />}
+              title="SHARES_HASHTAG"
+              description="Author shares a hashtag with another author"
             />
-            <LegendItem icon={<LinkIcon_RETWEETS />} title="RETWEETS" description="Author retweeted a tweet." />
-            <LegendItem icon={<LinkIcon_RETWEETED />} title="RETWEETED" description="Tweet is a retweet of another." />
-            <LegendItem icon={<LinkIcon_QUOTED />} title="QUOTED" description="Tweet quotes another tweet." />
-            <LegendItem icon={<LinkIcon_USES_HASHTAG />} title="USES_HASHTAG" description="Author used a hashtag." />
-            <LegendItem icon={<LinkIcon_HAS_HASHTAG />} title="HAS_HASHTAG" description="Tweet contains a hashtag." />
-            <LegendItem icon={<LinkIcon_SHARES_HASHTAG />} title="SHARES_HASHTAG" description="Author shares a hashtag." />
+            <LegendItem icon={<LinkIcon_POSTED />} title="POSTED" description="Author published a tweet" />
+            <LegendItem icon={<LinkIcon_MENTION />} title="MENTION" description="Tween mentions an author" />
+            <LegendItem icon={<LinkIcon_HAS_REPLY />} title="HAS_REPLY" description="Tweet has a reply to author" />
+            <LegendItem icon={<LinkIcon_REPLY_TO />} title="REPLY_TO" description="Tweet has reply to another tweet" />
+            <LegendItem icon={<LinkIcon_HAS_PARENT />} title="HAS_PARENT" description="Tweet has a parent relationship" />
+            <LegendItem icon={<LinkIcon_RETWEETED />} title="RETWEETED" description="Tweet is a retweet of another tweet" />
+            <LegendItem icon={<LinkIcon_QUOTED />} title="QUOTED" description="Tweet is quoted of another tweet" />
+            <LegendItem icon={<LinkIcon_HAS_HASHTAG />} title="HAS_HASHTAG" description="Tweet contains a hashtag" />
+            <LegendItem icon={<LinkIcon_USES_HASHTAG />} title="USES_HASHTAG" description="Author uses hashtag" />
           </ul>
         </div>
       </div>
