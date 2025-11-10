@@ -33,7 +33,7 @@ export interface TweetNode extends BaseNode {
   authorName: string;
   likesCount: number;
   retweetsCount: number;
-  community: number;
+  community: string;
 }
 export interface HashtagNode extends BaseNode {
   nodeType: NodeType.HASHTAG;
@@ -63,6 +63,7 @@ export interface GraphLink extends LinkObject {
   source: string;
   target: string;
   relation: RelationType;
+  weight: number;
 }
 
 export interface GraphProps {

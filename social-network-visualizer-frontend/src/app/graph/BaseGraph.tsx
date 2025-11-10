@@ -47,10 +47,11 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     position: { x: 0, y: 0 },
   });
 
-  const { setIsSidebarOpen, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
+  const { isSidebarOpen, setIsSidebarOpen, selectedUserData, setSelectedUserData, setFocusedCommunityId, showLabels } = useProject();
   const menuItemsGetters = useContextMenuItems();
-  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, setHasUnsavedChanges } = useWorkspace();
-  const { setGraphData, resetGraphData } = useGraph();
+  const { setNodeFound } = useProject();
+  const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
+  const { resetGraphData } = useGraph();
 
   const applyForces = useCallback((params: ForceParameters) => {
     if (!fgInstance.current) return;
@@ -83,7 +84,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(containerRef.current);
     applyForces({ charge: -200, collide: 0.3, centerX: 0, centerY: 0, link: 0.7 });
-
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
         const { offsetWidth, offsetHeight } = containerRef.current;
@@ -131,6 +131,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkCurvature(0.4)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
@@ -198,12 +199,28 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     selectedNodeIds,
   ]);
 
-  const handleNodeLeftClick = useCallback((node: GraphNode) => {
-    nodeStrategy.handleNodeLeftClick(node, setSelectedUserData, setIsSidebarOpen);
-  }, []);
+  const handleNodeLeftClick = useCallback(
+    (node: GraphNode) => {
+      setNodeFound(null);
+      if (isSidebarOpen && selectedUserData && selectedUserData.name === node.id && selectedUserData.nodeType === node.nodeType) {
+        setIsSidebarOpen(false);
+        setSelectedUserData(null);
+        return;
+      }
+
+      setSelectedUserData({
+        name: node.id,
+        community: node.community ? node.community : '',
+        nodeType: node.nodeType,
+      });
+      setIsSidebarOpen(true);
+    },
+    [isSidebarOpen, selectedUserData, setIsSidebarOpen, setSelectedUserData]
+  );
 
   const handleNodeRightClick = useCallback(
     (node: GraphNode, event: MouseEvent) => {
+      setNodeFound(null);
       if (isInWorkspaceMode) {
         const menuItems: MenuItem[] = nodeStrategy.getContextMenuItems(node, menuItemsGetters);
         setMenu({
@@ -219,7 +236,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setMenu((prev: MenuState) => ({ ...prev, items: [] }));
   }, []);
 
-  const analyzeSelectedNodes = () => {
+  const createNewWorkspaceWithNodes = () => {
     setIsSidebarOpen(false);
 
     if (selectedNodeIds.length !== 0) {
@@ -228,9 +245,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         (l) => selectedNodes.find((n) => n.id === l.source) && selectedNodes.find((n) => n.id === l.target)
       );
 
-      setGraphData({ nodes: nodes, links: links });
+      openWorkspaceCreateModal({ nodes, links });
       setSelectedNodeIds([]);
-      setHasUnsavedChanges(true);
     }
   };
 
@@ -338,24 +354,17 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       )}
 
       <div className="absolute bottom-2 right-2 flex flex-col gap-2 p-2 z-30 w-[180px]">
-        {selectedNodeIds.length > 0 && (
+        {selectedNodeIds.length > 0 && !isInWorkspaceMode && (
           <button
-            onClick={() => analyzeSelectedNodes()}
-            // TODO remove that in the future and implement logic for working in workspace mode
-            disabled={isInWorkspaceMode}
+            onClick={() => createNewWorkspaceWithNodes()}
             className={`
                   px-3 py-2 rounded-md border-none
                   bg-[#384EB3] text-white cursor-pointer
                   hover:bg-[#2d3f99]
                   transition-colors
-              
-                  disabled:bg-[#7382D1]
-                  disabled:cursor-not-allowed
-                  disabled:opacity-50
-                  disabled:hover:bg-[#7382D1]
                 `}
           >
-            Analyze
+            Create workspace
           </button>
         )}
         {isInWorkspaceMode && hasUnsavedChanges && (

@@ -2,11 +2,13 @@ package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetDetailsDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,7 +68,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:MENTION]->(a)
+                MERGE (t)-[r:MENTION]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
 
@@ -76,7 +80,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:HAS_REPLY]->(a)
+                MERGE (t)-[r:HAS_REPLY]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
 
@@ -86,7 +92,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (p:Tweet {id: data.parentId})
-                CREATE (t)-[:HAS_PARENT]->(p)
+                CREATE (t)-[r:HAS_PARENT {weight: 1}]->(p)
             """)
   void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
@@ -96,7 +102,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (h:Hashtag {hashtag: data.hashtag})
-                CREATE (t)-[:HAS_HASHTAG]->(h)
+                CREATE (t)-[r:HAS_HASHTAG {weight: 1}]->(h)
             """)
   void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
 
@@ -211,6 +217,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
              (t.likesCount + t.retweetsCount + t.repliesCount) AS engagementScore
         RETURN
             a.userName as userName,
+            t.id AS tweetId,
             t.contentPreview AS preview,
             t.url AS tweetUrl,
             likes,
@@ -221,4 +228,50 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
         LIMIT 10
     """)
   List<ViralTweetDto> findTheMostViralTweets();
+
+  @Query(
+      """
+          MATCH (t:Tweet {id: $tweetId})
+          OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
+          OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
+          OPTIONAL MATCH (t)-[:MENTION]->(m:Author)
+          OPTIONAL MATCH (t)-[:REPLY_TO]->(parent:Tweet)
+
+          MATCH (allT:Tweet)
+          WITH
+              t, a, h, m, parent,
+              avg(coalesce(allT.likesCount, 0)) AS avgLikes,
+              avg(coalesce(allT.retweetsCount, 0)) AS avgRetweets,
+              avg(coalesce(allT.repliesCount, 0)) AS avgReplies
+
+          WITH
+              t,
+              a,
+              collect(DISTINCT h.hashtag) AS hashtags,
+              collect(DISTINCT m.userName) AS mentions,
+              parent,
+              (coalesce(t.likesCount,0) + coalesce(t.retweetsCount,0) + coalesce(t.repliesCount,0)) AS totalEngagement,
+              ((coalesce(t.likesCount,0) + coalesce(t.retweetsCount,0) + coalesce(t.repliesCount,0))
+                  / (avgLikes + avgRetweets + avgReplies)) * 100 AS engagement
+
+          RETURN
+              t.id AS id,
+              t.url AS url,
+              a.userName AS authorName,
+              t.content AS content,
+              t.photos AS photos,
+              t.videos AS videos,
+              t.likesCount AS likesCount,
+              t.retweetsCount AS retweetsCount,
+              t.repliesCount AS repliesCount,
+              engagement,
+            false AS isHighEngagement,
+            t.language AS language,
+              t.objectType AS objectType,
+              hashtags,
+              mentions,
+              parent.id AS replyToId,
+              parent.content AS replyToContent
+    """)
+  Optional<TweetDetailsDto> findTweetDetailsById(@Param("tweetId") String tweetId);
 }

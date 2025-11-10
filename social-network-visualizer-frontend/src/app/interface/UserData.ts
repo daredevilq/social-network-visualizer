@@ -12,4 +12,5 @@ interface UserData {
 interface BasicUserData {
   name: string;
   community: string;
+  nodeType: string;
 }

@@ -122,6 +122,7 @@ export default function UserDetailsContainer({ username }: { username: string })
       setSelectedUserData({
         name: data.name,
         community: data.community,
+        nodeType: data.nodeType,
       });
 
       const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`);

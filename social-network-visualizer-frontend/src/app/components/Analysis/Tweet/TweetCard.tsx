@@ -3,16 +3,19 @@ import { Tweet } from '@/types/tweetTypes';
 
 interface TweetCardProps {
   tweet: Tweet;
+  hoverable?: boolean;
 }
 
-const TweetCard = ({ tweet }: TweetCardProps) => {
+const TweetCard = ({ tweet, hoverable = true }: TweetCardProps) => {
   const highlight = tweet.isHighEngagement;
   const interactionRatio = tweet.engagement;
 
+  const baseClasses = 'bg-[#32323F] rounded-xl shadow-md transition-all duration-300 p-4 mb-4 border border-[#3D3D4E]/50 shadow-md';
+  const hoverClasses = hoverable ? 'hover:shadow-lg hover:bg-[#45455A] hover:-translate-y-1' : '';
+  const highlightClasses = highlight ? 'ring-2 ring-yellow-400/50 bg-gradient-to-r from-yellow-400/10 to-transparent' : '';
+
   return (
-    <div
-      className={`bg-[#3D3D4E] rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:-translate-y-1 p-5 ${highlight ? 'ring-2 ring-yellow-400/50 bg-gradient-to-r from-yellow-400/10 to-transparent' : 'border border-[#4D4D6A]'} mb-4`}
-    >
+    <div className={`${baseClasses} ${hoverClasses} ${highlightClasses}`}>
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center mb-2">
           <div

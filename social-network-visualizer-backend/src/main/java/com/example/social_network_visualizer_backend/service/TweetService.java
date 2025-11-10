@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.tweet.PaginatedTweetsDto;
+import com.example.social_network_visualizer_backend.dto.tweet.TweetDetailsDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
 import com.example.social_network_visualizer_backend.enums.TweetSortOption;
 import com.example.social_network_visualizer_backend.model.Author;
@@ -67,5 +68,15 @@ public class TweetService {
       return order.toUpperCase();
     }
     throw new IllegalArgumentException("Invalid order option. Use 'asc' or 'desc'.");
+  }
+
+  public TweetDetailsDto getTweetDetails(String tweetId) {
+    TweetDetailsDto tweetDetailsDto =
+        tweetRepository
+            .findTweetDetailsById(tweetId)
+            .orElseThrow(
+                () -> new EntityNotFoundException(String.format("Tweet %s not found", tweetId)));
+
+    return tweetDetailsDto;
   }
 }
