@@ -161,7 +161,13 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
   async function handleGraphUpdate(action: () => Promise<GraphData>, successMessage: string, errorMessage: string) {
     try {
       const data = await action();
-      setHasUnsavedChanges(!areGraphDataEqual(data, workspaceData));
+
+      if (areGraphDataEqual(data, workspaceData)) {
+        showNotification('No changes detected in the graph.', BannerType.INFO);
+        return;
+      }
+
+      setHasUnsavedChanges(true);
       setWorkspaceData({ nodes: data.nodes, links: data.links });
       showNotification(successMessage, BannerType.SUCCESS);
     } catch {
