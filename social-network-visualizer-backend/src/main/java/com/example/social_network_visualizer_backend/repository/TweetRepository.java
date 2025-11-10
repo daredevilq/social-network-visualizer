@@ -90,9 +90,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (p:Tweet {id: data.parentId})
-                MERGE (t)-[r:HAS_PARENT]->(p)
-                ON CREATE SET r.weight = 1
-                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
+                CREATE (t)-[r:HAS_PARENT {weight: 1}]->(p)
             """)
   void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
@@ -102,9 +100,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (h:Hashtag {hashtag: data.hashtag})
-                MERGE (t)-[r:HAS_HASHTAG]->(h)
-                ON CREATE SET r.weight = 1
-                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
+                CREATE (t)-[r:HAS_HASHTAG {weight: 1}]->(h)
             """)
   void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
 

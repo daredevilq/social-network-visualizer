@@ -12,8 +12,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTION]->(a2:Author)
         WITH a1, a2, count(t) AS totalMentions
-        MERGE (a1)-[r:MENTIONS]->(a2)
-        SET r.weight = totalMentions
+        CREATE (a1)-[r:MENTIONS {weight: totalMentions}]->(a2)
         """)
   void createRelationshipAuthorMentionsAuthor();
 
@@ -21,8 +20,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_REPLY]->(a2:Author)
         WITH a1, a2, count(t) AS totalReplies
-        MERGE (a2)-[r:REPLIES]->(a1)
-        SET r.weight = totalReplies
+        CREATE (a2)-[r:REPLIES {weight: totalReplies}]->(a1)
         """)
   void createRelationshipAuthorRepliesAuthor();
 
@@ -30,8 +28,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
             MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(a2:Author)
             WITH a1, a2, count(t) AS totalRetweets
-            MERGE (a1)-[r:RETWEETS]->(a2)
-            SET r.weight = totalRetweets
+            CREATE (a1)-[r:RETWEETS {weight: totalRetweets}]->(a2)
         """)
   void createRelationshipAuthorRetweetAuthor();
 
@@ -39,8 +36,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
         MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
         WITH a, h, count(t) AS totalUses
-        MERGE (a)-[r:USES_HASHTAG]->(h)
-        SET r.weight = totalUses
+        CREATE (a)-[r:USES_HASHTAG {weight: totalUses}]->(h)
         """)
   void createRelationshipAuthorUsesHashtag();
 
@@ -49,8 +45,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
         MATCH (a1:Author)-[:USES_HASHTAG]->(h:Hashtag)<-[:USES_HASHTAG]-(a2:Author)
         WHERE id(a1) < id(a2)
         WITH a1, a2, count(h) AS sharedHashtags
-        MERGE (a1)-[r:SHARES_HASHTAG]-(a2)
-        SET r.weight = sharedHashtags
+        CREATE (a1)-[r:SHARES_HASHTAG {weight: sharedHashtags}]->(a2)
         """)
   void createRelationshipAuthorsShareHashtag();
 
@@ -58,8 +53,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'QUOTE'
-       MERGE (t)-[r:QUOTED]->(p)
-       ON CREATE SET r.weight = 1
+       CREATE (t)-[r:QUOTED {weight: 1}]->(p)
       """)
   void createQuoteRelationships();
 
@@ -67,8 +61,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'REPLY'
-       MERGE (t)-[r:REPLY_TO]->(p)
-       ON CREATE SET r.weight = 1
+       CREATE (t)-[r:REPLY_TO {weight: 1}]->(p)
        """)
   void createReplyToRelationships();
 
@@ -76,8 +69,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'RETWEET'
-       MERGE (t)-[r:RETWEETED]->(p)
-       ON CREATE SET r.weight = 1
+       CREATE (t)-[r:RETWEETED {weight: 1}]->(p)
    """)
   void createRetweetRelationships();
 
