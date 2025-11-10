@@ -299,15 +299,20 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
     );
 
   const areGraphDataEqual = (currentData: GraphData, newData: GraphData): boolean => {
-    if (currentData.nodes.length !== newData.nodes.length || currentData.links.length !== newData.links.length) return false;
+    const currentNodeIds = new Set(currentData.nodes.map((node) => node.id));
+    const newNodeIds = new Set(newData.nodes.map((node) => node.id));
 
-    const currentNodeIds = new Set(currentData.nodes.map((n) => n.id));
-    const newNodeIds = new Set(newData.nodes.map((n) => n.id));
-    if ([...newNodeIds].some((id) => !currentNodeIds.has(id))) return false;
+    if (currentNodeIds.size !== newNodeIds.size) {
+      return false;
+    }
 
-    const currentLinks = new Set(currentData.links.map((l: GraphLink) => `${l.source}-${l.target}`));
-    const newLinks = new Set(newData.links.map((l: GraphLink) => `${l.source}-${l.target}`));
-    return ![...newLinks].some((key) => !currentLinks.has(key));
+    for (const id of newNodeIds) {
+      if (!currentNodeIds.has(id)) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   return { getMultiMenuItems };

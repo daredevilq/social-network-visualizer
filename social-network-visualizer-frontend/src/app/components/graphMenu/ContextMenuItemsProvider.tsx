@@ -326,10 +326,6 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   };
 
   const areGraphDataEqual = (currentData: GraphData, newData: GraphData): boolean => {
-    if (currentData.nodes.length !== newData.nodes.length || currentData.links.length !== newData.links.length) {
-      return false;
-    }
-
     const currentNodeIds = new Set(currentData.nodes.map((node) => node.id));
     const newNodeIds = new Set(newData.nodes.map((node) => node.id));
 
@@ -339,19 +335,6 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
     for (const id of newNodeIds) {
       if (!currentNodeIds.has(id)) {
-        return false;
-      }
-    }
-
-    const currentLinks = new Set(currentData.links.map((link: GraphLink) => `${link.source}-${link.target}`));
-    const newLinks = new Set(newData.links.map((link: GraphLink) => `${link.source}-${link.target}`));
-
-    if (currentLinks.size !== newLinks.size) {
-      return false;
-    }
-
-    for (const linkKey of newLinks) {
-      if (!currentLinks.has(linkKey)) {
         return false;
       }
     }
