@@ -41,7 +41,7 @@ export default function StandardGraph() {
           shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : linkStrategy.getColor(link)
         }
         linkWidth={(link: GraphLink) => (shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 6 : 3)}
-        linkLabel={(link: GraphLink) => `${link.relation}`}
+        linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
         linkDirectionalArrowLength={8}
         linkDirectionalArrowRelPos={1}
         nodeFound={nodeFound}

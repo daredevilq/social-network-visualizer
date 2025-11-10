@@ -11,36 +11,41 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
   @Query(
       """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:MENTION]->(a2:Author)
-        MERGE (a1)-[:MENTIONS]->(a2)
+        WITH a1, a2, count(t) AS totalMentions
+        CREATE (a1)-[r:MENTIONS {weight: totalMentions}]->(a2)
         """)
   void createRelationshipAuthorMentionsAuthor();
 
   @Query(
       """
         MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_REPLY]->(a2:Author)
-        MERGE (a2)-[:REPLIES]->(a1)
+        WITH a1, a2, count(t) AS totalReplies
+        CREATE (a2)-[r:REPLIES {weight: totalReplies}]->(a1)
         """)
   void createRelationshipAuthorRepliesAuthor();
 
   @Query(
       """
             MATCH (a1:Author)-[:POSTED]->(t:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(a2:Author)
-            MERGE (a1)-[:RETWEETS]->(a2)
+            WITH a1, a2, count(t) AS totalRetweets
+            CREATE (a1)-[r:RETWEETS {weight: totalRetweets}]->(a2)
         """)
   void createRelationshipAuthorRetweetAuthor();
 
   @Query(
       """
         MATCH (a:Author)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
-        MERGE (a)-[:USES_HASHTAG]->(h);
+        WITH a, h, count(t) AS totalUses
+        CREATE (a)-[r:USES_HASHTAG {weight: totalUses}]->(h)
         """)
   void createRelationshipAuthorUsesHashtag();
 
   @Query(
       """
         MATCH (a1:Author)-[:USES_HASHTAG]->(h:Hashtag)<-[:USES_HASHTAG]-(a2:Author)
-        WHERE a1 <> a2
-        MERGE (a1)-[:SHARES_HASHTAG]->(a2);
+        WHERE id(a1) < id(a2)
+        WITH a1, a2, count(h) AS sharedHashtags
+        CREATE (a1)-[r:SHARES_HASHTAG {weight: sharedHashtags}]->(a2)
         """)
   void createRelationshipAuthorsShareHashtag();
 
@@ -48,7 +53,7 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'QUOTE'
-       MERGE (t)-[:QUOTED]->(p)
+       CREATE (t)-[r:QUOTED {weight: 1}]->(p)
       """)
   void createQuoteRelationships();
 
@@ -56,15 +61,15 @@ public interface RelationshipRepository extends Neo4jRepository<Author, String> 
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'REPLY'
-       MERGE (t)-[:REPLY_TO]->(p)
+       CREATE (t)-[r:REPLY_TO {weight: 1}]->(p)
        """)
-  void createReplyTotRelationships();
+  void createReplyToRelationships();
 
   @Query(
       """
        MATCH (t:Tweet)-[:HAS_PARENT]->(p:Tweet)
        WHERE t.objectType = 'RETWEET'
-       MERGE (t)-[:RETWEETED]->(p)
+       CREATE (t)-[r:RETWEETED {weight: 1}]->(p)
    """)
   void createRetweetRelationships();
 
