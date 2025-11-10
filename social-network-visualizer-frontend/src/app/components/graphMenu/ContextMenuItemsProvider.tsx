@@ -31,32 +31,42 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getAuthorMenuItems = (node: AuthorNode): MenuItem[] => {
     const authorItems: MenuItem[] = [
       {
-        label: 'Add author tweets',
+        label: 'Show author tweets',
         icon: <ConnectionsIcon />,
         submenu: [
           {
-            label: 'Add latest 10 tweets',
+            label: 'Latest 10 tweets',
             icon: <TweetIcon />,
             onMenuItemClick: async () => addLatestTweets(node),
           },
           {
-            label: 'Add 10 most popular tweets',
+            label: '10 most popular tweets',
             icon: <TweetIcon />,
             onMenuItemClick: () => addMostPopularTweets(node),
+          },
+          {
+            label: 'Tweets replied to',
+            icon: <TweetIcon />,
+            onMenuItemClick: async () => addTweetsRepliedToByAuthor(node),
+          },
+          {
+            label: 'Tweets mentioning author',
+            icon: <TweetIcon />,
+            onMenuItemClick: async () => addTweetsMentioningAuthor(node),
           },
         ],
       },
       {
-        label: 'Add authors from community',
+        label: 'Show authors from community',
         icon: <ConnectionsIcon />,
         submenu: [
           {
-            label: 'Add 10 authors from community',
+            label: '10 authors from communities',
             icon: <ConnectionsIcon />,
             onMenuItemClick: () => addAuthorCommunityToWorkspace(node, 10),
           },
           {
-            label: 'Add entire community',
+            label: 'Entire community',
             icon: <ConnectionsIcon />,
             onMenuItemClick: () => addAuthorCommunityToWorkspace(node),
           },
@@ -68,29 +78,19 @@ export const useContextMenuItems = (): MenuItemsGetters => {
         onMenuItemClick: async () => addMentionedUsersByAuthor(node),
       },
       {
-        label: 'Show users mentioning this author',
+        label: 'Show users mentioning author',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addAuthorsMentioningThisAuthor(node),
       },
       {
-        label: 'Show users this author often replies to',
+        label: 'Show users author replies to',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addAuthorsMostRepliedToByAuthor(node),
       },
       {
-        label: 'Show users often replying to this author',
+        label: 'Show users replying to author',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => addAuthorsMostReplyingToAuthor(node),
-      },
-      {
-        label: 'Show last tweets replied to',
-        icon: <TweetIcon />,
-        onMenuItemClick: async () => addTweetsRepliedToByAuthor(node),
-      },
-      {
-        label: 'Show tweets mentioning this author',
-        icon: <TweetIcon />,
-        onMenuItemClick: async () => addTweetsMentioningAuthor(node),
       },
       {
         label: 'Show hashtags used',
@@ -115,12 +115,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
         onMenuItemClick: async () => addMentionedAuthorsToWorkspace(node),
       },
       {
-        label: 'Show tweet parent',
+        label: 'Show parent tweet',
         icon: <TweetIcon />,
         onMenuItemClick: async () => addTweetParentToWorkspace(node),
       },
       {
-        label: 'Show tweet children',
+        label: 'Show child tweets',
         icon: <TweetIcon />,
         onMenuItemClick: async () => addChildrenToWorkspace(node),
       },
@@ -137,12 +137,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const getHashtagMenuItems = (node: GraphNode): MenuItem[] => {
     const hashtagItems: MenuItem[] = [
       {
-        label: 'Show 10 authors by usage',
+        label: 'Show top authors by usage',
         icon: <ProfileIcon />,
         onMenuItemClick: async () => highlightUsersForHashtag(node),
       },
       {
-        label: 'Show top 10 most popular tweets',
+        label: 'Show top 10 tweets',
         icon: <TweetIcon />,
         onMenuItemClick: async () => addTopTweetsByHashtag(node),
       },

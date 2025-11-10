@@ -26,7 +26,7 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
         icon: <ProfileIcon />,
         submenu: [
           {
-            label: 'Add authors’ tweets',
+            label: 'Show authors’ tweets',
             icon: <ConnectionsIcon />,
             submenu: [
               {
@@ -39,10 +39,20 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
                 icon: <TweetIcon />,
                 onMenuItemClick: () => addAuthorsMostPopularTweets(authorNodes),
               },
+              {
+                label: 'Tweets replied to',
+                icon: <TweetIcon />,
+                onMenuItemClick: () => addTweetsRepliedToByAuthors(authorNodes),
+              },
+              {
+                label: 'Tweets mentioning authors',
+                icon: <TweetIcon />,
+                onMenuItemClick: () => addTweetsMentioningAuthors(authorNodes),
+              },
             ],
           },
           {
-            label: 'Add authors from communities',
+            label: 'Show authors from communities',
             icon: <ConnectionsIcon />,
             submenu: [
               {
@@ -58,37 +68,27 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
             ],
           },
           {
-            label: 'Frequently mentioned users',
+            label: 'Show frequently mentioned users',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addMentionedUsersByAuthors(authorNodes),
           },
           {
-            label: 'Users mentioning authors',
+            label: 'Show users mentioning authors',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addUsersMentioningAuthors(authorNodes),
           },
           {
-            label: 'Users authors reply to',
+            label: 'Show users authors reply to',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addUsersAuthorsReplyTo(authorNodes),
           },
           {
-            label: 'Users replying to authors',
+            label: 'Show users replying to authors',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addUsersReplyingToAuthors(authorNodes),
           },
           {
-            label: 'Tweets replied to',
-            icon: <TweetIcon />,
-            onMenuItemClick: () => addTweetsRepliedToByAuthors(authorNodes),
-          },
-          {
-            label: 'Tweets mentioning authors',
-            icon: <TweetIcon />,
-            onMenuItemClick: () => addTweetsMentioningAuthors(authorNodes),
-          },
-          {
-            label: 'Hashtags used',
+            label: 'Show hashtags used',
             icon: <HashtagIcon />,
             onMenuItemClick: () => addHashtagsUsedByAuthors(authorNodes),
           },
@@ -100,27 +100,27 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
         icon: <TweetIcon />,
         submenu: [
           {
-            label: 'Authors',
+            label: 'Show authors',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addTweetAuthorsToWorkspace(tweetNodes),
           },
           {
-            label: 'Mentioned users',
+            label: 'Show mentioned users',
             icon: <ProfileIcon />,
             onMenuItemClick: () => addMentionedAuthorsToWorkspace(tweetNodes),
           },
           {
-            label: 'Parent tweets',
+            label: 'Show parent tweets',
             icon: <TweetIcon />,
             onMenuItemClick: () => addParentTweetsToWorkspace(tweetNodes),
           },
           {
-            label: 'Child tweets',
+            label: 'Show child tweets',
             icon: <TweetIcon />,
             onMenuItemClick: () => addChildTweetsToWorkspace(tweetNodes),
           },
           {
-            label: 'Hashtags used',
+            label: 'Show hashtags used',
             icon: <HashtagIcon />,
             onMenuItemClick: () => addTweetHashtagsToWorkspace(tweetNodes),
           },
@@ -132,17 +132,17 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
         icon: <HashtagIcon />,
         submenu: [
           {
-            label: 'Top authors by usage',
+            label: 'Show top authors by usage',
             icon: <ProfileIcon />,
             onMenuItemClick: () => highlightUsersForHashtags(hashtagNodes),
           },
           {
-            label: 'Top tweets',
+            label: 'Show top 10 tweets',
             icon: <TweetIcon />,
             onMenuItemClick: () => addTopTweetsByHashtags(hashtagNodes),
           },
           {
-            label: 'Related hashtags',
+            label: 'Show related hashtags',
             icon: <HashtagIcon />,
             onMenuItemClick: () => addRelatedHashtags(hashtagNodes),
           },
