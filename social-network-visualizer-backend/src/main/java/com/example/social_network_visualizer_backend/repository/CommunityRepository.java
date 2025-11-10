@@ -222,14 +222,29 @@ public interface CommunityRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
-      MATCH (a:Author)
-      WHERE a.community = $communityId and a.isInWorkspace = false
-      ORDER BY a.pagerank DESC
-      LIMIT $limit
-      RETURN a
+    MATCH (a:Author {userName: $authorId})
+    WITH a.community AS communityId
+    MATCH (other:Author)
+    WHERE other.community = communityId
+      AND (other.isInWorkspace IS NULL OR other.isInWorkspace = false)
+    RETURN other
+    ORDER BY other.pagerank DESC
+    LIMIT $limit
     """)
-  List<Author> findTopAuthorsByCommunityId(
-      @Param("communityId") int communityId, @Param("limit") int limit);
+  List<Author> findAuthorsByCommunityWithLimit(
+      @Param("authorId") String authorId, @Param("limit") int limit);
+
+  @Query(
+      """
+    MATCH (a:Author {userName: $authorId})
+    WITH a.community AS communityId
+    MATCH (other:Author)
+    WHERE other.community = communityId
+      AND (other.isInWorkspace IS NULL OR other.isInWorkspace = false)
+    RETURN other
+    ORDER BY other.pagerank DESC
+    """)
+  List<Author> findAuthorsByCommunity(@Param("authorId") String authorId);
 
   @Query(
       """

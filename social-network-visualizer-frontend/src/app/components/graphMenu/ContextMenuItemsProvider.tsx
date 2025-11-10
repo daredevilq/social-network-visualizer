@@ -37,12 +37,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
           {
             label: 'Add latest 10 tweets',
             icon: <TweetIcon />,
-            onMenuItemClick: async () => addLatestTweets(node.id),
+            onMenuItemClick: async () => addLatestTweets(node),
           },
           {
             label: 'Add 10 most popular tweets',
             icon: <TweetIcon />,
-            onMenuItemClick: () => addMostPopularTweets(node.id),
+            onMenuItemClick: () => addMostPopularTweets(node),
           },
         ],
       },
@@ -53,12 +53,12 @@ export const useContextMenuItems = (): MenuItemsGetters => {
           {
             label: 'Add 10 authors from community',
             icon: <ConnectionsIcon />,
-            onMenuItemClick: () => addAuthorCommunityToWorkspace(node.community, 10),
+            onMenuItemClick: () => addAuthorCommunityToWorkspace(node, 10),
           },
           {
             label: 'Add entire community',
             icon: <ConnectionsIcon />,
-            onMenuItemClick: () => addAuthorCommunityToWorkspace(node.community, -1),
+            onMenuItemClick: () => addAuthorCommunityToWorkspace(node),
           },
         ],
       },
@@ -171,25 +171,25 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     }
   }
 
-  const addLatestTweets = async (authorId: string) => {
+  const addLatestTweets = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addAuthorsLatestTweets(authorId),
-      `Loaded top 10 tweets for "${authorId}"`,
-      `Failed to load tweets for "${authorId}"`
+      () => GraphApiService.addAuthorsLatestTweets([authorNode]),
+      `Loaded top 10 tweets for "${authorNode.id}"`,
+      `Failed to load tweets for "${authorNode.id}"`
     );
   };
 
-  const addMostPopularTweets = async (authorId: string) => {
+  const addMostPopularTweets = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addAuthorsMostPopularTweets(authorId),
-      `Loaded top 10 most popular tweets for "${authorId}"`,
-      `Failed to load top tweets for "${authorId}"`
+      () => GraphApiService.addAuthorsMostPopularTweets([authorNode]),
+      `Loaded top 10 most popular tweets for "${authorNode.id}"`,
+      `Failed to load top tweets for "${authorNode.id}"`
     );
   };
 
   const removeNodeFromWorkspace = async (node: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.removeNodeFromWorkspace(node),
+      () => GraphApiService.removeNodesFromWorkspace([node]),
       `Node "${node.id}" removed`,
       `Failed to remove node "${node.id}"`
     );
@@ -197,7 +197,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addTweetAuthorToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTweetAuthorToWorkspace(tweetNode),
+      () => GraphApiService.addTweetAuthorsToWorkspace([tweetNode]),
       `Added author of tweet "${tweetNode.id}"`,
       `Failed to add author of tweet "${tweetNode.id}"`
     );
@@ -205,7 +205,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addTweetHashtagsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTweetHashtagsToWorkspace(tweetNode),
+      () => GraphApiService.addTweetHashtagsToWorkspace([tweetNode]),
       `Added hashtags from tweet "${tweetNode.id}"`,
       `Failed to add hashtags from tweet "${tweetNode.id}"`
     );
@@ -213,39 +213,39 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addMentionedAuthorsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addMentionedAuthorsToWorkspace(tweetNode),
-      `Added mentioned authors from tweet  "${tweetNode.id}"`,
+      () => GraphApiService.addMentionedAuthorsToWorksapce([tweetNode]),
+      `Added mentioned authors from tweet "${tweetNode.id}"`,
       `Failed to add mentioned authors from tweet "${tweetNode.id}"`
     );
   };
 
   const addTweetParentToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTweetParentToWorkspace(tweetNode),
-      `Added parent tweet for  "${tweetNode.id}"`,
+      () => GraphApiService.addParentsTweetsToWorkspace([tweetNode]),
+      `Added parent tweet for "${tweetNode.id}"`,
       `No parent found for "${tweetNode.id}"`
     );
   };
 
   const addChildrenToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addChildrenToWorkspace(tweetNode),
-      `Added children tweets from tweet  "${tweetNode.id}"`,
-      `Failed to add children tweets from tweet "${tweetNode.id}"`
+      () => GraphApiService.addChildrenTweetsToWorkspace([tweetNode]),
+      `Added children tweets for "${tweetNode.id}"`,
+      `Failed to add children tweets for "${tweetNode.id}"`
     );
   };
 
   const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.highlightUsersForHashtag(hashtagNode),
-      `Highlighted top 10 users for hashtag"${hashtagNode.id}"`,
+      () => GraphApiService.highlightUsersForHashtags([hashtagNode]),
+      `Highlighted top 10 users for hashtag "${hashtagNode.id}"`,
       `Failed to highlight top users for hashtag "${hashtagNode.id}"`
     );
   };
 
   const addTopTweetsByHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTopTweetsByHashtag(hashtagNode),
+      () => GraphApiService.addTopTweetsByHashtags([hashtagNode]),
       `Added top 5 tweets for hashtag "${hashtagNode.id}"`,
       `Failed to add top tweets for hashtag "${hashtagNode.id}"`
     );
@@ -253,25 +253,25 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addRelatedHashtags = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addRelatedHashtags(hashtagNode),
-      `Added related hashtags for hashtag "${hashtagNode.id}"`,
-      `Failed to add related hashtags for hashtag "${hashtagNode.id}"`
+      () => GraphApiService.addRelatedHashtags([hashtagNode]),
+      `Added related hashtags for "${hashtagNode.id}"`,
+      `Failed to add related hashtags for "${hashtagNode.id}"`
     );
   };
 
-  const addAuthorCommunityToWorkspace = async (communityId: string, numberOfAuthors: number) => {
+  const addAuthorCommunityToWorkspace = async (authorNode: AuthorNode, numberOfAuthors?: number) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTopAuthorsFromCommunity(communityId, numberOfAuthors),
-      numberOfAuthors === -1
-        ? `Entire community "${communityId}" added`
-        : `Top ${numberOfAuthors} authors from community "${communityId}" added`,
-      `Failed to add authors from community "${communityId}"`
+      () => GraphApiService.addAuthorsFromCommunities([authorNode], numberOfAuthors),
+      numberOfAuthors
+        ? `Top ${numberOfAuthors} authors from community of "${authorNode.id}" added`
+        : `Entire community for "${authorNode.id}" added`,
+      `Failed to add authors from community of "${authorNode.id}"`
     );
   };
 
   const addHashtagsUsedByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addHashtagsUsedByAuthor(authorNode),
+      () => GraphApiService.addHashtagsUsedByAuthors([authorNode]),
       `Added hashtags used by "${authorNode.id}"`,
       `Failed to load hashtags used by "${authorNode.id}"`
     );
@@ -279,7 +279,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addMentionedUsersByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addMentionedUsersByAuthor(authorNode),
+      () => GraphApiService.addMentionedUsersByAuthors([authorNode]),
       `Added users mentioned by "${authorNode.id}"`,
       `Failed to load mentioned users for "${authorNode.id}"`
     );
@@ -287,7 +287,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addAuthorsMentioningThisAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addAuthorsMentioningThisAuthor(authorNode),
+      () => GraphApiService.addAuthorsMentioningAuthors([authorNode]),
       `Added users mentioning "${authorNode.id}"`,
       `Failed to load users mentioning "${authorNode.id}"`
     );
@@ -295,7 +295,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addAuthorsMostRepliedToByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addAuthorsMostRepliedToByAuthor(authorNode),
+      () => GraphApiService.addAuthorsMostRepliedToByAuthors([authorNode]),
       `Added users "${authorNode.id}" replies to most often`,
       `Failed to load users "${authorNode.id}" replies to`
     );
@@ -303,7 +303,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addAuthorsMostReplyingToAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addAuthorsMostReplyingToAuthor(authorNode),
+      () => GraphApiService.addAuthorsMostReplyingToAuthors([authorNode]),
       `Added users replying to "${authorNode.id}" most often`,
       `Failed to load users replying to "${authorNode.id}"`
     );
@@ -311,7 +311,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addTweetsRepliedToByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTweetsRepliedToByAuthor(authorNode),
+      () => GraphApiService.addTweetsRepliedToByAuthors([authorNode]),
       `Added tweets replied to by "${authorNode.id}"`,
       `Failed to load replies for "${authorNode.id}"`
     );
@@ -319,7 +319,7 @@ export const useContextMenuItems = (): MenuItemsGetters => {
 
   const addTweetsMentioningAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
-      () => GraphApiService.addTweetsMentioningAuthor(authorNode),
+      () => GraphApiService.addTweetsMentioningAuthors([authorNode]),
       `Added tweets mentioning "${authorNode.id}"`,
       `Failed to load tweets mentioning "${authorNode.id}"`
     );

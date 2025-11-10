@@ -17,22 +17,24 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
           WITH t
           ORDER BY t.publicationDate DESC
           LIMIT $numberOfTweets
-          SET t.isInWorkspace = true
-          RETURN count(t) as addedCount
-          """)
-  void addAuthorsLatestTweetsToWorkspace(String authorId, int numberOfTweets);
-
-  @Query(
-      """
-          MATCH (a:Author {userName: $authorId})-[:POSTED]->(t:Tweet)
-          WITH t, (COALESCE(t.likesCount, 0) + COALESCE(t.repliesCount, 0) + COALESCE(t.retweetsCount, 0)) AS score
-          ORDER BY score DESC
-          LIMIT $numberOfTweets
           RETURN
               t.id AS id,
               'TWEET' AS nodeType
           """)
-  List<TweetNodeDto> findAuthorsMostPopularTweets(
+  List<TweetNodeDto> findAuthorLatestTweets(
+      @Param("authorId") String authorId, @Param("numberOfTweets") int numberOfTweets);
+
+  @Query(
+      """
+        MATCH (a:Author {userName: $authorId})-[:POSTED]->(t:Tweet)
+        WITH t, (COALESCE(t.likesCount, 0) + COALESCE(t.repliesCount, 0) + COALESCE(t.retweetsCount, 0)) AS popularityScore
+        ORDER BY popularityScore DESC
+        LIMIT $numberOfTweets
+        RETURN
+            t.id AS id,
+            'TWEET' AS nodeType
+        """)
+  List<TweetNodeDto> findAuthorMostPopularTweets(
       @Param("authorId") String authorId, @Param("numberOfTweets") int numberOfTweets);
 
   @Query(
