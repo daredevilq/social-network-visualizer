@@ -1,43 +1,70 @@
 import { GraphLink, RelationType } from '@/types/GraphTypes';
-import NodeColors from '../NodeColors';
+import Colors from '../../utils/Colors';
+
+const MEDIUM_THRESHOLD = 5;
+const HIGH_THRESHOLD = 10;
 
 export interface ILinkStrategy {
   getColor(link: GraphLink): string;
 }
 
-class MentionsStrategy implements ILinkStrategy {
+class AuthorAuthorStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
-    return NodeColors.getMentionsColor();
+    if (link.weight >= HIGH_THRESHOLD) {
+      return Colors.AuthorAuthorLinkColorHigh();
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return Colors.AuthorAuthorLinkColorMedium();
+    }
+    return Colors.AuthorAuthorLinkColorLow();
   }
 }
 
-class RetweetsStrategy implements ILinkStrategy {
+class TweetTweetStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
-    return NodeColors.getRetweetsColor();
+    if (link.weight >= HIGH_THRESHOLD) {
+      return Colors.TweetTweetLinkColorHigh();
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return Colors.TweetTweetLinkColorMedium();
+    }
+    return Colors.TweetTweetLinkColorLow();
   }
 }
 
-class RepliesStrategy implements ILinkStrategy {
+class AuthorTweetStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
-    return NodeColors.getRepliesColor();
+    if (link.weight >= HIGH_THRESHOLD) {
+      return Colors.AuthorTweetLinkColorHigh();
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return Colors.AuthorTweetLinkColorMedium();
+    }
+    return Colors.AuthorTweetLinkColorLow();
   }
 }
 
-class QuotedStrategy implements ILinkStrategy {
+class TweetHashtagStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
-    return NodeColors.getQuotedColor();
+    if (link.weight >= HIGH_THRESHOLD) {
+      return Colors.TweetHashtagLinkColorHigh();
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return Colors.TweetHashtagLinkColorMedium();
+    }
+    return Colors.TweetHashtagLinkColorLow();
   }
 }
 
-class SharesHashtagStrategy implements ILinkStrategy {
+class AuthorHashtagStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
-    return NodeColors.getSharesHashtagColor();
-  }
-}
-
-class PostedStrategy implements ILinkStrategy {
-  getColor(link: GraphLink): string {
-    return NodeColors.getPostedColor();
+    if (link.weight >= HIGH_THRESHOLD) {
+      return Colors.AuthorHashtagLinkColorHigh();
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return Colors.AuthorHashtagLinkColorMedium();
+    }
+    return Colors.AuthorHashtagLinkColorLow();
   }
 }
 
@@ -46,19 +73,19 @@ class LinkStrategy implements ILinkStrategy {
 
   constructor() {
     this.strategies = new Map([
-      [RelationType.MENTIONS, new MentionsStrategy()],
-      [RelationType.RETWEETS, new RetweetsStrategy()],
-      [RelationType.REPLIES, new RepliesStrategy()],
-      [RelationType.QUOTED, new QuotedStrategy()],
-      [RelationType.SHARES_HASHTAG, new SharesHashtagStrategy()],
-      [RelationType.HAS_HASHTAG, new PostedStrategy()],
-      [RelationType.POSTED, new PostedStrategy()],
-      [RelationType.HAS_REPLY, new RepliesStrategy()],
-      [RelationType.USES_HASHTAG, new SharesHashtagStrategy()],
-      [RelationType.RETWEETED, new RetweetsStrategy()],
-      [RelationType.HAS_PARENT, new RepliesStrategy()],
-      [RelationType.MENTION, new MentionsStrategy()],
-      [RelationType.REPLY_TO, new RepliesStrategy()],
+      [RelationType.MENTIONS, new AuthorAuthorStrategy()],
+      [RelationType.RETWEETS, new AuthorAuthorStrategy()],
+      [RelationType.REPLIES, new AuthorAuthorStrategy()],
+      [RelationType.QUOTED, new TweetTweetStrategy()],
+      [RelationType.SHARES_HASHTAG, new AuthorAuthorStrategy()],
+      [RelationType.HAS_HASHTAG, new TweetHashtagStrategy()],
+      [RelationType.POSTED, new AuthorTweetStrategy()],
+      [RelationType.HAS_REPLY, new AuthorTweetStrategy()],
+      [RelationType.USES_HASHTAG, new AuthorHashtagStrategy()],
+      [RelationType.RETWEETED, new TweetTweetStrategy()],
+      [RelationType.HAS_PARENT, new TweetTweetStrategy()],
+      [RelationType.MENTION, new AuthorTweetStrategy()],
+      [RelationType.REPLY_TO, new TweetTweetStrategy()],
     ]);
   }
 

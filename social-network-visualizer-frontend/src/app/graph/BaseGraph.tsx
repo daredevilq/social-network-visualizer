@@ -5,7 +5,7 @@ import { forceManyBody, forceCollide, forceX, forceY, forceLink } from 'd3-force
 import { GraphLink, GraphNode, GraphProps, SelectionBox } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
-import NodeColors from '@/app/model/NodeColors';
+import Colors from '@/app/utils/Colors';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { useGraph } from '@/app/context/GraphContext';
 import MenuComponent from '@/app/components/graphMenu/MenuComponent';
@@ -122,7 +122,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         }
 
         const radius = nodeStrategy.getRadius(node);
-        const baseColor = nodeColor ? nodeColor(node) : NodeColors.getDefaultAuthorColor();
+        const baseColor = nodeColor ? nodeColor(node) : Colors.DefaultAuthorColor();
 
         if (!isFinite(radius) || radius <= 0) {
           ctx.beginPath();
