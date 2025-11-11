@@ -68,7 +68,8 @@ public class WorkspaceController {
   public ResponseEntity<Workspace> exportWorkspace(
       @PathVariable String projectName, @PathVariable String workspaceName) {
 
-    Workspace workspace = workspaceService.getWorkspaceByName(projectName, workspaceName);
+    Workspace workspace =
+        workspaceService.getWorkspaceByNameWithFullNodes(projectName, workspaceName);
     return ResponseEntity.ok(workspace);
   }
 

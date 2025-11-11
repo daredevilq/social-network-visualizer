@@ -52,8 +52,8 @@ public class GlobalExceptionHandler {
   public ResponseEntity<WorkspaceImportResult> handleWorkspaceException(WorkspaceException e) {
     log.error("Workspace operation error: {}", e.getMessage());
     WorkspaceImportResult errorResult =
-        new WorkspaceImportResult(e.getMessage(), e.getBannerType());
-    return ResponseEntity.status(e.getStatus()).body(errorResult);
+        new WorkspaceImportResult(e.getMessage(), e.getImportResultStatus(), "INVALID");
+    return ResponseEntity.status(e.getHttpStatus()).body(errorResult);
   }
 
   @ExceptionHandler(Exception.class)

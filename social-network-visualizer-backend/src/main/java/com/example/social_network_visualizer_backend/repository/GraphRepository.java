@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.model.Author;
 import java.util.List;
 import java.util.Map;
@@ -164,4 +165,22 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 RETURN edge.source AS source, edge.target AS target, edge.relation AS relation
             """)
   List<LinkDto> findExistingRelations(@Param("edges") List<Map<String, String>> edges);
+
+  @Query(
+      """
+                UNWIND $nodes AS node
+                WITH node.id AS nodeId, node.nodeType AS nodeType
+                OPTIONAL MATCH (a:Author {userName: nodeId})
+                WHERE nodeType = 'AUTHOR' AND a IS NOT NULL
+                WITH nodeId, nodeType, a.userName AS authorId
+                OPTIONAL MATCH (t:Tweet {id: nodeId})
+                WHERE nodeType = 'TWEET' AND t IS NOT NULL
+                WITH nodeId, nodeType, authorId, t.id AS tweetId
+                OPTIONAL MATCH (h:Hashtag {hashtag: nodeId})
+                WHERE nodeType = 'HASHTAG' AND h IS NOT NULL
+                WITH COALESCE(authorId, tweetId, h.hashtag) AS id, nodeType
+                WHERE id IS NOT NULL
+                RETURN id, nodeType
+            """)
+  List<NodeDto> findExistingNodesByIdsAndTypes(@Param("nodes") List<Map<String, String>> nodes);
 }

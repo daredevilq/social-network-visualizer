@@ -17,6 +17,7 @@ import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 import WorkspaceImportModal from '@/app/components/Popups/WorkspaceImportModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
+import { CloudUploadIcon } from '@/app/components/icons/Icons';
 
 type DeleteTarget = {
   type: 'project' | 'workspace';
@@ -200,14 +201,7 @@ export default function ProjectsContent() {
                     onClick={() => runWithUnsavedCheck(async () => setImportWorkspaceModalOpen(true))}
                     className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white mt-2"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
+                    <CloudUploadIcon className="w-4 h-4 mr-2" />
                     <span>Import workspace</span>
                   </button>
                 </div>

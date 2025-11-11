@@ -366,11 +366,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
 
         const result = await res.json();
-        const bannerType = (result.bannerType as BannerType) || BannerType.ERROR;
-        showNotification(result.message, bannerType);
+        const importResultStatus = (result.importResultStatus as BannerType) || BannerType.ERROR;
+        showNotification(result.message, importResultStatus);
 
-        if (bannerType === BannerType.SUCCESS || bannerType === BannerType.WARNING) {
+        if (importResultStatus === BannerType.SUCCESS || importResultStatus === BannerType.WARNING) {
           await refreshWorkspaces(loadedProjectName);
+          await loadWorkspace(result.workspaceName);
         }
       } catch (err: any) {
         showNotification(`Import error: ${err.message || 'Unknown error occurred'}`, BannerType.ERROR);

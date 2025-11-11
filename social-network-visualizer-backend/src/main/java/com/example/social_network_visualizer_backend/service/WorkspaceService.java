@@ -4,6 +4,7 @@ import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.enums.WorkspaceImportResultStatus;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.exceptions.WorkspaceException;
 import com.example.social_network_visualizer_backend.model.project.Project;
@@ -191,34 +192,88 @@ public class WorkspaceService {
 
     Project project =
         projectRepository
-            .findByName(projectName)
+            .findWorkspaceByProjectNameAndWorkspaceName(projectName, workspaceName)
             .orElseThrow(
-                () ->
-                    new ProjectException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND));
+                () -> {
+                  log.error("Workspace '{}' not found in project '{}'", workspaceName, projectName);
+                  return new ProjectException(
+                      "Workspace with name " + workspaceName + " not found in project",
+                      HttpStatus.NOT_FOUND);
+                });
 
-    if (project.getWorkspaces() == null || project.getWorkspaces().isEmpty()) {
-      throw new ProjectException(
-          "Project '" + projectName + "' has no workspaces", HttpStatus.NOT_FOUND);
-    }
-
-    Workspace workspace =
-        project.getWorkspaces().stream()
-            .filter(ws -> ws.getName() != null && ws.getName().equalsIgnoreCase(workspaceName))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new ProjectException(
-                        "Workspace with name '"
-                            + workspaceName
-                            + "' not found in project '"
-                            + projectName
-                            + "'",
-                        HttpStatus.NOT_FOUND));
-
+    Workspace workspace = project.getWorkspaces().get(0);
     log.info("Workspace '{}' retrieved successfully from project '{}'", workspaceName, projectName);
     return workspace;
+  }
+
+  public Workspace getWorkspaceByNameWithFullNodes(String projectName, String workspaceName) {
+    Workspace workspace = getWorkspaceByName(projectName, workspaceName);
+
+    List<NodeDto> entireNodes = getNodesWithFullData(workspace.getNodes());
+
+    Workspace enrichedWorkspace =
+        Workspace.builder()
+            .name(workspace.getName())
+            .nodes(entireNodes)
+            .edges(workspace.getEdges())
+            .build();
+
+    log.info("Workspace '{}' enriched with full node data for export", workspaceName);
+    return enrichedWorkspace;
+  }
+
+  private List<NodeDto> getNodesWithFullData(List<NodeDto> nodes) {
+    if (nodes == null || nodes.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Map<NodeType, Set<String>> nodeIdsByType = groupNodeIdsByType(nodes);
+    List<NodeDto> entireNodes = new ArrayList<>();
+
+    getEntireAuthorNodes(nodeIdsByType, entireNodes);
+    getEntireTweetsNodes(nodeIdsByType, entireNodes);
+    getEntireHashtagNodes(nodeIdsByType, entireNodes);
+
+    return entireNodes;
+  }
+
+  private void getEntireHashtagNodes(
+      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
+    if (nodeIdsByType.containsKey(NodeType.HASHTAG)) {
+      Set<String> hashtagIds = nodeIdsByType.get(NodeType.HASHTAG);
+      List<NodeDto> fullHashtagNodes =
+          hashtagRepository.findFullHashtagNodesByIds(hashtagIds).stream()
+              .map(node -> (NodeDto) node)
+              .toList();
+      entireNodes.addAll(fullHashtagNodes);
+      log.debug("Enriched {} hashtag nodes", fullHashtagNodes.size());
+    }
+  }
+
+  private void getEntireTweetsNodes(
+      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
+    if (nodeIdsByType.containsKey(NodeType.TWEET)) {
+      Set<String> tweetIds = nodeIdsByType.get(NodeType.TWEET);
+      List<NodeDto> fullTweetNodes =
+          tweetRepository.findFullTweetNodesByIds(tweetIds).stream()
+              .map(node -> (NodeDto) node)
+              .toList();
+      entireNodes.addAll(fullTweetNodes);
+      log.debug("Enriched {} tweet nodes", fullTweetNodes.size());
+    }
+  }
+
+  private void getEntireAuthorNodes(
+      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
+    if (nodeIdsByType.containsKey(NodeType.AUTHOR)) {
+      Set<String> authorIds = nodeIdsByType.get(NodeType.AUTHOR);
+      List<NodeDto> fullAuthorNodes =
+          authorRepository.findFullAuthorNodesByIds(authorIds).stream()
+              .map(node -> (NodeDto) node)
+              .toList();
+      entireNodes.addAll(fullAuthorNodes);
+      log.debug("Enriched {} author nodes", fullAuthorNodes.size());
+    }
   }
 
   public void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
@@ -279,13 +334,15 @@ public class WorkspaceService {
       throw new WorkspaceException(
           "Failed to import workspace: No valid nodes or edges found in the database.",
           HttpStatus.BAD_REQUEST,
-          "error");
+          WorkspaceImportResultStatus.ERROR.getLabel());
     }
 
-    Workspace validWorkspace = new Workspace();
-    validWorkspace.setName(workspaceCandidate.getName());
-    validWorkspace.setNodes(validNodes);
-    validWorkspace.setEdges(validEdges);
+    Workspace validWorkspace =
+        Workspace.builder()
+            .name(workspaceCandidate.getName())
+            .nodes(validNodes)
+            .edges(validEdges)
+            .build();
     saveWorkspace(projectName, validWorkspace);
 
     return WorkspaceImportResult.fromImportStats(
@@ -330,31 +387,27 @@ public class WorkspaceService {
   }
 
   private List<NodeDto> extractValidNodes(Workspace workspace) {
-
-    Map<NodeType, Set<String>> nodeIdsByType = groupNodeIdsByType(workspace.getNodes());
-    List<NodeDto> validNodes = new ArrayList<>();
-
-    if (nodeIdsByType.containsKey(NodeType.AUTHOR)) {
-      List<NodeDto> authorNodes =
-          authorRepository.findExistingAuthorNodes(nodeIdsByType.get(NodeType.AUTHOR));
-      authorNodes.forEach(node -> node.setNodeType(NodeType.AUTHOR));
-      validNodes.addAll(authorNodes);
+    if (workspace.getNodes() == null || workspace.getNodes().isEmpty()) {
+      return Collections.emptyList();
     }
 
-    if (nodeIdsByType.containsKey(NodeType.TWEET)) {
-      List<NodeDto> tweetNodes =
-          tweetRepository.findExistingTweetNodes(nodeIdsByType.get(NodeType.TWEET));
-      tweetNodes.forEach(node -> node.setNodeType(NodeType.TWEET));
-      validNodes.addAll(tweetNodes);
+    List<Map<String, String>> nodeInputs =
+        workspace.getNodes().stream()
+            .filter(node -> node != null && node.getId() != null && node.getNodeType() != null)
+            .map(
+                node -> {
+                  Map<String, String> map = new HashMap<>();
+                  map.put("id", node.getId());
+                  map.put("nodeType", node.getNodeType().toString());
+                  return map;
+                })
+            .toList();
+
+    if (nodeInputs.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    if (nodeIdsByType.containsKey(NodeType.HASHTAG)) {
-      List<NodeDto> hashtagNodes =
-          hashtagRepository.findExistingHashtagNodes(nodeIdsByType.get(NodeType.HASHTAG));
-      hashtagNodes.forEach(node -> node.setNodeType(NodeType.HASHTAG));
-      validNodes.addAll(hashtagNodes);
-    }
-    return validNodes;
+    return graphRepository.findExistingNodesByIdsAndTypes(nodeInputs);
   }
 
   private Map<NodeType, Set<String>> groupNodeIdsByType(List<NodeDto> nodes) {
@@ -416,11 +469,7 @@ public class WorkspaceService {
 
     if (workspaceExists) {
       throw new WorkspaceException(
-          "Workspace with name '"
-              + workspace.getName()
-              + "' already exists in project '"
-              + projectName
-              + "'",
+          "Workspace with name '" + workspace.getName() + "' already exists in project '",
           HttpStatus.CONFLICT);
     }
   }

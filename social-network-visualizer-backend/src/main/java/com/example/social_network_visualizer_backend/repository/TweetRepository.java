@@ -1,7 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
 import com.example.social_network_visualizer_backend.dto.author.ViralTweetDto;
-import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetDetailsDto;
 import com.example.social_network_visualizer_backend.dto.tweet.TweetWithStats;
@@ -277,9 +276,15 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
       """
       MATCH (t:Tweet)
       WHERE t.id IN $ids
+      OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
       RETURN
           t.id AS id,
-          'TWEET' AS nodeType
+          'TWEET' AS nodeType,
+          t.content AS content,
+          a.userName AS authorName,
+          t.likesCount AS likesCount,
+          t.retweetsCount AS retweetsCount,
+          COALESCE(a.community, -1) AS community
       """)
-  List<NodeDto> findExistingTweetNodes(@Param("ids") Set<String> ids);
+  List<TweetNodeDto> findFullTweetNodesByIds(@Param("ids") Set<String> ids);
 }
