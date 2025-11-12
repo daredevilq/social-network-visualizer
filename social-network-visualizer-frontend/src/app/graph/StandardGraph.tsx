@@ -4,7 +4,7 @@ import { FolderPlus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { GraphLink, GraphNode } from '@/types/GraphTypes';
 import nodeStrategy from '../model/strategies/NodeStrategy';
-import NodeColors from '@/app/model/NodeColors';
+import Colors from '@/app/utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
 
@@ -30,15 +30,15 @@ export default function StandardGraph() {
         nodeVal={(node: GraphNode) => Math.min((nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12, 200)}
         nodeLabel={(node: GraphNode) => nodeStrategy.getLabel(node)}
         nodeColor={(node: GraphNode) => {
-          if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return NodeColors.getRedColor();
+          if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return Colors.RedColor();
 
           if (shortestPath.includes(String(node.id))) {
-            return NodeColors.getGoldColor();
+            return Colors.GoldColor();
           }
           return nodeStrategy.getColor(node);
         }}
         linkColor={(link: GraphLink) =>
-          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : linkStrategy.getColor(link)
+          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : linkStrategy.getColor(link)
         }
         linkWidth={(link: GraphLink) => (shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 6 : 3)}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}

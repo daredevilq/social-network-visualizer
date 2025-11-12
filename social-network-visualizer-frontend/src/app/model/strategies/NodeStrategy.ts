@@ -1,5 +1,5 @@
 import { AuthorNode, GraphNode, HashtagNode, NodeType, TweetNode } from '@/types/GraphTypes';
-import NodeColors from '@/app/model/NodeColors';
+import Colors from '@/app/utils/Colors';
 import { MenuItem } from '@/app/interface/Menu';
 import { MenuItemsGetters } from '@/app/components/graphMenu/ContextMenuItemsProvider';
 
@@ -15,7 +15,7 @@ export interface INodeStrategy {
 
 class AuthorNodeStrategy implements INodeStrategy {
   getColor(): string {
-    return NodeColors.getDefaultAuthorColor();
+    return Colors.DefaultAuthorColor();
   }
 
   getRadius(node: GraphNode): number {
@@ -34,7 +34,7 @@ class AuthorNodeStrategy implements INodeStrategy {
 
 class TweetNodeStrategy implements INodeStrategy {
   getColor(): string {
-    return NodeColors.getDefaultTweetColor();
+    return Colors.DefaultTweetColor();
   }
 
   getRadius(): number {
@@ -55,7 +55,7 @@ class TweetNodeStrategy implements INodeStrategy {
 
 class HashtagNodeStrategy implements INodeStrategy {
   getColor(): string {
-    return NodeColors.getDefaultHashtagColor();
+    return Colors.DefaultHashtagColor();
   }
 
   getRadius(): number {
