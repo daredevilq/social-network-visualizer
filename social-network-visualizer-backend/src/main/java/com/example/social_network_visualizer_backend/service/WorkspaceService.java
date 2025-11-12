@@ -77,8 +77,9 @@ public class WorkspaceService {
     boolean updated = false;
     List<Workspace> workspaces = project.getWorkspaces();
     for (int i = 0; i < workspaces.size(); i++) {
-      Workspace ws = workspaces.get(i);
-      if (ws.getName() != null && ws.getName().equalsIgnoreCase(workspaceData.getName())) {
+      Workspace workspace = workspaces.get(i);
+      if (workspace.getName() != null
+          && workspace.getName().equalsIgnoreCase(workspaceData.getName())) {
         log.info(
             "Updating existing workspace '{}' in project '{}'",
             workspaceData.getName(),
@@ -111,9 +112,9 @@ public class WorkspaceService {
                       HttpStatus.NOT_FOUND);
                 });
 
-    Workspace workspace =
+    Workspace workspaceToLoad =
         project.getWorkspaces().stream()
-            .filter(ws -> ws.getName().equalsIgnoreCase(workspaceName))
+            .filter(workspace -> workspace.getName().equalsIgnoreCase(workspaceName))
             .findFirst()
             .orElseThrow(
                 () -> {
@@ -127,7 +128,7 @@ public class WorkspaceService {
                       HttpStatus.NOT_FOUND);
                 });
 
-    workspace.getNodes().forEach(node -> updateWorkspaceMembership(node, true));
+    workspaceToLoad.getNodes().forEach(node -> updateWorkspaceMembership(node, true));
 
     log.info("Workspace '{}' loaded successfully from project '{}'", workspaceName, projectName);
   }
@@ -357,30 +358,24 @@ public class WorkspaceService {
 
     Set<String> validNodeIds = validNodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
 
+    if (workspaceCandidate.getEdges() == null) {
+      return Collections.emptyList();
+    }
+
     List<LinkDto> edgesToValidate =
-        workspaceCandidate.getEdges() == null
-            ? Collections.emptyList()
-            : workspaceCandidate.getEdges().stream()
-                .filter(edge -> edge != null && edge.source() != null && edge.target() != null)
-                .filter(
-                    edge ->
-                        validNodeIds.contains(edge.source())
-                            && validNodeIds.contains(edge.target()))
-                .toList();
+        workspaceCandidate.getEdges().stream()
+            .filter(Objects::nonNull)
+            .filter(edge -> edge.source() != null)
+            .filter(edge -> edge.target() != null)
+            .filter(edge -> validNodeIds.contains(edge.source()))
+            .filter(edge -> validNodeIds.contains(edge.target()))
+            .toList();
 
     List<LinkDto> validEdges = Collections.emptyList();
+
     if (!edgesToValidate.isEmpty()) {
       List<Map<String, String>> edgeMaps =
-          edgesToValidate.stream()
-              .map(
-                  edge -> {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("source", edge.source());
-                    map.put("target", edge.target());
-                    map.put("relation", edge.relation().toString());
-                    return map;
-                  })
-              .toList();
+          edgesToValidate.stream().map(LinkDto::convertToMap).toList();
       validEdges = graphRepository.findExistingRelations(edgeMaps);
     }
     return validEdges;
@@ -393,14 +388,10 @@ public class WorkspaceService {
 
     List<Map<String, String>> nodeInputs =
         workspace.getNodes().stream()
-            .filter(node -> node != null && node.getId() != null && node.getNodeType() != null)
-            .map(
-                node -> {
-                  Map<String, String> map = new HashMap<>();
-                  map.put("id", node.getId());
-                  map.put("nodeType", node.getNodeType().toString());
-                  return map;
-                })
+            .filter(Objects::nonNull)
+            .filter(node -> node.getId() != null)
+            .filter(node -> node.getNodeType() != null)
+            .map(NodeDto::convertToMap)
             .toList();
 
     if (nodeInputs.isEmpty()) {
@@ -416,7 +407,9 @@ public class WorkspaceService {
     }
 
     return nodes.stream()
-        .filter(node -> node != null && node.getId() != null && node.getNodeType() != null)
+        .filter(Objects::nonNull)
+        .filter(node -> node.getId() != null)
+        .filter(node -> node.getNodeType() != null)
         .collect(
             Collectors.groupingBy(
                 NodeDto::getNodeType, Collectors.mapping(NodeDto::getId, Collectors.toSet())));
@@ -440,6 +433,12 @@ public class WorkspaceService {
     if (workspace == null || workspace.getName() == null || workspace.getName().isBlank()) {
       throw new WorkspaceException("Invalid workspace: name is required", HttpStatus.BAD_REQUEST);
     }
+    if (workspace.getNodes() == null && workspace.getEdges() == null) {
+      throw new WorkspaceException(
+          "Failed to import workspace: No valid nodes and edges found in the workspace file.",
+          HttpStatus.BAD_REQUEST);
+    }
+
     if (workspace.getNodes() == null) {
       workspace.setNodes(new ArrayList<>());
     }
@@ -451,21 +450,19 @@ public class WorkspaceService {
   }
 
   private void verifyProjectAndWorkspaceUniqueness(String projectName, Workspace workspace) {
-    Project project =
-        projectRepository
-            .findByName(projectName)
-            .orElseThrow(
-                () ->
-                    new WorkspaceException(
-                        "Project with name '" + projectName + "' does not exist",
-                        HttpStatus.NOT_FOUND));
+    Optional<Project> project = projectRepository.findByName(projectName);
+
+    if (project.isEmpty()) {
+      throw new WorkspaceException(
+          "Project with name '" + projectName + "' does not exist", HttpStatus.NOT_FOUND);
+    }
 
     boolean workspaceExists =
-        project.getWorkspaces() != null
-            && project.getWorkspaces().stream()
-                .anyMatch(
-                    ws ->
-                        ws.getName() != null && ws.getName().equalsIgnoreCase(workspace.getName()));
+        project.get().getWorkspaces().stream()
+            .filter(Objects::nonNull)
+            .map(Workspace::getName)
+            .filter(Objects::nonNull)
+            .anyMatch(name -> name.equalsIgnoreCase(workspace.getName()));
 
     if (workspaceExists) {
       throw new WorkspaceException(

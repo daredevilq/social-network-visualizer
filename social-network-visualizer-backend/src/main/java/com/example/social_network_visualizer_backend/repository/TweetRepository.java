@@ -198,8 +198,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.repliesCount AS repliesCount,
                     t.retweetsCount AS retweetsCount,
                     t.likesCount AS likesCount,
-                    a.userName AS authorName,
-                    COALESCE(a.community, -1) AS community
+                    a.userName AS authorName
             """)
   List<TweetNodeDto> findTweets(
       @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
@@ -284,7 +283,11 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
           a.userName AS authorName,
           t.likesCount AS likesCount,
           t.retweetsCount AS retweetsCount,
-          COALESCE(a.community, -1) AS community
+          t.repliesCount as repliesCount,
+          t.language as language,
+          t.objectCreatedAt as objectCreatedAt,
+          t.publicationDate as publicationDate,
+          t.url as url
       """)
   List<TweetNodeDto> findFullTweetNodesByIds(@Param("ids") Set<String> ids);
 }

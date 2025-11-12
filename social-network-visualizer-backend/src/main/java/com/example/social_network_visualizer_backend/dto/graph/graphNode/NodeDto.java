@@ -4,6 +4,8 @@ import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -21,4 +23,11 @@ import lombok.Data;
 public class NodeDto {
   private String id;
   private NodeType nodeType;
+
+  public Map<String, String> convertToMap() {
+    Map<String, String> map = new HashMap<>();
+    map.put("id", this.getId());
+    map.put("nodeType", this.getNodeType().toString());
+    return map;
+  }
 }

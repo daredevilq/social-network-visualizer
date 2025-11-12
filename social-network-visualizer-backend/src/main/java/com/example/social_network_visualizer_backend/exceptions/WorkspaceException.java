@@ -19,14 +19,9 @@ public class WorkspaceException extends RuntimeException {
     this(message, status, WorkspaceImportResultStatus.ERROR.getLabel());
   }
 
-  public WorkspaceException(
-      String message, Throwable cause, HttpStatus status, String importResultStatus) {
+  public WorkspaceException(String message, Throwable cause, HttpStatus status) {
     super(message, cause);
     this.httpStatus = status;
-    this.importResultStatus = importResultStatus;
-  }
-
-  public WorkspaceException(String message, Throwable cause, HttpStatus status) {
-    this(message, cause, status, WorkspaceImportResultStatus.ERROR.getLabel());
+    this.importResultStatus = WorkspaceImportResultStatus.ERROR.getLabel();
   }
 }

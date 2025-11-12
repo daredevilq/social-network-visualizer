@@ -172,12 +172,15 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 WITH node.id AS nodeId, node.nodeType AS nodeType
                 OPTIONAL MATCH (a:Author {userName: nodeId})
                 WHERE nodeType = 'AUTHOR' AND a IS NOT NULL
+
                 WITH nodeId, nodeType, a.userName AS authorId
                 OPTIONAL MATCH (t:Tweet {id: nodeId})
                 WHERE nodeType = 'TWEET' AND t IS NOT NULL
+
                 WITH nodeId, nodeType, authorId, t.id AS tweetId
                 OPTIONAL MATCH (h:Hashtag {hashtag: nodeId})
                 WHERE nodeType = 'HASHTAG' AND h IS NOT NULL
+
                 WITH COALESCE(authorId, tweetId, h.hashtag) AS id, nodeType
                 WHERE id IS NOT NULL
                 RETURN id, nodeType
