@@ -4,7 +4,7 @@ import com.example.social_network_visualizer_backend.enums.RelationType;
 import java.util.HashMap;
 import java.util.Map;
 
-public record LinkDto(String source, String target, RelationType relation) {
+public record LinkDto(String source, String target, RelationType relation, Integer weight) {
 
   public Map<String, String> convertToMap() {
     Map<String, String> map = new HashMap<>();
