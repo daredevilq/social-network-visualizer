@@ -110,10 +110,7 @@ public class GraphMenuController {
   @PostMapping("/membership")
   public ResponseEntity<GraphDataDto> updateWorkspaceMembership(
       @RequestBody List<NodeDto> nodeDtos, @RequestParam boolean add) {
-    System.out.println("siemano");
-    System.out.println(nodeDtos);
     workspaceService.updateWorkspaceMembership(nodeDtos, add);
-
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
