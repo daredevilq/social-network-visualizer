@@ -58,6 +58,13 @@ public class GraphMenuController {
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
+  @PostMapping("/author/common-hashtags")
+  public ResponseEntity<GraphDataDto> addCommonHashtagsUsedByAuthors(
+      @RequestBody List<AuthorNodeDto> authorNodeDtos) {
+    graphMenuService.addCommonHashtagUsedByAuthors(authorNodeDtos);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
   @PostMapping("/author/mentioned-users")
   public ResponseEntity<GraphDataDto> addMentionedUsersByAuthors(
       @RequestBody List<AuthorNodeDto> authorNodeDtos) {
@@ -103,7 +110,10 @@ public class GraphMenuController {
   @PostMapping("/membership")
   public ResponseEntity<GraphDataDto> updateWorkspaceMembership(
       @RequestBody List<NodeDto> nodeDtos, @RequestParam boolean add) {
+    System.out.println("siemano");
+    System.out.println(nodeDtos);
     workspaceService.updateWorkspaceMembership(nodeDtos, add);
+
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 
@@ -118,6 +128,13 @@ public class GraphMenuController {
   public ResponseEntity<GraphDataDto> addTweetHashtagsToWorkspace(
       @RequestBody List<TweetNodeDto> tweetNodeDtos) {
     graphMenuService.addTweetHashtagsToWorkspace(tweetNodeDtos);
+    return ResponseEntity.ok(graphService.fetchWorkspaceData());
+  }
+
+  @PostMapping("/tweet/common-hashtags")
+  public ResponseEntity<GraphDataDto> addTweetsCommonHashtagsToWorkspace(
+      @RequestBody List<TweetNodeDto> tweetNodeDtos) {
+    graphMenuService.addTweetsCommonHashtagsToWorkspace(tweetNodeDtos);
     return ResponseEntity.ok(graphService.fetchWorkspaceData());
   }
 

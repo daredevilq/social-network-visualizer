@@ -11,6 +11,8 @@ import com.example.social_network_visualizer_backend.repository.CommunityReposit
 import com.example.social_network_visualizer_backend.repository.GraphMenuRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,13 +45,20 @@ public class GraphMenuService {
   }
 
   public void addAuthorsCommunities(List<AuthorNodeDto> authors, Optional<Integer> nodeNumber) {
-    authors.forEach(
-        author -> {
+    Set<Integer> uniqueCommunities =
+        authors.stream()
+            .map(author -> communityRepository.findCommunityIdByAuthorId(author.getId()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+
+    uniqueCommunities.forEach(
+        communityId -> {
           List<Author> communityAuthors =
               nodeNumber.isPresent()
                   ? communityRepository.findAuthorsByCommunityWithLimit(
-                      author.getId(), nodeNumber.get())
-                  : communityRepository.findAuthorsByCommunity(author.getId());
+                      communityId, nodeNumber.get())
+                  : communityRepository.findAuthorsByCommunity(communityId);
 
           communityAuthors.forEach(
               commAuthor -> {
@@ -68,6 +77,15 @@ public class GraphMenuService {
               graphMenuRepository.findHashtagsUsedByAuthor(author.getId());
           hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
+  }
+
+  public void addCommonHashtagUsedByAuthors(List<AuthorNodeDto> authors) {
+    List<String> authorIds = authors.stream().map(AuthorNodeDto::getId).toList();
+
+    List<HashtagNodeDto> commonHashtags =
+        graphMenuRepository.findTopCommonHashtagsUsedByAuthors(authorIds);
+
+    commonHashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
 
   public void addMentionedUsersByAuthors(List<AuthorNodeDto> authors) {
@@ -147,6 +165,15 @@ public class GraphMenuService {
         });
   }
 
+  public void addTweetsCommonHashtagsToWorkspace(List<TweetNodeDto> tweets) {
+    List<String> tweetIds = tweets.stream().map(TweetNodeDto::getId).toList();
+
+    List<HashtagNodeDto> commonHashtags =
+        graphMenuRepository.findCommonHashtagsByTweetIds(tweetIds);
+
+    commonHashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
+  }
+
   public void addMentionedAuthorsFromTweets(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
@@ -183,7 +210,7 @@ public class GraphMenuService {
     hashtags.forEach(
         hashtag -> {
           List<AuthorNodeDto> authors =
-              graphMenuRepository.findTopAuthorsByHashtagId(hashtag.getId());
+              graphMenuRepository.findTopAuthorsByHashtagName(hashtag.getId());
           authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -191,7 +218,8 @@ public class GraphMenuService {
   public void addTopTweetsByHashtags(List<HashtagNodeDto> hashtags) {
     hashtags.forEach(
         hashtag -> {
-          List<TweetNodeDto> tweets = graphMenuRepository.findTopTweetsByHashtagId(hashtag.getId());
+          List<TweetNodeDto> tweets =
+              graphMenuRepository.findTopTweetsByHashtagName(hashtag.getId());
           tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }

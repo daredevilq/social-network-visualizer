@@ -92,6 +92,11 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
             icon: <HashtagIcon />,
             onMenuItemClick: () => addHashtagsUsedByAuthors(authorNodes),
           },
+          {
+            label: 'Show only common hashtags used',
+            icon: <HashtagIcon />,
+            onMenuItemClick: () => addCommonHashtagsUsedByAuthors(authorNodes),
+          },
         ],
         isDisabled: authorNodes.length === 0,
       },
@@ -123,6 +128,11 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
             label: 'Show hashtags used',
             icon: <HashtagIcon />,
             onMenuItemClick: () => addTweetHashtagsToWorkspace(tweetNodes),
+          },
+          {
+            label: 'Show common hashtags used',
+            icon: <HashtagIcon />,
+            onMenuItemClick: () => addTweetsCommonHashtagsToWorkspace(tweetNodes),
           },
         ],
         isDisabled: tweetNodes.length === 0,
@@ -206,6 +216,13 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
       'Failed to add hashtags'
     );
 
+  const addTweetsCommonHashtagsToWorkspace = async (nodes: GraphNode[]) =>
+    handleGraphUpdate(
+      () => GraphApiService.addTweetsCommonHashtagsToWorkspace(nodes),
+      `Added hashtags for ${nodes.length} tweets`,
+      'Failed to add hashtags'
+    );
+
   const addMentionedAuthorsToWorkspace = async (nodes: GraphNode[]) =>
     handleGraphUpdate(
       () => GraphApiService.addMentionedAuthorsToWorksapce(nodes),
@@ -258,6 +275,13 @@ export const useContextMultiMenuItems = (): MenuItemsGetters => {
   const addHashtagsUsedByAuthors = async (nodes: GraphNode[]) =>
     handleGraphUpdate(
       () => GraphApiService.addHashtagsUsedByAuthors(nodes),
+      `Added hashtags used by ${nodes.length} authors`,
+      'Failed to load hashtags'
+    );
+
+  const addCommonHashtagsUsedByAuthors = async (nodes: GraphNode[]) =>
+    handleGraphUpdate(
+      () => GraphApiService.addCommonHashtagsUsedByAuthors(nodes),
       `Added hashtags used by ${nodes.length} authors`,
       'Failed to load hashtags'
     );

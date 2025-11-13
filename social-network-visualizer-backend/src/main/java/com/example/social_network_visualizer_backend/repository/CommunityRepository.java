@@ -5,6 +5,7 @@ import com.example.social_network_visualizer_backend.dto.community.CommunityOver
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.model.Author;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -223,28 +224,31 @@ public interface CommunityRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
     MATCH (a:Author {userName: $authorId})
-    WITH a.community AS communityId
-    MATCH (other:Author)
-    WHERE other.community = communityId
-      AND (other.isInWorkspace IS NULL OR other.isInWorkspace = false)
-    RETURN other
-    ORDER BY other.pagerank DESC
-    LIMIT $limit
+    RETURN coalesce(a.community, '') AS communityId
     """)
-  List<Author> findAuthorsByCommunityWithLimit(
-      @Param("authorId") String authorId, @Param("limit") int limit);
+  Optional<Integer> findCommunityIdByAuthorId(@Param("authorId") String authorId);
 
   @Query(
       """
-    MATCH (a:Author {userName: $authorId})
-    WITH a.community AS communityId
-    MATCH (other:Author)
-    WHERE other.community = communityId
-      AND (other.isInWorkspace IS NULL OR other.isInWorkspace = false)
-    RETURN other
-    ORDER BY other.pagerank DESC
+    MATCH (a:Author)
+    WHERE a.community = $communityId
+      AND (a.isInWorkspace IS NULL OR a.isInWorkspace = false)
+    RETURN a
+    ORDER BY a.pagerank DESC
+    LIMIT $limit
     """)
-  List<Author> findAuthorsByCommunity(@Param("authorId") String authorId);
+  List<Author> findAuthorsByCommunityWithLimit(
+      @Param("communityId") int communityId, @Param("limit") int limit);
+
+  @Query(
+      """
+    MATCH (a:Author)
+    WHERE a.community = $communityId
+      AND (a.isInWorkspace IS NULL OR a.isInWorkspace = false)
+    RETURN a
+    ORDER BY a.pagerank DESC
+    """)
+  List<Author> findAuthorsByCommunity(@Param("communityId") int communityId);
 
   @Query(
       """

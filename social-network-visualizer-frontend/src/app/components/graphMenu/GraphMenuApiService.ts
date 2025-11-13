@@ -156,6 +156,19 @@ export class GraphApiService {
     return await response.json();
   }
 
+  static async addCommonHashtagsUsedByAuthors(authors: GraphNode[]): Promise<GraphData> {
+    const response = await fetch(`${API_BASE_URL}/graph/menu/author/common-hashtags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(authors),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch common hashtags (${response.status})`);
+    }
+    return await response.json();
+  }
+
   /**
    * TWEET ENDPOINTS
    */
@@ -220,6 +233,19 @@ export class GraphApiService {
 
     if (!response.ok) {
       throw new Error(`Failed to add children tweets to workspace (${response.status})`);
+    }
+    return await response.json();
+  }
+
+  static async addTweetsCommonHashtagsToWorkspace(tweets: GraphNode[]): Promise<GraphData> {
+    const response = await fetch(`${API_BASE_URL}/graph/menu/tweet/common-hashtags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tweets),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch common hashtags (${response.status})`);
     }
     return await response.json();
   }
