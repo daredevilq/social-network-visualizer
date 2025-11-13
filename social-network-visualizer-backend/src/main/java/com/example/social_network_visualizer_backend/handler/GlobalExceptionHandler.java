@@ -1,6 +1,5 @@
 package com.example.social_network_visualizer_backend.handler;
 
-import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.exceptions.WorkspaceException;
@@ -49,10 +48,9 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(WorkspaceException.class)
-  public ResponseEntity<WorkspaceImportResult> handleWorkspaceException(WorkspaceException e) {
-    WorkspaceImportResult errorResult =
-        new WorkspaceImportResult(e.getMessage(), e.getImportResultStatus(), "INVALID");
-    return ResponseEntity.status(e.getHttpStatus()).body(errorResult);
+  public ResponseEntity<Map<String, String>> handleWorkspaceException(WorkspaceException e) {
+    log.error("Workspace error: {}", e.getMessage());
+    return ResponseEntity.status(e.getHttpStatus()).body(Map.of("error", e.getMessage()));
   }
 
   @ExceptionHandler(Exception.class)

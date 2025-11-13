@@ -365,13 +365,38 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           body: formData,
         });
 
-        const result = await res.json();
-        const importResultStatus = (result.importResultStatus as BannerType) || BannerType.ERROR;
-        showNotification(result.message, importResultStatus);
+        if (!res.ok) {
+          const errorData = await res.json();
+          showNotification(errorData.error || 'Failed to import workspace', BannerType.ERROR);
+          return;
+        }
 
-        if (importResultStatus === BannerType.SUCCESS || importResultStatus === BannerType.WARNING) {
+        const result = await res.json();
+
+        const { workspaceName, totalNodes, importedNodes, totalEdges, importedEdges } = result;
+
+        const isPartialImport = totalNodes > importedNodes || totalEdges > importedEdges;
+        const noDataImported = importedNodes === 0 && importedEdges === 0;
+
+        let message: string;
+        let bannerType: BannerType;
+
+        if (noDataImported) {
+          message = 'Failed to import workspace: No valid nodes or edges found in the database.';
+          bannerType = BannerType.ERROR;
+        } else if (isPartialImport) {
+          message = `Workspace '${workspaceName}' partially imported: ${importedNodes}/${totalNodes} nodes and ${importedEdges}/${totalEdges} edges. Some items were skipped.`;
+          bannerType = BannerType.WARNING;
+        } else {
+          message = `Workspace '${workspaceName}' successfully imported with ${importedNodes} nodes and ${importedEdges} edges.`;
+          bannerType = BannerType.SUCCESS;
+        }
+
+        showNotification(message, bannerType);
+
+        if (bannerType === BannerType.SUCCESS || bannerType === BannerType.WARNING) {
           await refreshWorkspaces(loadedProjectName);
-          await loadWorkspace(result.workspaceName);
+          await loadWorkspace(workspaceName);
         }
       } catch (err: any) {
         showNotification(`Import error: ${err.message || 'Unknown error occurred'}`, BannerType.ERROR);

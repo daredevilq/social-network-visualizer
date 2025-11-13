@@ -4,7 +4,6 @@ import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.dto.workspace.WorkspaceImportResult;
 import com.example.social_network_visualizer_backend.enums.NodeType;
-import com.example.social_network_visualizer_backend.enums.WorkspaceImportResultStatus;
 import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.exceptions.WorkspaceException;
 import com.example.social_network_visualizer_backend.model.project.Project;
@@ -334,8 +333,7 @@ public class WorkspaceService {
     if (validNodes.isEmpty() && validEdges.isEmpty()) {
       throw new WorkspaceException(
           "Failed to import workspace: No valid nodes or edges found in the database.",
-          HttpStatus.BAD_REQUEST,
-          WorkspaceImportResultStatus.ERROR.getLabel());
+          HttpStatus.BAD_REQUEST);
     }
 
     Workspace validWorkspace =
@@ -346,12 +344,23 @@ public class WorkspaceService {
             .build();
     saveWorkspace(projectName, validWorkspace);
 
-    return WorkspaceImportResult.fromImportStats(
+    int totalNodes =
+        workspaceCandidate.getNodes() != null ? workspaceCandidate.getNodes().size() : 0;
+    int importedNodes = validNodes.size();
+    int totalEdges =
+        workspaceCandidate.getEdges() != null ? workspaceCandidate.getEdges().size() : 0;
+    int importedEdges = validEdges.size();
+
+    log.info(
+        "Workspace '{}' imported: {}/{} nodes, {}/{} edges",
         workspaceCandidate.getName(),
-        workspaceCandidate.getNodes() != null ? workspaceCandidate.getNodes().size() : 0,
-        validNodes.size(),
-        workspaceCandidate.getEdges() != null ? workspaceCandidate.getEdges().size() : 0,
-        validEdges.size());
+        importedNodes,
+        totalNodes,
+        importedEdges,
+        totalEdges);
+
+    return new WorkspaceImportResult(
+        workspaceCandidate.getName(), totalNodes, importedNodes, totalEdges, importedEdges);
   }
 
   private List<LinkDto> extractValidEdges(Workspace workspaceCandidate, List<NodeDto> validNodes) {
