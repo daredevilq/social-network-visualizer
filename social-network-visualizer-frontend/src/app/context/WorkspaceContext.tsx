@@ -57,7 +57,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { runWithLoading, loadedProjectName } = useProject();
+  const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setShortestPath, setFocusedCommunityId, setSelectedUserData } =
+    useProject();
   const { saveCurrentGraphData } = useSaveWorkspaceChanges();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -68,6 +69,15 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const [workspaces, setWorkspaces] = useState<string[]>([]);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+    setNodeFound(null);
+    setShortestPath([]);
+    setFocusedCommunityId(undefined);
+    setSelectedUserData(null);
+    setHasUnsavedChanges(false);
+  }, [openedWorkspaceName, loadedProjectName]);
 
   useEffect(() => {
     fetchWorkspaceData();
