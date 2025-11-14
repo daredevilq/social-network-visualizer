@@ -80,6 +80,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   }, []);
 
   useEffect(() => {
+    setIsSidebarOpen(false);
     if (!containerRef.current) return;
 
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(containerRef.current);
