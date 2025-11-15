@@ -17,7 +17,7 @@ import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 import WorkspaceImportModal from '@/app/components/Popups/WorkspaceImportModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
-import { CloudUploadIcon } from '@/app/components/icons/Icons';
+import { CloudUploadIcon, PlusIcon } from '@/app/components/icons/Icons';
 
 type DeleteTarget = {
   type: 'project' | 'workspace';
@@ -191,9 +191,9 @@ export default function ProjectsContent() {
                   <button
                     disabled={loading}
                     onClick={() => runWithUnsavedCheck(async () => setCreateWorkspaceModalOpen(true))}
-                    className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
+                    className="flex items-center w-full hover:text-[#7140F4] transition-colors duration-300 ease-in-out text-white"
                   >
-                    <img src="/icons/leftSideBar/plus_icon.png" className="w-4 h-4 mr-2" alt="Add" />
+                    <PlusIcon className="w-4 h-4 mr-2 group-hover:text-[#7140F4] transition-colors" />
                     <span>Add new workspace</span>
                   </button>
                   <button
@@ -216,7 +216,7 @@ export default function ProjectsContent() {
             onClick={() => runWithUnsavedCheck(async () => setCreateProjectModalOpen(true))}
             className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
           >
-            <img src="/icons/leftSideBar/plus_icon.png" className="w-5 h-5 mr-2" alt="Add" />
+            <PlusIcon className="w-5 h-5 mr-2 group-hover:text-[#7140F4] transition-colors" />
             <span>Upload project</span>
           </button>
         </div>

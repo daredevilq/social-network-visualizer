@@ -300,6 +300,10 @@ public class WorkspaceService {
     }
   }
 
+  public void updateWorkspaceMembership(List<NodeDto> nodes, boolean isInWorkspace) {
+    nodes.forEach(node -> updateWorkspaceMembership(node, isInWorkspace));
+  }
+
   public WorkspaceImportResult validateAndImportWorkspace(
       String projectName, MultipartFile workspaceFile) {
 

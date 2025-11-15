@@ -15,6 +15,12 @@ export const FileDocumentIcon = ({ className = 'w-6 h-6' }: IconProps) => (
   </svg>
 );
 
+export const PlusIcon = ({ className = 'w-4 h-4' }: IconProps) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+  </svg>
+);
+
 export const CloudUploadIcon = ({ className = 'w-4 h-4' }: IconProps) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path
