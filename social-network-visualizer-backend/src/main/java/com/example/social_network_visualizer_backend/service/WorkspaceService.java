@@ -230,50 +230,29 @@ public class WorkspaceService {
     Map<NodeType, Set<String>> nodeIdsByType = groupNodeIdsByType(nodes);
     List<NodeDto> entireNodes = new ArrayList<>();
 
-    getEntireAuthorNodes(nodeIdsByType, entireNodes);
-    getEntireTweetsNodes(nodeIdsByType, entireNodes);
-    getEntireHashtagNodes(nodeIdsByType, entireNodes);
+    nodeIdsByType.forEach((nodeType, ids) -> enrichNodesForType(nodeType, ids, entireNodes));
 
     return entireNodes;
   }
 
-  private void getEntireHashtagNodes(
-      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
-    if (nodeIdsByType.containsKey(NodeType.HASHTAG)) {
-      Set<String> hashtagIds = nodeIdsByType.get(NodeType.HASHTAG);
-      List<NodeDto> fullHashtagNodes =
-          hashtagRepository.findFullHashtagNodesByIds(hashtagIds).stream()
+  private void enrichNodesForType(NodeType nodeType, Set<String> ids, List<NodeDto> entireNodes) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    List<NodeDto> fullNodes =
+        switch (nodeType) {
+          case AUTHOR -> authorRepository.findFullAuthorNodesByIds(ids).stream()
               .map(node -> (NodeDto) node)
               .toList();
-      entireNodes.addAll(fullHashtagNodes);
-      log.debug("Enriched {} hashtag nodes", fullHashtagNodes.size());
-    }
-  }
+          case TWEET -> tweetRepository.findFullTweetNodesByIds(ids).stream()
+              .map(node -> (NodeDto) node)
+              .toList();
+          case HASHTAG -> hashtagRepository.findFullHashtagNodesByIds(ids).stream()
+              .map(node -> (NodeDto) node)
+              .toList();
+        };
 
-  private void getEntireTweetsNodes(
-      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
-    if (nodeIdsByType.containsKey(NodeType.TWEET)) {
-      Set<String> tweetIds = nodeIdsByType.get(NodeType.TWEET);
-      List<NodeDto> fullTweetNodes =
-          tweetRepository.findFullTweetNodesByIds(tweetIds).stream()
-              .map(node -> (NodeDto) node)
-              .toList();
-      entireNodes.addAll(fullTweetNodes);
-      log.debug("Enriched {} tweet nodes", fullTweetNodes.size());
-    }
-  }
-
-  private void getEntireAuthorNodes(
-      Map<NodeType, Set<String>> nodeIdsByType, List<NodeDto> entireNodes) {
-    if (nodeIdsByType.containsKey(NodeType.AUTHOR)) {
-      Set<String> authorIds = nodeIdsByType.get(NodeType.AUTHOR);
-      List<NodeDto> fullAuthorNodes =
-          authorRepository.findFullAuthorNodesByIds(authorIds).stream()
-              .map(node -> (NodeDto) node)
-              .toList();
-      entireNodes.addAll(fullAuthorNodes);
-      log.debug("Enriched {} author nodes", fullAuthorNodes.size());
-    }
+    entireNodes.addAll(fullNodes);
   }
 
   public void updateWorkspaceMembership(NodeDto node, boolean isInWorkspace) {
@@ -344,11 +323,9 @@ public class WorkspaceService {
             .build();
     saveWorkspace(projectName, validWorkspace);
 
-    int totalNodes =
-        workspaceCandidate.getNodes() != null ? workspaceCandidate.getNodes().size() : 0;
+    int totalNodes = workspaceCandidate.getNodes().size();
     int importedNodes = validNodes.size();
-    int totalEdges =
-        workspaceCandidate.getEdges() != null ? workspaceCandidate.getEdges().size() : 0;
+    int totalEdges = workspaceCandidate.getEdges().size();
     int importedEdges = validEdges.size();
 
     log.info(
@@ -374,8 +351,7 @@ public class WorkspaceService {
     List<LinkDto> edgesToValidate =
         workspaceCandidate.getEdges().stream()
             .filter(Objects::nonNull)
-            .filter(edge -> edge.source() != null)
-            .filter(edge -> edge.target() != null)
+            .filter(edge -> edge.source() != null && edge.target() != null)
             .filter(edge -> validNodeIds.contains(edge.source()))
             .filter(edge -> validNodeIds.contains(edge.target()))
             .toList();
@@ -398,8 +374,7 @@ public class WorkspaceService {
     List<Map<String, String>> nodeInputs =
         workspace.getNodes().stream()
             .filter(Objects::nonNull)
-            .filter(node -> node.getId() != null)
-            .filter(node -> node.getNodeType() != null)
+            .filter(node -> node.getId() != null && node.getNodeType() != null)
             .map(NodeDto::convertToMap)
             .toList();
 
@@ -417,8 +392,7 @@ public class WorkspaceService {
 
     return nodes.stream()
         .filter(Objects::nonNull)
-        .filter(node -> node.getId() != null)
-        .filter(node -> node.getNodeType() != null)
+        .filter(node -> node.getId() != null && node.getNodeType() != null)
         .collect(
             Collectors.groupingBy(
                 NodeDto::getNodeType, Collectors.mapping(NodeDto::getId, Collectors.toSet())));
