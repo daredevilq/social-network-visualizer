@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { AuthorNode, GraphLink, GraphNode, NodeType } from '@/types/GraphTypes';
-import NodeColors from '../model/NodeColors';
+import Colors from '../utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
@@ -98,12 +98,10 @@ export default function CommunityGraph() {
         return Math.min(authorNode.pagerank ? authorNode.pagerank * 7 : 10, 30);
       }}
       nodeLabel={(node: GraphNode) => `${node.id}` + ` || Community: ${node.community}`}
-      nodeColor={(node) =>
-        node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType ? NodeColors.getRedColor() : getNodeColor(node)
-      }
+      nodeColor={(node) => (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType ? Colors.RedColor() : getNodeColor(node))}
       linkLabel={(link: GraphLink) => `${link.relation}`}
       linkColor={(link: GraphLink) =>
-        shortestPath.includes(link.source) && shortestPath.includes(link.target) ? NodeColors.getRedColor() : NodeColors.getWhiteColor()
+        shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : Colors.WhiteColor()
       }
       linkWidth={(link: GraphLink) => (shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 4 : 2)}
       linkDirectionalArrowLength={5}

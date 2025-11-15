@@ -9,6 +9,7 @@ import com.example.social_network_visualizer_backend.model.Tweet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -68,7 +69,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:MENTION]->(a)
+                MERGE (t)-[r:MENTION]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetMentionsRelations(List<Map<String, Object>> tweetMentionsData);
 
@@ -78,7 +81,9 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                CREATE (t)-[:HAS_REPLY]->(a)
+                MERGE (t)-[r:HAS_REPLY]->(a)
+                ON CREATE SET r.weight = 1
+                ON MATCH SET r.weight = COALESCE(r.weight, 0) + 1
             """)
   void createTweetRepliesRelations(List<Map<String, Object>> tweetRepliesData);
 
@@ -88,7 +93,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (p:Tweet {id: data.parentId})
-                CREATE (t)-[:HAS_PARENT]->(p)
+                CREATE (t)-[r:HAS_PARENT {weight: 1}]->(p)
             """)
   void createTweetParentRelations(List<Map<String, Object>> tweetParentData);
 
@@ -98,7 +103,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                 MATCH (t:Tweet {id: data.tweetId})
                 WITH t, data
                 MATCH (h:Hashtag {hashtag: data.hashtag})
-                CREATE (t)-[:HAS_HASHTAG]->(h)
+                CREATE (t)-[r:HAS_HASHTAG {weight: 1}]->(h)
             """)
   void createTweetHashtagRelations(List<Map<String, Object>> tweetHashtagsData);
 
@@ -197,8 +202,7 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
                     t.repliesCount AS repliesCount,
                     t.retweetsCount AS retweetsCount,
                     t.likesCount AS likesCount,
-                    a.userName AS authorName,
-                    COALESCE(a.community, -1) AS community
+                    a.userName AS authorName
             """)
   List<TweetNodeDto> findTweets(
       @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
@@ -270,4 +274,24 @@ public interface TweetRepository extends Neo4jRepository<Tweet, String> {
               parent.content AS replyToContent
     """)
   Optional<TweetDetailsDto> findTweetDetailsById(@Param("tweetId") String tweetId);
+
+  @Query(
+      """
+      MATCH (t:Tweet)
+      WHERE t.id IN $ids
+      OPTIONAL MATCH (a:Author)-[:POSTED]->(t)
+      RETURN
+          t.id AS id,
+          'TWEET' AS nodeType,
+          t.content AS content,
+          a.userName AS authorName,
+          t.likesCount AS likesCount,
+          t.retweetsCount AS retweetsCount,
+          t.repliesCount as repliesCount,
+          t.language as language,
+          t.objectCreatedAt as objectCreatedAt,
+          t.publicationDate as publicationDate,
+          t.url as url
+      """)
+  List<TweetNodeDto> findFullTweetNodesByIds(@Param("ids") Set<String> ids);
 }

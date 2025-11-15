@@ -56,7 +56,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 MATCH (a:Author {userName: data.userName})
                 WITH a, data
                 MATCH (t:Tweet {id: data.tweetId})
-                MERGE (a)-[:POSTED]->(t)
+                CREATE (a)-[r:POSTED {weight: 1}]->(t)
             """)
   void createAuthorTweetRelations(
       @Param("authorTweetData") List<Map<String, Object>> authorTweetData);
@@ -197,7 +197,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
       """
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
-                    RETURN h.hashtag as id, count(*) AS frequency
+                    RETURN h.hashtag as name, count(*) AS frequency
                     ORDER BY frequency DESC
                     LIMIT 10
             """)
@@ -270,4 +270,17 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER  BY d, h;
             """)
   List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
+
+  @Query(
+      """
+      MATCH (a:Author)
+      WHERE a.userName IN $ids
+      RETURN
+          a.userName AS id,
+          'AUTHOR' AS nodeType,
+          a.pagerank AS pagerank,
+          a.degreeCentrality AS centrality,
+          a.community AS community
+      """)
+  List<AuthorNodeDto> findFullAuthorNodesByIds(@Param("ids") Set<String> ids);
 }

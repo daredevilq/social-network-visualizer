@@ -5,13 +5,22 @@ import { forceManyBody, forceCollide, forceX, forceY, forceLink } from 'd3-force
 import { GraphLink, GraphNode, GraphProps, SelectionBox } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
-import NodeColors from '@/app/model/NodeColors';
+import Colors from '@/app/utils/Colors';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { useGraph } from '@/app/context/GraphContext';
 import MenuComponent from '@/app/components/graphMenu/MenuComponent';
 import { MenuItem, MenuState } from '../interface/Menu';
 import { useContextMenuItems } from '@/app/components/graphMenu/ContextMenuItemsProvider';
 import { useContextMultiMenuItems } from '@/app/components/graphMenu/ContextMultiMenuItemsProvider';
+
+interface ForceParameters {
+  charge?: number;
+  link?: number;
+  collide?: number;
+  centerX?: number;
+  centerY?: number;
+  containerStrength?: number;
+}
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const {
@@ -27,7 +36,6 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     nodeFound,
   } = props;
 
-  const NODE_DISPLAY_LIMIT: number = 1500;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(null);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
@@ -47,33 +55,42 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const { isInWorkspaceMode, saveWorkspaceData, hasUnsavedChanges, openWorkspaceCreateModal } = useWorkspace();
   const { resetGraphData } = useGraph();
 
+  const applyForces = useCallback((params: ForceParameters) => {
+    if (!fgInstance.current) return;
+
+    const { charge, link, collide, centerX, centerY, containerStrength } = params;
+
+    if (link !== undefined) {
+      fgInstance.current.d3Force(
+        'link',
+        forceLink<GraphNode, GraphLink>()
+          .id((d: GraphNode) => d.id)
+          .strength(link)
+      );
+    }
+    if (collide !== undefined) {
+      fgInstance.current.d3Force(
+        'collide',
+        forceCollide()
+          .radius((d: any) => nodeStrategy.getRadius(d) + 10)
+          .strength(collide)
+      );
+    }
+    if (charge !== undefined) fgInstance.current.d3Force('charge', forceManyBody().distanceMin(10).strength(charge));
+    if (centerX !== undefined) fgInstance.current.d3Force('container_x', forceX(centerX).strength(containerStrength ?? 0.005));
+    if (centerY !== undefined) fgInstance.current.d3Force('container_y', forceY(centerY).strength(containerStrength ?? 0.005));
+  }, []);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     fgInstance.current = new ForceGraph<GraphNode, GraphLink>(containerRef.current);
-    fgInstance.current.d3Force('charge', forceManyBody().distanceMin(10).strength(-200));
-    fgInstance.current.d3Force(
-      'collide',
-      forceCollide()
-        .radius((d: any) => nodeStrategy.getRadius(d) + 10)
-        .strength(0.3)
-    );
-    fgInstance.current.d3Force('container_x', forceX(0).strength(0.005));
-    fgInstance.current.d3Force('container_y', forceY(0).strength(0.005));
-    fgInstance.current.d3Force(
-      'link',
-      forceLink<GraphNode, GraphLink>()
-        .id((d: GraphNode) => d.id)
-        .strength(0.7)
-    );
+    applyForces({ charge: -200, collide: 0.3, centerX: 0, centerY: 0, link: 0.7 });
     const handleResize = () => {
       if (fgInstance.current && containerRef.current) {
         const { offsetWidth, offsetHeight } = containerRef.current;
-        fgInstance.current
-          .width(offsetWidth)
-          .height(offsetHeight)
-          .d3Force('container_x', forceX(offsetWidth / 2).strength(0.01))
-          .d3Force('container_y', forceY(offsetHeight / 2).strength(0.01));
+        fgInstance.current.width(offsetWidth).height(offsetHeight);
+        applyForces({ centerX: offsetWidth / 2, centerY: offsetHeight / 2, containerStrength: 0.01 });
       }
     };
 
@@ -127,6 +144,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkCurvature(0.4)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
@@ -135,7 +153,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         }
 
         const radius = nodeStrategy.getRadius(node);
-        const baseColor = nodeColor ? nodeColor(node) : NodeColors.getDefaultAuthorColor();
+        const baseColor = nodeColor ? nodeColor(node) : Colors.DefaultAuthorColor();
 
         if (!isFinite(radius) || radius <= 0) {
           ctx.beginPath();
@@ -258,15 +276,14 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const displayGraphData = () => {
     if (!fgInstance.current) return;
 
-    const displayNodes = graphData.nodes.slice(0, NODE_DISPLAY_LIMIT);
-    const displayNodeIds = new Set(displayNodes.map((n) => n.id));
+    const displayNodeIds = new Set(graphData.nodes.map((n: GraphNode) => n.id));
 
     const displayLinks = graphData.links
       .filter((link: GraphLink) => displayNodeIds.has(link.source) && displayNodeIds.has(link.target))
       .map((link: GraphLink) => ({ ...link }));
 
     fgInstance.current.graphData({
-      nodes: displayNodes,
+      nodes: graphData.nodes,
       links: displayLinks,
     });
   };
