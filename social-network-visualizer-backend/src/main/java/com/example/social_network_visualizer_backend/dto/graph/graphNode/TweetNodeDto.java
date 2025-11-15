@@ -1,6 +1,7 @@
 package com.example.social_network_visualizer_backend.dto.graph.graphNode;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,5 +17,9 @@ public class TweetNodeDto extends NodeDto {
   private String authorName;
   private Long likesCount;
   private Long retweetsCount;
-  private Integer community;
+  private Long repliesCount;
+  private String language;
+  private LocalDateTime objectCreatedAt;
+  private LocalDateTime publicationDate;
+  private String url;
 }

@@ -270,4 +270,17 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER  BY d, h;
             """)
   List<ActivityHeatmap> getAuthorActivityHeatMap(@Param("username") String username);
+
+  @Query(
+      """
+      MATCH (a:Author)
+      WHERE a.userName IN $ids
+      RETURN
+          a.userName AS id,
+          'AUTHOR' AS nodeType,
+          a.pagerank AS pagerank,
+          a.degreeCentrality AS centrality,
+          a.community AS community
+      """)
+  List<AuthorNodeDto> findFullAuthorNodesByIds(@Param("ids") Set<String> ids);
 }
