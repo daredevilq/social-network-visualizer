@@ -39,8 +39,13 @@ export default function RightSidebar() {
           animate={{ x: isSidebarOpen ? 0 : '100%', opacity: isSidebarOpen ? 1 : 0 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className="fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-40
-                     bg-gradient-to-b from-[#262631] to-[#1E1E29] border-l border-[#383845]"
+          className="
+            fixed top-0 right-0 h-full w-full sm:w-96 shadow-lg z-40
+            bg-[#262631]
+            border-l-[1px] border-[#FAFAFA]
+            rounded-tl-2xl rounded-bl-2xl
+            p-2
+          "
         >
           {sidebarData.nodeType === NodeType.AUTHOR && <AuthorSidebarContent selectedUserData={sidebarData} onClose={onClose} />}
           {sidebarData.nodeType === NodeType.TWEET && <TweetSidebarContent selectedUserData={sidebarData} onClose={onClose} />}

@@ -53,9 +53,13 @@ export default function LeftSidebar({ isOpen, selectedLeftSideBarContent }: Left
           animate={{ x: isOpen ? 0 : '-100%', opacity: isOpen ? 1 : 0 }}
           exit={{ x: '-100%', opacity: 0 }}
           transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className="fixed top-0 left-[60px] h-screen w-full sm:w-80 text-white shadow-lg z-40
-                     border-r border-[#FAFAFA]/10 rounded-tr-2xl rounded-br-2xl bg-[#262631]
-                     p-2"
+          className="
+            fixed top-0 left-[60px] h-screen w-full sm:w-80 text-white shadow-lg z-40
+            border-r-[1px] border-[#FAFAFA]
+            rounded-tr-2xl rounded-br-2xl
+            bg-[#262631]
+            p-2
+          "
         >
           {renderLeftSideBarContent()}
         </motion.div>
