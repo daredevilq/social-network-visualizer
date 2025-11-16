@@ -54,7 +54,6 @@ export default function CommunityGraph() {
             nodeType: NodeType.AUTHOR,
             community: n.community?.toString() ?? '',
             pagerank: n.pagerank ?? 0,
-            centrality: n.centrality ?? 0,
           })) satisfies AuthorNode[];
 
         const nodeIds = new Set(authorNodesFromCommunity.map((n) => n.id));
@@ -66,7 +65,6 @@ export default function CommunityGraph() {
           nodeType: NodeType.AUTHOR,
           community: author.community,
           pagerank: author.pagerank,
-          centrality: author.centrality,
         }));
 
         setGraphData({ nodes, links });

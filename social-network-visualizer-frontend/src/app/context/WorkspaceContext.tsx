@@ -183,7 +183,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 nodeType: NodeType.AUTHOR,
                 community: raw.community?.toString() ?? '',
                 pagerank: raw.pagerank ?? 0,
-                centrality: raw.centrality ?? 0,
               } as AuthorNode;
 
             case NodeType.TWEET:

@@ -206,7 +206,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
                 nodeType: NodeType.AUTHOR,
                 community: raw.community?.toString() ?? '',
                 pagerank: raw.pagerank ?? 0,
-                centrality: raw.centrality ?? 0,
               } as AuthorNode;
 
             case NodeType.TWEET:
