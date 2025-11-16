@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,8 +33,18 @@ import org.springframework.stereotype.Service;
 public class AuthorService {
   private final AuthorRepository authorRepository;
 
+  private static final Set<String> STOP_WORDS =
+      Set.of(
+          "the", "and", "is", "in", "at", "of", "a", "an", "to", "with", "on", "for", "as", "by",
+          "that", "this", "these", "those", "are", "was", "were", "be", "been", "being", "or",
+          "but", "so", "if", "then", "there", "their", "they", "them", "he", "she", "it", "we",
+          "you", "i", "me", "my", "your", "his", "her", "its", "our", "us", "do", "does", "did",
+          "from", "about", "into", "up", "down", "out", "over", "under", "again", "further", "here",
+          "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most",
+          "other", "some", "such", "no", "nor", "only", "own", "same", "than", "too", "very", "can",
+          "will", "just", "http", "https", "rt", "co");
+
   public List<Tweet> findLast10TweetsByAuthor(String authorName) {
-    //        TODO: Check if this method works
     try {
       return authorRepository.findLast10TweetsByAuthorUsername(authorName);
     } catch (Exception e) {
@@ -110,33 +121,22 @@ public class AuthorService {
     return authorRepository.findRetweetsByAuthor(authorName);
   }
 
-  public List<String> findMostCommonWords(String authorName) {
-    //        TODO: Check if this method works
+  public Map<String, Long> findMostCommonWords(String authorName) {
     List<String> tweetsContent =
         Optional.ofNullable(authorRepository.findTweetsContentByAuthor(authorName))
             .orElse(Collections.emptyList());
 
-    Set<String> stopWords =
-        Set.of(
-            "the", "and", "is", "in", "at", "of", "a", "an", "to", "with", "on", "for", "as", "by",
-            "that", "this", "these", "those", "are", "was", "were", "be", "been", "being", "or",
-            "but", "so", "if", "then", "there", "their", "they", "them", "he", "she", "it", "we",
-            "you", "i", "me", "my", "your", "his", "her", "its", "our", "us", "do", "does", "did",
-            "from", "about", "into", "up", "down", "out", "over", "under", "again", "further",
-            "here", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more",
-            "most", "other", "some", "such", "no", "nor", "only", "own", "same", "than", "too",
-            "very", "can", "will", "just");
-
     return tweetsContent.stream()
-        .flatMap(tweet -> Arrays.stream(tweet.toLowerCase().split("\\W+")))
-        .filter(word -> !word.isEmpty() && !stopWords.contains(word) && word.length() > 2)
+        .flatMap(tweet -> Arrays.stream(tweet.toLowerCase().split("\\P{L}+")))
+        .filter(word -> !word.isEmpty() && !STOP_WORDS.contains(word) && word.length() >= 2)
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
         .entrySet()
         .stream()
         .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder()))
-        .limit(10)
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toList());
+        .limit(30)
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, LinkedHashMap::new));
   }
 
   public List<ViralTweetDto> findTheMostViralTweet(String authorName) {

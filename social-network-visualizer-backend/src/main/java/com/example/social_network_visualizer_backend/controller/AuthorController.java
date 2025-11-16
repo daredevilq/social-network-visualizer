@@ -60,7 +60,7 @@ public class AuthorController {
   }
 
   @GetMapping("/most-common-words/{authorName}")
-  public ResponseEntity<List<String>> getTweetsContent(@PathVariable String authorName) {
+  public ResponseEntity<Map<String, Long>> getTweetsContent(@PathVariable String authorName) {
     return ResponseEntity.ok(authorService.findMostCommonWords(authorName));
   }
 
