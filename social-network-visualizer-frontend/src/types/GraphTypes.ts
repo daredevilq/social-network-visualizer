@@ -25,7 +25,6 @@ export interface AuthorNode extends BaseNode {
   nodeType: NodeType.AUTHOR;
   community: string;
   pagerank: number;
-  centrality: number;
 }
 export interface TweetNode extends BaseNode {
   nodeType: NodeType.TWEET;

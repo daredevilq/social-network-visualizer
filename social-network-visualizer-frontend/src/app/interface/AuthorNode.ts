@@ -6,6 +6,5 @@ export interface AuthorNode {
   foreignId: string;
   bot: boolean | null;
   pagerank: number;
-  degreeCentrality: number;
   community: number;
 }
