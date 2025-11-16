@@ -1,5 +1,5 @@
 import { MenuItem } from '@/app/interface/Menu';
-import { AuthorNode, GraphLink, GraphNode, HashtagNode, TweetNode } from '@/types/GraphTypes';
+import { AuthorNode, GraphNode, HashtagNode, TweetNode } from '@/types/GraphTypes';
 import { ConnectionsIcon, HashtagIcon, HideIcon, ProfileIcon, TweetIcon } from '@/app/components/graphMenu/MenuIcons';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { useWorkspace } from '@/app/context/WorkspaceContext';

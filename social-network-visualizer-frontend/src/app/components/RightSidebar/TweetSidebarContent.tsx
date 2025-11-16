@@ -77,7 +77,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
         </div>
         <button
           onClick={onClose}
-          className="p-2 bg-[#32323F] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
+          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -88,7 +88,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
         <div className="h-40 bg-[#3D3D4E] rounded-lg animate-pulse" />
       ) : tweet ? (
         <div className="flex flex-col space-y-4 overflow-y-auto  scrollbar-none">
-          <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+          <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
             <h3 className="text-lg font-semibold mb-3">Author</h3>
 
             <div
@@ -126,7 +126,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
           <TweetCard tweet={tweet} hoverable={false} />
 
           {tweet.mentions && tweet.mentions.length > 0 && (
-            <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
               <h3 className="text-lg font-semibold mb-3">Mentioned Users</h3>
               <div className="flex flex-col space-y-2">
                 {tweet.mentions.map((user, i) => (
@@ -148,7 +148,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
           )}
 
           {tweet.replyToId && (
-            <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
               <div className="flex items-center justify-between mb-1">
                 <div>
                   <h3 className="text-lg font-semibold">Reply To</h3>

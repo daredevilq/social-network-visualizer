@@ -2,13 +2,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
-import { useProject } from '@/app/context/ProjectContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { ViralTweet } from '@/types/tweetTypes';
 import { UsersMentionedContainer } from '@/app/components/Analysis/User/UsersMentionedContainer';
 import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
 import { UserProfileContainer } from '@/app/components/Analysis/User/UserProfileContainer';
-import { ActivityTimelineContainer } from '@/app/components/Analysis/User/ActivityTimelineContainer';
+import ActivityTimelineContainer from '@/app/components/Analysis/User/ActivityTimelineContainer';
 import { TopHashtagsContainer } from '@/app/components/Analysis/User/TopHashtagsContainer';
 import { RetweetsByContainer } from '@/app/components/Analysis/User/RetweetsByContainer';
 import { RetweetsOfContainer } from '@/app/components/Analysis/User/RetweetsOfContainer';
@@ -42,10 +41,9 @@ export default function UserDetailsContainer({ username }: { username: string })
   const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
   const [userHeatMap, setUserHeatMap] = useState<ActivityHeatmap[]>([]);
   const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
-  const [mostCommonWords, setMostCommonWords] = useState<string[]>([]);
+  const [mostCommonWords, setMostCommonWords] = useState<{ [word: string]: number } | undefined>(undefined);
   const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { setSelectedUserData } = useProject();
   const [animatedStats, setAnimatedStats] = useState({
     tweetsCount: 0,
     retweetsCount: 0,
@@ -108,7 +106,7 @@ export default function UserDetailsContainer({ username }: { username: string })
     }
 
     fetchData();
-  }, [username, router, setSelectedUserData]);
+  }, [username, router]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -118,12 +116,6 @@ export default function UserDetailsContainer({ username }: { username: string })
       if (!userDataRes.ok) throw new Error('Failed to fetch user data');
       const data = await userDataRes.json();
       setUserData(data);
-
-      setSelectedUserData({
-        name: data.name,
-        community: data.community,
-        nodeType: data.nodeType,
-      });
 
       const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`);
       if (!activityRes.ok) throw new Error('Failed to load user data');

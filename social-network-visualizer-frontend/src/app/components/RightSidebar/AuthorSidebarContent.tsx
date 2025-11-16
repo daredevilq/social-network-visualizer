@@ -79,13 +79,13 @@ export function AuthorSidebarContent(props: AuthorSidebarContentProps) {
         </div>
         <button
           onClick={onClose}
-          className="p-2 bg-[#32323F] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
+          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
           aria-label="Close sidebar"
         >
           <X size={18} />
         </button>
       </div>
-      <div className="bg-[#32323F] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
+      <div className="bg-[#2A2D3D] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">User Statistics</h3>
           <button
@@ -128,7 +128,7 @@ export function AuthorSidebarContent(props: AuthorSidebarContentProps) {
         )}
       </div>
 
-      <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50 flex flex-col min-h-0">
+      <div className="bg-[#2A2D3D] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Last 3 Posts</h3>
           <button

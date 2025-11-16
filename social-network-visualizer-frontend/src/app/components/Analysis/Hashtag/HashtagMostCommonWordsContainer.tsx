@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import WordCloud from 'react-d3-cloud';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-interface MostCommonWordsProps {
+interface HashtagMostCommonWordsProps {
   words?: { [word: string]: number };
 }
 
 const colors = ['#FFFFFF', '#A5B4FC', '#CBD5E1', '#7140F4', '#BFDBFE'];
 const fill = (word: { originalFill: string }) => word.originalFill;
 
-export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
+export function HashtagMostCommonWordsContainer({ words }: HashtagMostCommonWordsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
 

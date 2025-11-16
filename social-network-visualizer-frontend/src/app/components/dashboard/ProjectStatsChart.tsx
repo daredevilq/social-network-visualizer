@@ -17,7 +17,7 @@ interface Props {
 export function ProjectStatsChart({ projectData }: Props) {
   if (!projectData) {
     return (
-      <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">
+      <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
         <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
           <PieChart className="w-5 h-5 mr-2" />
           Project Overview
@@ -61,7 +61,7 @@ export function ProjectStatsChart({ projectData }: Props) {
   };
 
   return (
-    <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">
+    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
       <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
         <PieChart className="w-5 h-5 mr-2" />
         Project Overview
