@@ -8,20 +8,16 @@ import com.example.social_network_visualizer_backend.dto.community.ActivityHeatm
 import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequency;
 import com.example.social_network_visualizer_backend.model.Tweet;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
+import com.example.social_network_visualizer_backend.utils.WordOccurrenceCounter;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,24 +27,15 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
-  private final AuthorRepository authorRepository;
+  private static final int WORDS_LIMIT = 30;
 
-  private static final Set<String> STOP_WORDS =
-      Set.of(
-          "the", "and", "is", "in", "at", "of", "a", "an", "to", "with", "on", "for", "as", "by",
-          "that", "this", "these", "those", "are", "was", "were", "be", "been", "being", "or",
-          "but", "so", "if", "then", "there", "their", "they", "them", "he", "she", "it", "we",
-          "you", "i", "me", "my", "your", "his", "her", "its", "our", "us", "do", "does", "did",
-          "from", "about", "into", "up", "down", "out", "over", "under", "again", "further", "here",
-          "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most",
-          "other", "some", "such", "no", "nor", "only", "own", "same", "than", "too", "very", "can",
-          "will", "just", "http", "https", "rt", "co");
+  private final AuthorRepository authorRepository;
 
   public List<Tweet> findLast10TweetsByAuthor(String authorName) {
     try {
       return authorRepository.findLast10TweetsByAuthorUsername(authorName);
     } catch (Exception e) {
-      log.error("Error with Last10Tweets: {}", e.getMessage());
+      log.error("Error while fetching Last 10 Tweets: {}", e.getMessage());
     }
     return List.of();
   }
@@ -125,18 +112,7 @@ public class AuthorService {
     List<String> tweetsContent =
         Optional.ofNullable(authorRepository.findTweetsContentByAuthor(authorName))
             .orElse(Collections.emptyList());
-
-    return tweetsContent.stream()
-        .flatMap(tweet -> Arrays.stream(tweet.toLowerCase().split("\\P{L}+")))
-        .filter(word -> !word.isEmpty() && !STOP_WORDS.contains(word) && word.length() >= 2)
-        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-        .entrySet()
-        .stream()
-        .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder()))
-        .limit(30)
-        .collect(
-            Collectors.toMap(
-                Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1, LinkedHashMap::new));
+    return WordOccurrenceCounter.countOccurrences(tweetsContent, WORDS_LIMIT);
   }
 
   public List<ViralTweetDto> findTheMostViralTweet(String authorName) {
