@@ -1,9 +1,9 @@
 import BaseMostCommonWordsContainer from '@/app/components/Analysis/BaseMostCommonWordsContainer';
 
-interface HashtagMostCommonWordsProps {
+interface MostCommonWordsProps {
   words?: { [word: string]: number };
 }
 
-export function HashtagMostCommonWordsContainer({ words }: HashtagMostCommonWordsProps) {
+export function UserMostCommonWordsContainer({ words }: MostCommonWordsProps) {
   return <BaseMostCommonWordsContainer words={words} title="Most Common Words" containerClassName="lg:col-span-2" />;
 }

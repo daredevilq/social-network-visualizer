@@ -1,14 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import WordCloud from 'react-d3-cloud';
 
-interface MostCommonWordsProps {
-  words?: { [word: string]: number };
-}
-
 const colors = ['#FFFFFF', '#A5B4FC', '#CBD5E1', '#7140F4', '#BFDBFE'];
 const fill = (word: { originalFill: string }) => word.originalFill;
 
-export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
+interface WordData {
+  text: string;
+  value: number;
+  originalFill: string;
+}
+
+interface BaseMostCommonWordsProps {
+  words?: { [word: string]: number };
+  title: string;
+  containerClassName?: string;
+}
+
+export default function BaseMostCommonWordsContainer({ words, title, containerClassName = '' }: BaseMostCommonWordsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
 
@@ -34,7 +42,7 @@ export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
     };
   }, []);
 
-  const transformedWords = useMemo(() => {
+  const transformedWords: WordData[] = useMemo(() => {
     if (!words) return [];
     return Object.entries(words).map(([text, value], index) => ({
       text,
@@ -51,7 +59,7 @@ export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
     const minFontSize = 14;
     const maxFontSize = Math.min(size.height / 4, 80);
     const counts = transformedWords.map((w) => w.value);
-    const minVal = Math.max(1, Math.min(...counts));
+    const minVal = Math.max(1, Math.min(...counts)); // Unikamy log(0)
     const maxVal = Math.max(...counts);
 
     const minLog = Math.log2(minVal);
@@ -70,8 +78,8 @@ export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
 
   if (!words) {
     return (
-      <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg lg:col-span-2 border border-gray-700/50">
-        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">Most Common Words</h2>
+      <div className={`bg-[#2A2D3D] rounded-xl p-6 shadow-lg border border-gray-700/50 ${containerClassName}`}>
+        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">{title}</h2>
         <div ref={containerRef} className="h-80 flex items-center justify-center">
           <p className="text-gray-400 animate-pulse">Generating word cloud...</p>
         </div>
@@ -80,8 +88,8 @@ export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
   }
 
   return (
-    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg lg:col-span-2 border border-gray-700/50">
-      <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">Most Common Words</h2>
+    <div className={`bg-[#2A2D3D] rounded-xl p-6 shadow-lg border border-gray-700/50 ${containerClassName}`}>
+      <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">{title}</h2>
 
       <div ref={containerRef} className="h-80 w-full overflow-hidden">
         {transformedWords.length > 0 ? (
@@ -96,13 +104,11 @@ export function MostCommonWordsContainer({ words }: MostCommonWordsProps) {
               padding={2}
               rotate={0}
               fontSize={dynamicFontSizeMapper}
-              onWordMouseOver={(event, d) => {
-                const target = event.target as SVGElement;
-                target.style.cursor = 'pointer';
+              onWordMouseOver={(event) => {
+                (event.target as SVGElement).style.cursor = 'pointer';
               }}
-              onWordMouseOut={(event, d) => {
-                const target = event.target as SVGElement;
-                target.style.cursor = 'default';
+              onWordMouseOut={(event) => {
+                (event.target as SVGElement).style.cursor = 'default';
               }}
             />
           )

@@ -60,7 +60,6 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
 
   const showDetails = () => {
     if (selectedUserData) {
-      console.log('tu jestem');
       router.push(`/hashtag-details/${selectedUserData.name}`);
     }
   };

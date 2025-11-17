@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
@@ -14,7 +14,7 @@ import { RetweetsOfContainer } from '@/app/components/Analysis/User/RetweetsOfCo
 import { HashtagActivityContainer } from '@/app/components/Analysis/User/HashtagActivityContainer';
 import { ActivityHeatmap } from '@/app/interface/ActivityHeatmap';
 import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
-import { MostCommonWordsContainer } from './MostCommonWordsContainer';
+import { UserMostCommonWordsContainer } from './UserMostCommonWordsContainer';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 
@@ -29,75 +29,46 @@ interface HashtagActivity {
   frequency: number;
 }
 
+interface DashboardData {
+  userData: UserData | null;
+  userActivity: UserActivity | null;
+  userMentions: string[];
+  viralTweets: ViralTweet[];
+  topHashtags: HashtagActivity[];
+  userHeatMap: ActivityHeatmap[];
+  retweetedUsers: string[];
+  mostCommonWords: { [word: string]: number } | undefined;
+  retweetingUsers: string[];
+}
+
+const INITIAL_STATE: DashboardData = {
+  userData: null,
+  userActivity: null,
+  userMentions: [],
+  viralTweets: [],
+  topHashtags: [],
+  userHeatMap: [],
+  retweetedUsers: [],
+  mostCommonWords: undefined,
+  retweetingUsers: [],
+};
+
 const CHART_BACKGROUND_COLOR = 'rgba(92, 55, 230, 0.8)';
 const CHART_BORDER_COLOR = 'rgba(92, 55, 230, 1)';
 
 export default function UserDetailsContainer({ username }: { username: string }) {
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [userActivity, setUserActivity] = useState<UserActivity | null>(null);
-  const [userMentions, setUserMentions] = useState<string[]>([]);
-  const [viralTweets, setViralTweets] = useState<ViralTweet[]>([]);
-  const [topHashtags, setTopHashtags] = useState<HashtagActivity[]>([]);
-  const [userHeatMap, setUserHeatMap] = useState<ActivityHeatmap[]>([]);
-  const [retweetedUsers, setRetweetedUsers] = useState<string[]>([]);
-  const [mostCommonWords, setMostCommonWords] = useState<{ [word: string]: number } | undefined>(undefined);
-  const [retweetingUsers, setRetweetingUsers] = useState<string[]>([]);
+  const [data, setData] = useState<DashboardData>(INITIAL_STATE);
   const [loading, setLoading] = useState<boolean>(true);
-  const [animatedStats, setAnimatedStats] = useState({
-    tweetsCount: 0,
-    retweetsCount: 0,
-    repliesCount: 0,
-    quotesCount: 0,
-    averageLikesCount: 0,
-    averageRepliesCount: 0,
-    averageRetweetsCount: 0,
-  });
-  const animationStarted = useRef(false);
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    if (userData && !loading && !animationStarted.current) {
-      animationStarted.current = true;
-
-      const targets = {
-        tweetsCount: userData.tweetsCount,
-        retweetsCount: userData.retweetsCount,
-        repliesCount: userData.repliesCount,
-        quotesCount: userData.quotesCount,
-        averageLikesCount: userData.averageLikesCount,
-        averageRepliesCount: userData.averageRepliesCount,
-        averageRetweetsCount: userData.averageRetweetsCount,
-      };
-
-      const duration = 1500;
-      const steps = 60;
-      const interval = duration / steps;
-      let currentStep = 0;
-
-      const timer = setInterval(() => {
-        currentStep++;
-        const progress = currentStep / steps;
-
-        setAnimatedStats({
-          tweetsCount: Math.round(targets.tweetsCount * progress),
-          retweetsCount: Math.round(targets.retweetsCount * progress),
-          repliesCount: Math.round(targets.repliesCount * progress),
-          quotesCount: Math.round(targets.quotesCount * progress),
-          averageLikesCount: Math.round(targets.averageLikesCount * progress * 100) / 100,
-          averageRepliesCount: Math.round(targets.averageRepliesCount * progress * 100) / 100,
-          averageRetweetsCount: Math.round(targets.averageRetweetsCount * progress * 100) / 100,
-        });
-
-        if (currentStep >= steps) {
-          clearInterval(timer);
-          setAnimatedStats(targets);
-        }
-      }, interval);
-
-      return () => clearInterval(timer);
+    if (!username) {
+      router.push('/');
+      return;
     }
-  }, [userData, loading]);
+    fetchData();
+  }, [username, router]);
 
   useEffect(() => {
     if (!username) {
@@ -110,52 +81,75 @@ export default function UserDetailsContainer({ username }: { username: string })
 
   const fetchData = async () => {
     setLoading(true);
+    const endpointNames = [
+      'UserData',
+      'Activity',
+      'Mentions',
+      'Hashtags',
+      'RetweetsBy',
+      'RetweetsOf',
+      'ViralTweets',
+      'CommonWords',
+      'HeatMap',
+    ];
+
+    const endpoints = {
+      userData: `${API_BASE_URL}/author/${username}`,
+      userActivity: `${API_BASE_URL}/author/activity/${username}`,
+      userMentions: `${API_BASE_URL}/author/mentions/${username}`,
+      topHashtags: `${API_BASE_URL}/author/hashtags/${username}`,
+      retweetedUsers: `${API_BASE_URL}/author/retweets-by/${username}`,
+      retweetingUsers: `${API_BASE_URL}/author/retweets-of/${username}`,
+      viralTweets: `${API_BASE_URL}/author/viral-tweets/${username}`,
+      mostCommonWords: `${API_BASE_URL}/author/most-common-words/${username}`,
+      userHeatMap: `${API_BASE_URL}/author/heatmap/${username}`,
+    };
 
     try {
-      const userDataRes = await fetch(`${API_BASE_URL}/author/${username}`);
-      if (!userDataRes.ok) throw new Error('Failed to fetch user data');
-      const data = await userDataRes.json();
-      setUserData(data);
+      const results = await Promise.allSettled([
+        fetch(endpoints.userData),
+        fetch(endpoints.userActivity),
+        fetch(endpoints.userMentions),
+        fetch(endpoints.topHashtags),
+        fetch(endpoints.retweetedUsers),
+        fetch(endpoints.retweetingUsers),
+        fetch(endpoints.viralTweets),
+        fetch(endpoints.mostCommonWords),
+        fetch(endpoints.userHeatMap),
+      ]);
 
-      const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`);
-      if (!activityRes.ok) throw new Error('Failed to load user data');
-      const activity = await activityRes.json();
-      setUserActivity(activity);
+      const responses = await Promise.all(
+        results.map(async (result, index) => {
+          const currentEndpointName = endpointNames[index];
 
-      const mentionsRes = await fetch(`${API_BASE_URL}/author/mentions/${username}`);
-      if (!mentionsRes.ok) throw new Error('Failed to load user data');
-      const mentions = await mentionsRes.json();
-      setUserMentions(mentions);
+          if (result.status === 'fulfilled' && result.value.ok) {
+            try {
+              return await result.value.json();
+            } catch (e) {
+              console.error(`JSON parse error for index ${index}`);
+              return null;
+            }
+          }
+          if (result.status === 'rejected') {
+            console.error(`Fetch failed for endpoint: ${currentEndpointName}`, result.reason);
+          } else if (result.status === 'fulfilled' && !result.value.ok) {
+            console.error(`Fetch error status: ${result.value.status} for endpoint: ${currentEndpointName}`);
+          }
+          return null;
+        })
+      );
 
-      const topHashtagsRes = await fetch(`${API_BASE_URL}/author/hashtags/${username}`);
-      if (!topHashtagsRes.ok) throw new Error('Failed to load user data');
-      const topHashtagsData = await topHashtagsRes.json();
-      setTopHashtags(topHashtagsData);
-
-      const retweetsByRes = await fetch(`${API_BASE_URL}/author/retweets-by/${username}`);
-      if (!retweetsByRes.ok) throw new Error('Failed to load user data');
-      const retweetsByData = await retweetsByRes.json();
-      setRetweetedUsers(retweetsByData);
-
-      const retweetsOfRes = await fetch(`${API_BASE_URL}/author/retweets-of/${username}`);
-      if (!retweetsOfRes.ok) throw new Error('Failed to load user data');
-      const retweetsOfData = await retweetsOfRes.json();
-      setRetweetingUsers(retweetsOfData);
-
-      const viralTweetsRes = await fetch(`${API_BASE_URL}/author/viral-tweets/${username}`);
-      if (!viralTweetsRes.ok) throw new Error('Failed to load user data');
-      const viralTweetsData = await viralTweetsRes.json();
-      setViralTweets(viralTweetsData);
-
-      const mostCommonWordsRes = await fetch(`${API_BASE_URL}/author/most-common-words/${username}`);
-      if (!mostCommonWordsRes.ok) throw new Error('Failed to load user data');
-      const mostCommonWordsData = await mostCommonWordsRes.json();
-      setMostCommonWords(mostCommonWordsData);
-
-      const userHeatMapRes = await fetch(`${API_BASE_URL}/author/heatmap/${username}`);
-      if (!userHeatMapRes.ok) throw new Error('Failed to load user data');
-      const userHeatMapData: ActivityHeatmap[] = (await userHeatMapRes.json()) as ActivityHeatmap[];
-      setUserHeatMap(userHeatMapData);
+      setData({
+        userData: responses[0],
+        userActivity: responses[1] || null,
+        userMentions: responses[2] || [],
+        topHashtags: responses[3] || [],
+        retweetedUsers: responses[4] || [],
+        retweetingUsers: responses[5] || [],
+        viralTweets: responses[6] || [],
+        mostCommonWords: responses[7] || undefined,
+        userHeatMap: responses[8] || [],
+      });
     } catch (err: any) {
       const message = err?.message || 'Unexpected error occurred while fetching user data';
       showNotification(message, BannerType.ERROR);
@@ -165,11 +159,11 @@ export default function UserDetailsContainer({ username }: { username: string })
   };
 
   const chartData = {
-    labels: userActivity ? Object.keys(userActivity) : [],
+    labels: data.userActivity ? Object.keys(data.userActivity) : [],
     datasets: [
       {
         label: 'User Activity',
-        data: userActivity ? Object.values(userActivity) : [],
+        data: data.userActivity ? Object.values(data.userActivity) : [],
         backgroundColor: CHART_BACKGROUND_COLOR,
         borderColor: CHART_BORDER_COLOR,
         borderWidth: 1,
@@ -223,16 +217,16 @@ export default function UserDetailsContainer({ username }: { username: string })
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <UserProfileContainer userData={userData} animatedStats={animatedStats} />
-            <ActivityTimelineContainer userActivity={userActivity} chartData={chartData} />
-            <HeatMapChartCard heat={userHeatMap} />
-            <TopHashtagsContainer topHashtags={topHashtags} />
-            <UsersMentionedContainer userMentions={userMentions} message={'Users Mentioned by this User'} />
-            <RetweetsByContainer retweetedUsers={retweetedUsers} />
-            <RetweetsOfContainer retweetingUsers={retweetingUsers} />
-            <HashtagActivityContainer topHashtags={topHashtags} />
-            <MostCommonWordsContainer words={mostCommonWords} />
-            <ViralTweetsContainer viralTweets={viralTweets} />
+            <UserProfileContainer userData={data.userData} />
+            <ActivityTimelineContainer userActivity={data.userActivity} chartData={chartData} />
+            <HeatMapChartCard heat={data.userHeatMap} />
+            <TopHashtagsContainer topHashtags={data.topHashtags} />
+            <UsersMentionedContainer userMentions={data.userMentions} message={'Users Mentioned by this User'} />
+            <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
+            <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
+            <HashtagActivityContainer topHashtags={data.topHashtags} />
+            <UserMostCommonWordsContainer words={data.mostCommonWords} />
+            <ViralTweetsContainer viralTweets={data.viralTweets} />
           </div>
         )}
       </div>
