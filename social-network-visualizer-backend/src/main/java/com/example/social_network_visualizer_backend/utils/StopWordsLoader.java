@@ -40,7 +40,6 @@ public class StopWordsLoader {
   }
 
   public static Set<String> getStopWords() {
-    System.out.println("Loaded " + STOP_WORDS_CACHE);
     return STOP_WORDS_CACHE;
   }
 }

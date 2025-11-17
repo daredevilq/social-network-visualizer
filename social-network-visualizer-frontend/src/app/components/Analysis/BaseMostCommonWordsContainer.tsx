@@ -59,7 +59,7 @@ export default function BaseMostCommonWordsContainer({ words, title, containerCl
     const minFontSize = 14;
     const maxFontSize = Math.min(size.height / 4, 80);
     const counts = transformedWords.map((w) => w.value);
-    const minVal = Math.max(1, Math.min(...counts)); // Unikamy log(0)
+    const minVal = Math.max(1, Math.min(...counts));
     const maxVal = Math.max(...counts);
 
     const minLog = Math.log2(minVal);
