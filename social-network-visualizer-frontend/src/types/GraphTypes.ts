@@ -26,7 +26,6 @@ export interface AuthorNode extends BaseNode {
   nodeType: NodeType.AUTHOR;
   community: string;
   pagerank: number;
-  centrality: number;
 }
 export interface TweetNode extends BaseNode {
   nodeType: NodeType.TWEET;
@@ -64,6 +63,7 @@ export interface GraphLink extends LinkObject {
   source: string;
   target: string;
   relation: RelationType;
+  weight: number;
 }
 
 export interface GraphProps {

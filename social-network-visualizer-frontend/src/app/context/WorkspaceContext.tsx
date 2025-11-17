@@ -27,6 +27,8 @@ interface WorkspaceContextType {
   setWorkspaces: React.Dispatch<React.SetStateAction<string[]>>;
   refreshWorkspaces: (projectName: string) => void;
   createWorkspace: (workspaceName: string) => Promise<void>;
+  exportWorkspace: (workspaceName: string) => Promise<void>;
+  importWorkspace: (file: File) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType>({
@@ -47,6 +49,8 @@ const WorkspaceContext = createContext<WorkspaceContextType>({
   setWorkspaces: () => {},
   refreshWorkspaces: () => {},
   createWorkspace: async () => {},
+  exportWorkspace: async () => {},
+  importWorkspace: async () => {},
 });
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -57,7 +61,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { runWithLoading, loadedProjectName } = useProject();
+  const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setShortestPath, setFocusedCommunityId, setSelectedUserData } =
+    useProject();
   const { saveCurrentGraphData } = useSaveWorkspaceChanges();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -68,6 +73,15 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const [workspaces, setWorkspaces] = useState<string[]>([]);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+    setNodeFound(null);
+    setShortestPath([]);
+    setFocusedCommunityId(undefined);
+    setSelectedUserData(null);
+    setHasUnsavedChanges(false);
+  }, [openedWorkspaceName, loadedProjectName]);
 
   useEffect(() => {
     fetchWorkspaceData();
@@ -170,7 +184,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 nodeType: NodeType.AUTHOR,
                 community: raw.community?.toString() ?? '',
                 pagerank: raw.pagerank ?? 0,
-                centrality: raw.centrality ?? 0,
               } as AuthorNode;
 
             case NodeType.TWEET:
@@ -310,6 +323,97 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     await loadWorkspace(workspaceName);
   };
 
+  const exportWorkspace = async (workspaceName: string) => {
+    if (!loadedProjectName) {
+      showNotification('No project loaded', BannerType.ERROR);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/${workspaceName}/export`);
+
+      if (!res.ok) {
+        throw new Error(`Failed to export workspace: ${res.status} ${res.statusText}`);
+      }
+
+      const workspaceData = await res.json();
+      const dataStr = JSON.stringify(workspaceData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${workspaceName}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showNotification(`Workspace "${workspaceName}" exported successfully.`, BannerType.SUCCESS);
+    } catch (err: any) {
+      showNotification(`Export error: ${err.message}`, BannerType.ERROR);
+    }
+  };
+
+  const importWorkspace = async (file: File) => {
+    if (!loadedProjectName) {
+      showNotification('No project loaded. Please load a project first.', BannerType.ERROR);
+      return;
+    }
+
+    if (!file.name.endsWith('.json')) {
+      showNotification('Only JSON files are allowed', BannerType.ERROR);
+      return;
+    }
+
+    await runWithLoading(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch(`${API_BASE_URL}/project/${loadedProjectName}/workspace/import`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          showNotification(errorData.error || 'Failed to import workspace', BannerType.ERROR);
+          return;
+        }
+
+        const result = await res.json();
+
+        const { workspaceName, totalNodes, importedNodes, totalEdges, importedEdges } = result;
+
+        const isPartialImport = totalNodes > importedNodes || totalEdges > importedEdges;
+        const noDataImported = importedNodes === 0 && importedEdges === 0;
+
+        let message: string;
+        let bannerType: BannerType;
+
+        if (noDataImported) {
+          message = 'Failed to import workspace: No valid nodes or edges found in the database.';
+          bannerType = BannerType.ERROR;
+        } else if (isPartialImport) {
+          message = `Workspace '${workspaceName}' partially imported: ${importedNodes}/${totalNodes} nodes and ${importedEdges}/${totalEdges} edges. Some items were skipped.`;
+          bannerType = BannerType.WARNING;
+        } else {
+          message = `Workspace '${workspaceName}' successfully imported with ${importedNodes} nodes and ${importedEdges} edges.`;
+          bannerType = BannerType.SUCCESS;
+        }
+
+        showNotification(message, bannerType);
+
+        if (bannerType === BannerType.SUCCESS || bannerType === BannerType.WARNING) {
+          await refreshWorkspaces(loadedProjectName);
+          await loadWorkspace(workspaceName);
+        }
+      } catch (err: any) {
+        showNotification(`Import error: ${err.message || 'Unknown error occurred'}`, BannerType.ERROR);
+      }
+    });
+  };
+
   return (
     <WorkspaceContext.Provider
       value={{
@@ -330,6 +434,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setWorkspaces,
         refreshWorkspaces,
         createWorkspace,
+        exportWorkspace,
+        importWorkspace,
       }}
     >
       {children}

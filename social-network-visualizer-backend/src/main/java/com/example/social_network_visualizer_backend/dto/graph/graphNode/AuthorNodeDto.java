@@ -13,6 +13,5 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthorNodeDto extends NodeDto {
   private Double pagerank;
-  private Double centrality;
   private Integer community;
 }

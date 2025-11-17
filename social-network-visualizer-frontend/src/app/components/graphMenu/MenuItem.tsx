@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronRightIcon } from 'lucide-react';
 import { MenuItemComponentProps } from '@/app/interface/Menu';
 
-const MenuItem: React.FC<MenuItemComponentProps> = ({ label, icon, onMenuItemClick, isActive = false, submenu, onItemActivated }) => {
+const MenuItem: React.FC<MenuItemComponentProps> = ({
+  label,
+  icon,
+  onMenuItemClick,
+  isActive = false,
+  submenu,
+  onItemActivated,
+  isDisabled,
+}) => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
@@ -10,20 +18,21 @@ const MenuItem: React.FC<MenuItemComponentProps> = ({ label, icon, onMenuItemCli
 
   const baseClasses = 'flex items-center gap-3 px-3 py-1.5 text-sm transition-colors duration-150 rounded-md mx-1';
   const stateClasses = isActive ? 'text-neutral-100 bg-[#3f3f4d] cursor-pointer' : 'text-neutral-200 hover:bg-[#3f3f4d] cursor-pointer';
+  const disabledClasses = isDisabled ? 'text-neutral-500 cursor-not-allowed hover:bg-transparent opacity-70' : '';
 
   const hasSubmenu = submenu && submenu.length > 0;
 
   const handleClick = () => {
+    if (isDisabled) return;
     if (hasSubmenu) {
       setShowSubmenu(!showSubmenu);
-    } else {
-      if (onMenuItemClick) {
-        onItemActivated(onMenuItemClick);
-      }
+    } else if (onMenuItemClick) {
+      onItemActivated(onMenuItemClick);
     }
   };
 
   const handleMouseEnter = () => {
+    if (isDisabled) return;
     if (hasSubmenu) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -33,6 +42,7 @@ const MenuItem: React.FC<MenuItemComponentProps> = ({ label, icon, onMenuItemCli
   };
 
   const handleMouseLeave = () => {
+    if (isDisabled) return;
     if (hasSubmenu) {
       timeoutRef.current = setTimeout(() => {
         setShowSubmenu(false);
@@ -90,24 +100,25 @@ const MenuItem: React.FC<MenuItemComponentProps> = ({ label, icon, onMenuItemCli
   return (
     <div
       ref={itemRef}
-      className={`${baseClasses} ${stateClasses} relative`}
+      className={`${baseClasses} ${stateClasses} ${disabledClasses} relative`}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       role="menuitem"
+      aria-disabled={isDisabled}
     >
       {icon && <span className="text-neutral-400">{icon}</span>}
       <span className="flex-1">{label}</span>
       {hasSubmenu && (
-        <span className="text-neutral-400">
+        <span className={`text-neutral-400 ${isDisabled ? 'opacity-40' : ''}`}>
           <ChevronRightIcon />
         </span>
       )}
 
-      {hasSubmenu && showSubmenu && (
+      {hasSubmenu && showSubmenu && !isDisabled && (
         <div
           ref={submenuRef}
-          className="absolute min-w-[200px] animate-fade-in-scale rounded-lg shadow-2xl bg-[#262631] border border-[#3f3f4d] py-1.5 z-[60]"
+          className="absolute w-[240px] animate-fade-in-scale rounded-lg shadow-2xl bg-[#262631] border border-[#3f3f4d] py-1.5 z-[60]"
           onMouseEnter={handleSubmenuMouseEnter}
           onMouseLeave={handleSubmenuMouseLeave}
           onClick={(e) => e.stopPropagation()}

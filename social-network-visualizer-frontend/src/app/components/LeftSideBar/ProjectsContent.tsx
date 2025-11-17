@@ -14,8 +14,10 @@ import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
+import WorkspaceImportModal from '@/app/components/Popups/WorkspaceImportModal';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
+import { CloudUploadIcon, PlusIcon } from '@/app/components/icons/Icons';
 
 type DeleteTarget = {
   type: 'project' | 'workspace';
@@ -34,11 +36,14 @@ export default function ProjectsContent() {
     setWorkspaces,
     refreshWorkspaces,
     createWorkspace,
+    exportWorkspace,
+    importWorkspace,
   } = useWorkspace();
   const { showNotification } = useNotification();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
+  const [importWorkspaceModalOpen, setImportWorkspaceModalOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
   const [editTarget, setEditTarget] = useState<string | null>(null);
@@ -178,6 +183,7 @@ export default function ProjectsContent() {
                     <WorkspaceActionMenu
                       disabled={loading}
                       onDelete={() => runWithUnsavedCheck(async () => askDeleteWorkspace(workspace))}
+                      onExport={() => exportWorkspace(workspace)}
                     />
                   </div>
                 ))}
@@ -185,10 +191,18 @@ export default function ProjectsContent() {
                   <button
                     disabled={loading}
                     onClick={() => runWithUnsavedCheck(async () => setCreateWorkspaceModalOpen(true))}
-                    className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white"
+                    className="flex items-center w-full hover:text-[#7140F4] transition-colors duration-300 ease-in-out text-white"
                   >
-                    <img src="/icons/leftSideBar/plus_icon.png" className="w-4 h-4 mr-2" alt="Add" />
-                    <span>Add workspace</span>
+                    <PlusIcon className="w-4 h-4 mr-2 group-hover:text-[#7140F4] transition-colors" />
+                    <span>Add new workspace</span>
+                  </button>
+                  <button
+                    disabled={loading}
+                    onClick={() => runWithUnsavedCheck(async () => setImportWorkspaceModalOpen(true))}
+                    className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out text-white mt-2"
+                  >
+                    <CloudUploadIcon className="w-4 h-4 mr-2" />
+                    <span>Import workspace</span>
                   </button>
                 </div>
               </div>
@@ -202,7 +216,7 @@ export default function ProjectsContent() {
             onClick={() => runWithUnsavedCheck(async () => setCreateProjectModalOpen(true))}
             className="flex items-center w-full hover:text-[#7140F4] hover:cursor-pointer transition-colors duration-300 ease-in-out"
           >
-            <img src="/icons/leftSideBar/plus_icon.png" className="w-5 h-5 mr-2" alt="Add" />
+            <PlusIcon className="w-5 h-5 mr-2 group-hover:text-[#7140F4] transition-colors" />
             <span>Upload project</span>
           </button>
         </div>
@@ -235,6 +249,15 @@ export default function ProjectsContent() {
           setCreateWorkspaceModalOpen(false);
         }}
         workspaceList={workspaces}
+      />
+
+      <WorkspaceImportModal
+        open={importWorkspaceModalOpen}
+        onCancel={() => setImportWorkspaceModalOpen(false)}
+        onImport={async (file: File) => {
+          await importWorkspace(file);
+          setImportWorkspaceModalOpen(false);
+        }}
       />
 
       <ConfirmModal

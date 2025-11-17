@@ -65,7 +65,7 @@ public class Neo4jService {
     relationshipRepository.createRelationshipAuthorsShareHashtag();
     relationshipRepository.createQuoteRelationships();
     relationshipRepository.createRetweetRelationships();
-    relationshipRepository.createReplyTotRelationships();
+    relationshipRepository.createReplyToRelationships();
     relationshipRepository.createIndexForCommunity();
   }
 

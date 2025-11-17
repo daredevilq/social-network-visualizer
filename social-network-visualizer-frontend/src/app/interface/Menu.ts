@@ -12,6 +12,7 @@ export interface MenuItem {
   isActive?: boolean;
   isSeparator?: boolean;
   submenu?: MenuItem[];
+  isDisabled?: boolean;
 }
 
 export interface MenuState {

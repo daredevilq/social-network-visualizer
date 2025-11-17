@@ -31,6 +31,7 @@ const MenuComponent: React.FC<MenuComponentProps> = ({ items, position, onClose 
               isActive={menuItem.isActive}
               submenu={menuItem.submenu}
               onItemActivated={handleItemClickAndCloseMenu}
+              isDisabled={!!menuItem.isDisabled}
             />
           </React.Fragment>
         ))}
