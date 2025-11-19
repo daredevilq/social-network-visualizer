@@ -63,7 +63,8 @@ public class GraphMenuService {
           communityAuthors.forEach(
               commAuthor -> {
                 NodeDto authorNode = new NodeDto();
-                authorNode.setId(commAuthor.getUserName());
+                authorNode.setId(commAuthor.getId());
+                authorNode.setName(commAuthor.getName());
                 authorNode.setNodeType(NodeType.AUTHOR);
                 workspaceService.updateWorkspaceMembership(authorNode, true);
               });

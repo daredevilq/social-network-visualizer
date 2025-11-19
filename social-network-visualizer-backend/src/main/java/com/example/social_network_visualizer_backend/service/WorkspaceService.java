@@ -263,10 +263,8 @@ public class WorkspaceService {
 
     switch (node.getNodeType()) {
       case NodeType.AUTHOR:
-        // For Author, @Id is userName, not id field
-        // node.getName() contains the userName (human-readable identifier)
         authorRepository
-            .findAuthorByUserName(node.getName())
+            .findAuthorById(node.getId())
             .ifPresentOrElse(
                 author -> {
                   author.setIsInWorkspace(isInWorkspace);
@@ -288,13 +286,13 @@ public class WorkspaceService {
 
       case NodeType.HASHTAG:
         hashtagRepository
-            .findHashtagByHashtag((node.getName()))
+            .findHashtagById((node.getId()))
             .ifPresentOrElse(
                 hashtag -> {
                   hashtag.setIsInWorkspace(isInWorkspace);
                   hashtagRepository.save(hashtag);
                 },
-                () -> log.warn("Hashtag not found: {}", node.getId()));
+                () -> log.warn("Hashtag not found: {}", node.getName()));
         break;
 
       default:

@@ -109,8 +109,8 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
   @Query(
       """
                     MATCH (h:Hashtag)
-                    WHERE h.hashtag = $hashtag
+                    WHERE h.id = $hashtagId
                     RETURN h
                 """)
-  Optional<Hashtag> findHashtagByHashtag(@Param("hashtag") String hashtag);
+  Optional<Hashtag> findHashtagById(@Param("hashtagId") String hashtagId);
 }

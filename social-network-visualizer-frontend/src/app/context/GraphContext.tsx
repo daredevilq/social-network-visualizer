@@ -60,11 +60,13 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const response = await fetch(`${API_BASE_URL}/graph/menu/membership?add=true`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: node.id,
-          name: node.name,
-          nodeType: node.nodeType,
-        }),
+        body: JSON.stringify([
+          {
+            id: node.id,
+            name: node.name,
+            nodeType: node.nodeType,
+          },
+        ]),
       });
 
       if (!response.ok) {
