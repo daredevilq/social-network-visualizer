@@ -28,6 +28,7 @@ public class NodeDto {
   public Map<String, String> convertToMap() {
     Map<String, String> map = new HashMap<>();
     map.put("id", this.getId());
+    map.put("name", this.getName());
     map.put("nodeType", this.getNodeType().toString());
     return map;
   }

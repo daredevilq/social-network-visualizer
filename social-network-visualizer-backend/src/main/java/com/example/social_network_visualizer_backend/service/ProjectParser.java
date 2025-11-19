@@ -35,6 +35,7 @@ public class ProjectParser {
   private final TweetRelationService tweetRelationService;
   private final ProjectRepository projectRepository;
   private final GridFsService gridFsService;
+  private final String sufixId = "25c927ca-a6e2-49da-898f-f83290126150";
 
   @Transactional
   public int parseDirectory(String projectName) {
@@ -273,7 +274,7 @@ public class ProjectParser {
 
   private Map<String, Object> buildHashtagNode(String hashtagStr) {
     Map<String, Object> map = new HashMap<>();
-    map.put("id", UUID.randomUUID().toString());
+    map.put("id", hashtagStr + sufixId);
     map.put("hashtag", hashtagStr);
     map.put("isInWorkspace", false);
     return map;

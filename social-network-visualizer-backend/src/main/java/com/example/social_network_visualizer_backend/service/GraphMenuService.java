@@ -210,7 +210,7 @@ public class GraphMenuService {
     hashtags.forEach(
         hashtag -> {
           List<AuthorNodeDto> authors =
-              graphMenuRepository.findTopAuthorsByHashtagName(hashtag.getId());
+              graphMenuRepository.findTopAuthorsByHashtagId(hashtag.getId());
           authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -218,8 +218,7 @@ public class GraphMenuService {
   public void addTopTweetsByHashtags(List<HashtagNodeDto> hashtags) {
     hashtags.forEach(
         hashtag -> {
-          List<TweetNodeDto> tweets =
-              graphMenuRepository.findTopTweetsByHashtagName(hashtag.getId());
+          List<TweetNodeDto> tweets = graphMenuRepository.findTopTweetsByHashtagId(hashtag.getId());
           tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }

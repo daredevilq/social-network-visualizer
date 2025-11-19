@@ -223,7 +223,7 @@ public interface CommunityRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
-    MATCH (a:Author {userName: $authorId})
+    MATCH (a:Author {id: $authorId})
     RETURN coalesce(a.community, '') AS communityId
     """)
   Optional<Integer> findCommunityIdByAuthorId(@Param("authorId") String authorId);

@@ -53,7 +53,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 UNION
 
                 MATCH (t:Tweet)-[r]->(h:Hashtag)
-                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN t.id AS source, h.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
@@ -149,14 +149,14 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 UNWIND $edges AS edge
-                OPTIONAL MATCH (source:Author {userName: edge.source})
+                OPTIONAL MATCH (source:Author {id: edge.source})
                 OPTIONAL MATCH (source2:Tweet {id: edge.source})
-                OPTIONAL MATCH (source3:Hashtag {hashtag: edge.source})
+                OPTIONAL MATCH (source3:Hashtag {id: edge.source})
                 WITH edge, COALESCE(source, source2, source3) AS sourceNode
 
-                OPTIONAL MATCH (target:Author {userName: edge.target})
+                OPTIONAL MATCH (target:Author {id: edge.target})
                 OPTIONAL MATCH (target2:Tweet {id: edge.target})
-                OPTIONAL MATCH (target3:Hashtag {hashtag: edge.target})
+                OPTIONAL MATCH (target3:Hashtag {id: edge.target})
                 WITH edge, sourceNode, COALESCE(target, target2, target3) AS targetNode
 
                 WHERE sourceNode IS NOT NULL AND targetNode IS NOT NULL
@@ -173,20 +173,22 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
       """
                 UNWIND $nodes AS node
                 WITH node.id AS nodeId, node.nodeType AS nodeType
-                OPTIONAL MATCH (a:Author {userName: nodeId})
+                OPTIONAL MATCH (a:Author {id: nodeId})
                 WHERE nodeType = 'AUTHOR' AND a IS NOT NULL
 
-                WITH nodeId, nodeType, a.userName AS authorId
+                WITH nodeId, nodeType, a.id AS authorId, a.userName AS authorName
                 OPTIONAL MATCH (t:Tweet {id: nodeId})
                 WHERE nodeType = 'TWEET' AND t IS NOT NULL
 
-                WITH nodeId, nodeType, authorId, t.id AS tweetId
-                OPTIONAL MATCH (h:Hashtag {hashtag: nodeId})
+                WITH nodeId, nodeType, authorId, authorName, t.id AS tweetId, t.contentPreview AS tweetName
+                OPTIONAL MATCH (h:Hashtag {id: nodeId})
                 WHERE nodeType = 'HASHTAG' AND h IS NOT NULL
 
-                WITH COALESCE(authorId, tweetId, h.hashtag) AS id, nodeType
+                WITH COALESCE(authorId, tweetId, h.id) AS id,
+                     COALESCE(authorName, tweetName, h.hashtag) AS name,
+                     nodeType
                 WHERE id IS NOT NULL
-                RETURN id, nodeType
+                RETURN id, name, nodeType
             """)
   List<NodeDto> findExistingNodesByIdsAndTypes(@Param("nodes") List<Map<String, String>> nodes);
 }

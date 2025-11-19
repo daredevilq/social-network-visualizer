@@ -7,8 +7,8 @@ import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequenc
 import com.example.social_network_visualizer_backend.model.Hashtag;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
@@ -98,9 +98,10 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
   @Query(
       """
       MATCH (h:Hashtag)
-      WHERE h.hashtag IN $ids
+      WHERE h.id IN $ids
       RETURN
-          h.hashtag AS id,
+          h.id as id,
+          h.hashtag AS name,
           'HASHTAG' AS nodeType
       """)
   List<HashtagNodeDto> findFullHashtagNodesByIds(@Param("ids") Set<String> ids);

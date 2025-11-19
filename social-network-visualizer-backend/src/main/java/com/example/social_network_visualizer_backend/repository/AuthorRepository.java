@@ -153,6 +153,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 LIMIT $limit
                 RETURN
                     a.id AS id,
+                    a.userName as name,
                     'AUTHOR' AS nodeType,
                     a.pagerank AS pagerank,
                     a.community AS community
@@ -168,6 +169,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 RETURN
                     a.id AS id,
                     a.userName as name,
+                    'AUTHOR' as nodeType,
                     a.pagerank AS pagerank,
                     a.community AS community
             """)
@@ -273,9 +275,10 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
       MATCH (a:Author)
-      WHERE a.userName IN $ids
+      WHERE a.id IN $ids
       RETURN
-          a.userName AS id,
+          a.id as id,
+          a.userName AS name,
           'AUTHOR' AS nodeType,
           a.pagerank AS pagerank,
           a.community AS community
