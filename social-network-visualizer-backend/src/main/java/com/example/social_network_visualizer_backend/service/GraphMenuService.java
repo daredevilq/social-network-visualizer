@@ -45,17 +45,6 @@ public class GraphMenuService {
   }
 
   public void addAuthorsCommunities(List<AuthorNodeDto> authors, Optional<Integer> nodeNumber) {
-    log.info("========== INPUT AUTHORS ==========");
-    authors.forEach(
-        author -> {
-          log.info("Author ID: {}", author.getId());
-          log.info("  Name: {}", author.getName());
-          log.info("  NodeType: {}", author.getNodeType());
-          log.info("  Pagerank: {}", author.getPagerank());
-          log.info("  Community: {}", author.getCommunity());
-          log.info("---");
-        });
-    log.info("===================================");
 
     Set<Integer> uniqueCommunities =
         authors.stream()
@@ -64,8 +53,6 @@ public class GraphMenuService {
             .map(Optional::get)
             .collect(Collectors.toSet());
 
-    log.info("===================================");
-
     uniqueCommunities.forEach(
         communityId -> {
           List<Author> communityAuthors =
@@ -73,23 +60,6 @@ public class GraphMenuService {
                   ? communityRepository.findAuthorsByCommunityWithLimit(
                       communityId, nodeNumber.get())
                   : communityRepository.findAuthorsByCommunity(communityId);
-
-          log.info("========== COMMUNITY {} AUTHORS ==========", communityId);
-          communityAuthors.forEach(
-              commAuthor -> {
-                log.info("Author from DB:");
-                log.info("  ID: {}", commAuthor.getId());
-                log.info("  UserName: {}", commAuthor.getUserName());
-                log.info("  DisplayName: {}", commAuthor.getDisplayName());
-                log.info("  Name: {}", commAuthor.getName());
-                log.info("  ForeignId: {}", commAuthor.getForeignId());
-                log.info("  Bot: {}", commAuthor.getBot());
-                log.info("  Pagerank: {}", commAuthor.getPagerank());
-                log.info("  Community: {}", commAuthor.getCommunity());
-                log.info("  IsInWorkspace: {}", commAuthor.getIsInWorkspace());
-                log.info("---");
-              });
-          log.info("===========================================");
 
           communityAuthors.forEach(
               commAuthor -> {

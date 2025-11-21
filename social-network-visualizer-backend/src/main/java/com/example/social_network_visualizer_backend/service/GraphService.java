@@ -54,20 +54,7 @@ public class GraphService {
             FetchConfig.defaultConfig(),
             Optional.empty(),
             true);
-    List<LinkDto> allLinks = graphRepository.findWorkspaceRelationships();
-
-    Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
-
-    List<LinkDto> validLinks =
-        allLinks.stream()
-            .filter(link -> link.source() != null && link.target() != null)
-            .collect(Collectors.toList());
-
-    List<LinkDto> links =
-        validLinks.stream()
-            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
-            .filter(link -> !link.source().equals(link.target()))
-            .collect(Collectors.toList());
+    List<LinkDto> links = graphRepository.findWorkspaceRelationships();
 
     return new GraphDataDto(nodes, links);
   }
