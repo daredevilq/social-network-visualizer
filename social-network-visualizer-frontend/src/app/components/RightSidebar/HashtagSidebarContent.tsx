@@ -6,7 +6,7 @@ import { BannerType } from '@/app/components/Popups/Banner';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { useRouter } from 'next/navigation';
 import { ViralTweet } from '@/types/tweetTypes';
-import { NodeType } from '@/types/GraphTypes';
+import { GraphNode, NodeType } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 
@@ -30,7 +30,7 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
   const [hashtagStats, setHashtagStats] = useState<HashtagDetailsDto | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { showNotification } = useNotification();
-  const { setSelectedUserData } = useProject();
+  const { setSelectedUserData, projectData } = useProject();
   const { runWithUnsavedCheck } = useWorkspace();
   const router = useRouter();
 
@@ -52,10 +52,13 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
     }
   };
 
-  const goToTweet = (id: string) => {
+  const goToTweet = (tweetId: string) => {
     runWithUnsavedCheck(async () => {
+      const tweetNode = projectData.nodes.find((n: GraphNode) => n.id === tweetId && n.nodeType === NodeType.TWEET);
+
       setSelectedUserData({
-        name: id,
+        id: tweetId,
+        name: tweetNode?.name || tweetId,
         community: '',
         nodeType: NodeType.TWEET,
       });

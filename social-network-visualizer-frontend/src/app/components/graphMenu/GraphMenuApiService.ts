@@ -10,6 +10,7 @@ export class GraphApiService {
       body: JSON.stringify(
         nodes.map((node) => ({
           id: node.id,
+          name: node.name,
           nodeType: node.nodeType,
         }))
       ),
@@ -24,7 +25,7 @@ export class GraphApiService {
   /**
    * AUTHOR ENDPOINTS
    */
-  static async addAuthorsLatestTweets(authors: { id: string; nodeNumber?: number }[]): Promise<GraphData> {
+  static async addAuthorsLatestTweets(authors: GraphNode[]): Promise<GraphData> {
     const response = await fetch(`${API_BASE_URL}/graph/menu/author/latest-tweets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,7 +38,7 @@ export class GraphApiService {
     return await response.json();
   }
 
-  static async addAuthorsMostPopularTweets(authors: { id: string }[]): Promise<GraphData> {
+  static async addAuthorsMostPopularTweets(authors: GraphNode[]): Promise<GraphData> {
     const response = await fetch(`${API_BASE_URL}/graph/menu/author/popular-tweets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -50,7 +51,7 @@ export class GraphApiService {
     return await response.json();
   }
 
-  static async addAuthorsFromCommunities(authors: { id: string }[], nodeNumber?: number): Promise<GraphData> {
+  static async addAuthorsFromCommunities(authors: GraphNode[], nodeNumber?: number): Promise<GraphData> {
     const queryParam = nodeNumber !== undefined ? `?nodeNumber=${nodeNumber}` : '';
 
     const response = await fetch(`${API_BASE_URL}/graph/menu/author/communities${queryParam}`, {

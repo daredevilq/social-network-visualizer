@@ -24,7 +24,7 @@ class AuthorNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
-    return `${node.id}`;
+    return `${node.name}`;
   }
 
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {
@@ -63,7 +63,7 @@ class HashtagNodeStrategy implements INodeStrategy {
   }
 
   getLabel(node: GraphNode): string {
-    return `${node.id}`;
+    return `${node.name}`;
   }
 
   getContextMenuItems(node: GraphNode, menuItemsGetters: MenuItemsGetters): MenuItem[] {

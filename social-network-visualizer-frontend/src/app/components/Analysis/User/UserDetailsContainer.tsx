@@ -5,6 +5,7 @@ import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title
 import { useProject } from '@/app/context/ProjectContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { ViralTweet } from '@/types/tweetTypes';
+import { NodeType } from '@/types/GraphTypes';
 import { UsersMentionedContainer } from '@/app/components/Analysis/User/UsersMentionedContainer';
 import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
 import { UserProfileContainer } from '@/app/components/Analysis/User/UserProfileContainer';
@@ -120,6 +121,7 @@ export default function UserDetailsContainer({ username }: { username: string })
       setUserData(data);
 
       setSelectedUserData({
+        id: data.id,
         name: data.name,
         community: data.community,
         nodeType: data.nodeType,

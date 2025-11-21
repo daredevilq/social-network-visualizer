@@ -51,6 +51,7 @@ export default function CommunityGraph() {
           )
           .map((n) => ({
             id: n.id,
+            name: n.name,
             nodeType: NodeType.AUTHOR,
             community: n.community?.toString() ?? '',
             pagerank: n.pagerank ?? 0,
@@ -62,6 +63,7 @@ export default function CommunityGraph() {
 
         const nodes: GraphNode[] = authorNodesFromCommunity.map((author) => ({
           id: author.id,
+          name: author.name,
           nodeType: NodeType.AUTHOR,
           community: author.community,
           pagerank: author.pagerank,
@@ -95,7 +97,7 @@ export default function CommunityGraph() {
         const authorNode = node as AuthorNode;
         return Math.min(authorNode.pagerank ? authorNode.pagerank * 7 : 10, 30);
       }}
-      nodeLabel={(node: GraphNode) => `${node.id}` + ` || Community: ${node.community}`}
+      nodeLabel={(node: GraphNode) => `${node.name}` + ` || Community: ${node.community}`}
       nodeColor={(node) => (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType ? Colors.RedColor() : getNodeColor(node))}
       linkLabel={(link: GraphLink) => `${link.relation}`}
       linkColor={(link: GraphLink) =>

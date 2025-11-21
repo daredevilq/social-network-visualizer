@@ -9,7 +9,7 @@ import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { TweetDetails } from '@/types/tweetTypes';
 import TweetCard from '@/app/components/Analysis/Tweet/TweetCard';
 import { useProject } from '@/app/context/ProjectContext';
-import { NodeType } from '@/types/GraphTypes';
+import { GraphNode, NodeType } from '@/types/GraphTypes';
 
 interface TweetSidebarContentProps {
   selectedUserData: BasicUserData;
@@ -21,18 +21,18 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
   const [tweet, setTweet] = useState<TweetDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { showNotification } = useNotification();
-  const { setSelectedUserData } = useProject();
+  const { setSelectedUserData, projectData } = useProject();
   const { runWithUnsavedCheck } = useWorkspace();
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedUserData?.name) fetchTweetData();
+    if (selectedUserData?.id) fetchTweetData();
   }, [selectedUserData]);
 
   const fetchTweetData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/tweet/${selectedUserData.name}`);
+      const res = await fetch(`${API_BASE_URL}/tweet/${selectedUserData.id}`);
       if (!res.ok) throw new Error('Failed to load tweet data');
       const data = await res.json();
       setTweet(data);
@@ -49,10 +49,13 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
     }
   };
 
-  const goToParentTweet = (id: string) => {
+  const goToParentTweet = (tweetId: string) => {
     runWithUnsavedCheck(async () => {
+      const tweetNode = projectData.nodes.find((n: GraphNode) => n.id === tweetId && n.nodeType === NodeType.TWEET);
+
       setSelectedUserData({
-        name: id,
+        id: tweetId,
+        name: tweetNode?.name || tweetId,
         community: '',
         nodeType: NodeType.TWEET,
       });
@@ -67,12 +70,8 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
             T
           </div>
           <div>
-            <h1 className="text-xl font-bold">Tweet</h1>
-            <p className="text-xs text-gray-400">
-              ID:{' '}
-              {selectedUserData?.name &&
-                (selectedUserData.name.length > 25 ? selectedUserData.name.slice(0, 25) + '...' : selectedUserData.name)}
-            </p>
+            <h1 className="text-xl font-bold">Tweet Details</h1>
+            <p className="text-xs text-gray-400">Post Information</p>
           </div>
         </div>
         <button

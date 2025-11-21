@@ -129,7 +129,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     if (node && 'x' in node && 'y' in node) {
       fgInstance.current.centerAt(node.x, node.y, 1000);
-      fgInstance.current.zoom(6, 1000);
+      fgInstance.current.zoom(3, 1000);
     }
   }, [nodeFound]);
 
@@ -216,14 +216,15 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const handleNodeLeftClick = useCallback(
     (node: GraphNode) => {
       setNodeFound(null);
-      if (isSidebarOpen && selectedUserData && selectedUserData.name === node.id && selectedUserData.nodeType === node.nodeType) {
+      if (isSidebarOpen && selectedUserData && selectedUserData.id === node.id && selectedUserData.nodeType === node.nodeType) {
         setIsSidebarOpen(false);
         setSelectedUserData(null);
         return;
       }
 
       setSelectedUserData({
-        name: node.id,
+        id: node.id,
+        name: node.name,
         community: node.community ? node.community : '',
         nodeType: node.nodeType,
       });

@@ -32,20 +32,19 @@ public class GraphService {
     List<NodeDto> nodes =
         fetchRequestedNodes(
             finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
-    List<NodeDto> uniqueNodes = deduplicateNodesByName(nodes);
-    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
+    Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
+    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, communityId);
 
     log.info(
-        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} total, {} unique | links: {}",
+        "Graph fetched (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {}",
         communityId.map(String::valueOf).orElse("null"),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
         nodes.size(),
-        uniqueNodes.size(),
         links.size());
 
-    return new GraphDataDto(uniqueNodes, links);
+    return new GraphDataDto(nodes, links);
   }
 
   public GraphDataDto fetchWorkspaceData() {
@@ -58,27 +57,6 @@ public class GraphService {
     List<LinkDto> links = graphRepository.findWorkspaceRelationships();
 
     return new GraphDataDto(nodes, links);
-  }
-
-  // TODO: the the problem is that we need to change the logic of displaying nodes and links
-  // when we have HashtagDtp.name = "Google" and AuthorDto.name = "Google" (its real example)
-  // frontend doesnt know that relation MENTIONS only apply to AUTHOR->AUTHOR and it linsk
-  // HASHTAG->AUTHOR too
-  // because we dont have information in LinkDto what type of node source and target is
-  // fix shouldnt be complicated but we should do this in the next PR, for now we deduplicate by
-  // name
-
-  private List<NodeDto> deduplicateNodesByName(List<NodeDto> nodes) {
-    Map<String, NodeDto> uniqueNodesMap = new LinkedHashMap<>();
-
-    for (NodeDto node : nodes) {
-      String nodeName = node.getId();
-      if (nodeName != null && !uniqueNodesMap.containsKey(nodeName)) {
-        uniqueNodesMap.put(nodeName, node);
-      }
-    }
-
-    return new ArrayList<>(uniqueNodesMap.values());
   }
 
   private List<NodeDto> fetchRequestedNodes(
@@ -102,7 +80,7 @@ public class GraphService {
   }
 
   private List<LinkDto> fetchRequestedLinks(
-      Set<RelationType> relationTypes, Optional<Integer> communityId) {
+      Set<RelationType> relationTypes, Set<String> nodeIds, Optional<Integer> communityId) {
     if (relationTypes == null || relationTypes.isEmpty()) {
       log.warn("No relation types requested, returning empty list");
       return Collections.emptyList();
@@ -113,6 +91,7 @@ public class GraphService {
     } else {
       return graphRepository.findAllRelations().stream()
           .filter(link -> relationTypes.contains(link.relation()))
+          .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
           .collect(Collectors.toList());
     }
   }

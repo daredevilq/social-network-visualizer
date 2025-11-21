@@ -19,7 +19,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
   const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const { loadedProjectName, loadProject, runWithLoading } = useProject();
+  const { loadedProjectName, loadProject, runWithLoading, fetchGraphData } = useProject();
   const { setIsInWorkspaceMode, setOpenedWorkspaceName } = useWorkspace();
 
   const showStatus = (msg: string) => {
@@ -40,6 +40,7 @@ export default function ProjectEditModal({ projectName, onClose }: Props) {
     if (projectName && projectName === loadedProjectName) {
       await runWithLoading(() => uploadToOpenedProject());
       await loadProject(projectName, true);
+      await fetchGraphData();
       setIsInWorkspaceMode(false);
       setOpenedWorkspaceName(null);
     } else {

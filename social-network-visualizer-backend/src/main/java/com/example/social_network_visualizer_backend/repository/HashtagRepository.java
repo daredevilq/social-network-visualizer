@@ -7,6 +7,7 @@ import com.example.social_network_visualizer_backend.dto.hashtag.HashtagFrequenc
 import com.example.social_network_visualizer_backend.model.Hashtag;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -17,6 +18,7 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
       """
                 UNWIND $hashtags AS hashtag
                 CREATE (h:Hashtag {
+                    id: hashtag.id,
                     hashtag: hashtag.hashtag,
                     isInWorkspace: hashtag.isInWorkspace
                 })
@@ -27,6 +29,7 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
       """
                 UNWIND $hashtags AS hashtag
                 MERGE (h:Hashtag { hashtag: hashtag.hashtag })
+                ON CREATE SET h.id = hashtag.id, h.isInWorkspace = hashtag.isInWorkspace
             """)
   void mergeAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 
@@ -42,7 +45,8 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
                 ORDER BY relationshipCount DESC
                 LIMIT $limit
                 RETURN
-                h.hashtag AS id,
+                h.id AS id,
+                h.hashtag AS name,
                 'HASHTAG' AS nodeType
             """)
   List<HashtagNodeDto> findHashtag(
@@ -94,10 +98,19 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
   @Query(
       """
       MATCH (h:Hashtag)
-      WHERE h.hashtag IN $ids
+      WHERE h.id IN $ids
       RETURN
-          h.hashtag AS id,
+          h.id as id,
+          h.hashtag AS name,
           'HASHTAG' AS nodeType
       """)
   List<HashtagNodeDto> findFullHashtagNodesByIds(@Param("ids") Set<String> ids);
+
+  @Query(
+      """
+                    MATCH (h:Hashtag)
+                    WHERE h.hashtag = $hashtag
+                    RETURN h
+                """)
+  Optional<Hashtag> findHashtagByHashtag(@Param("hashtag") String hashtag);
 }

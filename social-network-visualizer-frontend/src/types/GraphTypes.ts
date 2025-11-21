@@ -18,6 +18,7 @@ export enum Orientation {
 
 export interface BaseNode extends NodeObject {
   id: string;
+  name: string;
   nodeType: NodeType;
 }
 
