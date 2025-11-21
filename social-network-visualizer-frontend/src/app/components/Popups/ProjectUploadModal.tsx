@@ -1,15 +1,15 @@
 'use client';
 
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Dialog} from '@headlessui/react';
-import {API_BASE_URL} from '@/app/configuration/urlConfig';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Dialog } from '@headlessui/react';
+import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import AdvancedConfigModal from '@/app/components/Popups/AdvancedConfigModal';
-import {useDefaultMetricsConfig} from '@/app/hooks/useDefaultMetricsConfig';
-import {ProjectConfig} from '@/types/GraphTypes';
-import {Settings} from 'lucide-react';
+import { useDefaultMetricsConfig } from '@/app/hooks/useDefaultMetricsConfig';
+import { ProjectConfig } from '@/types/GraphTypes';
+import { Settings } from 'lucide-react';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
-import {useNotification} from "@/app/context/NotificationProvider";
-import {BannerType} from "@/app/components/Popups/Banner";
+import { useNotification } from '@/app/context/NotificationProvider';
+import { BannerType } from '@/app/components/Popups/Banner';
 
 interface ProjectUploadModalProps {
   open: boolean;
