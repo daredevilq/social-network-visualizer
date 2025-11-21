@@ -120,8 +120,6 @@ export default function UserDetailsContainer({ username }: { username: string })
       const data = await userDataRes.json();
       setUserData(data);
 
-      console.log('user data', data);
-
       setSelectedUserData({
         id: data.id,
         name: data.name,
