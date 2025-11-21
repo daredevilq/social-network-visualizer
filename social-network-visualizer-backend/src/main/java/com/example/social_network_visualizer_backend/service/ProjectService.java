@@ -76,6 +76,14 @@ public class ProjectService {
 
   public List<String> createProject(
       String projectName, ProjectConfig projectConfig, MultipartFile[] files) {
+    projectRepository
+        .findByName(projectName)
+        .ifPresent(
+            p -> {
+              throw new IllegalArgumentException(
+                  "Project with name '" + projectName + "' already exists.");
+            });
+
     Project project =
         Project.builder().name(projectName).config(projectConfig).files(new ArrayList<>()).build();
 

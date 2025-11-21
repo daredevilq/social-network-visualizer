@@ -14,7 +14,7 @@ export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[
         <div className="space-y-4">
           {viralTweets.map((tweet) => (
             <div
-              key={tweet.tweetUrl}
+              key={tweet.tweetId}
               className="bg-[#3D3D4E] rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:translate-y-[-2px] cursor-pointer group"
             >
               <div className="p-5" onClick={() => window.open(tweet.tweetUrl, '_blank', 'noopener,noreferrer')}>

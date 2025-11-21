@@ -68,7 +68,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
       """
                 MATCH (a:Author)-[:POSTED]->(t:Tweet)
                 WHERE a.userName = $authorName
-                OPTIONAL MATCH (t)-[:HAS_HASHTAG]->(h:Hashtag)
                 ORDER BY t.publicationDate DESC
                 RETURN t.url AS url, t.contentPreview AS contentPreview
                 LIMIT 3

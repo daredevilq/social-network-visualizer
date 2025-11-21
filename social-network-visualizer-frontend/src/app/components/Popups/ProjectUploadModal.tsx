@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Dialog } from '@headlessui/react';
-import { API_BASE_URL } from '@/app/configuration/urlConfig';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Dialog} from '@headlessui/react';
+import {API_BASE_URL} from '@/app/configuration/urlConfig';
 import AdvancedConfigModal from '@/app/components/Popups/AdvancedConfigModal';
-import { useDefaultMetricsConfig } from '@/app/hooks/useDefaultMetricsConfig';
-import { ProjectConfig } from '@/types/GraphTypes';
-import { Settings } from 'lucide-react';
+import {useDefaultMetricsConfig} from '@/app/hooks/useDefaultMetricsConfig';
+import {ProjectConfig} from '@/types/GraphTypes';
+import {Settings} from 'lucide-react';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
+import {useNotification} from "@/app/context/NotificationProvider";
+import {BannerType} from "@/app/components/Popups/Banner";
 
 interface ProjectUploadModalProps {
   open: boolean;
@@ -35,6 +37,7 @@ export default function ProjectUploadModal({
   const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
   const [config, setConfig] = useState<ProjectConfig | null>(null);
   const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     if (open) {
@@ -99,24 +102,19 @@ export default function ProjectUploadModal({
       const response = await fetch(`${API_BASE_URL}/project/${trimmedName}`, {
         method: 'POST',
         body: formData,
-      } as RequestInit);
+      });
 
-      const text = await response.text();
       if (!response.ok) {
-        let message = 'Upload failed.';
+        const text = await response.text();
+        let msg = text;
+
         try {
           const json = JSON.parse(text);
-          if (json.error) message = json.error;
+          msg = json.error || text;
         } catch {}
 
-        if (message.includes('already exists')) {
-          setNameErrorMessage(`Project with name '${trimmedName}' already exists.`);
-          setIsNameError(true);
-        } else {
-          setFileErrorMessage(message);
-          setIsFileError(true);
-        }
-        throw new Error(message);
+        showNotification(msg, BannerType.ERROR);
+        throw new Error(msg);
       }
 
       onSuccess(trimmedName);
@@ -124,7 +122,7 @@ export default function ProjectUploadModal({
       onFilesChange([]);
       setConfig(null);
     } catch (err: any) {
-      console.error('Upload error:', err);
+      showNotification(err.message || 'Failed to upload project', BannerType.ERROR);
     }
   };
 
