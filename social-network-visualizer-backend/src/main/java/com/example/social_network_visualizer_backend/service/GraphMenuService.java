@@ -29,8 +29,8 @@ public class GraphMenuService {
   public void addAuthorsLatestTweets(List<AuthorNodeDto> authors, int numberOfTweets) {
     authors.forEach(
         author -> {
-          List<TweetNodeDto> tweets =
-              graphMenuRepository.findAuthorLatestTweets(author.getId(), numberOfTweets);
+          List<NodeDto> tweets =
+              graphMenuRepository.findAuthorLatestTweets(author.getName(), numberOfTweets);
           tweets.forEach(tweet -> workspaceService.updateWorkspaceMembership(tweet, true));
         });
   }
@@ -38,19 +38,33 @@ public class GraphMenuService {
   public void addAuthorsMostPopularTweets(List<AuthorNodeDto> authors, int numberOfTweets) {
     authors.forEach(
         author -> {
-          List<TweetNodeDto> tweets =
-              graphMenuRepository.findAuthorMostPopularTweets(author.getId(), numberOfTweets);
+          List<NodeDto> tweets =
+              graphMenuRepository.findAuthorMostPopularTweets(author.getName(), numberOfTweets);
           tweets.forEach(tweet -> workspaceService.updateWorkspaceMembership(tweet, true));
         });
   }
 
   public void addAuthorsCommunities(List<AuthorNodeDto> authors, Optional<Integer> nodeNumber) {
+    log.info("========== INPUT AUTHORS ==========");
+    authors.forEach(
+        author -> {
+          log.info("Author ID: {}", author.getId());
+          log.info("  Name: {}", author.getName());
+          log.info("  NodeType: {}", author.getNodeType());
+          log.info("  Pagerank: {}", author.getPagerank());
+          log.info("  Community: {}", author.getCommunity());
+          log.info("---");
+        });
+    log.info("===================================");
+
     Set<Integer> uniqueCommunities =
         authors.stream()
-            .map(author -> communityRepository.findCommunityIdByAuthorId(author.getId()))
+            .map(author -> communityRepository.findCommunityIdByAuthorId(author.getName()))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
+
+    log.info("===================================");
 
     uniqueCommunities.forEach(
         communityId -> {
@@ -60,11 +74,28 @@ public class GraphMenuService {
                       communityId, nodeNumber.get())
                   : communityRepository.findAuthorsByCommunity(communityId);
 
+          log.info("========== COMMUNITY {} AUTHORS ==========", communityId);
+          communityAuthors.forEach(
+              commAuthor -> {
+                log.info("Author from DB:");
+                log.info("  ID: {}", commAuthor.getId());
+                log.info("  UserName: {}", commAuthor.getUserName());
+                log.info("  DisplayName: {}", commAuthor.getDisplayName());
+                log.info("  Name: {}", commAuthor.getName());
+                log.info("  ForeignId: {}", commAuthor.getForeignId());
+                log.info("  Bot: {}", commAuthor.getBot());
+                log.info("  Pagerank: {}", commAuthor.getPagerank());
+                log.info("  Community: {}", commAuthor.getCommunity());
+                log.info("  IsInWorkspace: {}", commAuthor.getIsInWorkspace());
+                log.info("---");
+              });
+          log.info("===========================================");
+
           communityAuthors.forEach(
               commAuthor -> {
                 NodeDto authorNode = new NodeDto();
                 authorNode.setId(commAuthor.getId());
-                authorNode.setName(commAuthor.getName());
+                authorNode.setName(commAuthor.getUserName());
                 authorNode.setNodeType(NodeType.AUTHOR);
                 workspaceService.updateWorkspaceMembership(authorNode, true);
               });
@@ -74,17 +105,16 @@ public class GraphMenuService {
   public void addHashtagsUsedByAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<HashtagNodeDto> hashtags =
-              graphMenuRepository.findHashtagsUsedByAuthor(author.getId());
+          List<NodeDto> hashtags = graphMenuRepository.findHashtagsUsedByAuthor(author.getName());
           hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
 
   public void addCommonHashtagUsedByAuthors(List<AuthorNodeDto> authors) {
-    List<String> authorIds = authors.stream().map(AuthorNodeDto::getId).toList();
+    List<String> authorUserNames = authors.stream().map(AuthorNodeDto::getName).toList();
 
-    List<HashtagNodeDto> commonHashtags =
-        graphMenuRepository.findTopCommonHashtagsUsedByAuthors(authorIds);
+    List<NodeDto> commonHashtags =
+        graphMenuRepository.findTopCommonHashtagsUsedByAuthors(authorUserNames);
 
     commonHashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
@@ -92,8 +122,8 @@ public class GraphMenuService {
   public void addMentionedUsersByAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<AuthorNodeDto> mentionedAuthors =
-              graphMenuRepository.findMentionedUsersByAuthor(author.getId());
+          List<NodeDto> mentionedAuthors =
+              graphMenuRepository.findMentionedUsersByAuthor(author.getName());
           mentionedAuthors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -101,8 +131,8 @@ public class GraphMenuService {
   public void addAuthorsMentioningTheseAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<AuthorNodeDto> mentioningAuthors =
-              graphMenuRepository.findAuthorsMentioningThisAuthor(author.getId());
+          List<NodeDto> mentioningAuthors =
+              graphMenuRepository.findAuthorsMentioningThisAuthor(author.getName());
           mentioningAuthors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -110,8 +140,8 @@ public class GraphMenuService {
   public void addAuthorsMostRepliedToByAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<AuthorNodeDto> repliedAuthors =
-              graphMenuRepository.findAuthorsMostRepliedToByAuthor(author.getId());
+          List<NodeDto> repliedAuthors =
+              graphMenuRepository.findAuthorsMostRepliedToByAuthor(author.getName());
           repliedAuthors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -119,8 +149,8 @@ public class GraphMenuService {
   public void addAuthorsMostReplyingToAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<AuthorNodeDto> replyingAuthors =
-              graphMenuRepository.findAuthorsMostReplyingToAuthor(author.getId());
+          List<NodeDto> replyingAuthors =
+              graphMenuRepository.findAuthorsMostReplyingToAuthor(author.getName());
           replyingAuthors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -128,8 +158,7 @@ public class GraphMenuService {
   public void addTweetsRepliedToByAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<TweetNodeDto> tweets =
-              graphMenuRepository.findTweetsRepliedToByAuthor(author.getId());
+          List<NodeDto> tweets = graphMenuRepository.findTweetsRepliedToByAuthor(author.getName());
           tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -137,8 +166,7 @@ public class GraphMenuService {
   public void addTweetsMentioningAuthors(List<AuthorNodeDto> authors) {
     authors.forEach(
         author -> {
-          List<TweetNodeDto> tweets =
-              graphMenuRepository.findTweetsMentioningAuthor(author.getId());
+          List<NodeDto> tweets = graphMenuRepository.findTweetsMentioningAuthor(author.getName());
           tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -146,7 +174,7 @@ public class GraphMenuService {
   public void addTweetAuthorsToWorkspace(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
-          AuthorNodeDto author =
+          NodeDto author =
               graphMenuRepository
                   .findAuthorByTweetId(tweet.getId())
                   .orElseThrow(
@@ -161,7 +189,7 @@ public class GraphMenuService {
   public void addTweetHashtagsToWorkspace(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
-          List<HashtagNodeDto> hashtags = graphMenuRepository.findHashtagsByTweetId(tweet.getId());
+          List<NodeDto> hashtags = graphMenuRepository.findHashtagsByTweetId(tweet.getId());
           hashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -169,8 +197,7 @@ public class GraphMenuService {
   public void addTweetsCommonHashtagsToWorkspace(List<TweetNodeDto> tweets) {
     List<String> tweetIds = tweets.stream().map(TweetNodeDto::getId).toList();
 
-    List<HashtagNodeDto> commonHashtags =
-        graphMenuRepository.findCommonHashtagsByTweetIds(tweetIds);
+    List<NodeDto> commonHashtags = graphMenuRepository.findCommonHashtagsByTweetIds(tweetIds);
 
     commonHashtags.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
   }
@@ -178,8 +205,7 @@ public class GraphMenuService {
   public void addMentionedAuthorsFromTweets(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
-          List<AuthorNodeDto> authors =
-              graphMenuRepository.findMentionedAuthorsByTweetId(tweet.getId());
+          List<NodeDto> authors = graphMenuRepository.findMentionedAuthorsByTweetId(tweet.getId());
           authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -187,7 +213,7 @@ public class GraphMenuService {
   public void addParentTweetsToWorkspace(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
-          TweetNodeDto parent =
+          NodeDto parent =
               graphMenuRepository
                   .findParentByTweetId(tweet.getId())
                   .orElseThrow(
@@ -202,7 +228,7 @@ public class GraphMenuService {
   public void addTweetChildrenToWorkspace(List<TweetNodeDto> tweets) {
     tweets.forEach(
         tweet -> {
-          List<TweetNodeDto> children = graphMenuRepository.findChildrenByTweetId(tweet.getId());
+          List<NodeDto> children = graphMenuRepository.findChildrenByTweetId(tweet.getId());
           children.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -210,8 +236,7 @@ public class GraphMenuService {
   public void addTopAuthorsForHashtags(List<HashtagNodeDto> hashtags) {
     hashtags.forEach(
         hashtag -> {
-          List<AuthorNodeDto> authors =
-              graphMenuRepository.findTopAuthorsByHashtagId(hashtag.getId());
+          List<NodeDto> authors = graphMenuRepository.findTopAuthorsByHashtag(hashtag.getName());
           authors.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -219,7 +244,7 @@ public class GraphMenuService {
   public void addTopTweetsByHashtags(List<HashtagNodeDto> hashtags) {
     hashtags.forEach(
         hashtag -> {
-          List<TweetNodeDto> tweets = graphMenuRepository.findTopTweetsByHashtagId(hashtag.getId());
+          List<NodeDto> tweets = graphMenuRepository.findTopTweetsByHashtag(hashtag.getName());
           tweets.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }
@@ -227,7 +252,7 @@ public class GraphMenuService {
   public void addRelatedHashtags(List<HashtagNodeDto> hashtags) {
     hashtags.forEach(
         hashtag -> {
-          List<HashtagNodeDto> related = graphMenuRepository.findRelatedHashtags(hashtag.getId());
+          List<NodeDto> related = graphMenuRepository.findRelatedHashtags(hashtag.getName());
           related.forEach(node -> workspaceService.updateWorkspaceMembership(node, true));
         });
   }

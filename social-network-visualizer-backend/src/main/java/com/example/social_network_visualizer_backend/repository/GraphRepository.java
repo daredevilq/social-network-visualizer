@@ -57,6 +57,11 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 UNION
 
+                MATCH (t:Tweet)-[r]->(a:Author)
+                RETURN t.id AS source, a.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+
+                UNION
+
                 MATCH (t1:Tweet)-[r]->(t2:Tweet)
                 RETURN t1.id AS source, t2.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
@@ -91,6 +96,12 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 MATCH (t1:Tweet)-[r]->(t2:Tweet)
                 WHERE t1.isInWorkspace = true AND t2.isInWorkspace = true
                 RETURN t1.id AS source, t2.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+
+                UNION
+
+                MATCH (t:Tweet)-[r]->(a:Author)
+                WHERE t.isInWorkspace = true AND a.isInWorkspace = true
+                RETURN t.id AS source, a.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
@@ -165,7 +176,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 WITH edge, r
                 WHERE r IS NOT NULL
-                RETURN edge.source AS source, edge.target AS target, edge.relation AS relation
+                RETURN edge.source AS source, edge.target AS target, edge.relation AS relation, COALESCE(r.weight, 1) AS weight
             """)
   List<LinkDto> findExistingRelations(@Param("edges") List<Map<String, String>> edges);
 

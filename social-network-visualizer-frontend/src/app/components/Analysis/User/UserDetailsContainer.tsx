@@ -129,13 +129,6 @@ export default function UserDetailsContainer({ username }: { username: string })
         nodeType: data.nodeType,
       });
 
-      // setSelectedUserData({
-      //   id: '',
-      //   name: username,
-      //   community: '',
-      //   nodeType: NodeType.AUTHOR,
-      // });
-
       const activityRes = await fetch(`${API_BASE_URL}/author/activity/${username}`);
       if (!activityRes.ok) throw new Error('Failed to load user data');
       const activity = await activityRes.json();

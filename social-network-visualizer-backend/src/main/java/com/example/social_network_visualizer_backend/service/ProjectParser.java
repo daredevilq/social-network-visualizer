@@ -35,7 +35,8 @@ public class ProjectParser {
   private final TweetRelationService tweetRelationService;
   private final ProjectRepository projectRepository;
   private final GridFsService gridFsService;
-  private final String sufixId = "25c927ca-a6e2-49da-898f-f83290126150";
+  private final String SUFIX_HASHTAG_ID = "25c927ca-a6e2-49da-898f-f83290126150";
+  private final String SUFIX_AUTHOR_ID = "6c70f9b7-f18d-4509-be8b-0d2b32b4e752";
 
   @Transactional
   public int parseDirectory(String projectName) {
@@ -226,6 +227,7 @@ public class ProjectParser {
       String userId) {
     if (!uniqAuthors.contains(username)) {
       Map<String, Object> map = new HashMap<>();
+      map.put("id", username + SUFIX_AUTHOR_ID);
       map.put("userName", username);
       map.put("foreignId", userId);
 
@@ -274,7 +276,7 @@ public class ProjectParser {
 
   private Map<String, Object> buildHashtagNode(String hashtagStr) {
     Map<String, Object> map = new HashMap<>();
-    map.put("id", hashtagStr + sufixId);
+    map.put("id", hashtagStr + SUFIX_HASHTAG_ID);
     map.put("hashtag", hashtagStr);
     map.put("isInWorkspace", false);
     return map;

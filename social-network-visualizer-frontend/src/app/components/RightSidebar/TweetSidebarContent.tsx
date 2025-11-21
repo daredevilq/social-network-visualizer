@@ -51,12 +51,11 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
 
   const goToParentTweet = (tweetId: string) => {
     runWithUnsavedCheck(async () => {
-      // Find the tweet node to get its contentPreview
       const tweetNode = projectData.nodes.find((n: GraphNode) => n.id === tweetId && n.nodeType === NodeType.TWEET);
 
       setSelectedUserData({
-        id: tweetId, // UUID
-        name: tweetNode?.name || tweetId, // contentPreview or fallback to ID
+        id: tweetId,
+        name: tweetNode?.name || tweetId,
         community: '',
         nodeType: NodeType.TWEET,
       });

@@ -196,14 +196,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
-                    MATCH (a:Author)
-                    WHERE a.id = $userId
-                    RETURN a
-                """)
-  Optional<Author> findAuthorById(@Param("userId") String userId);
-
-  @Query(
-      """
             MATCH (a:Author)-[r:USES_HASHTAG]->(h:Hashtag)
                     WHERE a.userName=$authorName
                     RETURN h.hashtag as name, count(*) AS frequency

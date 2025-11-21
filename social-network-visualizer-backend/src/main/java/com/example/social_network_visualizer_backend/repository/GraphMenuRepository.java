@@ -1,8 +1,6 @@
 package com.example.social_network_visualizer_backend.repository;
 
-import com.example.social_network_visualizer_backend.dto.graph.graphNode.AuthorNodeDto;
-import com.example.social_network_visualizer_backend.dto.graph.graphNode.HashtagNodeDto;
-import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.model.Author;
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
-          MATCH (a:Author {id: $authorId})-[:POSTED]->(t:Tweet)
+          MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(t:Tweet)
           WHERE t.isInWorkspace = false
-          WITH t
+          OPTIONAL MATCH (author:Author)-[:POSTED]->(t)
           ORDER BY t.publicationDate DESC
           LIMIT $numberOfTweets
           RETURN
@@ -23,14 +21,15 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               t.contentPreview as name,
               'TWEET' AS nodeType
           """)
-  List<TweetNodeDto> findAuthorLatestTweets(
-      @Param("authorId") String authorId, @Param("numberOfTweets") int numberOfTweets);
+  List<NodeDto> findAuthorLatestTweets(
+      @Param("authorUserName") String authorUserName, @Param("numberOfTweets") int numberOfTweets);
 
   @Query(
       """
-        MATCH (a:Author {id: $authorId})-[:POSTED]->(t:Tweet)
+        MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(t:Tweet)
         WHERE t.isInWorkspace = false
-        WITH t, (COALESCE(t.likesCount, 0) + COALESCE(t.repliesCount, 0) + COALESCE(t.retweetsCount, 0)) AS popularityScore
+        OPTIONAL MATCH (author:Author)-[:POSTED]->(t)
+        WITH t, author, (COALESCE(t.likesCount, 0) + COALESCE(t.repliesCount, 0) + COALESCE(t.retweetsCount, 0)) AS popularityScore
         ORDER BY popularityScore DESC
         LIMIT $numberOfTweets
         RETURN
@@ -38,12 +37,12 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
             t.contentPreview as name,
             'TWEET' AS nodeType
         """)
-  List<TweetNodeDto> findAuthorMostPopularTweets(
-      @Param("authorId") String authorId, @Param("numberOfTweets") int numberOfTweets);
+  List<NodeDto> findAuthorMostPopularTweets(
+      @Param("authorUserName") String authorUserName, @Param("numberOfTweets") int numberOfTweets);
 
   @Query(
       """
-          MATCH (a:Author {id: $authorId})-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
+          MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
           WHERE h.isInWorkspace = false
           WITH h, COUNT(*) AS freq
           ORDER BY freq DESC
@@ -53,12 +52,12 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               h.hashtag AS name,
               'HASHTAG' AS nodeType
           """)
-  List<HashtagNodeDto> findHashtagsUsedByAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findHashtagsUsedByAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
           MATCH (a:Author)-[:POSTED]->(:Tweet)-[:HAS_HASHTAG]->(h:Hashtag)
-          WHERE a.id IN $authorIds
+          WHERE a.userName IN $authorUserNames
             AND (h.isInWorkspace IS NULL OR h.isInWorkspace = false)
           WITH h, COLLECT(DISTINCT a.userName) AS authorsUsing
           WHERE SIZE(authorsUsing) > 1
@@ -70,12 +69,12 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
           ORDER BY authorCount DESC
           LIMIT 10
           """)
-  List<HashtagNodeDto> findTopCommonHashtagsUsedByAuthors(
-      @Param("authorIds") List<String> authorIds);
+  List<NodeDto> findTopCommonHashtagsUsedByAuthors(
+      @Param("authorUserNames") List<String> authorUserNames);
 
   @Query(
       """
-          MATCH (a:Author {id: $authorId})-[:POSTED]->(t:Tweet)-[:MENTION]->(mentioned:Author)
+          MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(t:Tweet)-[:MENTION]->(mentioned:Author)
           WHERE mentioned.isInWorkspace = false
           WITH mentioned, COUNT(*) AS mentions
           ORDER BY mentions DESC
@@ -85,11 +84,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               mentioned.userName AS name,
               'AUTHOR' AS nodeType
           """)
-  List<AuthorNodeDto> findMentionedUsersByAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findMentionedUsersByAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
-      MATCH (mentioning:Author)-[:POSTED]->(:Tweet)-[:MENTION]->(a:Author {id: $authorId})
+      MATCH (mentioning:Author)-[:POSTED]->(:Tweet)-[:MENTION]->(a:Author {userName: $authorUserName})
       WHERE mentioning.isInWorkspace = false
       WITH mentioning, COUNT(*) AS mentionsCount
       ORDER BY mentionsCount DESC
@@ -99,11 +98,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
           mentioning.userName AS name,
           'AUTHOR' AS nodeType
       """)
-  List<AuthorNodeDto> findAuthorsMentioningThisAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findAuthorsMentioningThisAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
-      MATCH (a:Author {id: $authorId})-[:POSTED]->(reply:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(other:Author)
+      MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(reply:Tweet)-[:HAS_PARENT]->(parent:Tweet)<-[:POSTED]-(other:Author)
       WHERE other.isInWorkspace = false
       WITH other, COUNT(reply) AS replyCount
       ORDER BY replyCount DESC
@@ -113,11 +112,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
           other.userName AS name,
           'AUTHOR' AS nodeType
       """)
-  List<AuthorNodeDto> findAuthorsMostRepliedToByAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findAuthorsMostRepliedToByAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
-      MATCH (a:Author {id: $authorId})-[:POSTED]->(parent:Tweet)<-[:HAS_PARENT]-(reply:Tweet)<-[:POSTED]-(other:Author)
+      MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(parent:Tweet)<-[:HAS_PARENT]-(reply:Tweet)<-[:POSTED]-(other:Author)
       WHERE other.isInWorkspace = false
       WITH other, COUNT(reply) AS replyCount
       ORDER BY replyCount DESC
@@ -127,11 +126,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
           other.userName AS name,
           'AUTHOR' AS nodeType
       """)
-  List<AuthorNodeDto> findAuthorsMostReplyingToAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findAuthorsMostReplyingToAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
-          MATCH (a:Author {id: $authorId})-[:POSTED]->(reply:Tweet)-[:HAS_PARENT]->(parent:Tweet)
+          MATCH (a:Author {userName: $authorUserName})-[:POSTED]->(reply:Tweet)-[:HAS_PARENT]->(parent:Tweet)
           WHERE parent.isInWorkspace = false
           ORDER BY parent.publicationDate DESC
           LIMIT 10
@@ -140,11 +139,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               parent.contentPreview as name,
               'TWEET' AS nodeType
           """)
-  List<TweetNodeDto> findTweetsRepliedToByAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findTweetsRepliedToByAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
-          MATCH (t:Tweet)-[:MENTION]->(a:Author {id: $authorId})
+          MATCH (t:Tweet)-[:MENTION]->(a:Author {userName: $authorUserName})
           WHERE t.isInWorkspace = false
           ORDER BY t.publicationDate DESC
           RETURN
@@ -153,7 +152,7 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               'TWEET' AS nodeType
           LIMIT 10
           """)
-  List<TweetNodeDto> findTweetsMentioningAuthor(@Param("authorId") String authorId);
+  List<NodeDto> findTweetsMentioningAuthor(@Param("authorUserName") String authorUserName);
 
   @Query(
       """
@@ -163,7 +162,7 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
                a.userName AS name,
                'AUTHOR' AS nodeType
            """)
-  Optional<AuthorNodeDto> findAuthorByTweetId(@Param("tweetId") String tweetId);
+  Optional<NodeDto> findAuthorByTweetId(@Param("tweetId") String tweetId);
 
   @Query(
       """
@@ -174,7 +173,7 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
                h.hashtag AS name,
                'HASHTAG' AS nodeType
            """)
-  List<HashtagNodeDto> findHashtagsByTweetId(@Param("tweetId") String tweetId);
+  List<NodeDto> findHashtagsByTweetId(@Param("tweetId") String tweetId);
 
   @Query(
       """
@@ -191,7 +190,7 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               ORDER BY tweetCount DESC
               LIMIT 10
               """)
-  List<HashtagNodeDto> findCommonHashtagsByTweetIds(@Param("tweetIds") List<String> tweetIds);
+  List<NodeDto> findCommonHashtagsByTweetIds(@Param("tweetIds") List<String> tweetIds);
 
   @Query(
       """
@@ -202,18 +201,19 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
                a.userName AS name,
                'AUTHOR' AS nodeType
            """)
-  List<AuthorNodeDto> findMentionedAuthorsByTweetId(@Param("tweetId") String tweetId);
+  List<NodeDto> findMentionedAuthorsByTweetId(@Param("tweetId") String tweetId);
 
   @Query(
       """
           MATCH (t:Tweet {id: $tweetId})-[:HAS_PARENT]->(parent:Tweet)
+          OPTIONAL MATCH (author:Author)-[:POSTED]->(parent)
           RETURN
               parent.id AS id,
               parent.contentPreview as name,
               'TWEET' AS nodeType
           LIMIT 1
           """)
-  Optional<TweetNodeDto> findParentByTweetId(@Param("tweetId") String tweetId);
+  Optional<NodeDto> findParentByTweetId(@Param("tweetId") String tweetId);
 
   @Query(
       """
@@ -224,11 +224,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               child.contentPreview as name,
               'TWEET' AS nodeType
           """)
-  List<TweetNodeDto> findChildrenByTweetId(@Param("tweetId") String tweetId);
+  List<NodeDto> findChildrenByTweetId(@Param("tweetId") String tweetId);
 
   @Query(
       """
-          MATCH (a:Author)-[:USES_HASHTAG]->(h:Hashtag {id: $hashtagId})
+          MATCH (a:Author)-[:USES_HASHTAG]->(h:Hashtag {hashtag: $hashtag})
           WHERE a.isInWorkspace = false
           WITH a, COUNT(*) AS usesCount
           ORDER BY usesCount DESC
@@ -238,11 +238,11 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               a.userName AS name,
               'AUTHOR' AS nodeType
           """)
-  List<AuthorNodeDto> findTopAuthorsByHashtagId(@Param("hashtagId") String hashtagId);
+  List<NodeDto> findTopAuthorsByHashtag(@Param("hashtag") String hashtag);
 
   @Query(
       """
-          MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag {id: $hashtagId})
+          MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag {hashtag: $hashtag})
           WHERE t.isInWorkspace = false
           WITH t, h,
               COALESCE(t.likesCount, 0) +
@@ -255,12 +255,12 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
               t.contentPreview as name,
               'TWEET' AS nodeType
           """)
-  List<TweetNodeDto> findTopTweetsByHashtagId(@Param("hashtagId") String hashtagId);
+  List<NodeDto> findTopTweetsByHashtag(@Param("hashtag") String hashtag);
 
   @Query(
       """
-        MATCH (h:Hashtag {id: $hashtagId})<-[:HAS_HASHTAG]-(t:Tweet)-[:HAS_HASHTAG]->(other:Hashtag)
-        WHERE other.id <> $hashtagId AND other.isInWorkspace = false
+        MATCH (h:Hashtag {hashtag: $hashtag})<-[:HAS_HASHTAG]-(t:Tweet)-[:HAS_HASHTAG]->(other:Hashtag)
+        WHERE other.id <> $hashtag AND other.isInWorkspace = false
         WITH other, COUNT(t) AS occurrenceCount
         ORDER BY occurrenceCount DESC
         LIMIT 10
@@ -269,5 +269,5 @@ public interface GraphMenuRepository extends Neo4jRepository<Author, String> {
             other.hashtag AS name,
             'HASHTAG' AS nodeType
         """)
-  List<HashtagNodeDto> findRelatedHashtags(@Param("hashtagId") String hashtagId);
+  List<NodeDto> findRelatedHashtags(@Param("hashtag") String hashtag);
 }

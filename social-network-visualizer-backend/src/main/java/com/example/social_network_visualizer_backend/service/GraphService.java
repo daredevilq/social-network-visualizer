@@ -26,74 +26,23 @@ public class GraphService {
   private final AuthorRepository authorRepository;
   private final List<NodeQueryStrategy> nodeQueryStrategies;
 
-  record NodePreview(String id, String name, NodeType nodeType) {}
-
-  record LinkPreview(String source, String target, RelationType type) {}
-
   public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
     List<NodeDto> nodes =
         fetchRequestedNodes(
             finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
-    List<LinkDto> allLinks = fetchRequestedLinks(finalRequest.relationTypes(), communityId);
-
     Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
-
-    List<LinkDto> validLinks =
-        allLinks.stream()
-            .filter(link -> link.source() != null && link.target() != null)
-            .collect(Collectors.toList());
-
-    long selfLoopsCount =
-        validLinks.stream()
-            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
-            .filter(link -> link.source().equals(link.target()))
-            .count();
-
-    List<LinkDto> links =
-        validLinks.stream()
-            .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
-            .filter(link -> !link.source().equals(link.target()))
-            .collect(Collectors.toList());
+    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, communityId);
 
     log.info(
-        "Graph built (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {} (filtered from {}, removed {} self-loops, {} null links)",
+        "Graph fetched (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {}",
         communityId.map(String::valueOf).orElse("null"),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
         nodes.size(),
-        links.size(),
-        allLinks.size(),
-        selfLoopsCount,
-        allLinks.size() - validLinks.size());
-
-    int nodeLimit = Math.min(nodes.size(), 5);
-    int linkLimit = Math.min(links.size(), 10);
-
-    // temp changes for logging purposes below
-    List<NodePreview> nodePreview =
-        nodes.stream()
-            .limit(nodeLimit)
-            .map(
-                n ->
-                    new NodePreview(
-                        n.getId(),
-                        n.getName().substring(0, Math.min(15, n.getName().length())),
-                        n.getNodeType()))
-            .toList();
-
-    List<LinkPreview> linkPreview =
-        links.stream()
-            .limit(linkLimit)
-            .map(l -> new LinkPreview(l.source(), l.target(), l.relation()))
-            .toList();
-
-    log.info("---------------------------");
-    log.info("nodes preview: {}", nodePreview);
-    log.info("links preview: {}", linkPreview);
-    log.info("---------------------------");
+        links.size());
 
     return new GraphDataDto(nodes, links);
   }
@@ -144,7 +93,7 @@ public class GraphService {
   }
 
   private List<LinkDto> fetchRequestedLinks(
-      Set<RelationType> relationTypes, Optional<Integer> communityId) {
+      Set<RelationType> relationTypes, Set<String> nodeIds, Optional<Integer> communityId) {
     if (relationTypes == null || relationTypes.isEmpty()) {
       log.warn("No relation types requested, returning empty list");
       return Collections.emptyList();
@@ -155,6 +104,7 @@ public class GraphService {
     } else {
       return graphRepository.findAllRelations().stream()
           .filter(link -> relationTypes.contains(link.relation()))
+          .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
           .collect(Collectors.toList());
     }
   }

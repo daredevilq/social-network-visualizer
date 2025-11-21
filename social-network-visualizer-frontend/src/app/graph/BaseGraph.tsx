@@ -129,7 +129,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
     if (node && 'x' in node && 'y' in node) {
       fgInstance.current.centerAt(node.x, node.y, 1000);
-      fgInstance.current.zoom(2.5, 1000); // Reduced zoom level for less aggressive focus
+      fgInstance.current.zoom(2.5, 1000);
     }
   }, [nodeFound]);
 

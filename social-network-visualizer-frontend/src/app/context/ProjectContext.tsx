@@ -182,9 +182,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        console.log(data); // to delete
-        console.log(graphQuery);
-
         if (!Array.isArray(data?.nodes) || !Array.isArray(data?.links)) {
           showNotification('Graph data format is invalid.', BannerType.ERROR);
           return;
