@@ -64,10 +64,11 @@ public class ProjectService {
     neo4jService.waitForNeo4jToBeAvailable();
     mongodbService.waitForMongoDBToBeAvailable();
     neo4jService.handleDatabaseDrop();
+    neo4jService.createConstraints();
 
     int importedTweets = projectParser.parseDirectory(projectName);
 
-    neo4jService.createRelationsInGraph();
+    neo4jService.createAdditionalRelationsInGraph();
     metricComputationService.computeMetrics(projectName, project.getConfig());
 
     log.info("Project {} imported successfully with {} tweets", projectName, importedTweets);
@@ -270,6 +271,10 @@ public class ProjectService {
 
     try {
       projectRepository.save(project);
+      log.info(
+          "Files added to opened project '{}'. Total files now: {}",
+          projectName,
+          project.getFiles().size());
     } catch (Exception e) {
       log.error("Error while saving project '{}' to MongoDB", projectName, e);
       throw new ProjectException(
@@ -278,23 +283,10 @@ public class ProjectService {
           HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    projectParser.importFilesToDatabase(new ArrayList<>(), false);
-
-    neo4jService.dropAllGdsGraphs();
-    neo4jService.createRelationsInGraph();
-
-    Project reloadedProject =
-        projectRepository
-            .findByName(projectName)
-            .orElseThrow(
-                () ->
-                    new ProjectException(
-                        "Project '" + projectName + "' not found after update",
-                        HttpStatus.INTERNAL_SERVER_ERROR));
-
-    if (reloadedProject.getConfig() != null && reloadedProject.getConfig().metrics() != null) {
-      metricComputationService.computeMetrics(projectName, reloadedProject.getConfig());
-    }
+    log.info(
+        "Project '{}' updated with {} new files. Frontend should reload project to see changes.",
+        projectName,
+        files.length - skippedFiles.size());
 
     return skippedFiles;
   }
@@ -386,8 +378,7 @@ public class ProjectService {
 
   public ProjectConfig parseConfig(String configJson) {
     try {
-      ProjectConfig projectConfig = new ObjectMapper().readValue(configJson, ProjectConfig.class);
-      return projectConfig;
+      return new ObjectMapper().readValue(configJson, ProjectConfig.class);
     } catch (Exception e) {
       log.error("Failed to parse config JSON", e);
       throw new ProjectException(

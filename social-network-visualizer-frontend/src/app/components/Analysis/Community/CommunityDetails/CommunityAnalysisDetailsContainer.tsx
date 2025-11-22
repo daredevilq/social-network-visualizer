@@ -73,7 +73,7 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
             <ActivityChartCard activity={summary.communityActivity} />
           </div>
 
-          <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">
+          <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
             <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
               <Users className="w-5 h-5 mr-2" />
               Top Author
@@ -101,13 +101,12 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
             <TopHashtagsContainer topHashtags={hashtagActivities} />
           </div>
 
-          <div className="lg:col-span-2 bg-[#32323F] rounded-xl p-6 shadow-lg">
+          <div className="lg:col-span-2 bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-gray-600 pb-2">
-              <h2 className="text-2xl font-semibold flex items-center text-gray-100">
+              <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
                 <Users className="w-5 h-5 mr-2" />
-                Community Members ({filteredUsernames.length})
+                Community Members ({usernamesInCommunity.length})
               </h2>
-
               <input
                 type="text"
                 placeholder="Search authors..."
@@ -117,7 +116,6 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
                  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {filteredUsernames.map((username) => (
                 <div

@@ -9,7 +9,7 @@ interface Props {
 
 export default function OverviewSection({ overview }: Props) {
   return (
-    <div className="bg-[#32323F] rounded-xl p-6 shadow-lg mb-8 w-full">
+    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg mb-8 w-full">
       <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2">Global community overview</h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

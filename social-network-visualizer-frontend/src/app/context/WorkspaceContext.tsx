@@ -172,8 +172,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
-          const baseNode: GraphNode = {
+          const baseNode = {
             id: raw.id,
+            name: raw.name,
             nodeType: raw.nodeType,
           };
 

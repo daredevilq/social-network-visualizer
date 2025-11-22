@@ -1,5 +1,5 @@
 import { MenuItem } from '@/app/interface/Menu';
-import { AuthorNode, GraphLink, GraphNode, HashtagNode, TweetNode } from '@/types/GraphTypes';
+import { AuthorNode, GraphNode, HashtagNode, TweetNode } from '@/types/GraphTypes';
 import { ConnectionsIcon, HashtagIcon, HideIcon, ProfileIcon, TweetIcon } from '@/app/components/graphMenu/MenuIcons';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
@@ -185,88 +185,88 @@ export const useContextMenuItems = (): MenuItemsGetters => {
   const addLatestTweets = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsLatestTweets([authorNode]),
-      `Loaded top 10 tweets for "${shortenId(authorNode.id)}"`,
-      `Failed to load tweets for "${shortenId(authorNode.id)}"`
+      `Loaded top 10 tweets for "${shortenId(authorNode.name)}"`,
+      `Failed to load tweets for "${shortenId(authorNode.name)}"`
     );
   };
 
   const addMostPopularTweets = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsMostPopularTweets([authorNode]),
-      `Loaded top 10 most popular tweets for "${shortenId(authorNode.id)}"`,
-      `Failed to load top tweets for "${shortenId(authorNode.id)}"`
+      `Loaded top 10 most popular tweets for "${shortenId(authorNode.name)}"`,
+      `Failed to load top tweets for "${shortenId(authorNode.name)}"`
     );
   };
 
   const removeNodeFromWorkspace = async (node: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.removeNodesFromWorkspace([node]),
-      `Node "${shortenId(node.id)}" removed`,
-      `Failed to remove node "${shortenId(node.id)}"`
+      `Node "${shortenId(node.name)}" removed`,
+      `Failed to remove node "${shortenId(node.name)}"`
     );
   };
 
   const addTweetAuthorToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetAuthorsToWorkspace([tweetNode]),
-      `Added author of tweet "${shortenId(tweetNode.id)}"`,
-      `Failed to add author of tweet "${shortenId(tweetNode.id)}"`
+      `Added author of tweet "${shortenId(tweetNode.name)}"`,
+      `Failed to add author of tweet "${shortenId(tweetNode.name)}"`
     );
   };
 
   const addTweetHashtagsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetHashtagsToWorkspace([tweetNode]),
-      `Added hashtags from tweet "${shortenId(tweetNode.id)}"`,
-      `Failed to add hashtags from tweet "${shortenId(tweetNode.id)}"`
+      `Added hashtags from tweet "${shortenId(tweetNode.name)}"`,
+      `Failed to add hashtags from tweet "${shortenId(tweetNode.name)}"`
     );
   };
 
   const addMentionedAuthorsToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addMentionedAuthorsToWorksapce([tweetNode]),
-      `Added mentioned authors from tweet "${shortenId(tweetNode.id)}"`,
-      `Failed to add mentioned authors from tweet "${shortenId(tweetNode.id)}"`
+      `Added mentioned authors from tweet "${shortenId(tweetNode.name)}"`,
+      `Failed to add mentioned authors from tweet "${shortenId(tweetNode.name)}"`
     );
   };
 
   const addTweetParentToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addParentsTweetsToWorkspace([tweetNode]),
-      `Added parent tweet for "${shortenId(tweetNode.id)}"`,
-      `No parent found for "${shortenId(tweetNode.id)}"`
+      `Added parent tweet for "${shortenId(tweetNode.name)}"`,
+      `No parent found for "${shortenId(tweetNode.name)}"`
     );
   };
 
   const addChildrenToWorkspace = async (tweetNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addChildrenTweetsToWorkspace([tweetNode]),
-      `Added children tweets for "${shortenId(tweetNode.id)}"`,
-      `Failed to add children tweets for "${shortenId(tweetNode.id)}"`
+      `Added children tweets for "${shortenId(tweetNode.name)}"`,
+      `Failed to add children tweets for "${shortenId(tweetNode.name)}"`
     );
   };
 
   const highlightUsersForHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.highlightUsersForHashtags([hashtagNode]),
-      `Highlighted top 10 users for hashtag "${shortenId(hashtagNode.id)}"`,
-      `Failed to highlight top users for hashtag "${shortenId(hashtagNode.id)}"`
+      `Highlighted top 10 users for hashtag "${shortenId(hashtagNode.name)}"`,
+      `Failed to highlight top users for hashtag "${shortenId(hashtagNode.name)}"`
     );
   };
 
   const addTopTweetsByHashtag = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTopTweetsByHashtags([hashtagNode]),
-      `Added top 5 tweets for hashtag "${shortenId(hashtagNode.id)}"`,
-      `Failed to add top tweets for hashtag "${shortenId(hashtagNode.id)}"`
+      `Added top 5 tweets for hashtag "${shortenId(hashtagNode.name)}"`,
+      `Failed to add top tweets for hashtag "${shortenId(hashtagNode.name)}"`
     );
   };
 
   const addRelatedHashtags = async (hashtagNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addRelatedHashtags([hashtagNode]),
-      `Added related hashtags for "${shortenId(hashtagNode.id)}"`,
-      `Failed to add related hashtags for "${shortenId(hashtagNode.id)}"`
+      `Added related hashtags for "${shortenId(hashtagNode.name)}"`,
+      `Failed to add related hashtags for "${shortenId(hashtagNode.name)}"`
     );
   };
 
@@ -274,65 +274,65 @@ export const useContextMenuItems = (): MenuItemsGetters => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsFromCommunities([authorNode], numberOfAuthors),
       numberOfAuthors
-        ? `Top ${numberOfAuthors} authors from community of "${shortenId(authorNode.id)}" added`
-        : `Entire community for "${shortenId(authorNode.id)}" added`,
-      `Failed to add authors from community of "${shortenId(authorNode.id)}"`
+        ? `Top ${numberOfAuthors} authors from community of "${shortenId(authorNode.name)}" added`
+        : `Entire community for "${shortenId(authorNode.name)}" added`,
+      `Failed to add authors from community of "${shortenId(authorNode.name)}"`
     );
   };
 
   const addHashtagsUsedByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addHashtagsUsedByAuthors([authorNode]),
-      `Added hashtags used by "${shortenId(authorNode.id)}"`,
-      `Failed to load hashtags used by "${shortenId(authorNode.id)}"`
+      `Added hashtags used by "${shortenId(authorNode.name)}"`,
+      `Failed to load hashtags used by "${shortenId(authorNode.name)}"`
     );
   };
 
   const addMentionedUsersByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addMentionedUsersByAuthors([authorNode]),
-      `Added users mentioned by "${shortenId(authorNode.id)}"`,
-      `Failed to load mentioned users for "${shortenId(authorNode.id)}"`
+      `Added users mentioned by "${shortenId(authorNode.name)}"`,
+      `Failed to load mentioned users for "${shortenId(authorNode.name)}"`
     );
   };
 
   const addAuthorsMentioningThisAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsMentioningAuthors([authorNode]),
-      `Added users mentioning "${shortenId(authorNode.id)}"`,
-      `Failed to load users mentioning "${shortenId(authorNode.id)}"`
+      `Added users mentioning "${shortenId(authorNode.name)}"`,
+      `Failed to load users mentioning "${shortenId(authorNode.name)}"`
     );
   };
 
   const addAuthorsMostRepliedToByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsMostRepliedToByAuthors([authorNode]),
-      `Added users "${shortenId(authorNode.id)}" replies to most often`,
-      `Failed to load users "${shortenId(authorNode.id)}" replies to`
+      `Added users "${shortenId(authorNode.name)}" replies to most often`,
+      `Failed to load users "${shortenId(authorNode.name)}" replies to`
     );
   };
 
   const addAuthorsMostReplyingToAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addAuthorsMostReplyingToAuthors([authorNode]),
-      `Added users replying to "${shortenId(authorNode.id)}" most often`,
-      `Failed to load users replying to "${shortenId(authorNode.id)}"`
+      `Added users replying to "${shortenId(authorNode.name)}" most often`,
+      `Failed to load users replying to "${shortenId(authorNode.name)}"`
     );
   };
 
   const addTweetsRepliedToByAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetsRepliedToByAuthors([authorNode]),
-      `Added tweets replied to by "${shortenId(authorNode.id)}"`,
-      `Failed to load replies for "${shortenId(authorNode.id)}"`
+      `Added tweets replied to by "${shortenId(authorNode.name)}"`,
+      `Failed to load replies for "${shortenId(authorNode.name)}"`
     );
   };
 
   const addTweetsMentioningAuthor = async (authorNode: GraphNode) => {
     await handleGraphUpdate(
       () => GraphApiService.addTweetsMentioningAuthors([authorNode]),
-      `Added tweets mentioning "${shortenId(authorNode.id)}"`,
-      `Failed to load tweets mentioning "${shortenId(authorNode.id)}"`
+      `Added tweets mentioning "${shortenId(authorNode.name)}"`,
+      `Failed to load tweets mentioning "${shortenId(authorNode.name)}"`
     );
   };
 

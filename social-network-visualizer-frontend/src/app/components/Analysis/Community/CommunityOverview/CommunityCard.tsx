@@ -27,7 +27,7 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
   const router = useRouter();
 
   return (
-    <article className="w-full max-w-5xl bg-[#32323F] rounded-xl p-6 shadow-lg">
+    <article className="w-full max-w-5xl bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
       <div className="flex flex-wrap justify-between gap-6 mb-4">
         <div>
           <h3 className="text-xl font-semibold leading-none">Community&nbsp;#{communityId}</h3>

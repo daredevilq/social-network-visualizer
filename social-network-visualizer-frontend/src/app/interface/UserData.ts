@@ -10,6 +10,7 @@ interface UserData {
 }
 
 interface BasicUserData {
+  id: string;
   name: string;
   community: string;
   nodeType: string;

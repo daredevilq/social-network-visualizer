@@ -9,7 +9,7 @@ import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { TweetDetails } from '@/types/tweetTypes';
 import TweetCard from '@/app/components/Analysis/Tweet/TweetCard';
 import { useProject } from '@/app/context/ProjectContext';
-import { NodeType } from '@/types/GraphTypes';
+import { GraphNode, NodeType } from '@/types/GraphTypes';
 
 interface TweetSidebarContentProps {
   selectedUserData: BasicUserData;
@@ -21,18 +21,18 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
   const [tweet, setTweet] = useState<TweetDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { showNotification } = useNotification();
-  const { setSelectedUserData } = useProject();
+  const { setSelectedUserData, projectData } = useProject();
   const { runWithUnsavedCheck } = useWorkspace();
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedUserData?.name) fetchTweetData();
+    if (selectedUserData?.id) fetchTweetData();
   }, [selectedUserData]);
 
   const fetchTweetData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/tweet/${selectedUserData.name}`);
+      const res = await fetch(`${API_BASE_URL}/tweet/${selectedUserData.id}`);
       if (!res.ok) throw new Error('Failed to load tweet data');
       const data = await res.json();
       setTweet(data);
@@ -49,10 +49,13 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
     }
   };
 
-  const goToParentTweet = (id: string) => {
+  const goToParentTweet = (tweetId: string) => {
     runWithUnsavedCheck(async () => {
+      const tweetNode = projectData.nodes.find((n: GraphNode) => n.id === tweetId && n.nodeType === NodeType.TWEET);
+
       setSelectedUserData({
-        name: id,
+        id: tweetId,
+        name: tweetNode?.name || tweetId,
         community: '',
         nodeType: NodeType.TWEET,
       });
@@ -67,17 +70,13 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
             T
           </div>
           <div>
-            <h1 className="text-xl font-bold">Tweet</h1>
-            <p className="text-xs text-gray-400">
-              ID:{' '}
-              {selectedUserData?.name &&
-                (selectedUserData.name.length > 25 ? selectedUserData.name.slice(0, 25) + '...' : selectedUserData.name)}
-            </p>
+            <h1 className="text-xl font-bold">Tweet Details</h1>
+            <p className="text-xs text-gray-400">Post Information</p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="p-2 bg-[#32323F] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
+          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -88,7 +87,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
         <div className="h-40 bg-[#3D3D4E] rounded-lg animate-pulse" />
       ) : tweet ? (
         <div className="flex flex-col space-y-4 overflow-y-auto  scrollbar-none">
-          <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+          <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
             <h3 className="text-lg font-semibold mb-3">Author</h3>
 
             <div
@@ -126,7 +125,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
           <TweetCard tweet={tweet} hoverable={false} />
 
           {tweet.mentions && tweet.mentions.length > 0 && (
-            <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
               <h3 className="text-lg font-semibold mb-3">Mentioned Users</h3>
               <div className="flex flex-col space-y-2">
                 {tweet.mentions.map((user, i) => (
@@ -148,7 +147,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
           )}
 
           {tweet.replyToId && (
-            <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
               <div className="flex items-center justify-between mb-1">
                 <div>
                   <h3 className="text-lg font-semibold">Reply To</h3>

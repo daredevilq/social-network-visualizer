@@ -196,6 +196,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
           const baseNode: GraphNode = {
             id: raw.id,
+            name: raw.name,
             nodeType: raw.nodeType,
           };
 

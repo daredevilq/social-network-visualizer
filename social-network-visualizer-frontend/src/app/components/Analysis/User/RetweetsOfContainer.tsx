@@ -11,7 +11,7 @@ export function RetweetsOfContainer({ retweetingUsers }: RetweetsOfContainerProp
   const [hoveredUser, setHoveredUser] = useState<string | null>(null);
 
   return (
-    <div className="bg-[#32323F] rounded-xl p-3 sm:p-4 md:p-6 shadow-lg w-full overflow-hidden">
+    <div className="bg-[#2A2D3D] rounded-xl p-3 sm:p-4 md:p-6 shadow-lg w-full overflow-hidden">
       <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-6 border-b border-gray-600 pb-2 flex items-center">
         <MessageSquareQuote className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
         Retweeted By

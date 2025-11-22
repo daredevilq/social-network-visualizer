@@ -5,32 +5,21 @@ import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { useRouter } from 'next/navigation';
-import { ViralTweet } from '@/types/tweetTypes';
-import { NodeType } from '@/types/GraphTypes';
+import { GraphNode, NodeType } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
+import { HashtagDetailsDto } from '@/app/interface/HashtagData';
 
 interface HashtagSidebarContentProps {
   selectedUserData: BasicUserData;
   onClose: () => void;
 }
 
-interface TopAuthor {
-  username: string;
-  count: number;
-}
-
-interface HashtagDetailsDto {
-  hashtag: string;
-  topUsers: TopAuthor[];
-  topTweets: ViralTweet[];
-}
-
 export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSidebarContentProps) => {
   const [hashtagStats, setHashtagStats] = useState<HashtagDetailsDto | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { showNotification } = useNotification();
-  const { setSelectedUserData } = useProject();
+  const { setSelectedUserData, projectData } = useProject();
   const { runWithUnsavedCheck } = useWorkspace();
   const router = useRouter();
 
@@ -41,7 +30,7 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
   const fetchHashtagData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/hashtag/${selectedUserData.name}`);
+      const res = await fetch(`${API_BASE_URL}/hashtag/${selectedUserData.name}/sidebarDetails`);
       if (!res.ok) throw new Error('Failed to load hashtag data');
       const data: HashtagDetailsDto = await res.json();
       setHashtagStats(data);
@@ -52,10 +41,13 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
     }
   };
 
-  const goToTweet = (id: string) => {
+  const goToTweet = (tweetId: string) => {
     runWithUnsavedCheck(async () => {
+      const tweetNode = projectData.nodes.find((n: GraphNode) => n.id === tweetId && n.nodeType === NodeType.TWEET);
+
       setSelectedUserData({
-        name: id,
+        id: tweetId,
+        name: tweetNode?.name || tweetId,
         community: '',
         nodeType: NodeType.TWEET,
       });
@@ -67,6 +59,12 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
     const start = url.substring(0, maxLength / 2);
     const end = url.substring(url.length - maxLength / 2);
     return `${start}...${end}`;
+  };
+
+  const showDetails = () => {
+    if (selectedUserData) {
+      router.push(`/hashtag-details/${selectedUserData.name}`);
+    }
   };
 
   return (
@@ -83,7 +81,7 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
         </div>
         <button
           onClick={onClose}
-          className="p-2 bg-[#32323F] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
+          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -93,17 +91,25 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
       <div className="flex-1 overflow-y-auto space-y-3 scrollbar-none">
         {hashtagStats ? (
           <div className="flex flex-col space-y-4 overflow-y-auto scrollbar-none">
-            <div className="bg-[#32323F] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
-              <h3 className="text-lg font-semibold mb-3">Top Users</h3>
+            <div className="bg-[#2A2D3D] rounded-xl p-4 shadow-md backdrop-blur-sm border border-[#3D3D4E]/50 mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Top Users</h3>
+                <button
+                  onClick={() => runWithUnsavedCheck(async () => showDetails())}
+                  className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                >
+                  Show details
+                </button>
+              </div>
               {loading ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
                     <div key={i} className="h-12 bg-[#3D3D4E] rounded-lg animate-pulse" />
                   ))}
                 </div>
-              ) : hashtagStats.topUsers && hashtagStats.topUsers.length > 0 ? (
+              ) : hashtagStats.topAuthors && hashtagStats.topAuthors.length > 0 ? (
                 <div className="flex flex-col space-y-2">
-                  {hashtagStats.topUsers.map((user) => (
+                  {hashtagStats.topAuthors.map((user) => (
                     <div
                       key={user.username}
                       onClick={() => router.push(`/user-details/${user.username}`)}
@@ -131,7 +137,7 @@ export const HashtagSidebarContent = ({ selectedUserData, onClose }: HashtagSide
               )}
             </div>
 
-            <div className="bg-[#32323F] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50 flex flex-col min-h-0">
+            <div className="bg-[#2A2D3D] rounded-xl p-4 shadow-md flex-1 max-h-fit backdrop-blur-sm border border-[#3D3D4E]/50 flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Top 3 Posts</h3>
               </div>
