@@ -370,8 +370,7 @@ public class ProjectService {
 
   public ProjectConfig parseConfig(String configJson) {
     try {
-      ProjectConfig projectConfig = new ObjectMapper().readValue(configJson, ProjectConfig.class);
-      return projectConfig;
+      return new ObjectMapper().readValue(configJson, ProjectConfig.class);
     } catch (Exception e) {
       log.error("Failed to parse config JSON", e);
       throw new ProjectException(

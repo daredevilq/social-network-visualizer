@@ -70,7 +70,7 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
             <ActivityChartCard activity={summary.communityActivity} />
           </div>
 
-          <div className="bg-[#32323F] rounded-xl p-6 shadow-lg">
+          <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
             <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
               <Users className="w-5 h-5 mr-2" />
               Top Author
@@ -98,7 +98,7 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
             <TopHashtagsContainer topHashtags={hashtagActivities} />
           </div>
 
-          <div className="lg:col-span-2 bg-[#32323F] rounded-xl p-6 shadow-lg">
+          <div className="lg:col-span-2 bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
             <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
               <Users className="w-5 h-5 mr-2" />
               Community Members ({usernamesInCommunity.length})

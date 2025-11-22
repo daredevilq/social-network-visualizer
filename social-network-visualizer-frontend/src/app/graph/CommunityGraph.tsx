@@ -104,7 +104,7 @@ export default function CommunityGraph() {
         shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : Colors.WhiteColor()
       }
       linkWidth={(link: GraphLink) => (shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 4 : 2)}
-      linkDirectionalArrowLength={5}
+      linkDirectionalArrowLength={8}
       linkDirectionalArrowRelPos={1}
       nodeFound={nodeFound}
     />
