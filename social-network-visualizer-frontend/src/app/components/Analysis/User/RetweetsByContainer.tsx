@@ -18,7 +18,7 @@ export function RetweetsByContainer({ retweetedUsers }: RetweetsByContainerProps
       </h2>
 
       {retweetedUsers && retweetedUsers.length > 0 ? (
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-4">
           {retweetedUsers.map((user, index) => (
             <div
               key={index}
