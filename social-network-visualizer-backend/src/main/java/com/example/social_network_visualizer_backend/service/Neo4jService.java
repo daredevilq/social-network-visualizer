@@ -1,12 +1,8 @@
 package com.example.social_network_visualizer_backend.service;
 
-import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
 import com.example.social_network_visualizer_backend.repository.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -61,7 +57,7 @@ public class Neo4jService {
         "Neo4j is not available after " + MAX_CONNECTION_ATTEMPTS + " attempts.");
   }
 
-  public void createRelationsInGraph() {
+  public void createAdditionalRelationsInGraph() {
     relationshipRepository.createRelationshipAuthorMentionsAuthor();
     relationshipRepository.createRelationshipAuthorRetweetAuthor();
     relationshipRepository.createRelationshipAuthorRepliesAuthor();
@@ -71,13 +67,6 @@ public class Neo4jService {
     relationshipRepository.createRetweetRelationships();
     relationshipRepository.createReplyToRelationships();
     relationshipRepository.createIndexForCommunity();
-  }
-
-  private Map<String, Map<String, String>> toGdsRelationMap(Set<RelationType> relationTypes) {
-    return relationTypes.stream()
-        .collect(
-            Collectors.toMap(
-                RelationType::name, rt -> Map.of("type", rt.name(), "orientation", "NATURAL")));
   }
 
   public void createConstraints() {

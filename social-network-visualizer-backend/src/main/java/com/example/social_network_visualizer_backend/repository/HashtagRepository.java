@@ -9,6 +9,7 @@ import com.example.social_network_visualizer_backend.model.Hashtag;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -17,19 +18,21 @@ import org.springframework.data.repository.query.Param;
 public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
   @Query(
       """
-                        UNWIND $hashtags AS hashtag
-                        CREATE (h:Hashtag {
-                            hashtag: hashtag.hashtag,
-                            isInWorkspace: hashtag.isInWorkspace
-                        })
-                    """)
+                UNWIND $hashtags AS hashtag
+                CREATE (h:Hashtag {
+                    id: hashtag.id,
+                    hashtag: hashtag.hashtag,
+                    isInWorkspace: hashtag.isInWorkspace
+                })
+            """)
   void createAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 
   @Query(
       """
-                        UNWIND $hashtags AS hashtag
-                        MERGE (h:Hashtag { hashtag: hashtag.hashtag })
-                    """)
+                UNWIND $hashtags AS hashtag
+                MERGE (h:Hashtag { hashtag: hashtag.hashtag })
+                ON CREATE SET h.id = hashtag.id, h.isInWorkspace = hashtag.isInWorkspace
+            """)
   void mergeAll(@Param("hashtags") List<Map<String, Object>> hashtags);
 
   @Query("CREATE CONSTRAINT IF NOT EXISTS FOR (h:Hashtag) REQUIRE h.hashtag IS UNIQUE")
@@ -37,16 +40,17 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
 
   @Query(
       """
-                        MATCH (h:Hashtag)
-                        WHERE $inWorkspace = false OR h.isInWorkspace = true
-                        OPTIONAL MATCH (h)-[r]-()
-                        WITH h, count(r) AS relationshipCount
-                        ORDER BY relationshipCount DESC
-                        LIMIT $limit
-                        RETURN
-                        h.hashtag AS id,
-                        'HASHTAG' AS nodeType
-                    """)
+                MATCH (h:Hashtag)
+                WHERE $inWorkspace = false OR h.isInWorkspace = true
+                OPTIONAL MATCH (h)-[r]-()
+                WITH h, count(r) AS relationshipCount
+                ORDER BY relationshipCount DESC
+                LIMIT $limit
+                RETURN
+                h.id AS id,
+                h.hashtag AS name,
+                'HASHTAG' AS nodeType
+            """)
   List<HashtagNodeDto> findHashtag(
       @Param("inWorkspace") boolean inWorkspace, @Param("limit") int limit);
 
@@ -97,13 +101,22 @@ public interface HashtagRepository extends Neo4jRepository<Hashtag, String> {
 
   @Query(
       """
-            MATCH (h:Hashtag)
-            WHERE h.hashtag IN $ids
-            RETURN
-                h.hashtag AS id,
-                'HASHTAG' AS nodeType
-            """)
+      MATCH (h:Hashtag)
+      WHERE h.id IN $ids
+      RETURN
+          h.id as id,
+          h.hashtag AS name,
+          'HASHTAG' AS nodeType
+      """)
   List<HashtagNodeDto> findFullHashtagNodesByIds(@Param("ids") Set<String> ids);
+
+  @Query(
+      """
+                    MATCH (h:Hashtag)
+                    WHERE h.hashtag = $hashtag
+                    RETURN h
+                """)
+  Optional<Hashtag> findHashtagByHashtag(@Param("hashtag") String hashtag);
 
   @Query(
       """

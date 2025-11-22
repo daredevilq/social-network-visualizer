@@ -20,6 +20,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.json.JsonParseException;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,8 @@ public class ProjectParser {
   private final TweetRelationService tweetRelationService;
   private final ProjectRepository projectRepository;
   private final GridFsService gridFsService;
+  private final String SUFIX_HASHTAG_ID = "25c927ca-a6e2-49da-898f-f83290126150";
+  private final String SUFIX_AUTHOR_ID = "6c70f9b7-f18d-4509-be8b-0d2b32b4e752";
 
   @Transactional
   public int parseDirectory(String projectName) {
@@ -48,7 +51,7 @@ public class ProjectParser {
     List<byte[]> fileContents = new ArrayList<>();
     for (ProjectFile projectFile : project.getFiles()) {
       try {
-        var gridFsResource = gridFsService.getFile(projectFile.getGridFsId());
+        GridFsResource gridFsResource = gridFsService.getFile(projectFile.getGridFsId());
         if (gridFsResource != null) {
           fileContents.add(gridFsResource.getInputStream().readAllBytes());
         } else {
@@ -224,6 +227,7 @@ public class ProjectParser {
       String userId) {
     if (!uniqAuthors.contains(username)) {
       Map<String, Object> map = new HashMap<>();
+      map.put("id", username + SUFIX_AUTHOR_ID);
       map.put("userName", username);
       map.put("foreignId", userId);
 
@@ -272,6 +276,7 @@ public class ProjectParser {
 
   private Map<String, Object> buildHashtagNode(String hashtagStr) {
     Map<String, Object> map = new HashMap<>();
+    map.put("id", hashtagStr + SUFIX_HASHTAG_ID);
     map.put("hashtag", hashtagStr);
     map.put("isInWorkspace", false);
     return map;

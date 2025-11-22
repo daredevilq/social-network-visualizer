@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { ViralTweet } from '@/types/tweetTypes';
+import { NodeType } from '@/types/GraphTypes';
 import { UsersMentionedContainer } from '@/app/components/Analysis/User/UsersMentionedContainer';
 import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
 import { UserProfileContainer } from '@/app/components/Analysis/User/UserProfileContainer';

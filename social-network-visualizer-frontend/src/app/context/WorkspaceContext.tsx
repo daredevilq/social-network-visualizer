@@ -61,7 +61,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { runWithLoading, loadedProjectName } = useProject();
+  const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setShortestPath, setFocusedCommunityId, setSelectedUserData } =
+    useProject();
   const { saveCurrentGraphData } = useSaveWorkspaceChanges();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -72,6 +73,15 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const [workspaces, setWorkspaces] = useState<string[]>([]);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+    setNodeFound(null);
+    setShortestPath([]);
+    setFocusedCommunityId(undefined);
+    setSelectedUserData(null);
+    setHasUnsavedChanges(false);
+  }, [openedWorkspaceName, loadedProjectName]);
 
   useEffect(() => {
     fetchWorkspaceData();
@@ -161,8 +171,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }));
 
         const nodes: GraphNode[] = (data.nodes ?? []).map((raw: any) => {
-          const baseNode: GraphNode = {
+          const baseNode = {
             id: raw.id,
+            name: raw.name,
             nodeType: raw.nodeType,
           };
 
@@ -173,7 +184,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 nodeType: NodeType.AUTHOR,
                 community: raw.community?.toString() ?? '',
                 pagerank: raw.pagerank ?? 0,
-                centrality: raw.centrality ?? 0,
               } as AuthorNode;
 
             case NodeType.TWEET:

@@ -101,7 +101,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
   const searchInLoadedData = (query: string) => {
     const matches = projectData.nodes.filter(
-      (node) => node.id.toLowerCase().includes(query) || node.nodeType.toLowerCase().includes(query)
+      (node) => node.name.toLowerCase().includes(query) || node.nodeType.toLowerCase().includes(query)
     );
 
     setFilteredSuggestions(matches);
@@ -140,14 +140,14 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
     setActiveIndex(-1);
     setIsDropdownVisible(false);
 
-    const displayValue = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
+    const displayValue = suggestion.nodeType === 'TWEET' && suggestion.content ? suggestion.content : suggestion.name;
     setLocalSearchValue(displayValue);
 
     if (isInWorkspaceMode) {
       setNodeFound(suggestion);
       addNodeToGraph(suggestion);
     } else {
-      const node = findNodeByName(projectData, suggestion.id);
+      const node = findNodeById(projectData, suggestion.id);
       if (node) {
         setNodeFound(node);
         findNodeInProjectData(node);
@@ -198,8 +198,12 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
     }
   };
 
-  const findNodeByName = (graphData: GraphData, searchId: string) => {
-    return graphData.nodes.find((node: GraphNode) => node.id === searchId);
+  const findNodeById = (graphData: GraphData, nodeId: string) => {
+    return graphData.nodes.find((node: GraphNode) => node.id === nodeId);
+  };
+
+  const findNodeByName = (graphData: GraphData, searchName: string) => {
+    return graphData.nodes.find((node: GraphNode) => node.name.toLowerCase() === searchName.toLowerCase());
   };
 
   return (
@@ -259,7 +263,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
           {isDropdownVisible && (
             <ul ref={listRef} className="absolute z-10 mt-1 w-full bg-[#FAFAFA] rounded-md shadow-g max-h-60 overflow-auto">
               {filteredSuggestions.map((suggestion, index) => {
-                const value = suggestion.nodeType === 'TWEET' ? suggestion.content : suggestion.id;
+                const value = suggestion.nodeType === 'TWEET' && suggestion.content ? suggestion.content : suggestion.name;
                 const query = localSearchValue.trim().toLowerCase();
                 const lowerName = value.toLowerCase();
                 const matchIndex = lowerName.indexOf(query);
@@ -270,7 +274,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
                 return (
                   <li
-                    key={`${suggestion.id}-${suggestion.nodeType}`}
+                    key={`${suggestion.id || suggestion.name}-${suggestion.nodeType}`}
                     onClick={() => selectSuggestion(suggestion)}
                     onMouseEnter={() => setActiveIndex(index)}
                     className={`px-4 py-2 cursor-pointer flex flex-col transition-colors duration-200 text-gray-800 ${

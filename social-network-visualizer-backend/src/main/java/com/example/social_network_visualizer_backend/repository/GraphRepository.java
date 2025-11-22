@@ -43,17 +43,22 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 MATCH (a1:Author)-[r]->(a2:Author)
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
                 MATCH (a:Author)-[r]->(t:Tweet)
-                RETURN a.userName AS source, t.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a.id AS source, t.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
                 MATCH (t:Tweet)-[r]->(h:Hashtag)
-                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN t.id AS source, h.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+
+                UNION
+
+                MATCH (t:Tweet)-[r]->(a:Author)
+                RETURN t.id AS source, a.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
@@ -63,7 +68,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 UNION
 
                 MATCH (a:Author)-[r]->(h:Hashtag)
-                RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a.id AS source, h.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
             """)
   List<LinkDto> findAllRelations();
 
@@ -72,19 +77,19 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 MATCH (a1:Author)-[r]->(a2:Author)
                 WHERE a1.isInWorkspace = true AND a2.isInWorkspace = true
-                RETURN a1.userName AS source, a2.userName AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
                 MATCH (a:Author)-[r]->(t:Tweet)
                 WHERE a.isInWorkspace = true AND t.isInWorkspace = true
-                RETURN a.userName AS source, t.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a.id AS source, t.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
                 MATCH (t:Tweet)-[r]->(h:Hashtag)
                 WHERE t.isInWorkspace = true AND h.isInWorkspace = true
-                RETURN t.id AS source, h.hashtag AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN t.id AS source, h.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
 
                 UNION
 
@@ -94,9 +99,15 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 UNION
 
+                MATCH (t:Tweet)-[r]->(a:Author)
+                WHERE t.isInWorkspace = true AND a.isInWorkspace = true
+                RETURN t.id AS source, a.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+
+                UNION
+
                 MATCH (a:Author)-[r]->(h:Hashtag)
                 WHERE a.isInWorkspace = true AND h.isInWorkspace = true
-                RETURN a.userName AS source, h.hashtag AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
+                RETURN a.id AS source, h.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
             """)
   List<LinkDto> findWorkspaceRelationships();
 
@@ -119,7 +130,8 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 MATCH (a:Author)
                 WHERE toLower(a.userName) CONTAINS toLower($query) OR 'author' CONTAINS toLower($query)
                 RETURN
-                  a.userName AS id,
+                  a.id AS id,
+                  a.userName AS name,
                   'AUTHOR' AS nodeType,
                   null AS content
 
@@ -128,7 +140,8 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 MATCH (h:Hashtag)
                 WHERE toLower(h.hashtag) CONTAINS toLower($query) OR 'hashtag' CONTAINS toLower($query)
                 RETURN
-                  h.hashtag AS id,
+                  h.id AS id,
+                  h.hashtag AS name,
                   'HASHTAG' AS nodeType,
                   null AS content
 
@@ -138,6 +151,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
                 WHERE toLower(t.content) CONTAINS toLower($query) OR 'tweet' CONTAINS toLower($query)
                 RETURN
                   t.id AS id,
+                  t.contentPreview AS name,
                   'TWEET' AS nodeType,
                   t.content AS content
             """)
@@ -146,14 +160,14 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
   @Query(
       """
                 UNWIND $edges AS edge
-                OPTIONAL MATCH (source:Author {userName: edge.source})
+                OPTIONAL MATCH (source:Author {id: edge.source})
                 OPTIONAL MATCH (source2:Tweet {id: edge.source})
-                OPTIONAL MATCH (source3:Hashtag {hashtag: edge.source})
+                OPTIONAL MATCH (source3:Hashtag {id: edge.source})
                 WITH edge, COALESCE(source, source2, source3) AS sourceNode
 
-                OPTIONAL MATCH (target:Author {userName: edge.target})
+                OPTIONAL MATCH (target:Author {id: edge.target})
                 OPTIONAL MATCH (target2:Tweet {id: edge.target})
-                OPTIONAL MATCH (target3:Hashtag {hashtag: edge.target})
+                OPTIONAL MATCH (target3:Hashtag {id: edge.target})
                 WITH edge, sourceNode, COALESCE(target, target2, target3) AS targetNode
 
                 WHERE sourceNode IS NOT NULL AND targetNode IS NOT NULL
@@ -162,7 +176,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
 
                 WITH edge, r
                 WHERE r IS NOT NULL
-                RETURN edge.source AS source, edge.target AS target, edge.relation AS relation
+                RETURN edge.source AS source, edge.target AS target, edge.relation AS relation, COALESCE(r.weight, 1) AS weight
             """)
   List<LinkDto> findExistingRelations(@Param("edges") List<Map<String, String>> edges);
 
@@ -170,20 +184,22 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
       """
                 UNWIND $nodes AS node
                 WITH node.id AS nodeId, node.nodeType AS nodeType
-                OPTIONAL MATCH (a:Author {userName: nodeId})
+                OPTIONAL MATCH (a:Author {id: nodeId})
                 WHERE nodeType = 'AUTHOR' AND a IS NOT NULL
 
-                WITH nodeId, nodeType, a.userName AS authorId
+                WITH nodeId, nodeType, a.id AS authorId, a.userName AS authorName
                 OPTIONAL MATCH (t:Tweet {id: nodeId})
                 WHERE nodeType = 'TWEET' AND t IS NOT NULL
 
-                WITH nodeId, nodeType, authorId, t.id AS tweetId
-                OPTIONAL MATCH (h:Hashtag {hashtag: nodeId})
+                WITH nodeId, nodeType, authorId, authorName, t.id AS tweetId, t.contentPreview AS tweetName
+                OPTIONAL MATCH (h:Hashtag {id: nodeId})
                 WHERE nodeType = 'HASHTAG' AND h IS NOT NULL
 
-                WITH COALESCE(authorId, tweetId, h.hashtag) AS id, nodeType
+                WITH COALESCE(authorId, tweetId, h.id) AS id,
+                     COALESCE(authorName, tweetName, h.hashtag) AS name,
+                     nodeType
                 WHERE id IS NOT NULL
-                RETURN id, nodeType
+                RETURN id, name, nodeType
             """)
   List<NodeDto> findExistingNodesByIdsAndTypes(@Param("nodes") List<Map<String, String>> nodes);
 }
