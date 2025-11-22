@@ -64,6 +64,7 @@ export interface GraphLink extends LinkObject {
   target: string;
   relation: RelationType;
   weight: number;
+  curvature?: number;
 }
 
 export interface GraphProps {
