@@ -5,7 +5,6 @@ import { AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, TweetNode } fr
 import { useNotification } from '@/app/context/NotificationProvider';
 import { useProject } from '@/app/context/ProjectContext';
 import LeaveConfirmModal from '@/app/components/Popups/LeaveConfirmModal';
-import { useSaveWorkspaceChanges } from '@/app/hooks/useSaveWorkspaceChanges';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
 
@@ -63,7 +62,6 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { showNotification } = useNotification();
   const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setShortestPath, setFocusedCommunityId, setSelectedUserData } =
     useProject();
-  const { saveCurrentGraphData } = useSaveWorkspaceChanges();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
@@ -260,7 +258,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const handleSave = async () => {
-    await saveCurrentGraphData();
+    await saveWorkspaceData(workspaceData);
+    setHasUnsavedChanges(false);
     if (pendingAction) {
       await pendingAction();
       setPendingAction(undefined);
