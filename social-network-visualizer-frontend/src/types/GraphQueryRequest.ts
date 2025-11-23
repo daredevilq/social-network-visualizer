@@ -14,4 +14,5 @@ export interface GraphQueryRequest {
   nodeTypes: NodeType[];
   relationTypes: RelationType[];
   fetchConfig?: FetchConfig; // FetchStrategy.ALL if undefined
+  focusedCommunity: number | null;
 }

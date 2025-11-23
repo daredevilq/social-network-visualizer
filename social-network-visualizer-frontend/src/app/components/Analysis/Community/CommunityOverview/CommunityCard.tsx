@@ -7,22 +7,12 @@ import ActivityChart from './ActivityChart';
 import PageRankBar from './PageRankBar';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useProject } from '@/app/context/ProjectContext';
-import { GraphType } from '@/app/interface/GraphType';
-import { setGraphUiType } from '@/app/project-state';
+import { useCommunityGraphNavigation } from '@/app/hooks/useCommunityGraphNavigation';
 
 export default function CommunityCard({ data }: { data: CommunitySummary }) {
   const { communityId, memberCount, topAuthor, topPageRank, topHashtags, communityActivity } = data;
 
-  const { setFocusedCommunityId, setSelectedGraphType } = useProject();
-
-  const openGraph = async () => {
-    setFocusedCommunityId(data.communityId.toString());
-    await setGraphUiType(GraphType.COMMUNITY);
-    setSelectedGraphType(GraphType.COMMUNITY);
-    router.push('/');
-  };
-
+  const { openCommunityGraph } = useCommunityGraphNavigation();
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -52,7 +42,10 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
         >
           Analyse
         </Link>
-        <button onClick={openGraph} className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition">
+        <button
+          onClick={() => openCommunityGraph(communityId)}
+          className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition"
+        >
           Show graph
         </button>
       </div>

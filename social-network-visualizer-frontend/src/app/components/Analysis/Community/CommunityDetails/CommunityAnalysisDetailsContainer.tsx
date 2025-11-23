@@ -9,24 +9,15 @@ import { TopHashtagsContainer } from '@/app/components/Analysis/User/TopHashtags
 import { useActivityHeatmap } from '@/app/hooks/useActivityHeatmap';
 import HeatMapChartCard from '@/app/components/Analysis/Community/CommunityDetails/HeatMapChartCard';
 import ActivityChartCard from '@/app/components/Analysis/Community/CommunityDetails/ActivityChartCard';
-import { useProject } from '@/app/context/ProjectContext';
-import { GraphType } from '@/app/interface/GraphType';
-import { setGraphUiType } from '@/app/project-state';
 import { User2, Users } from 'lucide-react';
+import { useCommunityGraphNavigation } from '@/app/hooks/useCommunityGraphNavigation';
 
 export default function CommunityAnalysisDetailsContainer({ communityId }: { communityId: string }) {
   const id = Number(communityId);
   const { data: summary, loading: loadingSummary } = useCommunitySummary(id);
   const { data: authors, loading: loadingAuthors } = useCommunityAuthors(id);
   const { data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({ communityId: id });
-  const { setFocusedCommunityId, setSelectedGraphType } = useProject();
-
-  const openGraph = async () => {
-    setFocusedCommunityId(communityId);
-    await setGraphUiType(GraphType.COMMUNITY);
-    setSelectedGraphType(GraphType.COMMUNITY);
-    router.push('/');
-  };
+  const { openCommunityGraph } = useCommunityGraphNavigation();
 
   const router = useRouter();
 
@@ -58,7 +49,7 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
           <h1 className="flex-1 text-center text-2xl md:text-3xl font-bold">Community #{communityId}</h1>
 
           <button
-            onClick={openGraph}
+            onClick={() => openCommunityGraph(id)}
             className="ml-auto shrink-0 text-white bg-[#7140F4] hover:bg-indigo-500 cursor-pointer px-4 py-1.5 rounded-md transition-colors duration-200"
           >
             Show community graph

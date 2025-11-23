@@ -26,18 +26,22 @@ public class GraphService {
   private final AuthorRepository authorRepository;
   private final List<NodeQueryStrategy> nodeQueryStrategies;
 
-  public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
+  public GraphDataDto getGraph(GraphQueryRequest request) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
     List<NodeDto> nodes =
         fetchRequestedNodes(
-            finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
+            finalRequest.nodeTypes(),
+            finalRequest.fetchConfig(),
+            finalRequest.focusedCommunity(),
+            false);
     Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
-    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, communityId);
+    List<LinkDto> links =
+        fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, finalRequest.focusedCommunity());
 
     log.info(
         "Graph fetched (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {}",
-        communityId.map(String::valueOf).orElse("null"),
+        finalRequest.focusedCommunity(),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
@@ -108,6 +112,7 @@ public class GraphService {
     Set<NodeType> nodeTypes = request.nodeTypes();
     Set<RelationType> relationTypes = request.relationTypes();
     FetchConfig fetchConfig = request.fetchConfig();
+    Integer communityId = request.focusedCommunity().orElse(null);
 
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       nodeTypes = Set.of(NodeType.AUTHOR);
@@ -118,8 +123,9 @@ public class GraphService {
     if (fetchConfig == null) {
       fetchConfig = FetchConfig.defaultConfig();
     }
+    Optional<Integer> communityOpt = Optional.ofNullable(communityId);
 
-    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig);
+    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, communityOpt);
   }
 
   public List<NodeSearchDto> getSuggestions(String query) {

@@ -90,6 +90,7 @@ export default function FiltersContent() {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
           fetchConfig: fetchConfig,
+          focusedCommunity: null,
         };
         await fetchGraphData(request);
         showNotification('Filters applied successfully', BannerType.SUCCESS);

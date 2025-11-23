@@ -158,6 +158,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           nodeTypes: selectedNodeTypes,
           relationTypes: selectedRelationTypes,
           fetchConfig: fetchConfig,
+          focusedCommunity: null,
         };
 
         const res = await fetch(`${API_BASE_URL}/graph`, {
