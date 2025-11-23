@@ -23,6 +23,9 @@ interface ForceParameters {
 }
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
+  const MIN_CURVATURE = 0.4;
+  const MAX_CURVATURE = 1.0;
+
   const {
     graphData,
     nodeVal,
@@ -287,9 +290,10 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       directionalGroups[key].push(link);
     });
 
-    Object.values(directionalGroups).forEach((group: GraphLink[]) => {
-      group.forEach((link: GraphLink, index: number) => {
-        link.curvature = 0.4 + index * 0.2;
+    Object.values(directionalGroups).forEach((group) => {
+      const step = (MAX_CURVATURE - MIN_CURVATURE) / Math.max(group.length - 1, 1);
+      group.forEach((link, index) => {
+        link.curvature = MIN_CURVATURE + index * step;
       });
     });
   };
