@@ -23,6 +23,9 @@ interface ForceParameters {
 }
 
 const BaseGraph = forwardRef((props: GraphProps, ref) => {
+  const MIN_CURVATURE = 0.4;
+  const MAX_CURVATURE = 1.0;
+
   const {
     graphData,
     nodeVal,
@@ -145,7 +148,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-      .linkCurvature(0.4)
+      .linkCurvature((link: GraphLink) => link.curvature)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
@@ -275,6 +278,26 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setFocusedCommunityId(undefined);
   };
 
+  const assignCurvatureToLinks = (links: GraphLink[]) => {
+    const directionalGroups: { [key: string]: GraphLink[] } = {};
+
+    links.forEach((link) => {
+      const key = `${link.source}->${link.target}`;
+
+      if (!directionalGroups[key]) {
+        directionalGroups[key] = [];
+      }
+      directionalGroups[key].push(link);
+    });
+
+    Object.values(directionalGroups).forEach((group) => {
+      const step = (MAX_CURVATURE - MIN_CURVATURE) / Math.max(group.length - 1, 1);
+      group.forEach((link, index) => {
+        link.curvature = MIN_CURVATURE + index * step;
+      });
+    });
+  };
+
   const displayGraphData = () => {
     if (!fgInstance.current) return;
 
@@ -283,6 +306,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     const displayLinks = graphData.links
       .filter((link: GraphLink) => displayNodeIds.has(link.source) && displayNodeIds.has(link.target))
       .map((link: GraphLink) => ({ ...link }));
+
+    assignCurvatureToLinks(displayLinks);
 
     fgInstance.current.graphData({
       nodes: graphData.nodes,

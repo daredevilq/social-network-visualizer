@@ -66,6 +66,19 @@ export const WarningIcon = () => (
   </svg>
 );
 
+export const ScrollDownInfoIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={4}
+    stroke="currentColor"
+    className="w-9 h-9 text-[#5C37E6] animate-bounce drop-shadow-[0_0_12px_rgba(92,55,230,0.9)]"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
 export const BackToGraphIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
