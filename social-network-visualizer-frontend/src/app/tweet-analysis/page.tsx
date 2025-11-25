@@ -23,7 +23,7 @@ export default function TweetAnalysisPage() {
 
       <div
         className="flex-1 min-w-0 overflow-auto transition-all duration-300"
-        style={{ marginLeft: isLeftSidebarOpen ? '24rem' : '2rem' }}
+        style={{ marginLeft: isLeftSidebarOpen ? '23.75rem' : '3.75rem' }}
       >
         <div className="max-w-full">
           <TweetAnalysisList userName={undefined} />

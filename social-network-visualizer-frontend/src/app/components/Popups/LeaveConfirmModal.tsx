@@ -29,11 +29,11 @@ export default function LeaveConfirmModal({ open, onSave, onDiscard, onCancel }:
 
         <p className="mb-6 text-center text-gray-300">You have unsaved changes. What do you want to do?</p>
 
-        <div className="flex justify-center gap-4">
-          <button onClick={onSave} className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5b30c9] transition-colors">
+        <div className="grid grid-cols-2 gap-4">
+          <button onClick={onSave} className="px-4 py-2 rounded-md bg-[#7140F4] hover:bg-[#5b30c9] transition-colors w-full">
             Save
           </button>
-          <button onClick={onDiscard} className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 transition-colors">
+          <button onClick={onDiscard} className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 transition-colors w-full">
             Discard
           </button>
         </div>

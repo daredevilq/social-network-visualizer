@@ -13,12 +13,11 @@ import { API_BASE_URL } from '@/app/configuration/urlConfig';
 
 interface TweetAnalysisContainerProps {
   userName: string | undefined;
-  tweetsContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const PAGE_SIZE = 10;
 
-const TweetAnalysisContainer = ({ userName, tweetsContainerRef }: TweetAnalysisContainerProps) => {
+const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
   const { loading, runWithLoading } = useProject();
   const { showNotification } = useNotification();
   const [tweets, setTweets] = useState<Tweet[]>([]);
@@ -105,7 +104,7 @@ const TweetAnalysisContainer = ({ userName, tweetsContainerRef }: TweetAnalysisC
   }, [search]);
 
   return (
-    <div className="relative flex flex-col flex-1 overflow-hidden">
+    <div className="relative flex flex-col flex-1 min-h-0">
       <div className="md:hidden flex justify-end relative z-10 pr-4">
         <div
           onClick={() => setFiltersVisible(!filtersVisible)}
@@ -136,7 +135,7 @@ const TweetAnalysisContainer = ({ userName, tweetsContainerRef }: TweetAnalysisC
         />
       </div>
 
-      <TweetList tweets={tweets} hasMore={hasMore} inViewRef={inViewRef} tweetsContainerRef={tweetsContainerRef} />
+      <TweetList tweets={tweets} hasMore={hasMore} inViewRef={inViewRef} />
     </div>
   );
 };

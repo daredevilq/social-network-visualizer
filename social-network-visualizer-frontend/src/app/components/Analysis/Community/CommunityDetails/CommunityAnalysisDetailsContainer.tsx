@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCommunitySummary } from '@/app/hooks/useCommunitySummary';
 import { useCommunityAuthors } from '@/app/hooks/useCommunityAuthors';
@@ -20,6 +20,10 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
   const { data: authors, loading: loadingAuthors } = useCommunityAuthors(id);
   const { data: communityHeatMap, loading: loadingHeatMap } = useActivityHeatmap({ communityId: id });
   const { setFocusedCommunityId, setSelectedGraphType } = useProject();
+  const [searchTerm, setSearchTerm] = useState('');
+  const usernamesInCommunity: string[] = authors?.map((a) => a.userName) ?? [];
+
+  const filteredUsernames = usernamesInCommunity.filter((username) => username.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const openGraph = async () => {
     setFocusedCommunityId(communityId);
@@ -39,11 +43,10 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
     name,
     frequency: 0,
   }));
-  const usernamesInCommunity: string[] = authors?.map((a) => a.userName) ?? [];
 
   return (
-    <section className="flex flex-col h-max w-full text-[#FAFAFA]">
-      <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
+    <section className="flex flex-col w-full min-h-screen bg-[#262631] text-[#FAFAFA] p-6">
+      <div className="mx-auto w-full max-w-7xl">
         <header className="mb-6 flex items-center justify-between gap-4 w-full">
           <button
             onClick={() => router.push('/community-analysis')}
@@ -99,18 +102,33 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
           </div>
 
           <div className="lg:col-span-2 bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
-              <Users className="w-5 h-5 mr-2" />
-              Community Members ({usernamesInCommunity.length})
-            </h2>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-gray-600 pb-2">
+              <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
+                <Users className="w-5 h-5 mr-2" />
+                Community Members ({usernamesInCommunity.length})
+              </h2>
+              <input
+                type="text"
+                placeholder="Search authors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-60 lg:w-80 px-4 py-2 rounded-lg bg-[#3D3D4E] text-gray-200
+                 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {usernamesInCommunity.map((username) => (
+              {filteredUsernames.map((username) => (
                 <div
                   key={username}
                   onClick={() => router.push(`/user-details/${username}`)}
-                  className="flex items-center gap-3 bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer hover:shadow-md hover:scale-[1.01]"
+                  className="flex items-center gap-3 bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3
+                   rounded-xl text-sm text-gray-100 transition-all duration-200
+                   cursor-pointer hover:shadow-md hover:scale-[1.01]"
                 >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md flex-shrink-0">
+                  <div
+                    className="flex items-center justify-center w-8 h-8 rounded-full
+                        bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md flex-shrink-0"
+                  >
                     <User2 size={18} />
                   </div>
 
@@ -118,7 +136,8 @@ export default function CommunityAnalysisDetailsContainer({ communityId }: { com
                 </div>
               ))}
             </div>
-            {usernamesInCommunity.length === 0 && <p className="text-gray-400 text-center py-4">No community members found</p>}
+
+            {filteredUsernames.length === 0 && <p className="text-gray-400 text-center py-4">No community members found</p>}
           </div>
         </div>
       </div>

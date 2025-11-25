@@ -100,7 +100,7 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="w-full min-h-screen bg-[#262631] text-white p-10">
-          <div className="mx-auto pl-6">
+          <div className="mx-auto">
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={() => router.push('/')}
