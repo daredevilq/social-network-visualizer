@@ -10,6 +10,7 @@ import { GraphQueryRequest, FetchConfig } from '@/types/GraphQueryRequest';
 import { isRelationAvailable } from '@/app/utils/nodeRelationMap';
 import FetchConfigModal from '@/app/components/Popups/FetchConfigModal';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
+import { useWorkspace } from '@/app/context/WorkspaceContext';
 
 export default function FiltersContent() {
   const {
@@ -21,6 +22,7 @@ export default function FiltersContent() {
     fetchGraphData,
     fetchConfig,
     setFetchConfig,
+    focusedCommunityId,
   } = useProject();
 
   const { showNotification } = useNotification();
@@ -36,6 +38,7 @@ export default function FiltersContent() {
   const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { isInWorkspaceMode } = useWorkspace();
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
@@ -90,7 +93,7 @@ export default function FiltersContent() {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
           fetchConfig: fetchConfig,
-          focusedCommunity: null,
+          focusedCommunityId: focusedCommunityId,
         };
         await fetchGraphData(request);
         showNotification('Filters applied successfully', BannerType.SUCCESS);
@@ -111,14 +114,14 @@ export default function FiltersContent() {
       <div className="flex items-center border-b border-white pb-2 mb-4">
         <h1 className="text-2xl font-bold mr-2">Graph Filters</h1>
         <PopoverIcon
-          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.`}
+          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.\n\n**Note:** In workspace mode, filters cannot be applied because the graph always saves all data.`}
           scale={1.6}
           position="bottom"
         />
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
-        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
           <button
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
@@ -177,7 +180,7 @@ export default function FiltersContent() {
           )}
         </div>
 
-        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
           <button
             onClick={() => setRelationTypesExpanded(!relationTypesExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
@@ -248,7 +251,7 @@ export default function FiltersContent() {
           )}
         </div>
 
-        <div className="border border-gray-700 rounded-lg bg-[#30303d]">
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
           <button
             onClick={() => setFetchConfigExpanded(!fetchConfigExpanded)}
             className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
@@ -301,7 +304,10 @@ export default function FiltersContent() {
       <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
         <button
           onClick={handleApply}
-          className="w-full py-3 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] font-semibold rounded-lg transition-colors"
+          disabled={isInWorkspaceMode}
+          title={isInWorkspaceMode ? 'Cannot apply filters in workspace mode' : ''}
+          className={`w-full py-3 text-[#FAFAFA] font-semibold rounded-lg transition-colors
+                ${isInWorkspaceMode ? 'bg-gray-500 cursor-not-allowed opacity-50' : 'bg-[#7140F4] hover:bg-[#5a33c4]'}`}
         >
           Apply Filters
         </button>

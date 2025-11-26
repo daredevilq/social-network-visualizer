@@ -1,6 +1,8 @@
 'use client';
 
 import Colors from '@/app/utils/Colors';
+import { useEffect, useRef, useState } from 'react';
+import { ScrollDownInfoIcon } from '@/app/components/icons/Icons';
 
 interface LegendItemProps {
   icon: React.JSX.Element;
@@ -76,11 +78,33 @@ const LinkIcon_USES_HASHTAG = () => <LinkIconBase {...linkStyles.USES_HASHTAG} /
 const LinkIcon_HAS_HASHTAG = () => <LinkIconBase {...linkStyles.HAS_HASHTAG} />;
 const LinkIcon_SHARES_HASHTAG = () => <LinkIconBase {...linkStyles.SHARES_HASHTAG} />;
 
-export default function HelpContent() {
+export default function GraphLegendContent() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      setCanScrollDown(scrollTop + clientHeight < scrollHeight - 1);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
   return (
     <div className="relative h-full flex flex-col text-white px-4 pt-4">
       <h1 className="text-2xl font-bold border-b border-gray-700 pb-2 mb-4">Graph Legend</h1>
-      <div className="flex-grow overflow-y-auto pb-4 scrollbar-dark space-y-6">
+      <div
+        ref={scrollRef}
+        onScroll={checkScroll}
+        className="
+          flex-grow overflow-y-auto pb-4 space-y-6
+          scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']
+        "
+      >
         <div>
           <ul className="divide-y divide-gray-700 border-b border-gray-700 pb-2 mb-4 max-w-sm">
             <LegendItem icon={<AuthorIcon />} title="Author" description="A user. Size often indicates influence (e.g., PageRank)." />
@@ -109,6 +133,16 @@ export default function HelpContent() {
             <LegendItem icon={<LinkIcon_USES_HASHTAG />} title="USES_HASHTAG" description="Author uses hashtag" />
           </ul>
         </div>
+      </div>
+      <div
+        className={`
+          absolute bottom-0 left-0 right-0 
+          flex justify-center items-end pb-2 h-16
+          pointer-events-none transition-opacity duration-300
+          ${canScrollDown ? 'opacity-100' : 'opacity-0'}
+        `}
+      >
+        <ScrollDownInfoIcon />
       </div>
     </div>
   );

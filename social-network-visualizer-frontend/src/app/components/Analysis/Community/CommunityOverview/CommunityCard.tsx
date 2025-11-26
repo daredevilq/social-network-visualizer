@@ -5,7 +5,6 @@ import { CommunitySummary } from '@/app/interface/CommunitySummary';
 import CommunityMetrics from './CommunityMetrics';
 import ActivityChart from './ActivityChart';
 import PageRankBar from './PageRankBar';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCommunityGraphNavigation } from '@/app/hooks/useCommunityGraphNavigation';
 
@@ -14,7 +13,6 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
 
   const { openCommunityGraph } = useCommunityGraphNavigation();
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   return (
     <article className="w-full max-w-5xl bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
@@ -33,7 +31,7 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
 
       <div className="mt-3 flex flex-wrap gap-4 text-xs">
         <button onClick={() => setOpen((o) => !o)} className="text-indigo-300 hover:text-indigo-200 transition">
-          {open ? 'Hide graph ▲' : 'Show graph ▼'}
+          {open ? 'Hide activity graph ▲' : 'Show activity graph ▼'}
         </button>
 
         <Link
@@ -46,7 +44,7 @@ export default function CommunityCard({ data }: { data: CommunitySummary }) {
           onClick={() => openCommunityGraph(communityId)}
           className="text-white px-3 py-1 bg-[#7140F4] hover:bg-indigo-500 rounded-md transition"
         >
-          Show graph
+          Show community graph
         </button>
       </div>
 

@@ -77,9 +77,9 @@ public class CommunityService {
       log.warn("Project '{}' has no COMMUNITY metric configuration in metrics list", projectName);
     } else {
       log.info(
-          "Found COMMUNITY metric config for project '{}': nodeLabels={}, relationTypes={}, orientation={}",
+          "Found COMMUNITY metric config for project '{}': nodeTypes={}, relationTypes={}, orientation={}",
           projectName,
-          communityMetric.get().nodeLabels(),
+          communityMetric.get().nodeTypes(),
           communityMetric.get().relationTypes(),
           communityMetric.get().orientation());
     }

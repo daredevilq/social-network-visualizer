@@ -44,7 +44,7 @@ public class MetricComputationService {
         metricCfg.type(),
         tempGraphName,
         metricCfg.orientation(),
-        metricCfg.nodeLabels(),
+        metricCfg.nodeTypes(),
         metricCfg.relationTypes());
 
     try {
@@ -66,7 +66,7 @@ public class MetricComputationService {
   }
 
   private void createGraphProjection(String graphName, MetricConfig metricCfg) {
-    List<String> labels = metricCfg.nodeLabels().stream().map(NodeType::getLabel).toList();
+    List<String> labels = metricCfg.nodeTypes().stream().map(NodeType::getLabel).toList();
 
     Map<String, Map<String, String>> relations =
         toGdsRelationMap(metricCfg.relationTypes(), metricCfg.orientation());

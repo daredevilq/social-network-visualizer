@@ -33,17 +33,17 @@ export function useCommunityGraphNavigation() {
       const config: MetricConfig = await res.json();
 
       const request: GraphQueryRequest = {
-        nodeTypes: config.nodeLabels,
+        nodeTypes: config.nodeTypes,
         relationTypes: config.relationTypes,
         fetchConfig: {
           strategy: FetchStrategy.ALL,
         },
-        focusedCommunity: communityId,
+        focusedCommunityId: communityId,
       };
 
       await fetchGraphData(request);
-      setFocusedCommunityId(communityId.toString());
-      setSelectedNodeTypes(config.nodeLabels);
+      setFocusedCommunityId(communityId);
+      setSelectedNodeTypes(config.nodeTypes);
       setSelectedRelationTypes(config.relationTypes);
       await setGraphUiType(GraphType.COMMUNITY);
       setSelectedGraphType(GraphType.COMMUNITY);

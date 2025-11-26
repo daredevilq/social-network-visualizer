@@ -8,6 +8,7 @@ import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
+import CommunityFocusIndicator from '@/app/components/CommunityFocusIndicator';
 
 interface SearchAndToggleModeContainerProps {
   searchValue: string;
@@ -32,6 +33,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   const { addNodeToGraph, findNodeInProjectData } = useGraph();
   const { showNotification } = useNotification();
   const listRef = useRef<HTMLUListElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     if (!loadedProjectName || !openedWorkspaceName) return;
@@ -63,6 +65,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsTyping(false);
         setIsDropdownVisible(false);
         setActiveIndex(-1);
       }
@@ -73,9 +76,8 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
 
   useEffect(() => {
     const query = localSearchValue.trim().toLowerCase();
-    if (!isDropdownVisible && nodeFound) return;
 
-    if (query.length === 0) {
+    if (!isTyping || query.length === 0) {
       setFilteredSuggestions([]);
       setIsDropdownVisible(false);
       setActiveIndex(-1);
@@ -97,7 +99,12 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
       if (abortControllerRef.current) abortControllerRef.current.abort();
     };
-  }, [localSearchValue]);
+  }, [localSearchValue, isTyping]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIsTyping(true);
+    setLocalSearchValue(e.target.value);
+  };
 
   const searchInLoadedData = (query: string) => {
     const matches = projectData.nodes.filter(
@@ -132,11 +139,8 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
     }
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLocalSearchValue(e.target.value);
-  };
-
   const selectSuggestion = (suggestion: GraphNode) => {
+    setIsTyping(false);
     setActiveIndex(-1);
     setIsDropdownVisible(false);
 
@@ -236,6 +240,10 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
           <Search className="absolute left-3 top-2 h-4 w-4 text-gray-400" />
           <input
             type="text"
+            onFocus={() => setIsTyping(true)}
+            onBlur={() => {
+              setTimeout(() => setIsTyping(false), 150);
+            }}
             value={localSearchValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -294,6 +302,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             </ul>
           )}
         </div>
+        <CommunityFocusIndicator />
       </div>
     </div>
   );

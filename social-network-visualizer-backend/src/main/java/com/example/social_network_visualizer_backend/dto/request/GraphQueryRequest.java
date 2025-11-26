@@ -9,4 +9,4 @@ public record GraphQueryRequest(
     Set<NodeType> nodeTypes,
     Set<RelationType> relationTypes,
     FetchConfig fetchConfig,
-    Optional<Integer> focusedCommunity) {}
+    Optional<Integer> focusedCommunityId) {}

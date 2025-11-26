@@ -27,7 +27,7 @@ export default function CommunityAnalysisContainer() {
   if (!overview) return null;
 
   return (
-    <section className="flex flex-col h-max w-full text-[#FAFAFA]">
+    <section className="flex flex-col w-full min-h-screen bg-[#262631] text-[#FAFAFA] p-6">
       <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
         <header className="relative flex items-center w-full mb-6">
           <button

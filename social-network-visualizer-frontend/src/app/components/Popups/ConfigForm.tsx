@@ -55,8 +55,8 @@ export default function ConfigForm({ initialConfig, defaultConfig, onChange }: C
 
         const updated = { ...row, ...patch };
 
-        if (patch.nodeLabels) {
-          const validRelations = filterValidRelations(updated.relationTypes, updated.nodeLabels);
+        if (patch.nodeTypes) {
+          const validRelations = filterValidRelations(updated.relationTypes, updated.nodeTypes);
           updated.relationTypes = validRelations;
         }
 
@@ -163,7 +163,7 @@ export default function ConfigForm({ initialConfig, defaultConfig, onChange }: C
               />
             </div>
             <div className="flex flex-wrap gap-2">
-              {meta.nodeLabels.map((nl: string) => {
+              {meta.nodeTypes.map((nl: string) => {
                 const isDisabled = nl !== 'AUTHOR';
                 return (
                   <label
@@ -171,7 +171,7 @@ export default function ConfigForm({ initialConfig, defaultConfig, onChange }: C
                     className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded border transition-all ${
                       isDisabled
                         ? 'border-gray-700 bg-[#1a1a24] text-gray-600 cursor-not-allowed opacity-50'
-                        : metric.nodeLabels.includes(nl as NodeType)
+                        : metric.nodeTypes.includes(nl as NodeType)
                           ? 'border-[#7140F4] bg-[#7140F4]/20 text-white cursor-pointer'
                           : 'border-gray-600 bg-[#262631] text-gray-400 hover:border-gray-500 cursor-pointer'
                     }`}
@@ -179,14 +179,14 @@ export default function ConfigForm({ initialConfig, defaultConfig, onChange }: C
                     <input
                       type="checkbox"
                       className="accent-[#7140F4] cursor-pointer"
-                      checked={metric.nodeLabels.includes(nl as NodeType)}
+                      checked={metric.nodeTypes.includes(nl as NodeType)}
                       disabled={isDisabled}
                       onChange={() => {
                         if (!isDisabled) {
-                          const updated = toggleArrayItem(metric.nodeLabels, nl as NodeType);
+                          const updated = toggleArrayItem(metric.nodeTypes, nl as NodeType);
                           if (updated.length > 0) {
                             updateMetric(idx, {
-                              nodeLabels: updated,
+                              nodeTypes: updated,
                             });
                           }
                         }
@@ -210,7 +210,7 @@ export default function ConfigForm({ initialConfig, defaultConfig, onChange }: C
             </div>
             <div className="flex flex-wrap gap-2">
               {meta.relationTypes.map((rt: string) => {
-                const isAvailable = isRelationAvailable(rt as RelationType, metric.nodeLabels);
+                const isAvailable = isRelationAvailable(rt as RelationType, metric.nodeTypes);
                 const isChecked = metric.relationTypes.includes(rt as RelationType);
 
                 return (

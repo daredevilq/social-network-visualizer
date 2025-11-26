@@ -33,8 +33,8 @@ interface Context {
   setSelectedNodeTypes: React.Dispatch<React.SetStateAction<NodeType[]>>;
   selectedRelationTypes: RelationType[];
   setSelectedRelationTypes: React.Dispatch<React.SetStateAction<RelationType[]>>;
-  focusedCommunityId?: string;
-  setFocusedCommunityId: (id?: string) => void;
+  focusedCommunityId: number | null;
+  setFocusedCommunityId: (id: number | null) => void;
   selectedGraphType: GraphType;
   setSelectedGraphType: (g: GraphType) => void;
   showLabels: boolean;
@@ -66,7 +66,7 @@ const ProjectContext = createContext<Context>({
   setSelectedNodeTypes: () => {},
   selectedRelationTypes: [RelationType.MENTIONS],
   setSelectedRelationTypes: () => {},
-  focusedCommunityId: undefined,
+  focusedCommunityId: null,
   setFocusedCommunityId: () => {},
   selectedGraphType: GraphType.STANDARD,
   setSelectedGraphType: () => {},
@@ -92,7 +92,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [shortestPath, setShortestPath] = useState<string[]>([]);
   const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([NodeType.AUTHOR]);
   const [selectedRelationTypes, setSelectedRelationTypes] = useState<RelationType[]>([RelationType.MENTIONS]);
-  const [focusedCommunityId, setFocusedCommunityId] = useState<string | undefined>();
+  const [focusedCommunityId, setFocusedCommunityId] = useState<number | null>(null);
   const [selectedGraphType, setSelectedGraphType] = useState<GraphType>(GraphType.STANDARD);
   const [showLabels, setShowLabels] = useState(false);
   const [fetchConfig, setFetchConfig] = useState<FetchConfig>(DEFAULT_FETCH_CONFIG);
@@ -158,7 +158,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           nodeTypes: selectedNodeTypes,
           relationTypes: selectedRelationTypes,
           fetchConfig: fetchConfig,
-          focusedCommunity: null,
+          focusedCommunityId: focusedCommunityId,
         };
 
         const res = await fetch(`${API_BASE_URL}/graph`, {

@@ -33,15 +33,16 @@ public class GraphService {
         fetchRequestedNodes(
             finalRequest.nodeTypes(),
             finalRequest.fetchConfig(),
-            finalRequest.focusedCommunity(),
+            finalRequest.focusedCommunityId(),
             false);
     Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
     List<LinkDto> links =
-        fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, finalRequest.focusedCommunity());
+        fetchRequestedLinks(
+            finalRequest.relationTypes(), nodeIds, finalRequest.focusedCommunityId());
 
     log.info(
         "Graph fetched (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {}",
-        finalRequest.focusedCommunity(),
+        finalRequest.focusedCommunityId(),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
@@ -90,14 +91,10 @@ public class GraphService {
       return Collections.emptyList();
     }
 
-    if (communityId.isPresent()) {
-      return authorRepository.findAuthorRelationsWithinCommunity(relationTypes, communityId.get());
-    } else {
-      return graphRepository.findAllRelations().stream()
-          .filter(link -> relationTypes.contains(link.relation()))
-          .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
-          .collect(Collectors.toList());
-    }
+    return graphRepository.findAllRelations().stream()
+        .filter(link -> relationTypes.contains(link.relation()))
+        .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
+        .collect(Collectors.toList());
   }
 
   private NodeQueryStrategy findStrategyForNodeType(NodeType nodeType) {
@@ -112,7 +109,7 @@ public class GraphService {
     Set<NodeType> nodeTypes = request.nodeTypes();
     Set<RelationType> relationTypes = request.relationTypes();
     FetchConfig fetchConfig = request.fetchConfig();
-    Integer communityId = request.focusedCommunity().orElse(null);
+    Integer communityId = request.focusedCommunityId().orElse(null);
 
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       nodeTypes = Set.of(NodeType.AUTHOR);
@@ -123,9 +120,9 @@ public class GraphService {
     if (fetchConfig == null) {
       fetchConfig = FetchConfig.defaultConfig();
     }
-    Optional<Integer> communityOpt = Optional.ofNullable(communityId);
+    Optional<Integer> communityIdOpt = Optional.ofNullable(communityId);
 
-    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, communityOpt);
+    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, communityIdOpt);
   }
 
   public List<NodeSearchDto> getSuggestions(String query) {

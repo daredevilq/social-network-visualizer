@@ -3,7 +3,7 @@
 import GraphTypeContent from '@/app/components/LeftSideBar/GraphTypeContent';
 import FunctionsContent from '@/app/components/LeftSideBar/FunctionsContent';
 import FiltersContent from '@/app/components/LeftSideBar/FiltersContent';
-import HelpContent from '@/app/components/LeftSideBar/HelpContent';
+import GraphLegendContent from '@/app/components/LeftSideBar/GraphLegendContent';
 import ProjectsContent from '@/app/components/LeftSideBar/ProjectsContent';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -38,7 +38,7 @@ export default function LeftSidebar({ isOpen, selectedLeftSideBarContent }: Left
       case 'projects':
         return <ProjectsContent />;
       case 'help':
-        return <HelpContent />;
+        return <GraphLegendContent />;
       default:
         return null;
     }

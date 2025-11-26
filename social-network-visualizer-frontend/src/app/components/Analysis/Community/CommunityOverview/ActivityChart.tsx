@@ -11,7 +11,9 @@ const Line = dynamic(() => import('react-chartjs-2').then((m) => m.Line), {
 });
 
 export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
-  if (data.length < 2) return null;
+  if (data.length < 2) {
+    return <div className="w-full h-24 flex items-center justify-center text-sm text-gray-500">Not enough data to display the chart.</div>;
+  }
 
   const chartData = {
     labels: data.map((d) => d.day),

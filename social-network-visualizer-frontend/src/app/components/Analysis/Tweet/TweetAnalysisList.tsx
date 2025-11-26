@@ -5,49 +5,35 @@ import { ArrowLeft, ArrowUp, UserSearch } from 'lucide-react';
 import { TweetAnalysisContainerProps } from '@/types/tweetTypes';
 import TweetAnalysisContainer from './TweetAnalysisContainer';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
   const router = useRouter();
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const tweetsContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const handleScroll = () => {
-    if (tweetsContainerRef.current) {
-      const scrollTop = tweetsContainerRef.current.scrollTop;
-      if (scrollTop > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    }
-  };
 
   const scrollToTop = () => {
-    if (tweetsContainerRef.current) {
-      tweetsContainerRef.current.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   };
 
   useEffect(() => {
-    const container = tweetsContainerRef.current;
-    container?.addEventListener('scroll', handleScroll);
-
-    return () => {
-      container?.removeEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
     };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden text-[#FAFAFA] bg-[#262631] px-16">
-      <div className="flex flex-col h-full w-full max-w-6xl pt-8 pb-8 mx-auto pl-6">
+    <section className="flex flex-col w-full min-h-screen bg-[#262631] text-[#FAFAFA] p-6">
+      <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
         <div className="flex w-full mb-4 flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
+            className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Graph
@@ -58,31 +44,29 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
           </h1>
 
           <div className="min-w-32 text-right">
-            {userName ? (
+            {userName && (
               <Link href={`/user-details/${userName}`}>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md hover:cursor-pointer">
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#7140F4] hover:bg-[#5c32c3] rounded-md text-sm transition-colors duration-200 shadow-md cursor-pointer">
                   <UserSearch className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
                   Analyze User
                 </button>
               </Link>
-            ) : (
-              <div />
             )}
           </div>
         </div>
 
-        <TweetAnalysisContainer userName={userName} tweetsContainerRef={tweetsContainerRef} />
+        <TweetAnalysisContainer userName={userName} />
 
         {showScrollTop && (
           <button
-            className="absolute top-12 right-12 bg-[#7140F4] hover:bg-[#5c32c3] text-white p-3 rounded-full shadow-lg transition hidden lg:block"
+            className="fixed bottom-12 right-12 bg-[#7140F4] hover:bg-[#5c32c3] text-white p-3 rounded-full shadow-lg transition lg:block"
             onClick={scrollToTop}
           >
             <ArrowUp size={32} />
           </button>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

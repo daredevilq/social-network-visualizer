@@ -9,6 +9,6 @@ import java.util.Set;
 
 public record MetricConfig(
     @NotNull MetricType type,
-    @NotNull Set<NodeType> nodeLabels,
+    @NotNull Set<NodeType> nodeTypes,
     @NotNull Set<RelationType> relationTypes,
     @NotNull Orientation orientation) {}
