@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,12 +35,6 @@ public class AuthorController {
   @GetMapping("/activity/{authorName}")
   public ResponseEntity<Map<String, Long>> getAuthorActivity(@PathVariable String authorName) {
     return ResponseEntity.ok(authorService.getAuthorActivity(authorName));
-  }
-
-  @GetMapping("/shortestPath/{source}")
-  public ResponseEntity<List<String>> findShortestPathBetweenAuthors(
-      @PathVariable String source, @RequestParam String target) {
-    return ResponseEntity.ok(authorService.findShortestPathBetweenAuthors(source, target));
   }
 
   @GetMapping("/last-posts/{authorName}")

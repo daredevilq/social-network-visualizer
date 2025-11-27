@@ -88,10 +88,6 @@ public class AuthorService {
                 Collectors.counting()));
   }
 
-  public List<String> findShortestPathBetweenAuthors(String sourceName, String targetName) {
-    return authorRepository.findShortestPathAuthors(sourceName, targetName);
-  }
-
   public List<HashtagFrequency> findTopHashtagsByAuthor(String authorName) {
     return authorRepository.findTopHashtagsByAuthor(authorName);
   }
