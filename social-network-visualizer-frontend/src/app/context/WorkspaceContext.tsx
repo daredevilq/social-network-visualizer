@@ -76,7 +76,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsSidebarOpen(false);
     setNodeFound(null);
     setShortestPath([]);
-    setFocusedCommunityId(undefined);
+    setFocusedCommunityId(null);
     setSelectedUserData(null);
     setHasUnsavedChanges(false);
   }, [openedWorkspaceName, loadedProjectName]);
