@@ -125,6 +125,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 ORDER BY activityDate DESC
             """)
   List<ZonedDateTime> getAuthorActivity(@Param("authorName") String authorName);
+
   @Query(
       """
                 MATCH (a:Author)
