@@ -1,11 +1,14 @@
 package com.example.social_network_visualizer_backend.service;
 
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
 import com.example.social_network_visualizer_backend.enums.MetricType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
+import com.example.social_network_visualizer_backend.repository.AlgorithmRepository;
 import com.example.social_network_visualizer_backend.repository.GraphRepository;
 import com.example.social_network_visualizer_backend.service.metric.MetricComputationStrategy;
 import java.util.List;
@@ -22,6 +25,7 @@ public class MetricComputationService {
 
   private final GraphRepository graphRepository;
   private final List<MetricComputationStrategy> strategies;
+  private final AlgorithmRepository algorithmRepository;
 
   public void computeMetrics(String projectName, ProjectConfig config) {
     if (config == null || config.metrics() == null || config.metrics().isEmpty()) {
@@ -34,6 +38,43 @@ public class MetricComputationService {
     }
 
     log.info("All metrics computed successfully for project: {}", projectName);
+  }
+
+  public List<NodeDto> computeShortestPath(
+      String graphName, MetricConfig metricConfig, NodeDto source, NodeDto target) {
+    try {
+      createGraphProjection(graphName, metricConfig);
+      return algorithmRepository.computeShortestPath(graphName, source.getId(), target.getId());
+
+    } catch (Exception e) {
+      log.error(
+          "Failed to compute metric {} for graph {}: {}",
+          metricConfig.type(),
+          graphName,
+          e.getMessage(),
+          e);
+      throw new RuntimeException("Failed to compute metric: " + metricConfig.type(), e);
+    } finally {
+      graphRepository.dropGdsGraph(graphName);
+    }
+  }
+
+  public List<LinkDto> computeFindBridges(String graphName, MetricConfig metricConfig) {
+    try {
+      createGraphProjection(graphName, metricConfig);
+      return algorithmRepository.computeFindBridges(graphName, metricConfig.relationTypes());
+
+    } catch (Exception e) {
+      log.error(
+          "Failed to compute metric {} for graph {}: {}",
+          metricConfig.type(),
+          graphName,
+          e.getMessage(),
+          e);
+      throw new RuntimeException("Failed to compute metric: " + metricConfig.type(), e);
+    } finally {
+      graphRepository.dropGdsGraph(graphName);
+    }
   }
 
   private void computeSingleMetric(String projectName, MetricConfig metricCfg) {
