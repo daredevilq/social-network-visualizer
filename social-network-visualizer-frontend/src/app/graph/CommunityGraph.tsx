@@ -59,6 +59,7 @@ export default function CommunityGraph() {
       return;
     }
 
+    // for now allowedNodeTypes is only AuthorNodes - because we compute community only for Authors
     const allowedNodeTypes = new Set(metricConfig.nodeTypes);
     const filteredNodes = graphData.nodes.filter((node) => allowedNodeTypes.has(node.nodeType));
 
@@ -68,33 +69,11 @@ export default function CommunityGraph() {
     setFilteredGraphData({ nodes: filteredNodes, links: filteredLinks });
   }, [loadedProjectName, metricConfig, graphData]);
 
-  const uniqueCommunitiesCount = (() => {
-    const communities = new Set<string>();
-    filteredGraphData.nodes.forEach((node: GraphNode) => {
-      if (node.community) {
-        communities.add(node.community);
-      }
-    });
-    return communities.size;
-  })();
-
   const getNodeColor = (node: GraphNode): string => {
     if (nodeFound && node.id === nodeFound.id && node.nodeType === nodeFound.nodeType) {
       return Colors.RedColor();
     }
-
-    if (uniqueCommunitiesCount === 0) {
-      return Colors.DefaultAuthorColor();
-    }
-
-    const saturation = 70;
-    const lightness = 50;
-    const hueStep = 360 / uniqueCommunitiesCount;
-    const offset = uniqueCommunitiesCount === 1 ? 240 : 0;
-    const communityIndex = parseInt(node.community || '0', 10) || 0;
-    const hue = (communityIndex * hueStep + offset) % 360;
-
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    return nodeStrategy.getCommunityColor(node);
   };
 
   const getLinkColor = (link: GraphLink): string => {
@@ -109,9 +88,9 @@ export default function CommunityGraph() {
 
   const getLinkWidth = (link: GraphLink): number => {
     if (Array.isArray(shortestPath) && shortestPath.includes(link.source) && shortestPath.includes(link.target)) {
-      return 4;
+      return 6;
     }
-    return 2;
+    return linkStrategy.getWidth(link);
   };
 
   if (!loadedProjectName) {
