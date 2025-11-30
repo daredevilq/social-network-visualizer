@@ -148,7 +148,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkLabel(linkLabel)
       .linkDirectionalArrowLength(linkDirectionalArrowLength)
       .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
-      .linkCurvature((link: GraphLink) => link.curvature)
+      .linkCurvature(getLinkCurvature)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
       .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
@@ -215,6 +215,8 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     linkDirectionalArrowRelPos,
     selectedNodeIds,
   ]);
+
+  const getLinkCurvature = (link: GraphLink) => link.curvature;
 
   const handleNodeLeftClick = useCallback(
     (node: GraphNode) => {
