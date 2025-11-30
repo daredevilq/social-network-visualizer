@@ -30,7 +30,7 @@ export default function StandardGraph() {
       if (i >= pathIds.length - 1) return false;
       const a = pathIds[i];
       const b = pathIds[i + 1];
-      return (link.source.id === a && link.target.id === b) || (link.source.id === b && link.target.id === a);
+      return (link.source.id === a && link.target.id === b);
     });
   };
 
@@ -51,20 +51,21 @@ export default function StandardGraph() {
         nodeColor={(node: GraphNode) => {
           if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return Colors.RedColor();
 
-          if (shortestPath.some((n) => n.id === node.id)) {
-            return Colors.GoldColor();
-          }
           return nodeStrategy.getColor(node);
         }}
+        nodeBorderColor={(node) => {
+            if (shortestPath.some((n) => n.id === node.id)) {
+                return Colors.WhiteColor();
+            }
+            return null;
+        }}
         linkColor={(link: any) => {
-          if (isInPath(link)) return Colors.GoldColor();
-          if (isBridge(link)) return Colors.GoldColor();
+          if (isInPath(link) || isBridge(link)) return Colors.PurpleColor();
 
           return linkStrategy.getColor(link);
         }}
         linkWidth={(link: any) => {
-          if (isInPath(link)) return 4;
-          if (isBridge(link)) return 4;
+          if (isInPath(link) || isBridge(link)) return 4;
 
           return linkStrategy.getWidth(link);
         }}

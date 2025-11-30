@@ -19,12 +19,30 @@ export default function CommunityGraph() {
   const { loadedProjectName, nodeFound, runWithLoading } = useProject();
   const { graphData, shortestPath, graphBridges } = useGraph();
   const { showNotification } = useNotification();
-
   const [filteredGraphData, setFilteredGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({
     nodes: [],
     links: [],
   });
   const [metricConfig, setMetricConfig] = useState<MetricConfig | null>(null);
+
+  const isInPath = (link: any) => {
+    const pathIds = shortestPath.map((n) => n.id);
+
+    return shortestPath.some((_, i) => {
+      if (i >= pathIds.length - 1) return false;
+      const a = pathIds[i];
+      const b = pathIds[i + 1];
+      return (link.source.id === a && link.target.id === b);
+    });
+  };
+
+  const isBridge = (link: any) => {
+    return graphBridges.some(
+        (bridge) =>
+            (bridge.source === link.source.id && bridge.target === link.target.id) ||
+            (bridge.source === link.target.id && bridge.target === link.source.id)
+    );
+  };
 
   useEffect(() => {
     if (!loadedProjectName) return;
@@ -80,10 +98,17 @@ export default function CommunityGraph() {
     if (metricConfig?.relationTypes?.includes(link.relation)) {
       return Colors.GoldColor();
     }
+
+    if (isInPath(link) || isBridge(link)){
+      return Colors.PurpleColor();
+    }
     return linkStrategy.getColor(link);
   };
 
   const getLinkWidth = (link: GraphLink): number => {
+    if (isInPath(link) || isBridge(link)){
+      return 4;
+    }
     return linkStrategy.getWidth(link);
   };
 
@@ -112,6 +137,12 @@ export default function CommunityGraph() {
       nodeVal={(node: GraphNode) => Math.min((nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12, 200)}
       nodeLabel={(node: GraphNode) => `${node.name} || Community: ${node.community}`}
       nodeColor={getNodeColor}
+      nodeBorderColor={(node) => {
+        if (shortestPath.some((n) => n.id === node.id)) {
+          return Colors.WhiteColor();
+        }
+        return null;
+      }}
       linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
       linkColor={getLinkColor}
       linkWidth={getLinkWidth}

@@ -21,6 +21,7 @@ export default function FunctionsContent() {
   const { showNotification } = useNotification();
 
   const handleSearchPath = async (source: GraphNode, target: GraphNode) => {
+    setGraphBridges([]);
     if (!source || !target) {
       setShortestPath([]);
       return;
@@ -64,6 +65,7 @@ export default function FunctionsContent() {
   };
 
   const handleSearchBridges = async () => {
+    setShortestPath([]);
     runWithLoading(async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/graph/bridges`, {
