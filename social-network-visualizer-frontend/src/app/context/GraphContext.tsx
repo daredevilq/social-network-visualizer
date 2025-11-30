@@ -38,7 +38,16 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { projectData, loadedProjectName, selectedGraphType, selectedRelationTypes } = useProject();
+  const {
+    projectData,
+    loadedProjectName,
+    selectedGraphType,
+    selectedRelationTypes,
+    setFocusedCommunityId,
+    focusedCommunityId,
+    setFocusedCommunityData,
+    focusedCommunityData,
+  } = useProject();
   const {
     isInWorkspaceMode,
     workspaceData,
@@ -52,8 +61,10 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [graphBridges, setGraphBridges] = useState<GraphLink[]>([]);
 
   useEffect(() => {
-    setGraphData(isInWorkspaceMode ? workspaceData : projectData);
-  }, [isInWorkspaceMode, projectData, workspaceData]);
+    const dataToSet = focusedCommunityId ? focusedCommunityData : isInWorkspaceMode ? workspaceData : projectData;
+
+    setGraphData(dataToSet);
+  }, [isInWorkspaceMode, projectData, workspaceData, focusedCommunityId, focusedCommunityData]);
 
   useEffect(() => {
     setShortestPath([]);
@@ -63,6 +74,8 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const resetGraphData = async () => {
     setShortestPath([]);
     setGraphBridges([]);
+    setFocusedCommunityId(null);
+    setFocusedCommunityData({ nodes: [], links: [] });
     if (isInWorkspaceMode) {
       await loadWorkspace(openedWorkspaceName!);
       await fetchWorkspaceData(openedWorkspaceName!);

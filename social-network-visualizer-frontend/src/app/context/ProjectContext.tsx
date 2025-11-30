@@ -33,6 +33,8 @@ interface Context {
   setSelectedRelationTypes: React.Dispatch<React.SetStateAction<RelationType[]>>;
   focusedCommunityId: number | null;
   setFocusedCommunityId: (id: number | null) => void;
+  focusedCommunityData: { nodes: GraphNode[]; links: GraphLink[] };
+  setFocusedCommunityData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
   selectedGraphType: GraphType;
   setSelectedGraphType: (g: GraphType) => void;
   showLabels: boolean;
@@ -64,6 +66,8 @@ const ProjectContext = createContext<Context>({
   setSelectedRelationTypes: () => {},
   focusedCommunityId: null,
   setFocusedCommunityId: () => {},
+  focusedCommunityData: { nodes: [], links: [] },
+  setFocusedCommunityData: () => {},
   selectedGraphType: GraphType.STANDARD,
   setSelectedGraphType: () => {},
   showLabels: false,
@@ -81,6 +85,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [isLabelsMode, setIsLabelsMode] = useState(false);
   const [projectData, setProjectData] = useState<{
+    nodes: GraphNode[];
+    links: GraphLink[];
+  }>({ nodes: [], links: [] });
+  const [focusedCommunityData, setFocusedCommunityData] = useState<{
     nodes: GraphNode[];
     links: GraphLink[];
   }>({ nodes: [], links: [] });
@@ -230,7 +238,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
               } as HashtagNode;
           }
         });
-        setProjectData({ nodes, links });
+        graphQuery.focusedCommunityId ? setFocusedCommunityData({ nodes, links }) : setProjectData({ nodes, links });
       } catch (err) {
         showNotification('Unexpected error while fetching graph data.', BannerType.ERROR);
       }
@@ -261,6 +269,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setSelectedRelationTypes,
         focusedCommunityId,
         setFocusedCommunityId,
+        focusedCommunityData,
+        setFocusedCommunityData,
         selectedGraphType,
         setSelectedGraphType,
         showLabels,
