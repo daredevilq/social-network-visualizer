@@ -32,29 +32,28 @@ export default function StandardGraph() {
         nodeColor={(node: GraphNode) => {
           if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return Colors.RedColor();
 
-        if (shortestPath.some((n) => n.id === node.id)) {
+          if (shortestPath.some((n) => n.id === node.id)) {
             return Colors.GoldColor();
           }
           return nodeStrategy.getColor(node);
         }}
         linkColor={(link: any) => {
-            const pathIds = shortestPath.map(n => n.id);
-            const sourceIndex = pathIds.indexOf(link.source.id);
-            const targetIndex = pathIds.indexOf(link.target.id);
+          const pathIds = shortestPath.map((n) => n.id);
+          const sourceIndex = pathIds.indexOf(link.source.id);
+          const targetIndex = pathIds.indexOf(link.target.id);
 
-            const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
+          const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
 
-            return inPath ? Colors.GoldColor() : linkStrategy.getColor(link);
+          return inPath ? Colors.GoldColor() : linkStrategy.getColor(link);
         }}
-
         linkWidth={(link: any) => {
-            const pathIds = shortestPath.map(n => n.id);
-            const sourceIndex = pathIds.indexOf(link.source.id);
-            const targetIndex = pathIds.indexOf(link.target.id);
+          const pathIds = shortestPath.map((n) => n.id);
+          const sourceIndex = pathIds.indexOf(link.source.id);
+          const targetIndex = pathIds.indexOf(link.target.id);
 
-            const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
+          const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
 
-            return inPath ? 4 : linkStrategy.getWidth(link);
+          return inPath ? 4 : linkStrategy.getWidth(link);
         }}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
         linkDirectionalArrowLength={8}

@@ -127,7 +127,7 @@ export default function ProjectsContent() {
         />
       </div>
 
-        <div className="flex-1 overflow-y-auto scrollbar-none divide-y divide-gray-700">
+      <div className="flex-1 overflow-y-auto scrollbar-none divide-y divide-gray-700">
         {projects.map((project) => (
           <div key={project.name} className="relative mb-2">
             <div

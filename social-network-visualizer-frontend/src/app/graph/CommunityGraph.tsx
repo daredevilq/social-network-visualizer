@@ -6,7 +6,7 @@ import { FolderPlus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
-import {AuthorNode, GraphLink, GraphNode, MetricConfig} from '@/types/GraphTypes';
+import { AuthorNode, GraphLink, GraphNode, MetricConfig } from '@/types/GraphTypes';
 import Colors from '../utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
 import { useWorkspace } from '@/app/context/WorkspaceContext';

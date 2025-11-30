@@ -37,7 +37,7 @@ public class GraphController {
     return ResponseEntity.ok(graphService.getShortestPath(request));
   }
 
-  @PostMapping("/bridges")  
+  @PostMapping("/bridges")
   public ResponseEntity<List<LinkDto>> getBridges(@RequestBody BridgesRequest request) {
     return ResponseEntity.ok(graphService.getBridges(request));
   }

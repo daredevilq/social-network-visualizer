@@ -9,7 +9,6 @@ import { BannerType } from '@/app/components/Popups/Banner';
 import { AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode } from '@/types/GraphTypes';
 import { FetchConfig, GraphQueryRequest } from '@/types/GraphQueryRequest';
 import { DEFAULT_FETCH_CONFIG } from '@/app/utils/defaultFetchConfig';
-import {useGraph} from "@/app/context/GraphContext";
 
 interface Context {
   loadedProjectName: string | null;

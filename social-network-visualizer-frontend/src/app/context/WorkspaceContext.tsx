@@ -7,7 +7,7 @@ import { useProject } from '@/app/context/ProjectContext';
 import LeaveConfirmModal from '@/app/components/Popups/LeaveConfirmModal';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
-import {useGraph} from "@/app/context/GraphContext";
+import { useGraph } from '@/app/context/GraphContext';
 
 interface WorkspaceContextType {
   isInWorkspaceMode: boolean;
@@ -75,7 +75,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     setIsSidebarOpen(false);
     setNodeFound(null);
-    setFocusedCommunityId(undefined);
+    setFocusedCommunityId(null);
     setSelectedUserData(null);
     setHasUnsavedChanges(false);
   }, [openedWorkspaceName, loadedProjectName]);
