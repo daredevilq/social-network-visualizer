@@ -275,7 +275,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     setSelectedNodes([]);
     setSelectedNodeIds([]);
     resetGraphData();
-    setFocusedCommunityId(undefined);
+    setFocusedCommunityId(null);
   };
 
   const assignCurvatureToLinks = (links: GraphLink[]) => {

@@ -164,7 +164,7 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
                 WHERE type(r) IN $relations
                   AND a1.community = $communityId
                   AND a2.community = $communityId
-                RETURN a1.id AS source, a2.id AS target, type(r) AS relation
+                RETURN a1.id AS source, a2.id AS target, type(r) AS relation, COALESCE(r.weight, 1) AS weight
             """)
   List<LinkDto> findAuthorRelationsWithinCommunity(
       @Param("relations") Set<RelationType> relations, @Param("communityId") int communityId);

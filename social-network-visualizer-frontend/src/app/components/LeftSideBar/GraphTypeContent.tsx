@@ -17,7 +17,7 @@ export default function GraphTypeContent() {
       <div className="flex items-center border-b border-white pb-2 mb-4">
         <h1 className="text-2xl font-bold mr-2">Graph Types</h1>
         <PopoverIcon
-          message={`Select the graph type to customize how your data is visualized. Each type offers a unique way to represent information.`}
+          message={`Choose a graph type to control how data is shown. Standard graph displays all nodes and links.Community graph shows only community-related nodes (Authors) and their links. Gold links were included in the community-metric calculation.`}
           scale={1.6}
           position="bottom"
         />

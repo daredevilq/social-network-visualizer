@@ -8,6 +8,7 @@ import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
+import CommunityFocusIndicator from '@/app/components/CommunityFocusIndicator';
 
 interface SearchAndToggleModeContainerProps {
   searchValue: string;
@@ -301,6 +302,7 @@ const SearchAndToggleModeContainer: React.FC<SearchAndToggleModeContainerProps> 
             </ul>
           )}
         </div>
+        <CommunityFocusIndicator />
       </div>
     </div>
   );

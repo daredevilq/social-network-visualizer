@@ -2,7 +2,11 @@ package com.example.social_network_visualizer_backend.dto.request;
 
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.RelationType;
+import java.util.Optional;
 import java.util.Set;
 
 public record GraphQueryRequest(
-    Set<NodeType> nodeTypes, Set<RelationType> relationTypes, FetchConfig fetchConfig) {}
+    Set<NodeType> nodeTypes,
+    Set<RelationType> relationTypes,
+    FetchConfig fetchConfig,
+    Optional<Integer> focusedCommunityId) {}

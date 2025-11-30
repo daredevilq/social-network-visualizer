@@ -92,7 +92,7 @@ export interface SelectionBox {
 
 export interface MetricConfig {
   type: MetricType;
-  nodeLabels: NodeType[];
+  nodeTypes: NodeType[];
   relationTypes: RelationType[];
   orientation: Orientation;
 }
@@ -102,7 +102,7 @@ export interface ProjectConfig {
 }
 
 export interface ConfigMeta {
-  nodeLabels: string[];
+  nodeTypes: string[];
   relationTypes: string[];
   metricTypes: string[];
   orientations: string[];

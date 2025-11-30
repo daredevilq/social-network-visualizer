@@ -32,18 +32,23 @@ public class GraphService {
   private final List<NodeQueryStrategy> nodeQueryStrategies;
   private final MetricComputationService metricComputationService;
 
-  public GraphDataDto getGraph(GraphQueryRequest request, Optional<Integer> communityId) {
+  public GraphDataDto getGraph(GraphQueryRequest request) {
     GraphQueryRequest finalRequest = validateRequest(request);
 
     List<NodeDto> nodes =
         fetchRequestedNodes(
-            finalRequest.nodeTypes(), finalRequest.fetchConfig(), communityId, false);
+            finalRequest.nodeTypes(),
+            finalRequest.fetchConfig(),
+            finalRequest.focusedCommunityId(),
+            false);
     Set<String> nodeIds = nodes.stream().map(NodeDto::getId).collect(Collectors.toSet());
-    List<LinkDto> links = fetchRequestedLinks(finalRequest.relationTypes(), nodeIds, communityId);
+    List<LinkDto> links =
+        fetchRequestedLinks(
+            finalRequest.relationTypes(), nodeIds, finalRequest.focusedCommunityId());
 
     log.info(
         "Graph fetched (community: {}) | nodeTypes={} | relationTypes={} | fetchStrategy={} | nodes: {} | links: {}",
-        communityId.map(String::valueOf).orElse("null"),
+        finalRequest.focusedCommunityId(),
         finalRequest.nodeTypes(),
         finalRequest.relationTypes(),
         finalRequest.fetchConfig().strategy(),
@@ -92,14 +97,10 @@ public class GraphService {
       return Collections.emptyList();
     }
 
-    if (communityId.isPresent()) {
-      return authorRepository.findAuthorRelationsWithinCommunity(relationTypes, communityId.get());
-    } else {
-      return graphRepository.findAllRelations().stream()
-          .filter(link -> relationTypes.contains(link.relation()))
-          .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
-          .collect(Collectors.toList());
-    }
+    return graphRepository.findAllRelations().stream()
+        .filter(link -> relationTypes.contains(link.relation()))
+        .filter(link -> nodeIds.contains(link.source()) && nodeIds.contains(link.target()))
+        .collect(Collectors.toList());
   }
 
   private NodeQueryStrategy findStrategyForNodeType(NodeType nodeType) {
@@ -114,6 +115,7 @@ public class GraphService {
     Set<NodeType> nodeTypes = request.nodeTypes();
     Set<RelationType> relationTypes = request.relationTypes();
     FetchConfig fetchConfig = request.fetchConfig();
+    Integer communityId = request.focusedCommunityId().orElse(null);
 
     if (nodeTypes == null || nodeTypes.isEmpty()) {
       nodeTypes = Set.of(NodeType.AUTHOR);
@@ -124,8 +126,9 @@ public class GraphService {
     if (fetchConfig == null) {
       fetchConfig = FetchConfig.defaultConfig();
     }
+    Optional<Integer> communityIdOpt = Optional.ofNullable(communityId);
 
-    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig);
+    return new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, communityIdOpt);
   }
 
   public List<NodeSearchDto> getSuggestions(String query) {

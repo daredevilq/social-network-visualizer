@@ -4,8 +4,13 @@ import Colors from '../../utils/Colors';
 const MEDIUM_THRESHOLD = 5;
 const HIGH_THRESHOLD = 10;
 
+const DEFAULT_LINK_WIDTH = 2;
+const MEDIUM_LINK_WIDTH = 2.5;
+const HIGH_LINK_WIDTH = 3;
+
 export interface ILinkStrategy {
   getColor(link: GraphLink): string;
+  getWidth(link: GraphLink): number;
 }
 
 class AuthorAuthorStrategy implements ILinkStrategy {
@@ -17,6 +22,16 @@ class AuthorAuthorStrategy implements ILinkStrategy {
       return Colors.AuthorAuthorLinkColorMedium();
     }
     return Colors.AuthorAuthorLinkColorLow();
+  }
+
+  getWidth(link: GraphLink): number {
+    if (link.weight >= HIGH_THRESHOLD) {
+      return HIGH_LINK_WIDTH;
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return MEDIUM_LINK_WIDTH;
+    }
+    return DEFAULT_LINK_WIDTH;
   }
 }
 
@@ -30,6 +45,16 @@ class TweetTweetStrategy implements ILinkStrategy {
     }
     return Colors.TweetTweetLinkColorLow();
   }
+
+  getWidth(link: GraphLink): number {
+    if (link.weight >= HIGH_THRESHOLD) {
+      return HIGH_LINK_WIDTH;
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return MEDIUM_LINK_WIDTH;
+    }
+    return DEFAULT_LINK_WIDTH;
+  }
 }
 
 class AuthorTweetStrategy implements ILinkStrategy {
@@ -41,6 +66,16 @@ class AuthorTweetStrategy implements ILinkStrategy {
       return Colors.AuthorTweetLinkColorMedium();
     }
     return Colors.AuthorTweetLinkColorLow();
+  }
+
+  getWidth(link: GraphLink): number {
+    if (link.weight >= HIGH_THRESHOLD) {
+      return HIGH_LINK_WIDTH;
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return MEDIUM_LINK_WIDTH;
+    }
+    return DEFAULT_LINK_WIDTH;
   }
 }
 
@@ -54,6 +89,16 @@ class TweetHashtagStrategy implements ILinkStrategy {
     }
     return Colors.TweetHashtagLinkColorLow();
   }
+
+  getWidth(link: GraphLink): number {
+    if (link.weight >= HIGH_THRESHOLD) {
+      return HIGH_LINK_WIDTH;
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return MEDIUM_LINK_WIDTH;
+    }
+    return DEFAULT_LINK_WIDTH;
+  }
 }
 
 class AuthorHashtagStrategy implements ILinkStrategy {
@@ -65,6 +110,16 @@ class AuthorHashtagStrategy implements ILinkStrategy {
       return Colors.AuthorHashtagLinkColorMedium();
     }
     return Colors.AuthorHashtagLinkColorLow();
+  }
+
+  getWidth(link: GraphLink): number {
+    if (link.weight >= HIGH_THRESHOLD) {
+      return HIGH_LINK_WIDTH;
+    }
+    if (link.weight >= MEDIUM_THRESHOLD) {
+      return MEDIUM_LINK_WIDTH;
+    }
+    return DEFAULT_LINK_WIDTH;
   }
 }
 
@@ -92,6 +147,11 @@ class LinkStrategy implements ILinkStrategy {
   getColor(link: GraphLink): string {
     const strategy = this.resolveStrategy(link);
     return strategy.getColor(link);
+  }
+
+  getWidth(link: GraphLink): number {
+    const strategy = this.resolveStrategy(link);
+    return strategy.getWidth(link);
   }
 
   private resolveStrategy(link: GraphLink) {
