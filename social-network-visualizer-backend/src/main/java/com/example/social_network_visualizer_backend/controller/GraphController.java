@@ -40,12 +40,12 @@ public class GraphController {
     return ResponseEntity.ok(graphService.getSuggestions(query));
   }
 
-  @GetMapping("/shortest-path")
+  @PostMapping("/shortest-path")
   public ResponseEntity<List<NodeDto>> getShortestPath(@RequestBody ShortestPathRequest request) {
     return ResponseEntity.ok(graphService.getShortestPath(request));
   }
 
-  @GetMapping("/bridges")
+  @PostMapping("/bridges")  
   public ResponseEntity<List<LinkDto>> getBridges(@RequestBody BridgesRequest request) {
     return ResponseEntity.ok(graphService.getBridges(request));
   }
