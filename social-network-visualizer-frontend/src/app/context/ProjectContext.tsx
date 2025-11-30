@@ -9,6 +9,7 @@ import { BannerType } from '@/app/components/Popups/Banner';
 import { AuthorNode, GraphLink, GraphNode, HashtagNode, NodeType, RelationType, TweetNode } from '@/types/GraphTypes';
 import { FetchConfig, GraphQueryRequest } from '@/types/GraphQueryRequest';
 import { DEFAULT_FETCH_CONFIG } from '@/app/utils/defaultFetchConfig';
+import {useGraph} from "@/app/context/GraphContext";
 
 interface Context {
   loadedProjectName: string | null;
@@ -23,8 +24,6 @@ interface Context {
   setProjectData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
   nodeFound: GraphNode | null;
   setNodeFound: React.Dispatch<React.SetStateAction<GraphNode | null>>;
-  shortestPath: string[];
-  setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedUserData: BasicUserData | null;
@@ -56,8 +55,6 @@ const ProjectContext = createContext<Context>({
   setProjectData: () => {},
   nodeFound: null,
   setNodeFound: () => {},
-  shortestPath: [],
-  setShortestPath: () => {},
   isSidebarOpen: false,
   setIsSidebarOpen: () => {},
   selectedUserData: null,
@@ -89,7 +86,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const [nodeFound, setNodeFound] = useState<GraphNode | null>(null);
-  const [shortestPath, setShortestPath] = useState<string[]>([]);
   const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([NodeType.AUTHOR]);
   const [selectedRelationTypes, setSelectedRelationTypes] = useState<RelationType[]>([RelationType.MENTIONS]);
   const [focusedCommunityId, setFocusedCommunityId] = useState<number | null>(null);
@@ -256,8 +252,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setProjectData,
         nodeFound,
         setNodeFound,
-        shortestPath,
-        setShortestPath,
         isSidebarOpen,
         setIsSidebarOpen,
         selectedUserData,

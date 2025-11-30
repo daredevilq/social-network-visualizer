@@ -127,7 +127,7 @@ export default function ProjectsContent() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto divide-y divide-gray-700">
+        <div className="flex-1 overflow-y-auto scrollbar-none divide-y divide-gray-700">
         {projects.map((project) => (
           <div key={project.name} className="relative mb-2">
             <div
@@ -229,6 +229,7 @@ export default function ProjectsContent() {
         onFilesChange={setPendingFiles}
         onCancel={cancelCreateModal}
         onSuccess={async (name) => {
+          setWorkspaces([]);
           cancelCreateModal();
           await refreshProjects();
           await loadProject(name, true);

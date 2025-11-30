@@ -7,6 +7,7 @@ import { useProject } from '@/app/context/ProjectContext';
 import LeaveConfirmModal from '@/app/components/Popups/LeaveConfirmModal';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import WorkspaceCreateModal from '@/app/components/Popups/WorkspaceCreateModal';
+import {useGraph} from "@/app/context/GraphContext";
 
 interface WorkspaceContextType {
   isInWorkspaceMode: boolean;
@@ -60,8 +61,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setShortestPath, setFocusedCommunityId, setSelectedUserData } =
-    useProject();
+  const { runWithLoading, loadedProjectName, setIsSidebarOpen, setNodeFound, setFocusedCommunityId, setSelectedUserData } = useProject();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | undefined>(undefined);
@@ -75,8 +75,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     setIsSidebarOpen(false);
     setNodeFound(null);
-    setShortestPath([]);
-    setFocusedCommunityId(null);
+    setFocusedCommunityId(undefined);
     setSelectedUserData(null);
     setHasUnsavedChanges(false);
   }, [openedWorkspaceName, loadedProjectName]);

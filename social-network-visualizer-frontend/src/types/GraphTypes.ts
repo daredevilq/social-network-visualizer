@@ -60,8 +60,8 @@ export enum RelationType {
 }
 
 export interface GraphLink extends LinkObject {
-  source: string;
-  target: string;
+  source: GraphNode;
+  target: GraphNode;
   relation: RelationType;
   weight: number;
   curvature?: number;

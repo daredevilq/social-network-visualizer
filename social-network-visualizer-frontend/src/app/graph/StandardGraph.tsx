@@ -11,8 +11,8 @@ import linkStrategy from '@/app/model/strategies/LinkStrategy';
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
 export default function StandardGraph() {
-  const { loadedProjectName, nodeFound, shortestPath } = useProject();
-  const { graphData } = useGraph();
+  const { loadedProjectName, nodeFound } = useProject();
+  const { graphData, shortestPath, graphBridges } = useGraph();
 
   if (!loadedProjectName)
     return (
@@ -32,17 +32,30 @@ export default function StandardGraph() {
         nodeColor={(node: GraphNode) => {
           if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return Colors.RedColor();
 
-          if (shortestPath.includes(String(node.id))) {
+        if (shortestPath.some((n) => n.id === node.id)) {
             return Colors.GoldColor();
           }
           return nodeStrategy.getColor(node);
         }}
-        linkColor={(link: GraphLink) =>
-          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : linkStrategy.getColor(link)
-        }
-        linkWidth={(link: GraphLink) =>
-          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 6 : linkStrategy.getWidth(link)
-        }
+        linkColor={(link: any) => {
+            const pathIds = shortestPath.map(n => n.id);
+            const sourceIndex = pathIds.indexOf(link.source.id);
+            const targetIndex = pathIds.indexOf(link.target.id);
+
+            const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
+
+            return inPath ? Colors.GoldColor() : linkStrategy.getColor(link);
+        }}
+
+        linkWidth={(link: any) => {
+            const pathIds = shortestPath.map(n => n.id);
+            const sourceIndex = pathIds.indexOf(link.source.id);
+            const targetIndex = pathIds.indexOf(link.target.id);
+
+            const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
+
+            return inPath ? 4 : linkStrategy.getWidth(link);
+        }}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
         linkDirectionalArrowLength={8}
         linkDirectionalArrowRelPos={1}
