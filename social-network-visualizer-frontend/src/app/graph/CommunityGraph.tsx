@@ -32,15 +32,15 @@ export default function CommunityGraph() {
       if (i >= pathIds.length - 1) return false;
       const a = pathIds[i];
       const b = pathIds[i + 1];
-      return (link.source.id === a && link.target.id === b);
+      return link.source.id === a && link.target.id === b;
     });
   };
 
   const isBridge = (link: any) => {
     return graphBridges.some(
-        (bridge) =>
-            (bridge.source === link.source.id && bridge.target === link.target.id) ||
-            (bridge.source === link.target.id && bridge.target === link.source.id)
+      (bridge) =>
+        (bridge.source === link.source.id && bridge.target === link.target.id) ||
+        (bridge.source === link.target.id && bridge.target === link.source.id)
     );
   };
 
@@ -99,14 +99,14 @@ export default function CommunityGraph() {
       return Colors.GoldColor();
     }
 
-    if (isInPath(link) || isBridge(link)){
+    if (isInPath(link) || isBridge(link)) {
       return Colors.PurpleColor();
     }
     return linkStrategy.getColor(link);
   };
 
   const getLinkWidth = (link: GraphLink): number => {
-    if (isInPath(link) || isBridge(link)){
+    if (isInPath(link) || isBridge(link)) {
       return 4;
     }
     return linkStrategy.getWidth(link);

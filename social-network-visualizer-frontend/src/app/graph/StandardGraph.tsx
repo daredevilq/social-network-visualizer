@@ -30,7 +30,7 @@ export default function StandardGraph() {
       if (i >= pathIds.length - 1) return false;
       const a = pathIds[i];
       const b = pathIds[i + 1];
-      return (link.source.id === a && link.target.id === b);
+      return link.source.id === a && link.target.id === b;
     });
   };
 
@@ -54,10 +54,10 @@ export default function StandardGraph() {
           return nodeStrategy.getColor(node);
         }}
         nodeBorderColor={(node) => {
-            if (shortestPath.some((n) => n.id === node.id)) {
-                return Colors.WhiteColor();
-            }
-            return null;
+          if (shortestPath.some((n) => n.id === node.id)) {
+            return Colors.WhiteColor();
+          }
+          return null;
         }}
         linkColor={(link: any) => {
           if (isInPath(link) || isBridge(link)) return Colors.PurpleColor();

@@ -14,10 +14,10 @@ import { useNotification } from '@/app/context/NotificationProvider';
 
 export default function FunctionsContent() {
   const [isShortestPathModalOpen, setIsShortestPathModalOpen] = useState(false);
-  const { runWithLoading, selectedNodeTypes, selectedRelationTypes } = useProject();
+  const { runWithLoading, selectedNodeTypes, selectedRelationTypes, focusedCommunityId } = useProject();
   const { setShortestPath, setGraphBridges } = useGraph();
   const router = useRouter();
-  const { runWithUnsavedCheck } = useWorkspace();
+  const { runWithUnsavedCheck, isInWorkspaceMode } = useWorkspace();
   const { showNotification } = useNotification();
 
   const handleSearchPath = async (source: GraphNode, target: GraphNode) => {
@@ -106,7 +106,7 @@ export default function FunctionsContent() {
       <div className="flex items-center border-b border-white pb-2 mb-4">
         <h1 className="text-2xl font-bold mr-2">Graph Functions</h1>
         <PopoverIcon
-          message={`Use graph functions to analyze network structures and relationships. You can explore communities or find the shortest connection between users to better understand how your network is organized.`}
+          message={`Use graph functions to analyze network structures and relationships. Community analysis helps you explore clustered groups of users. **Shortest Path** and **Graph Bridges** tools allow you to inspect connectivity in detail, \n\n**Note:** They are disabled while you are in Workspace Mode or when a specific community is focused.`}
           scale={1.6}
           position="bottom"
         />
@@ -124,8 +124,12 @@ export default function FunctionsContent() {
 
         <div className="py-3">
           <button
-            className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] transition-colors"
-            onClick={() => setIsShortestPathModalOpen(true)}
+            disabled={isInWorkspaceMode}
+            className={`
+      flex items-center gap-2 w-full text-left transition-colors
+      ${isInWorkspaceMode || focusedCommunityId ? 'text-gray-500 cursor-not-allowed' : 'text-white hover:text-[#7140F4]'}
+    `}
+            onClick={() => !isInWorkspaceMode && !focusedCommunityId && setIsShortestPathModalOpen(true)}
           >
             <span>Find the best path between users</span>
           </button>
@@ -133,8 +137,12 @@ export default function FunctionsContent() {
 
         <div className="py-3">
           <button
-            className="flex items-center gap-2 w-full text-left text-white hover:text-[#7140F4] transition-colors"
-            onClick={() => handleSearchBridges()}
+            disabled={isInWorkspaceMode}
+            className={`
+      flex items-center gap-2 w-full text-left transition-colors
+      ${isInWorkspaceMode || focusedCommunityId ? 'text-gray-500 cursor-not-allowed' : 'text-white hover:text-[#7140F4]'}
+    `}
+            onClick={() => !isInWorkspaceMode && !focusedCommunityId && handleSearchBridges()}
           >
             <span>Find graph bridges</span>
           </button>
