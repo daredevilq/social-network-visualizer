@@ -135,9 +135,9 @@ export default function ProjectConfigViewModal({ projectName, onClose }: Project
                         />
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {metric.nodeLabels.map((label) => (
-                          <span key={label} className="text-xs px-2.5 py-1.5 rounded border border-[#7140F4] bg-[#7140F4]/20 text-white">
-                            {label}
+                        {metric.nodeTypes.map((type) => (
+                          <span key={type} className="text-xs px-2.5 py-1.5 rounded border border-[#7140F4] bg-[#7140F4]/20 text-white">
+                            {type}
                           </span>
                         ))}
                       </div>

@@ -22,7 +22,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
       """
               CALL gds.graph.project(
                 $graphName,
-                $nodeLabels,
+                $nodeTypes,
                 $relations
               )
               YIELD graphName
@@ -30,7 +30,7 @@ public interface GraphRepository extends Neo4jRepository<Author, String> {
             """)
   void createGraph(
       @Param("graphName") String graphName,
-      @Param("nodeLabels") List<String> nodeLabels,
+      @Param("nodeTypes") List<String> nodeLabels,
       @Param("relations") Map<String, Map<String, String>> relations);
 
   @Query(

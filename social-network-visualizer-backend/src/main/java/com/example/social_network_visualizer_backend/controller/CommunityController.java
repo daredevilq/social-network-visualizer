@@ -4,8 +4,10 @@ import com.example.social_network_visualizer_backend.dto.community.ActivityHeatm
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.service.CommunityService;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,5 +62,13 @@ public class CommunityController {
       @PathVariable("communityId") int communityId) {
     List<ActivityHeatmap> results = communityService.getCommunityActivityHeatmap(communityId);
     return ResponseEntity.ok(results);
+  }
+
+  @GetMapping("/{projectName}/metric-config")
+  public ResponseEntity<MetricConfig> getProjectCommunityMetricConfig(
+      @PathVariable("projectName") String projectName) {
+    Optional<MetricConfig> metricConfig =
+        communityService.getProjectCommunityMetricConfig(projectName);
+    return metricConfig.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
   }
 }

@@ -22,6 +22,7 @@ export default function FiltersContent() {
     fetchGraphData,
     fetchConfig,
     setFetchConfig,
+    focusedCommunityId,
   } = useProject();
 
   const { showNotification } = useNotification();
@@ -92,6 +93,7 @@ export default function FiltersContent() {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
           fetchConfig: fetchConfig,
+          focusedCommunityId: focusedCommunityId,
         };
         await fetchGraphData(request);
         showNotification('Filters applied successfully', BannerType.SUCCESS);

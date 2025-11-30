@@ -11,7 +11,7 @@ export function useConfigMeta() {
     setError(null);
     try {
       const configMeta: ConfigMeta = {
-        nodeLabels: Object.values(NodeType),
+        nodeTypes: Object.values(NodeType),
         relationTypes: Object.values(RelationType),
         metricTypes: Object.values(MetricType),
         orientations: Object.values(Orientation),

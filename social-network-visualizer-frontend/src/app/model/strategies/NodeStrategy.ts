@@ -6,6 +6,8 @@ import { MenuItemsGetters } from '@/app/components/graphMenu/ContextMenuItemsPro
 export interface INodeStrategy {
   getColor(node: GraphNode): string;
 
+  getCommunityColor(node: GraphNode): string;
+
   getRadius(node: GraphNode): number;
 
   getLabel(node: GraphNode): string;
@@ -14,8 +16,21 @@ export interface INodeStrategy {
 }
 
 class AuthorNodeStrategy implements INodeStrategy {
+  private static readonly SATURATION = 70;
+  private static readonly LIGHTNESS = 50;
+
   getColor(): string {
     return Colors.DefaultAuthorColor();
+  }
+
+  getCommunityColor(node: GraphNode): string {
+    const communityIndex = parseInt(node.community || '0', 10) || 0;
+
+    if (communityIndex === 0 && !node.community) {
+      return Colors.DefaultAuthorColor();
+    }
+    const hue = (communityIndex * 37) % 360;
+    return `hsl(${hue}, ${AuthorNodeStrategy.SATURATION}%, ${AuthorNodeStrategy.LIGHTNESS}%)`;
   }
 
   getRadius(node: GraphNode): number {
@@ -37,6 +52,10 @@ class TweetNodeStrategy implements INodeStrategy {
     return Colors.DefaultTweetColor();
   }
 
+  getCommunityColor(): string {
+    return Colors.DefaultTweetColor();
+  }
+
   getRadius(): number {
     return 10;
   }
@@ -55,6 +74,10 @@ class TweetNodeStrategy implements INodeStrategy {
 
 class HashtagNodeStrategy implements INodeStrategy {
   getColor(): string {
+    return Colors.DefaultHashtagColor();
+  }
+
+  getCommunityColor(): string {
     return Colors.DefaultHashtagColor();
   }
 
@@ -85,6 +108,11 @@ class NodeStrategy {
   getColor(node: GraphNode): string {
     const strategy = this.resolveStrategy(node);
     return strategy.getColor(node);
+  }
+
+  getCommunityColor(node: GraphNode): string {
+    const strategy = this.resolveStrategy(node);
+    return strategy.getCommunityColor(node);
   }
 
   getRadius(node: GraphNode): number {
