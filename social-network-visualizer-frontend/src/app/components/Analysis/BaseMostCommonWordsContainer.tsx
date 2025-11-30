@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import WordCloud from 'react-d3-cloud';
+// import WordCloud from 'react-d3-cloud';
 
 const colors = ['#FFFFFF', '#A5B4FC', '#CBD5E1', '#7140F4', '#BFDBFE'];
 const fill = (word: { originalFill: string }) => word.originalFill;
@@ -92,31 +92,31 @@ export default function BaseMostCommonWordsContainer({ words, title, containerCl
       <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">{title}</h2>
 
       <div ref={containerRef} className="h-80 w-full overflow-hidden">
-        {transformedWords.length > 0 ? (
-          size && (
-            <WordCloud
-              data={transformedWords}
-              width={size.width}
-              height={size.height}
-              font="Inter"
-              fontWeight="bold"
-              fill={fill}
-              padding={2}
-              rotate={0}
-              fontSize={dynamicFontSizeMapper}
-              onWordMouseOver={(event) => {
-                (event.target as SVGElement).style.cursor = 'pointer';
-              }}
-              onWordMouseOut={(event) => {
-                (event.target as SVGElement).style.cursor = 'default';
-              }}
-            />
-          )
-        ) : (
-          <div className="h-full w-full flex items-center justify-center">
-            <p className="text-gray-400">No words available.</p>
-          </div>
-        )}
+        {/*{transformedWords.length > 0 ? (*/}
+        {/*  size && (*/}
+        {/*    <WordCloud*/}
+        {/*      data={transformedWords}*/}
+        {/*      width={size.width}*/}
+        {/*      height={size.height}*/}
+        {/*      font="Inter"*/}
+        {/*      fontWeight="bold"*/}
+        {/*      fill={fill}*/}
+        {/*      padding={2}*/}
+        {/*      rotate={0}*/}
+        {/*      fontSize={dynamicFontSizeMapper}*/}
+        {/*      onWordMouseOver={(event) => {*/}
+        {/*        (event.target as SVGElement).style.cursor = 'pointer';*/}
+        {/*      }}*/}
+        {/*      onWordMouseOut={(event) => {*/}
+        {/*        (event.target as SVGElement).style.cursor = 'default';*/}
+        {/*      }}*/}
+        {/*    />*/}
+        {/*  )*/}
+        {/*) : (*/}
+        {/*  <div className="h-full w-full flex items-center justify-center">*/}
+        {/*    <p className="text-gray-400">No words available.</p>*/}
+        {/*  </div>*/}
+        {/*)}*/}
       </div>
     </div>
   );

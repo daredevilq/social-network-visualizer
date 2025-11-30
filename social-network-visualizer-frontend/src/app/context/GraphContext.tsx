@@ -38,7 +38,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { projectData, loadedProjectName } = useProject();
+  const { projectData, loadedProjectName, selectedGraphType, selectedRelationTypes } = useProject();
   const {
     isInWorkspaceMode,
     workspaceData,
@@ -58,7 +58,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     setShortestPath([]);
     setGraphBridges([]);
-  }, [loadedProjectName, openedWorkspaceName]);
+  }, [loadedProjectName, openedWorkspaceName, selectedGraphType, selectedRelationTypes]);
 
   const resetGraphData = async () => {
     setShortestPath([]);

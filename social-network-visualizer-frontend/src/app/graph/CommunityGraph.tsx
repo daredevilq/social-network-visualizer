@@ -6,10 +6,9 @@ import { FolderPlus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
-import { AuthorNode, GraphLink, GraphNode, MetricConfig } from '@/types/GraphTypes';
+import { GraphLink, GraphNode, MetricConfig } from '@/types/GraphTypes';
 import Colors from '../utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
-import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
@@ -18,11 +17,7 @@ const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
 export default function CommunityGraph() {
   const { loadedProjectName, nodeFound, runWithLoading } = useProject();
-  const { focusedCommunityId } = useProject();
-  const { isInWorkspaceMode } = useWorkspace();
-  const { graphData, setGraphData, shortestPath } = useGraph();
-
-  const NUMBER_OF_COMMUNITIES = 15;
+  const { graphData, shortestPath, graphBridges } = useGraph();
   const { showNotification } = useNotification();
 
   const [filteredGraphData, setFilteredGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({
@@ -82,9 +77,6 @@ export default function CommunityGraph() {
   };
 
   const getLinkColor = (link: GraphLink): string => {
-    if (Array.isArray(shortestPath) && shortestPath.includes(link.source) && shortestPath.includes(link.target)) {
-      return Colors.RedColor();
-    }
     if (metricConfig?.relationTypes?.includes(link.relation)) {
       return Colors.GoldColor();
     }
@@ -92,9 +84,6 @@ export default function CommunityGraph() {
   };
 
   const getLinkWidth = (link: GraphLink): number => {
-    if (Array.isArray(shortestPath) && shortestPath.includes(link.source) && shortestPath.includes(link.target)) {
-      return 6;
-    }
     return linkStrategy.getWidth(link);
   };
 
@@ -119,17 +108,13 @@ export default function CommunityGraph() {
 
   return (
     <BaseGraph
-      graphData={graphData}
-      nodeVal={(node: GraphNode) => {
-        // TODO: Add a strategy pattern for node sizing depends on pagerank or other metrics in community graph
-        const authorNode = node as AuthorNode;
-        return Math.min(authorNode.pagerank ? authorNode.pagerank * 7 : 10, 30);
-      }}
-      nodeLabel={(node: GraphNode) => `${node.name}` + ` || Community: ${node.community}`}
-      nodeColor={(node) => (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType ? Colors.RedColor() : getNodeColor(node))}
-      linkLabel={(link: GraphLink) => `${link.relation}`}
-      linkColor={(link: GraphLink) => Colors.WhiteColor()}
-      linkWidth={(link: GraphLink) => 2}
+      graphData={filteredGraphData}
+      nodeVal={(node: GraphNode) => Math.min((nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12, 200)}
+      nodeLabel={(node: GraphNode) => `${node.name} || Community: ${node.community}`}
+      nodeColor={getNodeColor}
+      linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
+      linkColor={getLinkColor}
+      linkWidth={getLinkWidth}
       linkDirectionalArrowLength={8}
       linkDirectionalArrowRelPos={1}
       nodeFound={nodeFound}

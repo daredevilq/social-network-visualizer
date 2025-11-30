@@ -23,6 +23,25 @@ export default function StandardGraph() {
       </div>
     );
 
+  const isInPath = (link: any) => {
+    const pathIds = shortestPath.map((n) => n.id);
+
+    return shortestPath.some((_, i) => {
+      if (i >= pathIds.length - 1) return false;
+      const a = pathIds[i];
+      const b = pathIds[i + 1];
+      return (link.source.id === a && link.target.id === b) || (link.source.id === b && link.target.id === a);
+    });
+  };
+
+  const isBridge = (link: any) => {
+    return graphBridges.some(
+      (bridge) =>
+        (bridge.source === link.source.id && bridge.target === link.target.id) ||
+        (bridge.source === link.target.id && bridge.target === link.source.id)
+    );
+  };
+
   return (
     <div className="relative flex flex-col justify-center items-center h-screen w-full">
       <BaseGraph
@@ -38,22 +57,16 @@ export default function StandardGraph() {
           return nodeStrategy.getColor(node);
         }}
         linkColor={(link: any) => {
-          const pathIds = shortestPath.map((n) => n.id);
-          const sourceIndex = pathIds.indexOf(link.source.id);
-          const targetIndex = pathIds.indexOf(link.target.id);
+          if (isInPath(link)) return Colors.GoldColor();
+          if (isBridge(link)) return Colors.GoldColor();
 
-          const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
-
-          return inPath ? Colors.GoldColor() : linkStrategy.getColor(link);
+          return linkStrategy.getColor(link);
         }}
         linkWidth={(link: any) => {
-          const pathIds = shortestPath.map((n) => n.id);
-          const sourceIndex = pathIds.indexOf(link.source.id);
-          const targetIndex = pathIds.indexOf(link.target.id);
+          if (isInPath(link)) return 4;
+          if (isBridge(link)) return 4;
 
-          const inPath = sourceIndex !== -1 && targetIndex !== -1 && targetIndex === sourceIndex + 1;
-
-          return inPath ? 4 : linkStrategy.getWidth(link);
+          return linkStrategy.getWidth(link);
         }}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
         linkDirectionalArrowLength={8}
