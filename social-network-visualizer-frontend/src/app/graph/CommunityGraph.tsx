@@ -12,6 +12,7 @@ import { useGraph } from '@/app/context/GraphContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
+import { isLinkBridge, isLinkInPath } from '@/app/utils/GraphUtils';
 
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
@@ -99,14 +100,14 @@ export default function CommunityGraph() {
       return Colors.GoldColor();
     }
 
-    if (isInPath(link) || isBridge(link)) {
+    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
       return Colors.PurpleColor();
     }
     return linkStrategy.getColor(link);
   };
 
   const getLinkWidth = (link: GraphLink): number => {
-    if (isInPath(link) || isBridge(link)) {
+    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
       return 4;
     }
     return linkStrategy.getWidth(link);

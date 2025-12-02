@@ -8,11 +8,10 @@ import com.example.social_network_visualizer_backend.dto.request.BridgesRequest;
 import com.example.social_network_visualizer_backend.dto.request.FetchConfig;
 import com.example.social_network_visualizer_backend.dto.request.GraphQueryRequest;
 import com.example.social_network_visualizer_backend.dto.request.ShortestPathRequest;
-import com.example.social_network_visualizer_backend.enums.MetricType;
+import com.example.social_network_visualizer_backend.enums.AlgorithmType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.RelationType;
-import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.GraphRepository;
 import com.example.social_network_visualizer_backend.service.graph.NodeQueryStrategy;
@@ -144,12 +143,17 @@ public class GraphService {
         request.nodeTypes().isEmpty()
             ? new HashSet<>(Arrays.asList(NodeType.values()))
             : request.nodeTypes();
-    MetricConfig metricConfig =
-        new MetricConfig(MetricType.SHORTEST_PATH, nodeTypes, relationTypes, Orientation.NATURAL);
+
     String graphName = "shortest-path";
 
     return metricComputationService.computeShortestPath(
-        graphName, metricConfig, request.source(), request.target());
+        graphName,
+        AlgorithmType.SHORTEST_PATH,
+        nodeTypes,
+        relationTypes,
+        Orientation.NATURAL,
+        request.source(),
+        request.target());
   }
 
   public List<LinkDto> getBridges(BridgesRequest request) {
@@ -161,10 +165,10 @@ public class GraphService {
         request.nodeTypes().isEmpty()
             ? new HashSet<>(Arrays.asList(NodeType.values()))
             : request.nodeTypes();
-    MetricConfig metricConfig =
-        new MetricConfig(MetricType.BRIDGES, nodeTypes, relationTypes, Orientation.UNDIRECTED);
+
     String graphName = "bridges";
 
-    return metricComputationService.computeFindBridges(graphName, metricConfig);
+    return metricComputationService.computeFindBridges(
+        graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.UNDIRECTED);
   }
 }

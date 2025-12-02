@@ -7,6 +7,7 @@ import nodeStrategy from '../model/strategies/NodeStrategy';
 import Colors from '@/app/utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
+import { isLinkBridge, isLinkInPath } from '@/app/utils/GraphUtils';
 
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
@@ -22,25 +23,6 @@ export default function StandardGraph() {
         <p className="text-sm text-[#fafafa]/50 mt-1">Use the sidebar to pick one</p>
       </div>
     );
-
-  const isInPath = (link: any) => {
-    const pathIds = shortestPath.map((n) => n.id);
-
-    return shortestPath.some((_, i) => {
-      if (i >= pathIds.length - 1) return false;
-      const a = pathIds[i];
-      const b = pathIds[i + 1];
-      return link.source.id === a && link.target.id === b;
-    });
-  };
-
-  const isBridge = (link: any) => {
-    return graphBridges.some(
-      (bridge) =>
-        (bridge.source === link.source.id && bridge.target === link.target.id) ||
-        (bridge.source === link.target.id && bridge.target === link.source.id)
-    );
-  };
 
   return (
     <div className="relative flex flex-col justify-center items-center h-screen w-full">
@@ -60,12 +42,12 @@ export default function StandardGraph() {
           return null;
         }}
         linkColor={(link: any) => {
-          if (isInPath(link) || isBridge(link)) return Colors.PurpleColor();
+          if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) return Colors.PurpleColor();
 
           return linkStrategy.getColor(link);
         }}
         linkWidth={(link: any) => {
-          if (isInPath(link) || isBridge(link)) return 4;
+          if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) return 4;
 
           return linkStrategy.getWidth(link);
         }}

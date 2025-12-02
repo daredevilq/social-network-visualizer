@@ -2,6 +2,7 @@ package com.example.social_network_visualizer_backend.service;
 
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.enums.AlgorithmType;
 import com.example.social_network_visualizer_backend.enums.MetricType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.Orientation;
@@ -13,6 +14,7 @@ import com.example.social_network_visualizer_backend.repository.GraphRepository;
 import com.example.social_network_visualizer_backend.service.metric.MetricComputationStrategy;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,37 +43,48 @@ public class MetricComputationService {
   }
 
   public List<NodeDto> computeShortestPath(
-      String graphName, MetricConfig metricConfig, NodeDto source, NodeDto target) {
+      String graphName,
+      AlgorithmType algorithmType,
+      Set<NodeType> nodeTypes,
+      Set<RelationType> relationTypes,
+      Orientation orientation,
+      NodeDto source,
+      NodeDto target) {
     try {
-      createGraphProjection(graphName, metricConfig);
+      createGraphProjection(graphName, nodeTypes, relationTypes, orientation);
       return algorithmRepository.computeShortestPath(graphName, source.getId(), target.getId());
 
     } catch (Exception e) {
       log.error(
           "Failed to compute metric {} for graph {}: {}",
-          metricConfig.type(),
+          algorithmType,
           graphName,
           e.getMessage(),
           e);
-      throw new RuntimeException("Failed to compute metric: " + metricConfig.type(), e);
+      throw new RuntimeException("Failed to compute metric: " + algorithmType, e);
     } finally {
       graphRepository.dropGdsGraph(graphName);
     }
   }
 
-  public List<LinkDto> computeFindBridges(String graphName, MetricConfig metricConfig) {
+  public List<LinkDto> computeFindBridges(
+      String graphName,
+      AlgorithmType algorithmType,
+      Set<NodeType> nodeTypes,
+      Set<RelationType> relationTypes,
+      Orientation orientation) {
     try {
-      createGraphProjection(graphName, metricConfig);
-      return algorithmRepository.computeFindBridges(graphName, metricConfig.relationTypes());
+      createGraphProjection(graphName, nodeTypes, relationTypes, orientation);
+      return algorithmRepository.computeFindBridges(graphName, relationTypes);
 
     } catch (Exception e) {
       log.error(
           "Failed to compute metric {} for graph {}: {}",
-          metricConfig.type(),
+          algorithmType,
           graphName,
           e.getMessage(),
           e);
-      throw new RuntimeException("Failed to compute metric: " + metricConfig.type(), e);
+      throw new RuntimeException("Failed to compute metric: " + algorithmType, e);
     } finally {
       graphRepository.dropGdsGraph(graphName);
     }
@@ -89,7 +102,8 @@ public class MetricComputationService {
         metricCfg.relationTypes());
 
     try {
-      createGraphProjection(tempGraphName, metricCfg);
+      createGraphProjection(
+          tempGraphName, metricCfg.nodeTypes(), metricCfg.relationTypes(), metricCfg.orientation());
       MetricComputationStrategy strategy = findStrategy(metricCfg.type());
       strategy.compute(tempGraphName);
 
@@ -106,11 +120,14 @@ public class MetricComputationService {
     }
   }
 
-  private void createGraphProjection(String graphName, MetricConfig metricCfg) {
-    List<String> labels = metricCfg.nodeTypes().stream().map(NodeType::getLabel).toList();
+  private void createGraphProjection(
+      String graphName,
+      Set<NodeType> nodeTypes,
+      Set<RelationType> relationTypes,
+      Orientation orientation) {
+    List<String> labels = nodeTypes.stream().map(NodeType::getLabel).toList();
 
-    Map<String, Map<String, String>> relations =
-        toGdsRelationMap(metricCfg.relationTypes(), metricCfg.orientation());
+    Map<String, Map<String, String>> relations = toGdsRelationMap(relationTypes, orientation);
 
     graphRepository.createGraph(graphName, labels, relations);
     log.debug("In-memory graph projection created: {}", graphName);
