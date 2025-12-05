@@ -99,7 +99,7 @@ const Dashboard = () => {
           <div className="h-96 bg-gray-700 rounded-md animate-pulse"></div>
         </div>
       ) : (
-        <div className="w-full min-h-screen bg-[#262631] text-white p-10">
+        <div className="w-full min-h-screen text-white p-10">
           <div className="mx-auto">
             <div className="flex items-center justify-between mb-8">
               <button
@@ -142,7 +142,7 @@ const Dashboard = () => {
               <TopMentionsContainer mentions={topMentions} />
 
               <ActivityChartCard activity={projectActivity} />
-              <HashtagActivityContainer topHashtags={topHashtags.slice(0, 10)} />
+              <HashtagActivityContainer topHashtags={topHashtags} />
 
               <HeatMapChartCard heat={heatMap} />
               <HashtagActivityChartContainer data={topHashtags} />

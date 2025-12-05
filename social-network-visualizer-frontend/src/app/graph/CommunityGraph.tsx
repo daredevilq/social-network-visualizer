@@ -116,13 +116,11 @@ export default function CommunityGraph() {
     <BaseGraph
       graphData={filteredGraphData}
       nodeVal={(node: GraphNode) => Math.min((nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12, 200)}
-      nodeLabel={(node: GraphNode) => `${node.name} || Community: ${node.community}`}
+      nodeLabel={(node: GraphNode) => `${node.name} in Community: ${node.community}`}
       nodeColor={getNodeColor}
-      linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
       linkColor={getLinkColor}
       linkWidth={getLinkWidth}
-      linkDirectionalArrowLength={8}
-      linkDirectionalArrowRelPos={1}
+      linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
       nodeFound={nodeFound}
     />
   );

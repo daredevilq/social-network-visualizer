@@ -78,8 +78,6 @@ export interface GraphProps {
   linkColor: (link: GraphLink) => string;
   linkWidth: (link: GraphLink) => number;
   linkLabel: (link: GraphLink) => string;
-  linkDirectionalArrowLength: number;
-  linkDirectionalArrowRelPos: number;
   nodeFound: GraphNode | null;
 }
 

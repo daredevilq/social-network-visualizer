@@ -44,8 +44,6 @@ export default function StandardGraph() {
           shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 6 : linkStrategy.getWidth(link)
         }
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
-        linkDirectionalArrowLength={8}
-        linkDirectionalArrowRelPos={1}
         nodeFound={nodeFound}
       />
     </div>

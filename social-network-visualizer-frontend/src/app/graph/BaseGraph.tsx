@@ -5,7 +5,6 @@ import { forceManyBody, forceCollide, forceX, forceY, forceLink } from 'd3-force
 import { GraphLink, GraphNode, GraphProps, SelectionBox } from '@/types/GraphTypes';
 import { useProject } from '@/app/context/ProjectContext';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
-import Colors from '@/app/utils/Colors';
 import { useWorkspace } from '@/app/context/WorkspaceContext';
 import { useGraph } from '@/app/context/GraphContext';
 import MenuComponent from '@/app/components/graphMenu/MenuComponent';
@@ -26,18 +25,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const MIN_CURVATURE = 0.4;
   const MAX_CURVATURE = 1.0;
 
-  const {
-    graphData,
-    nodeVal,
-    nodeLabel,
-    nodeColor,
-    linkColor,
-    linkWidth,
-    linkLabel,
-    linkDirectionalArrowLength,
-    linkDirectionalArrowRelPos,
-    nodeFound,
-  } = props;
+  const { graphData, nodeVal, nodeLabel, nodeColor, linkColor, linkWidth, linkLabel, nodeFound } = props;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(null);
@@ -146,75 +134,48 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
       .linkColor(linkColor)
       .linkWidth(linkWidth)
       .linkLabel(linkLabel)
-      .linkDirectionalArrowLength(linkDirectionalArrowLength)
-      .linkDirectionalArrowRelPos(linkDirectionalArrowRelPos)
+      .linkDirectionalArrowLength(12)
+      .linkDirectionalArrowRelPos(1)
       .linkCurvature(getLinkCurvature)
       .onNodeClick(handleNodeLeftClick)
       .onNodeRightClick(handleNodeRightClick)
-      .nodeCanvasObject((node: GraphNode & { x: number; y: number }, ctx: CanvasRenderingContext2D, globalScale: any) => {
-        if (!isFinite(node.x) || !isFinite(node.y)) {
-          return;
-        }
+      .nodeCanvasObject((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+        if (!isFinite(node.x) || !isFinite(node.y)) return;
 
         const radius = nodeStrategy.getRadius(node);
-        const baseColor = nodeColor ? nodeColor(node) : Colors.DefaultAuthorColor();
-
-        if (!isFinite(radius) || radius <= 0) {
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 0.5 / globalScale, 0, 2 * Math.PI, false);
-          ctx.fillStyle = baseColor;
-          ctx.fill();
-          return;
-        }
-
-        ctx.save();
-        ctx.shadowColor = baseColor;
-        ctx.shadowBlur = 10;
+        const baseColor = nodeColor ? nodeColor(node) : '#ccc';
+        const isSelected = selectedNodeIds.includes(node.id);
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = baseColor;
         ctx.fill();
 
-        ctx.restore();
-
-        if (selectedNodeIds.includes(node.id)) {
-          ctx.save();
-          ctx.shadowColor = 'white';
-          ctx.shadowBlur = 10;
-
+        if (isSelected) {
           ctx.lineWidth = 2 / globalScale;
-          ctx.strokeStyle = 'white';
-
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, radius + 1 / globalScale, 0, 2 * Math.PI, false);
+          ctx.strokeStyle = '#ffffff';
           ctx.stroke();
 
-          ctx.restore();
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius + 4 / globalScale, 0, 2 * Math.PI, false);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.lineWidth = 1 / globalScale;
+          ctx.stroke();
         }
 
-        const fontSize = 12 / globalScale;
         if (showLabels) {
-          const nLabel = nodeLabel(node);
-          const textYPosition = node.y + radius + 4;
+          const label = nodeLabel(node);
+          const fontSize = 12 / globalScale;
+          const textYPosition = node.y + radius + 2;
+
           ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
           ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText(nLabel, node.x, textYPosition);
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'white';
+          ctx.fillText(label, node.x, textYPosition + fontSize / 2.5);
         }
       });
-  }, [
-    nodeVal,
-    nodeLabel,
-    nodeColor,
-    linkColor,
-    linkWidth,
-    linkLabel,
-    linkDirectionalArrowLength,
-    linkDirectionalArrowRelPos,
-    selectedNodeIds,
-  ]);
+  }, [nodeVal, nodeLabel, nodeColor, linkColor, linkWidth, linkLabel, selectedNodeIds, showLabels]);
 
   const getLinkCurvature = (link: GraphLink) => link.curvature;
 
