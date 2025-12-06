@@ -727,5 +727,41 @@ class ProjectServiceTest {
     assertEquals(1, skippedFiles.size());
     assertEquals("test.json", skippedFiles.get(0));
   }
+
+  @Test
+  void testGetDefaultMetrics_Success() throws Exception {
+    // Arrange
+    MetricConfig metric1 = new MetricConfig(null, null, null, null);
+    MetricConfig metric2 = new MetricConfig(null, null, null, null);
+    List<MetricConfig> mockMetrics = List.of(metric1, metric2);
+
+    when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenReturn(mockMetrics);
+
+    // Act
+    List<MetricConfig> result = projectService.getDefaultMetrics();
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    assertSame(metric1, result.get(0));
+    assertSame(metric2, result.get(1));
+    verify(objectMapper).readValue(any(InputStream.class), any(TypeReference.class));
+  }
+
+  @Test
+  void testGetDefaultMetrics_IOException() throws Exception {
+    // Arrange
+    when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
+            .thenThrow(new IOException("File read error"));
+
+    // Act & Assert
+    ProjectException exception = assertThrows(ProjectException.class,
+            () -> projectService.getDefaultMetrics());
+
+    assertTrue(exception.getMessage().contains("Failed to load default metrics configuration"));
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
+    verify(objectMapper).readValue(any(InputStream.class), any(TypeReference.class));
+  }
 }
 

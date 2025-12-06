@@ -3,6 +3,9 @@ package com.example.social_network_visualizer_backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
+import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.enums.AlgorithmType;
 import com.example.social_network_visualizer_backend.enums.MetricType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.Orientation;
@@ -544,6 +547,110 @@ class MetricComputationServiceTest {
     verify(graphRepository).createGraph(graphNameCaptor.capture(), anyList(), anyMap());
     String capturedGraphName = graphNameCaptor.getValue();
     assertEquals("g_test_project_2024____pagerank", capturedGraphName);
+  }
+
+  @Test
+  void testComputeShortestPath_Success() {
+    // Arrange
+    String graphName = "TestGraph";
+    NodeDto source = new NodeDto();
+    source.setId("1");
+    NodeDto target = new NodeDto();
+    target.setId("2");
+    Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
+    Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
+
+    List<NodeDto> pathResult = List.of(source, target);
+
+    when(algorithmRepository.computeShortestPath(eq(graphName), eq("1"), eq("2")))
+            .thenReturn(pathResult);
+
+    // Act
+    List<NodeDto> result = metricComputationService.computeShortestPath(
+            graphName, AlgorithmType.SHORTEST_PATH, nodeTypes, relationTypes, Orientation.NATURAL, source, target);
+
+    // Assert
+    assertEquals(2, result.size());
+    assertEquals(source, result.get(0));
+    assertEquals(target, result.get(1));
+
+    verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
+    verify(algorithmRepository).computeShortestPath(graphName, "1", "2");
+    verify(graphRepository).dropGdsGraph(graphName);
+  }
+
+  @Test
+  void testComputeShortestPath_Failure() {
+    // Arrange
+    String graphName = "TestGraph";
+    NodeDto source = new NodeDto();
+    source.setId("1");
+    NodeDto target = new NodeDto();
+    target.setId("2");
+    Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
+    Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
+
+    when(algorithmRepository.computeShortestPath(eq(graphName), eq("1"), eq("2")))
+            .thenThrow(new RuntimeException("Algorithm failure"));
+
+    // Act & Assert
+    RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> metricComputationService.computeShortestPath(
+                    graphName, AlgorithmType.SHORTEST_PATH, nodeTypes, relationTypes, Orientation.NATURAL, source, target));
+
+    assertTrue(exception.getMessage().contains("Failed to compute metric"));
+
+    verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
+    verify(algorithmRepository).computeShortestPath(graphName, "1", "2");
+    verify(graphRepository).dropGdsGraph(graphName);
+  }
+
+  @Test
+  void testComputeFindBridges_Success() {
+    // Arrange
+    String graphName = "TestGraph";
+    Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
+    Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
+    List<LinkDto> bridges = List.of(new LinkDto("1", "2", RelationType.MENTIONS, 1));
+
+    when(algorithmRepository.computeFindBridges(eq(graphName), eq(relationTypes)))
+            .thenReturn(bridges);
+
+    // Act
+    List<LinkDto> result = metricComputationService.computeFindBridges(
+            graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.NATURAL);
+
+    // Assert
+    assertEquals(1, result.size());
+    assertEquals("1", result.get(0).source());
+    assertEquals("2", result.get(0).target());
+    assertEquals(RelationType.MENTIONS, result.get(0).relation());
+
+    verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
+    verify(algorithmRepository).computeFindBridges(graphName, relationTypes);
+    verify(graphRepository).dropGdsGraph(graphName);
+  }
+
+  @Test
+  void testComputeFindBridges_Failure() {
+    // Arrange
+    String graphName = "TestGraph";
+    Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
+    Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
+
+    when(algorithmRepository.computeFindBridges(eq(graphName), eq(relationTypes)))
+            .thenThrow(new RuntimeException("Algorithm failure"));
+
+    // Act & Assert
+    RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> metricComputationService.computeFindBridges(
+                    graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.NATURAL));
+
+    assertTrue(exception.getMessage().contains("Failed to compute metric"));
+
+    verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
+    verify(algorithmRepository).computeFindBridges(graphName, relationTypes);
+    verify(graphRepository).dropGdsGraph(graphName);
   }
 }
 
