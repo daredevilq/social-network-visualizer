@@ -23,8 +23,6 @@ interface Context {
   setProjectData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
   nodeFound: GraphNode | null;
   setNodeFound: React.Dispatch<React.SetStateAction<GraphNode | null>>;
-  shortestPath: string[];
-  setShortestPath: React.Dispatch<React.SetStateAction<string[]>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedUserData: BasicUserData | null;
@@ -35,6 +33,8 @@ interface Context {
   setSelectedRelationTypes: React.Dispatch<React.SetStateAction<RelationType[]>>;
   focusedCommunityId: number | null;
   setFocusedCommunityId: (id: number | null) => void;
+  focusedCommunityData: { nodes: GraphNode[]; links: GraphLink[] };
+  setFocusedCommunityData: React.Dispatch<React.SetStateAction<{ nodes: GraphNode[]; links: GraphLink[] }>>;
   selectedGraphType: GraphType;
   setSelectedGraphType: (g: GraphType) => void;
   showLabels: boolean;
@@ -56,8 +56,6 @@ const ProjectContext = createContext<Context>({
   setProjectData: () => {},
   nodeFound: null,
   setNodeFound: () => {},
-  shortestPath: [],
-  setShortestPath: () => {},
   isSidebarOpen: false,
   setIsSidebarOpen: () => {},
   selectedUserData: null,
@@ -68,6 +66,8 @@ const ProjectContext = createContext<Context>({
   setSelectedRelationTypes: () => {},
   focusedCommunityId: null,
   setFocusedCommunityId: () => {},
+  focusedCommunityData: { nodes: [], links: [] },
+  setFocusedCommunityData: () => {},
   selectedGraphType: GraphType.STANDARD,
   setSelectedGraphType: () => {},
   showLabels: false,
@@ -88,8 +88,11 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     nodes: GraphNode[];
     links: GraphLink[];
   }>({ nodes: [], links: [] });
+  const [focusedCommunityData, setFocusedCommunityData] = useState<{
+    nodes: GraphNode[];
+    links: GraphLink[];
+  }>({ nodes: [], links: [] });
   const [nodeFound, setNodeFound] = useState<GraphNode | null>(null);
-  const [shortestPath, setShortestPath] = useState<string[]>([]);
   const [selectedNodeTypes, setSelectedNodeTypes] = useState<NodeType[]>([NodeType.AUTHOR]);
   const [selectedRelationTypes, setSelectedRelationTypes] = useState<RelationType[]>([RelationType.MENTIONS]);
   const [focusedCommunityId, setFocusedCommunityId] = useState<number | null>(null);
@@ -235,7 +238,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
               } as HashtagNode;
           }
         });
-        setProjectData({ nodes, links });
+        graphQuery.focusedCommunityId ? setFocusedCommunityData({ nodes, links }) : setProjectData({ nodes, links });
       } catch (err) {
         showNotification('Unexpected error while fetching graph data.', BannerType.ERROR);
       }
@@ -256,8 +259,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setProjectData,
         nodeFound,
         setNodeFound,
-        shortestPath,
-        setShortestPath,
         isSidebarOpen,
         setIsSidebarOpen,
         selectedUserData,
@@ -268,6 +269,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setSelectedRelationTypes,
         focusedCommunityId,
         setFocusedCommunityId,
+        focusedCommunityData,
+        setFocusedCommunityData,
         selectedGraphType,
         setSelectedGraphType,
         showLabels,

@@ -7,12 +7,13 @@ import nodeStrategy from '../model/strategies/NodeStrategy';
 import Colors from '@/app/utils/Colors';
 import { useGraph } from '@/app/context/GraphContext';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
+import { isLinkBridge, isLinkInPath } from '@/app/utils/GraphUtils';
 
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
 export default function StandardGraph() {
-  const { loadedProjectName, nodeFound, shortestPath } = useProject();
-  const { graphData } = useGraph();
+  const { loadedProjectName, nodeFound } = useProject();
+  const { graphData, shortestPath, graphBridges } = useGraph();
 
   if (!loadedProjectName)
     return (
@@ -32,17 +33,24 @@ export default function StandardGraph() {
         nodeColor={(node: GraphNode) => {
           if (node.id === nodeFound?.id && node.nodeType === nodeFound?.nodeType) return Colors.RedColor();
 
-          if (shortestPath.includes(String(node.id))) {
-            return Colors.GoldColor();
-          }
           return nodeStrategy.getColor(node);
         }}
-        linkColor={(link: GraphLink) =>
-          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? Colors.RedColor() : linkStrategy.getColor(link)
-        }
-        linkWidth={(link: GraphLink) =>
-          shortestPath.includes(link.source) && shortestPath.includes(link.target) ? 6 : linkStrategy.getWidth(link)
-        }
+        nodeBorderColor={(node) => {
+          if (shortestPath.some((n) => n.id === node.id)) {
+            return Colors.WhiteColor();
+          }
+          return null;
+        }}
+        linkColor={(link: any) => {
+          if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) return Colors.PurpleColor();
+
+          return linkStrategy.getColor(link);
+        }}
+        linkWidth={(link: any) => {
+          if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) return 4;
+
+          return linkStrategy.getWidth(link);
+        }}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
         linkDirectionalArrowLength={8}
         linkDirectionalArrowRelPos={1}

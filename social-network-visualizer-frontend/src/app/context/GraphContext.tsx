@@ -14,6 +14,10 @@ interface GraphContextType {
   resetGraphData: () => void;
   addNodeToGraph: (node: GraphNode) => void;
   findNodeInProjectData: (node: GraphNode) => void;
+  shortestPath: GraphNode[];
+  setShortestPath: React.Dispatch<React.SetStateAction<GraphNode[]>>;
+  graphBridges: GraphLink[];
+  setGraphBridges: React.Dispatch<React.SetStateAction<GraphLink[]>>;
 }
 
 const GraphContext = createContext<GraphContextType>({
@@ -22,6 +26,10 @@ const GraphContext = createContext<GraphContextType>({
   resetGraphData: () => {},
   addNodeToGraph: () => {},
   findNodeInProjectData: () => {},
+  shortestPath: [],
+  setShortestPath: () => {},
+  graphBridges: [],
+  setGraphBridges: () => {},
 });
 
 export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -30,7 +38,16 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     links: GraphLink[];
   }>({ nodes: [], links: [] });
   const { showNotification } = useNotification();
-  const { projectData } = useProject();
+  const {
+    projectData,
+    loadedProjectName,
+    selectedGraphType,
+    selectedRelationTypes,
+    setFocusedCommunityId,
+    focusedCommunityId,
+    setFocusedCommunityData,
+    focusedCommunityData,
+  } = useProject();
   const {
     isInWorkspaceMode,
     workspaceData,
@@ -40,12 +57,25 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     fetchWorkspaceData,
     setWorkspaceData,
   } = useWorkspace();
+  const [shortestPath, setShortestPath] = useState<GraphNode[]>([]);
+  const [graphBridges, setGraphBridges] = useState<GraphLink[]>([]);
 
   useEffect(() => {
-    setGraphData(isInWorkspaceMode ? workspaceData : projectData);
-  }, [isInWorkspaceMode, projectData, workspaceData]);
+    const dataToSet = focusedCommunityId ? focusedCommunityData : isInWorkspaceMode ? workspaceData : projectData;
+
+    setGraphData(dataToSet);
+  }, [isInWorkspaceMode, projectData, workspaceData, focusedCommunityId, focusedCommunityData]);
+
+  useEffect(() => {
+    setShortestPath([]);
+    setGraphBridges([]);
+  }, [loadedProjectName, openedWorkspaceName, selectedGraphType, selectedRelationTypes]);
 
   const resetGraphData = async () => {
+    setShortestPath([]);
+    setGraphBridges([]);
+    setFocusedCommunityId(null);
+    setFocusedCommunityData({ nodes: [], links: [] });
     if (isInWorkspaceMode) {
       await loadWorkspace(openedWorkspaceName!);
       await fetchWorkspaceData(openedWorkspaceName!);
@@ -128,6 +158,10 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         resetGraphData,
         addNodeToGraph,
         findNodeInProjectData,
+        shortestPath,
+        setShortestPath,
+        graphBridges,
+        setGraphBridges,
       }}
     >
       {children}

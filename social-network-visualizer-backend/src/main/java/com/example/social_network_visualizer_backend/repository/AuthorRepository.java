@@ -128,22 +128,6 @@ public interface AuthorRepository extends Neo4jRepository<Author, String> {
 
   @Query(
       """
-               MATCH (a1:Author {userName: $sourceName}), (a2:Author {userName: $targetName})
-               CALL gds.shortestPath.dijkstra.stream('g_author_mentions', {
-                   sourceNode: a1,
-                   targetNode: a2
-                   })
-               YIELD index, path
-               WITH nodes(path) AS nodes
-               UNWIND nodes AS node
-               MATCH (author:Author) WHERE id(author) = id(node)
-               RETURN author.userName AS userNames
-            """)
-  List<String> findShortestPathAuthors(
-      @Param("sourceName") String sourceName, @Param("targetName") String targetName);
-
-  @Query(
-      """
                 MATCH (a:Author)
                 WHERE $inWorkspace = false OR a.isInWorkspace = true
                 OPTIONAL MATCH (a)-[r]-()

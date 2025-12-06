@@ -114,7 +114,7 @@ export default function FiltersContent() {
       <div className="flex items-center border-b border-white pb-2 mb-4">
         <h1 className="text-2xl font-bold mr-2">Graph Filters</h1>
         <PopoverIcon
-          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.\n\n**Note:** In workspace mode, filters cannot be applied because the graph always saves all data.`}
+          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.\n\n**Note:** In workspace mode, filters cannot be applied because the graph always all relation types and workspace's nodes.`}
           scale={1.6}
           position="bottom"
         />

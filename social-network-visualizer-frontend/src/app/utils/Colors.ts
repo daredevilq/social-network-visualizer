@@ -38,6 +38,10 @@ export default class Colors {
     return '#FF9F40';
   }
 
+  static PurpleColor(): string {
+    return '#BF00FF';
+  }
+
   static AuthorAuthorLinkColorLow(): string {
     return '#0E635A';
   }

@@ -31,6 +31,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
     nodeVal,
     nodeLabel,
     nodeColor,
+    nodeBorderColor,
     linkColor,
     linkWidth,
     linkLabel,
@@ -177,6 +178,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         ctx.fill();
 
         ctx.restore();
+        const borderColor = nodeBorderColor?.(node);
 
         if (selectedNodeIds.includes(node.id)) {
           ctx.save();
@@ -185,6 +187,19 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
 
           ctx.lineWidth = 2 / globalScale;
           ctx.strokeStyle = 'white';
+
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius + 1 / globalScale, 0, 2 * Math.PI, false);
+          ctx.stroke();
+
+          ctx.restore();
+        } else if (borderColor) {
+          ctx.save();
+          ctx.shadowColor = borderColor;
+          ctx.shadowBlur = 10;
+
+          ctx.lineWidth = 2 / globalScale;
+          ctx.strokeStyle = borderColor;
 
           ctx.beginPath();
           ctx.arc(node.x, node.y, radius + 1 / globalScale, 0, 2 * Math.PI, false);
