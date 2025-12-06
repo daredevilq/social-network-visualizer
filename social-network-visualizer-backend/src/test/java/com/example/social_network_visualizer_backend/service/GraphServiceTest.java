@@ -922,6 +922,175 @@ class GraphServiceTest {
     assertTrue(result.isEmpty());
   }
 
+  @Test
+  void testGetGraph_WithEmptyNodesList() {
+    // Arrange
+    GraphQueryRequest request = new GraphQueryRequest(
+        Set.of(NodeType.AUTHOR),
+        Set.of(RelationType.MENTIONS),
+        FetchConfig.defaultConfig(),
+        Optional.empty()
+    );
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    when(authorStrategy.fetchNodes(any(), anyBoolean(), anyInt()))
+        .thenReturn(Collections.emptyList());
+    when(graphRepository.findAllRelations()).thenReturn(Collections.emptyList());
+
+    // Act
+    GraphDataDto result = graphService.getGraph(request);
+
+    // Assert
+    assertNotNull(result);
+    assertTrue(result.nodes().isEmpty());
+    assertTrue(result.links().isEmpty());
+  }
+
+  @Test
+  void testGetGraph_WithNoMatchingLinks() {
+    // Arrange
+    GraphQueryRequest request = new GraphQueryRequest(
+        Set.of(NodeType.AUTHOR),
+        Set.of(RelationType.MENTIONS),
+        FetchConfig.defaultConfig(),
+        Optional.empty()
+    );
+    AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
+    author.setId("author1");
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    doReturn(List.of(author))
+        .when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
+    LinkDto unmatchedLink = new LinkDto("author1", "author2", RelationType.RETWEETS, 1);
+    when(graphRepository.findAllRelations()).thenReturn(List.of(unmatchedLink));
+
+    // Act
+    GraphDataDto result = graphService.getGraph(request);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1, result.nodes().size());
+    assertTrue(result.links().isEmpty());
+  }
+
+  @Test
+  void testGetGraph_LinksFilteredByNodeIds() {
+    // Arrange
+    GraphQueryRequest request = new GraphQueryRequest(
+        Set.of(NodeType.AUTHOR),
+        Set.of(RelationType.MENTIONS),
+        FetchConfig.defaultConfig(),
+        Optional.empty()
+    );
+    AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
+    author.setId("author1");
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    doReturn(List.of(author))
+        .when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
+    LinkDto linkWithMissingNodes = new LinkDto("author999", "author888", RelationType.MENTIONS, 1);
+    when(graphRepository.findAllRelations()).thenReturn(List.of(linkWithMissingNodes));
+
+    // Act
+    GraphDataDto result = graphService.getGraph(request);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1, result.nodes().size());
+    assertTrue(result.links().isEmpty());
+  }
+
+  @Test
+  void testFetchWorkspaceData_WithEmptyResults() {
+    // Arrange
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    when(tweetStrategy.getNodeType()).thenReturn(NodeType.TWEET);
+    when(hashtagStrategy.getNodeType()).thenReturn(NodeType.HASHTAG);
+    when(authorStrategy.fetchNodes(any(), eq(true), anyInt()))
+        .thenReturn(Collections.emptyList());
+    when(tweetStrategy.fetchNodes(any(), eq(true), anyInt()))
+        .thenReturn(Collections.emptyList());
+    when(hashtagStrategy.fetchNodes(any(), eq(true), anyInt()))
+        .thenReturn(Collections.emptyList());
+    when(graphRepository.findWorkspaceRelationships()).thenReturn(Collections.emptyList());
+
+    // Act
+    GraphDataDto result = graphService.fetchWorkspaceData();
+
+    // Assert
+    assertNotNull(result);
+    assertTrue(result.nodes().isEmpty());
+    assertTrue(result.links().isEmpty());
+  }
+
+  @Test
+  void testGetGraph_WithCommunityIdFilter() {
+    // Arrange
+    GraphQueryRequest request = new GraphQueryRequest(
+        Set.of(NodeType.AUTHOR),
+        Set.of(RelationType.MENTIONS),
+        FetchConfig.defaultConfig(),
+        Optional.of(5)
+    );
+    AuthorNodeDto author = new AuthorNodeDto(0.5, 5);
+    author.setId("author1");
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    doReturn(List.of(author))
+        .when(authorStrategy).fetchNodes(eq(Optional.of(5)), anyBoolean(), anyInt());
+    LinkDto link = new LinkDto("author1", "author1", RelationType.MENTIONS, 1);
+    when(graphRepository.findAllRelations()).thenReturn(List.of(link));
+
+    // Act
+    GraphDataDto result = graphService.getGraph(request);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(1, result.nodes().size());
+    assertEquals(1, result.links().size());
+    verify(authorStrategy).fetchNodes(eq(Optional.of(5)), eq(false), anyInt());
+  }
+
+  @Test
+  void testGetGraph_MultipleNodeTypesWithDifferentLimits() {
+    // Arrange
+    Map<NodeType, Integer> limits = Map.of(
+        NodeType.AUTHOR, 50,
+        NodeType.TWEET, 100,
+        NodeType.HASHTAG, 200
+    );
+    FetchConfig customConfig = new FetchConfig(FetchStrategy.LIMIT_PER_TYPE, limits);
+    GraphQueryRequest request = new GraphQueryRequest(
+        Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
+        Set.of(RelationType.MENTIONS),
+        customConfig,
+        Optional.empty()
+    );
+    AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
+    author.setId("author1");
+    TweetNodeDto tweet = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    tweet.setId("tweet1");
+    HashtagNodeDto hashtag = new HashtagNodeDto();
+    hashtag.setId("hashtag1");
+    
+    when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
+    when(tweetStrategy.getNodeType()).thenReturn(NodeType.TWEET);
+    when(hashtagStrategy.getNodeType()).thenReturn(NodeType.HASHTAG);
+    doReturn(List.of(author))
+        .when(authorStrategy).fetchNodes(any(), anyBoolean(), eq(50));
+    doReturn(List.of(tweet))
+        .when(tweetStrategy).fetchNodes(any(), anyBoolean(), eq(100));
+    doReturn(List.of(hashtag))
+        .when(hashtagStrategy).fetchNodes(any(), anyBoolean(), eq(200));
+    when(graphRepository.findAllRelations()).thenReturn(Collections.emptyList());
+
+    // Act
+    GraphDataDto result = graphService.getGraph(request);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(3, result.nodes().size());
+    verify(authorStrategy).fetchNodes(any(), eq(false), eq(50));
+    verify(tweetStrategy).fetchNodes(any(), eq(false), eq(100));
+    verify(hashtagStrategy).fetchNodes(any(), eq(false), eq(200));
+  }
+
   private AuthorNodeDto createAuthorNode(String id, String name) {
     AuthorNodeDto node = new AuthorNodeDto(null, null);
     node.setId(id);

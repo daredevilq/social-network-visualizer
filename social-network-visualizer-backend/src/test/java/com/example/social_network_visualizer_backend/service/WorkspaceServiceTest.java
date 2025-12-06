@@ -826,5 +826,289 @@ class WorkspaceServiceTest {
     assertEquals(0, result.getImportedEdges());
     verify(graphRepository, never()).findExistingRelations(anyList());
   }
+
+  @Test
+  void testValidateAndImportWorkspace_NodesWithNullId() throws Exception {
+    // Arrange
+    AuthorNodeDto nodeWithNullId = new AuthorNodeDto(null, null);
+    nodeWithNullId.setId(null);
+    nodeWithNullId.setName("author1");
+    nodeWithNullId.setNodeType(NodeType.AUTHOR);
+    
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[{\"nodeType\":\"AUTHOR\"}],\"edges\":[]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>(List.of(nodeWithNullId)))
+        .edges(new ArrayList<>())
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+
+    // Act & Assert
+    assertThrows(WorkspaceException.class,
+        () -> workspaceService.validateAndImportWorkspace("testProject", file));
+  }
+
+  @Test
+  void testValidateAndImportWorkspace_NodesWithNullNodeType() throws Exception {
+    // Arrange
+    AuthorNodeDto nodeWithNullType = new AuthorNodeDto(null, null);
+    nodeWithNullType.setId("author1");
+    nodeWithNullType.setName("author1");
+    nodeWithNullType.setNodeType(null);
+    
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[{\"id\":\"author1\"}],\"edges\":[]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>(List.of(nodeWithNullType)))
+        .edges(new ArrayList<>())
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+
+    // Act & Assert
+    assertThrows(WorkspaceException.class,
+        () -> workspaceService.validateAndImportWorkspace("testProject", file));
+  }
+
+  @Test
+  void testValidateAndImportWorkspace_EdgesWithNullSource() throws Exception {
+    // Arrange
+    LinkDto edgeWithNullSource = new LinkDto(null, "tweet1", RelationType.POSTED, 1);
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[{\"id\":\"author1\",\"nodeType\":\"AUTHOR\"}],\"edges\":[{\"target\":\"tweet1\",\"relationType\":\"POSTED\"}]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>(List.of(authorNode)))
+        .edges(new ArrayList<>(List.of(edgeWithNullSource)))
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+    when(graphRepository.findExistingNodesByIdsAndTypes(anyList()))
+        .thenReturn(List.of(authorNode));
+    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    WorkspaceImportResult result = workspaceService.validateAndImportWorkspace("testProject", file);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(0, result.getImportedEdges());
+  }
+
+  @Test
+  void testValidateAndImportWorkspace_EdgesWithNullTarget() throws Exception {
+    // Arrange
+    LinkDto edgeWithNullTarget = new LinkDto("author1", null, RelationType.POSTED, 1);
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[{\"id\":\"author1\",\"nodeType\":\"AUTHOR\"}],\"edges\":[{\"source\":\"author1\",\"relationType\":\"POSTED\"}]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>(List.of(authorNode)))
+        .edges(new ArrayList<>(List.of(edgeWithNullTarget)))
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+    when(graphRepository.findExistingNodesByIdsAndTypes(anyList()))
+        .thenReturn(List.of(authorNode));
+    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    WorkspaceImportResult result = workspaceService.validateAndImportWorkspace("testProject", file);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(0, result.getImportedEdges());
+  }
+
+  @Test
+  void testValidateAndImportWorkspace_NullEdgeInList() throws Exception {
+    // Arrange
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[{\"id\":\"author1\",\"nodeType\":\"AUTHOR\"}],\"edges\":[null]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    List<LinkDto> edgesWithNull = new ArrayList<>();
+    edgesWithNull.add(null);
+    
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>(List.of(authorNode)))
+        .edges(edgesWithNull)
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+    when(graphRepository.findExistingNodesByIdsAndTypes(anyList()))
+        .thenReturn(List.of(authorNode));
+    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    WorkspaceImportResult result = workspaceService.validateAndImportWorkspace("testProject", file);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(0, result.getImportedEdges());
+  }
+
+  @Test
+  void testValidateAndImportWorkspace_NullNodeInList() throws Exception {
+    // Arrange 
+    String workspaceJson = "{\"name\":\"newWorkspace\",\"nodes\":[null],\"edges\":[]}";
+    MockMultipartFile file = new MockMultipartFile(
+        "workspace",
+        "workspace.json",
+        "application/json",
+        workspaceJson.getBytes()
+    );
+    List<NodeDto> nodesWithNull = new ArrayList<>();
+    nodesWithNull.add(null);
+    
+    Workspace parsedWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(nodesWithNull)
+        .edges(new ArrayList<>())
+        .build();
+
+    when(objectMapper.readValue(any(InputStream.class), eq(Workspace.class)))
+        .thenReturn(parsedWorkspace);
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+
+    // Act & Assert
+    assertThrows(WorkspaceException.class,
+        () -> workspaceService.validateAndImportWorkspace("testProject", file));
+  }
+
+  @Test
+  void testSaveWorkspace_WithNullNameInWorkspacesList() {
+    // Arrange
+    Workspace existingWithNullName = Workspace.builder()
+        .name(null)
+        .nodes(new ArrayList<>())
+        .edges(new ArrayList<>())
+        .build();
+    testProject.setWorkspaces(new ArrayList<>(List.of(existingWithNullName)));
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    Workspace newWorkspace = Workspace.builder()
+        .name("newWorkspace")
+        .nodes(new ArrayList<>())
+        .edges(new ArrayList<>())
+        .build();
+
+    // Act
+    workspaceService.saveWorkspace("testProject", newWorkspace);
+
+    // Assert
+    verify(projectRepository).save(any(Project.class));
+    assertEquals(2, testProject.getWorkspaces().size());
+  }
+
+  @Test
+  void testDeleteWorkspace_WithNullNameInWorkspacesList() {
+    // Arrange
+    Workspace workspaceWithNullName = Workspace.builder()
+        .name(null)
+        .nodes(new ArrayList<>())
+        .edges(new ArrayList<>())
+        .build();
+    Workspace validWorkspace = Workspace.builder()
+        .name("validWorkspace")
+        .nodes(new ArrayList<>())
+        .edges(new ArrayList<>())
+        .build();
+    testProject.setWorkspaces(new ArrayList<>(List.of(workspaceWithNullName, validWorkspace)));
+    when(projectRepository.findByName("testProject")).thenReturn(Optional.of(testProject));
+    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    workspaceService.deleteWorkspace("testProject", "validWorkspace");
+
+    // Assert
+    verify(projectRepository).save(any(Project.class));
+    assertEquals(1, testProject.getWorkspaces().size());
+  }
+
+  @Test
+  void testGetWorkspaceByName_BlankName() {
+    // Arrange
+    
+    // Act & Assert
+    ProjectException exception = assertThrows(ProjectException.class,
+        () -> workspaceService.getWorkspaceByName("testProject", "   "));
+    
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    assertTrue(exception.getMessage().contains("cannot be null or empty"));
+  }
+
+  @Test
+  void testUpdateWorkspaceMembership_TweetNotFound() {
+    // Arrange
+    TweetNodeDto tweetNode = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    tweetNode.setId("nonExistentTweet");
+    tweetNode.setNodeType(NodeType.TWEET);
+    
+    when(tweetRepository.findById("nonExistentTweet")).thenReturn(Optional.empty());
+
+    // Act
+    workspaceService.updateWorkspaceMembership(tweetNode, true);
+
+    // Assert
+    verify(tweetRepository).findById("nonExistentTweet");
+    verify(tweetRepository, never()).save(any());
+  }
+
+  @Test
+  void testUpdateWorkspaceMembership_HashtagNotFound() {
+    // Arrange
+    HashtagNodeDto hashtagNode = new HashtagNodeDto();
+    hashtagNode.setId("nonExistentHashtag");
+    hashtagNode.setName("nonExistentHashtag");
+    hashtagNode.setNodeType(NodeType.HASHTAG);
+    
+    when(hashtagRepository.findHashtagByHashtag("nonExistentHashtag")).thenReturn(Optional.empty());
+
+    // Act
+    workspaceService.updateWorkspaceMembership(hashtagNode, true);
+
+    // Assert
+    verify(hashtagRepository).findHashtagByHashtag("nonExistentHashtag");
+    verify(hashtagRepository, never()).save(any());
+  }
 }
 

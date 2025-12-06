@@ -7,13 +7,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.social_network_visualizer_backend.dto.community.ActivityHeatmap;
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
+import com.example.social_network_visualizer_backend.enums.MetricType;
+import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.enums.Orientation;
+import com.example.social_network_visualizer_backend.enums.RelationType;
+import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.service.CommunityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -479,6 +485,98 @@ class CommunityControllerTest {
         .andExpect(jsonPath("$.error").exists());
 
     verify(communityService, times(1)).getCommunityActivityHeatmap(communityId);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_Success() throws Exception {
+    // Arrange
+    String projectName = "TestProject";
+    MetricConfig metricConfig =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.RETWEETS),
+            Orientation.NATURAL);
+    when(communityService.getProjectCommunityMetricConfig(projectName))
+        .thenReturn(Optional.of(metricConfig));
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            get("/community/{projectName}/metric-config", projectName)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.type").value("COMMUNITY"))
+        .andExpect(jsonPath("$.nodeTypes[0]").value("AUTHOR"))
+        .andExpect(jsonPath("$.relationTypes[0]").value("RETWEETS"))
+        .andExpect(jsonPath("$.orientation").value("NATURAL"));
+
+    verify(communityService, times(1)).getProjectCommunityMetricConfig(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_NotFound() throws Exception {
+    // Arrange
+    String projectName = "TestProject";
+    when(communityService.getProjectCommunityMetricConfig(projectName))
+        .thenReturn(Optional.empty());
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            get("/community/{projectName}/metric-config", projectName)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+
+    verify(communityService, times(1)).getProjectCommunityMetricConfig(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_ProjectNotFound() throws Exception {
+    // Arrange
+    String projectName = "NonExistentProject";
+    when(communityService.getProjectCommunityMetricConfig(projectName))
+        .thenThrow(
+            new ProjectException(
+                "Project with name '" + projectName + "' does not exist",
+                org.springframework.http.HttpStatus.NOT_FOUND));
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            get("/community/{projectName}/metric-config", projectName)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.error").exists());
+
+    verify(communityService, times(1)).getProjectCommunityMetricConfig(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_WithMultipleNodeTypes() throws Exception {
+    // Arrange
+    String projectName = "TestProject";
+    MetricConfig metricConfig =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
+            Set.of(RelationType.RETWEETS, RelationType.MENTIONS),
+            Orientation.UNDIRECTED);
+    when(communityService.getProjectCommunityMetricConfig(projectName))
+        .thenReturn(Optional.of(metricConfig));
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            get("/community/{projectName}/metric-config", projectName)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.nodeTypes").isArray())
+        .andExpect(jsonPath("$.nodeTypes.length()").value(3))
+        .andExpect(jsonPath("$.relationTypes.length()").value(2))
+        .andExpect(jsonPath("$.orientation").value("UNDIRECTED"));
+
+    verify(communityService, times(1)).getProjectCommunityMetricConfig(projectName);
   }
 }
 

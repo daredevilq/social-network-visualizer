@@ -456,5 +456,94 @@ class MetricComputationServiceTest {
     assertEquals("MENTIONS", mentionsRelation.get("type"));
     assertEquals("NATURAL", mentionsRelation.get("orientation"));
   }
+
+  @Test
+  void testComputeMetrics_StrategyNotFound() {
+    // Arrange
+    String projectName = "TestProject";
+    List<MetricConfig> metrics =
+        List.of(
+            new MetricConfig(
+                MetricType.COMMUNITY,
+                Set.of(NodeType.AUTHOR),
+                Set.of(RelationType.MENTIONS),
+                Orientation.NATURAL));
+
+    ProjectConfig config = new ProjectConfig(Instant.now(), metrics);
+    List<MetricComputationStrategy> strategies = List.of(pageRankStrategy);
+
+    when(pageRankStrategy.getMetricType()).thenReturn(MetricType.PAGERANK);
+
+    metricComputationService =
+        new MetricComputationService(graphRepository, strategies, algorithmRepository);
+
+    // Act & Assert
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> metricComputationService.computeMetrics(projectName, config));
+    
+    assertTrue(exception.getMessage().contains("Failed to compute metric"));
+    verify(graphRepository).dropGdsGraph(anyString());
+  }
+
+  @Test
+  void testComputeMetrics_GraphCreationFails() {
+    // Arrange
+    String projectName = "TestProject";
+    List<MetricConfig> metrics =
+        List.of(
+            new MetricConfig(
+                MetricType.PAGERANK,
+                Set.of(NodeType.AUTHOR),
+                Set.of(RelationType.MENTIONS),
+                Orientation.NATURAL));
+
+    ProjectConfig config = new ProjectConfig(Instant.now(), metrics);
+    List<MetricComputationStrategy> strategies = List.of(pageRankStrategy);
+
+    doThrow(new RuntimeException("Graph creation failed"))
+        .when(graphRepository).createGraph(anyString(), anyList(), anyMap());
+
+    metricComputationService =
+        new MetricComputationService(graphRepository, strategies, algorithmRepository);
+
+    // Act & Assert
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> metricComputationService.computeMetrics(projectName, config));
+    
+    assertTrue(exception.getMessage().contains("Failed to compute metric"));
+    verify(pageRankStrategy, never()).compute(anyString());
+    verify(graphRepository).dropGdsGraph(anyString());
+  }
+
+  @Test
+  void testComputeMetrics_WithSpecialCharactersInProjectName() {
+    // Arrange
+    String projectName = "Test Project-2024!@#";
+    List<MetricConfig> metrics =
+        List.of(
+            new MetricConfig(
+                MetricType.PAGERANK,
+                Set.of(NodeType.AUTHOR),
+                Set.of(RelationType.MENTIONS),
+                Orientation.NATURAL));
+
+    ProjectConfig config = new ProjectConfig(Instant.now(), metrics);
+    List<MetricComputationStrategy> strategies = List.of(pageRankStrategy);
+
+    when(pageRankStrategy.getMetricType()).thenReturn(MetricType.PAGERANK);
+
+    metricComputationService =
+        new MetricComputationService(graphRepository, strategies, algorithmRepository);
+
+    ArgumentCaptor<String> graphNameCaptor = ArgumentCaptor.forClass(String.class);
+
+    // Act
+    metricComputationService.computeMetrics(projectName, config);
+
+    // Assert
+    verify(graphRepository).createGraph(graphNameCaptor.capture(), anyList(), anyMap());
+    String capturedGraphName = graphNameCaptor.getValue();
+    assertEquals("g_test_project_2024____pagerank", capturedGraphName);
+  }
 }
 

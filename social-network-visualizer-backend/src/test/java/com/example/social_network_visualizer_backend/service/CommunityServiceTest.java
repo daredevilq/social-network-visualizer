@@ -8,12 +8,23 @@ import com.example.social_network_visualizer_backend.dto.community.ActivityHeatm
 import com.example.social_network_visualizer_backend.dto.community.CommunityOverview;
 import com.example.social_network_visualizer_backend.dto.community.CommunitySummary;
 import com.example.social_network_visualizer_backend.dto.community.SizeCount;
+import com.example.social_network_visualizer_backend.enums.MetricType;
+import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.enums.Orientation;
+import com.example.social_network_visualizer_backend.enums.RelationType;
+import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.Author;
+import com.example.social_network_visualizer_backend.model.project.MetricConfig;
+import com.example.social_network_visualizer_backend.model.project.Project;
+import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.repository.CommunityRepository;
+import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CommunityServiceTest {
 
   @Mock private CommunityRepository communityRepository;
+
+  @Mock private ProjectRepository projectRepository;
 
   @InjectMocks private CommunityService communityService;
 
@@ -417,6 +430,199 @@ class CommunityServiceTest {
     assertEquals(0, result.get(1).hour());
     assertEquals(1, result.get(1).dayOfWeek());
     verify(communityRepository).getCommunityActivityHeatMap(communityId);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_Success() {
+    // Arrange
+    String projectName = "TestProject";
+    MetricConfig communityMetric =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.RETWEETS),
+            Orientation.NATURAL);
+    MetricConfig pageRankMetric =
+        new MetricConfig(
+            MetricType.PAGERANK,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            Orientation.NATURAL);
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric, pageRankMetric));
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(MetricType.COMMUNITY, result.get().type());
+    assertTrue(result.get().nodeTypes().contains(NodeType.AUTHOR));
+    assertTrue(result.get().relationTypes().contains(RelationType.RETWEETS));
+    assertEquals(Orientation.NATURAL, result.get().orientation());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_ProjectNotFound() {
+    // Arrange
+    String projectName = "NonExistentProject";
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> communityService.getProjectCommunityMetricConfig(projectName));
+    assertEquals("Project with name 'NonExistentProject' does not exist", exception.getMessage());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_NullConfig() {
+    // Arrange
+    String projectName = "TestProject";
+    Project project = Project.builder()
+        .name(projectName)
+        .config(null)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_NullMetrics() {
+    // Arrange
+    String projectName = "TestProject";
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), null);
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_EmptyMetricsList() {
+    // Arrange
+    String projectName = "TestProject";
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Collections.emptyList());
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_NoCommunityMetric() {
+    // Arrange
+    String projectName = "TestProject";
+    MetricConfig pageRankMetric =
+        new MetricConfig(
+            MetricType.PAGERANK,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            Orientation.NATURAL);
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(pageRankMetric));
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_MultipleCommunityMetrics() {
+    // Arrange - should return first COMMUNITY metric found
+    String projectName = "TestProject";
+    MetricConfig communityMetric1 =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.RETWEETS),
+            Orientation.NATURAL);
+    MetricConfig communityMetric2 =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.TWEET),
+            Set.of(RelationType.MENTIONS),
+            Orientation.UNDIRECTED);
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric1, communityMetric2));
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(MetricType.COMMUNITY, result.get().type());
+    assertTrue(result.get().nodeTypes().contains(NodeType.AUTHOR));
+    assertTrue(result.get().relationTypes().contains(RelationType.RETWEETS));
+    verify(projectRepository).findByName(projectName);
+  }
+
+  @Test
+  void testGetProjectCommunityMetricConfig_WithMultipleNodeTypes() {
+    // Arrange
+    String projectName = "TestProject";
+    MetricConfig communityMetric =
+        new MetricConfig(
+            MetricType.COMMUNITY,
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
+            Set.of(RelationType.RETWEETS, RelationType.MENTIONS),
+            Orientation.UNDIRECTED);
+    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric));
+    Project project = Project.builder()
+        .name(projectName)
+        .config(config)
+        .build();
+    when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
+
+    // Act
+    Optional<MetricConfig> result = communityService.getProjectCommunityMetricConfig(projectName);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(3, result.get().nodeTypes().size());
+    assertEquals(2, result.get().relationTypes().size());
+    assertEquals(Orientation.UNDIRECTED, result.get().orientation());
+    verify(projectRepository).findByName(projectName);
   }
 }
 
