@@ -13,7 +13,6 @@ import com.example.social_network_visualizer_backend.model.project.ProjectFile;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
@@ -21,14 +20,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,25 +50,25 @@ class ProjectServiceTest {
   @BeforeEach
   void setUp() {
     testConfig = new ProjectConfig(Instant.now(), Collections.emptyList());
-    testFile = ProjectFile.builder()
-        .filename("test.json")
-        .gridFsId("gridfs-123")
-        .sizeInBytes(1024L)
-        .build();
-    testProject = Project.builder()
-        .name("testProject")
-        .config(testConfig)
-        .files(new ArrayList<>(List.of(testFile)))
-        .build();
+    testFile =
+        ProjectFile.builder()
+            .filename("test.json")
+            .gridFsId("gridfs-123")
+            .sizeInBytes(1024L)
+            .build();
+    testProject =
+        Project.builder()
+            .name("testProject")
+            .config(testConfig)
+            .files(new ArrayList<>(List.of(testFile)))
+            .build();
   }
 
   @Test
   void testGetAllProjects_Success() {
     // Arrange
-    List<Project> projects = List.of(
-        testProject,
-        Project.builder().name("project2").files(new ArrayList<>()).build()
-    );
+    List<Project> projects =
+        List.of(testProject, Project.builder().name("project2").files(new ArrayList<>()).build());
     when(projectRepository.findAll()).thenReturn(projects);
 
     // Act
@@ -141,10 +138,8 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.importProject(projectName)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.importProject(projectName));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     verify(projectRepository).findByName(projectName);
@@ -155,16 +150,14 @@ class ProjectServiceTest {
   void testCreateProject_Success() throws IOException {
     // Arrange
     String projectName = "newProject";
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-456");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -179,28 +172,18 @@ class ProjectServiceTest {
   void testCreateProject_WithSkippedFiles() throws IOException {
     // Arrange
     String projectName = "newProject";
-    MockMultipartFile validFile = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
-    MockMultipartFile emptyFile = new MockMultipartFile(
-        "file2",
-        "empty.json",
-        "application/json",
-        new byte[0]
-    );
-    MockMultipartFile invalidFile = new MockMultipartFile(
-        "file3",
-        "test.txt",
-        "text/plain",
-        "text".getBytes()
-    );
+    MockMultipartFile validFile =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
+    MockMultipartFile emptyFile =
+        new MockMultipartFile("file2", "empty.json", "application/json", new byte[0]);
+    MockMultipartFile invalidFile =
+        new MockMultipartFile("file3", "test.txt", "text/plain", "text".getBytes());
     MultipartFile[] files = {validFile, emptyFile, invalidFile};
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-456");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -216,12 +199,9 @@ class ProjectServiceTest {
   void testCreateProject_SaveException() throws IOException {
     // Arrange
     String projectName = "newProject";
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-456");
@@ -230,10 +210,10 @@ class ProjectServiceTest {
         .thenThrow(new RuntimeException("Database error"));
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.createProject(projectName, testConfig, files)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.createProject(projectName, testConfig, files));
     assertTrue(exception.getMessage().contains("Failed to save project"));
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
   }
@@ -242,17 +222,15 @@ class ProjectServiceTest {
   void testUpdateProjectWithFiles_Success() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "newfile.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "newfile.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(testProject));
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-789");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.updateProjectWithFiles(projectName, files);
@@ -268,14 +246,16 @@ class ProjectServiceTest {
   void testUpdateProjectWithFiles_ProjectNotFound() {
     // Arrange
     String projectName = "nonExistent";
-    MultipartFile[] files = {new MockMultipartFile("file", "test.json", "application/json", new byte[0])};
+    MultipartFile[] files = {
+      new MockMultipartFile("file", "test.json", "application/json", new byte[0])
+    };
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.updateProjectWithFiles(projectName, files)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.updateProjectWithFiles(projectName, files));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
   }
@@ -284,22 +264,17 @@ class ProjectServiceTest {
   void testUpdateProjectWithFiles_NullFiles() throws IOException {
     // Arrange
     String projectName = "testProject";
-    Project projectWithNullFiles = Project.builder()
-        .name(projectName)
-        .config(testConfig)
-        .files(null)
-        .build();
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    Project projectWithNullFiles =
+        Project.builder().name(projectName).config(testConfig).files(null).build();
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(projectWithNullFiles));
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-999");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.updateProjectWithFiles(projectName, files);
@@ -332,10 +307,8 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteProject(projectName)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.deleteProject(projectName));
     assertEquals("Project '" + projectName + "' not found", exception.getMessage());
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     verify(gridFsService, never()).deleteProjectFiles(anyString());
@@ -347,13 +320,13 @@ class ProjectServiceTest {
     // Arrange
     String projectName = "testProject";
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(testProject));
-    doThrow(new RuntimeException("GridFS error")).when(gridFsService).deleteProjectFiles(projectName);
+    doThrow(new RuntimeException("GridFS error"))
+        .when(gridFsService)
+        .deleteProjectFiles(projectName);
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteProject(projectName)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.deleteProject(projectName));
     assertTrue(exception.getMessage().contains("Failed to delete project"));
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
   }
@@ -380,10 +353,8 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.getProjectFileNames(projectName)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.getProjectFileNames(projectName));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
   }
 
@@ -391,10 +362,8 @@ class ProjectServiceTest {
   void testGetProjectFileNames_EmptyFiles() {
     // Arrange
     String projectName = "testProject";
-    Project projectWithNoFiles = Project.builder()
-        .name(projectName)
-        .files(new ArrayList<>())
-        .build();
+    Project projectWithNoFiles =
+        Project.builder().name(projectName).files(new ArrayList<>()).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(projectWithNoFiles));
 
     // Act
@@ -408,10 +377,7 @@ class ProjectServiceTest {
   void testGetProjectFileNames_NullFiles() {
     // Arrange
     String projectName = "testProject";
-    Project projectWithNullFiles = Project.builder()
-        .name(projectName)
-        .files(null)
-        .build();
+    Project projectWithNullFiles = Project.builder().name(projectName).files(null).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(projectWithNullFiles));
 
     // Act
@@ -425,17 +391,15 @@ class ProjectServiceTest {
   void testUpdateOpenedProject_Success() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "newfile.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "newfile.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(testProject));
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-111");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.updateOpenedProject(projectName, files);
@@ -451,14 +415,15 @@ class ProjectServiceTest {
   void testUpdateOpenedProject_ProjectNotFound() {
     // Arrange
     String projectName = "nonExistent";
-    MultipartFile[] files = {new MockMultipartFile("file", "test.json", "application/json", new byte[0])};
+    MultipartFile[] files = {
+      new MockMultipartFile("file", "test.json", "application/json", new byte[0])
+    };
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.updateOpenedProject(projectName, files)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class, () -> projectService.updateOpenedProject(projectName, files));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
   }
 
@@ -466,24 +431,19 @@ class ProjectServiceTest {
   void testUpdateOpenedProject_NullConfig() throws IOException {
     // Arrange
     String projectName = "testProject";
-    Project projectWithNullConfig = Project.builder()
-        .name(projectName)
-        .config(null)
-        .files(new ArrayList<>())
-        .build();
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    Project projectWithNullConfig =
+        Project.builder().name(projectName).config(null).files(new ArrayList<>()).build();
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(projectRepository.findByName(projectName))
         .thenReturn(Optional.of(projectWithNullConfig))
         .thenReturn(Optional.of(projectWithNullConfig));
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-222");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.updateOpenedProject(projectName, files);
@@ -499,7 +459,8 @@ class ProjectServiceTest {
     String projectName = "testProject";
     String fileName = "test.json";
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(testProject));
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     projectService.deleteFileFromProject(projectName, fileName);
@@ -519,10 +480,10 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteFileFromProject(projectName, fileName)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.deleteFileFromProject(projectName, fileName));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
   }
 
@@ -531,17 +492,15 @@ class ProjectServiceTest {
     // Arrange
     String projectName = "testProject";
     String fileName = "test.json";
-    Project projectWithNoFiles = Project.builder()
-        .name(projectName)
-        .files(new ArrayList<>())
-        .build();
+    Project projectWithNoFiles =
+        Project.builder().name(projectName).files(new ArrayList<>()).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(projectWithNoFiles));
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteFileFromProject(projectName, fileName)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.deleteFileFromProject(projectName, fileName));
     assertTrue(exception.getMessage().contains("does not exist in project"));
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
   }
@@ -554,10 +513,10 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(testProject));
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteFileFromProject(projectName, fileName)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.deleteFileFromProject(projectName, fileName));
     assertTrue(exception.getMessage().contains("does not exist in project"));
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
   }
@@ -571,10 +530,10 @@ class ProjectServiceTest {
     doThrow(new RuntimeException("GridFS error")).when(gridFsService).deleteFile(anyString());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.deleteFileFromProject(projectName, fileName)
-    );
+    ProjectException exception =
+        assertThrows(
+            ProjectException.class,
+            () -> projectService.deleteFileFromProject(projectName, fileName));
     assertTrue(exception.getMessage().contains("Failed to delete file"));
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
   }
@@ -601,10 +560,8 @@ class ProjectServiceTest {
     when(projectRepository.findByName(projectName)).thenReturn(Optional.empty());
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> projectService.getProjectConfig(projectName)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.getProjectConfig(projectName));
     assertEquals("Project with name '" + projectName + "' does not exist", exception.getMessage());
   }
 
@@ -613,21 +570,19 @@ class ProjectServiceTest {
     // Arrange
     String invalidJson = "{invalid json}";
     ObjectMapper realMapper = new ObjectMapper();
-    ProjectService serviceWithRealMapper = new ProjectService(
-        projectParser,
-        neo4jService,
-        mongodbService,
-        projectRepository,
-        gridFsService,
-        metricComputationService,
-        realMapper
-    );
+    ProjectService serviceWithRealMapper =
+        new ProjectService(
+            projectParser,
+            neo4jService,
+            mongodbService,
+            projectRepository,
+            gridFsService,
+            metricComputationService,
+            realMapper);
 
     // Act & Assert
-    ProjectException exception = assertThrows(
-        ProjectException.class,
-        () -> serviceWithRealMapper.parseConfig(invalidJson)
-    );
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> serviceWithRealMapper.parseConfig(invalidJson));
     assertTrue(exception.getMessage().contains("Invalid configuration format"));
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
   }
@@ -636,23 +591,18 @@ class ProjectServiceTest {
   void testAddFilesToProject_DuplicateFilenames() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile file1 = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data1\"}".getBytes()
-    );
-    MockMultipartFile file2 = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data2\"}".getBytes()
-    );
+    MockMultipartFile file1 =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data1\"}".getBytes());
+    MockMultipartFile file2 =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data2\"}".getBytes());
     MultipartFile[] files = {file1, file2};
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenReturn("gridfs-333")
         .thenReturn("gridfs-444");
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -666,14 +616,11 @@ class ProjectServiceTest {
   void testAddFilesToProject_NullFilename() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile fileWithNullName = new MockMultipartFile(
-        "file",
-        null,
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile fileWithNullName =
+        new MockMultipartFile("file", null, "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {fileWithNullName};
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -688,14 +635,11 @@ class ProjectServiceTest {
   void testAddFilesToProject_BlankFilename() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile fileWithBlankName = new MockMultipartFile(
-        "file",
-        "   ",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile fileWithBlankName =
+        new MockMultipartFile("file", "   ", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {fileWithBlankName};
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -709,16 +653,14 @@ class ProjectServiceTest {
   void testAddFilesToProject_IOError() throws IOException {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile file = new MockMultipartFile(
-        "file",
-        "test.json",
-        "application/json",
-        "{\"test\":\"data\"}".getBytes()
-    );
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "test.json", "application/json", "{\"test\":\"data\"}".getBytes());
     MultipartFile[] files = {file};
     when(gridFsService.storeFile(eq(projectName), any(MultipartFile.class)))
         .thenThrow(new IOException("Storage error"));
-    when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(projectRepository.save(any(Project.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
     List<String> skippedFiles = projectService.createProject(projectName, testConfig, files);
@@ -736,7 +678,7 @@ class ProjectServiceTest {
     List<MetricConfig> mockMetrics = List.of(metric1, metric2);
 
     when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
-            .thenReturn(mockMetrics);
+        .thenReturn(mockMetrics);
 
     // Act
     List<MetricConfig> result = projectService.getDefaultMetrics();
@@ -753,15 +695,14 @@ class ProjectServiceTest {
   void testGetDefaultMetrics_IOException() throws Exception {
     // Arrange
     when(objectMapper.readValue(any(InputStream.class), any(TypeReference.class)))
-            .thenThrow(new IOException("File read error"));
+        .thenThrow(new IOException("File read error"));
 
     // Act & Assert
-    ProjectException exception = assertThrows(ProjectException.class,
-            () -> projectService.getDefaultMetrics());
+    ProjectException exception =
+        assertThrows(ProjectException.class, () -> projectService.getDefaultMetrics());
 
     assertTrue(exception.getMessage().contains("Failed to load default metrics configuration"));
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
     verify(objectMapper).readValue(any(InputStream.class), any(TypeReference.class));
   }
 }
-

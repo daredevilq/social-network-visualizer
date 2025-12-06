@@ -168,4 +168,3 @@ class NodeDtoTest {
     assertEquals("AUTHOR", result.get("nodeType"));
   }
 }
-

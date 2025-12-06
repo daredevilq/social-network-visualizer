@@ -29,8 +29,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void testHandleNoResourceFoundException() {
     // Arrange
-    NoResourceFoundException exception =
-        new NoResourceFoundException(null, "Resource not found");
+    NoResourceFoundException exception = new NoResourceFoundException(null, "Resource not found");
 
     // Act
     ResponseEntity<Map<String, String>> response =
@@ -45,8 +44,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void testHandleNoHandlerFoundException() {
     // Arrange
-    NoHandlerFoundException exception =
-        new NoHandlerFoundException("GET", "/nonexistent", null);
+    NoHandlerFoundException exception = new NoHandlerFoundException("GET", "/nonexistent", null);
 
     // Act
     ResponseEntity<Map<String, String>> response =
@@ -265,4 +263,3 @@ class GlobalExceptionHandlerTest {
         "Unexpected error occurred. Please try again later.", response.getBody().get("error"));
   }
 }
-

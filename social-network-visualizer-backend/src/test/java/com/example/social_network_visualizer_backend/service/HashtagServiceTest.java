@@ -40,11 +40,13 @@ class HashtagServiceTest {
     topTweets.add(new ViralTweetDto("author1", "tweet1", "Content 1", "url1", 10, 5, 2, 100));
     topTweets.add(new ViralTweetDto("author2", "tweet2", "Content 2", "url2", 8, 3, 1, 75));
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(topAuthors);
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(topAuthors);
     when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(topTweets);
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -64,11 +66,14 @@ class HashtagServiceTest {
     String hashtagName = "UnpopularTag";
     int authorLimit = 10;
     int tweetLimit = 10;
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(Collections.emptyList());
-    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit))
+        .thenReturn(Collections.emptyList());
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -86,15 +91,16 @@ class HashtagServiceTest {
     int authorLimit = 5;
     int tweetLimit = 3;
     List<TopAuthorsDto> topAuthors = List.of(new TopAuthorsDto("developer", 10));
-    List<ViralTweetDto> topTweets = List.of(
-        new ViralTweetDto("author", "id1", "text", "url", 1, 0, 0, 5)
-    );
+    List<ViralTweetDto> topTweets =
+        List.of(new ViralTweetDto("author", "id1", "text", "url", 1, 0, 0, 5));
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(topAuthors);
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(topAuthors);
     when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(topTweets);
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -109,16 +115,17 @@ class HashtagServiceTest {
     String hashtagName = "Python";
     int authorLimit = 5;
     int tweetLimit = 3;
-    List<TopAuthorsDto> topAuthors = List.of(
-        new TopAuthorsDto("pythonDev", 100),
-        new TopAuthorsDto("coder123", 50)
-    );
+    List<TopAuthorsDto> topAuthors =
+        List.of(new TopAuthorsDto("pythonDev", 100), new TopAuthorsDto("coder123", 50));
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(topAuthors);
-    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(topAuthors);
+    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit))
+        .thenReturn(Collections.emptyList());
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -135,16 +142,18 @@ class HashtagServiceTest {
     String hashtagName = "JavaScript";
     int authorLimit = 5;
     int tweetLimit = 3;
-    List<ViralTweetDto> topTweets = List.of(
-        new ViralTweetDto("jsdev", "tw1", "JS is awesome", "url1", 50, 20, 10, 200),
-        new ViralTweetDto("reactdev", "tw2", "React tutorial", "url2", 40, 15, 8, 150)
-    );
+    List<ViralTweetDto> topTweets =
+        List.of(
+            new ViralTweetDto("jsdev", "tw1", "JS is awesome", "url1", 50, 20, 10, 200),
+            new ViralTweetDto("reactdev", "tw2", "React tutorial", "url2", 40, 15, 8, 150));
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(Collections.emptyList());
     when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(topTweets);
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -161,11 +170,14 @@ class HashtagServiceTest {
     String hashtagName = null;
     int authorLimit = 5;
     int tweetLimit = 3;
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(Collections.emptyList());
-    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit))
+        .thenReturn(Collections.emptyList());
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -180,11 +192,14 @@ class HashtagServiceTest {
     String hashtagName = "";
     int authorLimit = 5;
     int tweetLimit = 3;
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(Collections.emptyList());
-    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit))
+        .thenReturn(Collections.emptyList());
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -206,23 +221,25 @@ class HashtagServiceTest {
 
     List<ViralTweetDto> topTweets = new ArrayList<>();
     for (int i = 0; i < 100; i++) {
-      topTweets.add(new ViralTweetDto(
-          "author" + i,
-          "tweet" + i, 
-          "Content " + i,
-          "url" + i,
-          100 - i,
-          50 - (i / 2),
-          20 - (i / 5),
-          1000 - i * 10
-      ));
+      topTweets.add(
+          new ViralTweetDto(
+              "author" + i,
+              "tweet" + i,
+              "Content " + i,
+              "url" + i,
+              100 - i,
+              50 - (i / 2),
+              20 - (i / 5),
+              1000 - i * 10));
     }
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(topAuthors);
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(topAuthors);
     when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(topTweets);
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -243,7 +260,9 @@ class HashtagServiceTest {
         .thenThrow(new RuntimeException("Database error"));
 
     // Act & Assert
-    assertThrows(RuntimeException.class, () -> hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit));
+    assertThrows(
+        RuntimeException.class,
+        () -> hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit));
     verify(hashtagRepository).findTopAuthorsByHashtag(hashtagName, authorLimit);
     verify(hashtagRepository, never()).findTopTweetsByHashtag(anyString(), anyInt());
   }
@@ -255,15 +274,16 @@ class HashtagServiceTest {
     int authorLimit = 5;
     int tweetLimit = 3;
     List<TopAuthorsDto> topAuthors = List.of(new TopAuthorsDto("javaDev", 25));
-    List<ViralTweetDto> topTweets = List.of(
-        new ViralTweetDto("student", "t1", "Learning Java", "url", 3, 1, 0, 10)
-    );
+    List<ViralTweetDto> topTweets =
+        List.of(new ViralTweetDto("student", "t1", "Learning Java", "url", 3, 1, 0, 10));
 
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(topAuthors);
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(topAuthors);
     when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(topTweets);
 
     // Act
-    HashtagDetailsDto result = hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
+    HashtagDetailsDto result =
+        hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
 
     // Assert
     assertNotNull(result);
@@ -278,8 +298,10 @@ class HashtagServiceTest {
     String hashtagName = "OrderTest";
     int authorLimit = 5;
     int tweetLimit = 3;
-    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit)).thenReturn(Collections.emptyList());
-    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopAuthorsByHashtag(hashtagName, authorLimit))
+        .thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTopTweetsByHashtag(hashtagName, tweetLimit))
+        .thenReturn(Collections.emptyList());
 
     // Act
     hashtagService.getHashtagDetails(hashtagName, authorLimit, tweetLimit);
@@ -294,10 +316,8 @@ class HashtagServiceTest {
   void testFindMostCommonWords_FiltersStopWords() {
     // Arrange
     String hashtagName = "java";
-    List<String> tweetsContent = List.of(
-        "Java is the best programming language",
-        "I love Java and Spring"
-    );
+    List<String> tweetsContent =
+        List.of("Java is the best programming language", "I love Java and Spring");
     when(hashtagRepository.findTweetsContentByHashtag(hashtagName)).thenReturn(tweetsContent);
 
     // Act
@@ -373,7 +393,8 @@ class HashtagServiceTest {
   void testFindMostCommonWords_EmptyTweetsList() {
     // Arrange
     String hashtagName = "empty";
-    when(hashtagRepository.findTweetsContentByHashtag(hashtagName)).thenReturn(Collections.emptyList());
+    when(hashtagRepository.findTweetsContentByHashtag(hashtagName))
+        .thenReturn(Collections.emptyList());
 
     // Act
     Map<String, Long> result = hashtagService.findMostCommonWords(hashtagName);
@@ -403,9 +424,7 @@ class HashtagServiceTest {
   void testFindMostCommonWords_HandlesSpecialCharacters() {
     // Arrange
     String hashtagName = "special";
-    List<String> tweetsContent = List.of(
-        "Hello @world! #testing mentions @user and #hashtag"
-    );
+    List<String> tweetsContent = List.of("Hello @world! #testing mentions @user and #hashtag");
     when(hashtagRepository.findTweetsContentByHashtag(hashtagName)).thenReturn(tweetsContent);
 
     // Act
@@ -425,9 +444,7 @@ class HashtagServiceTest {
   void testFindMostCommonWords_SortsByFrequency() {
     // Arrange
     String hashtagName = "sorting";
-    List<String> tweetsContent = List.of(
-        "java java java spring spring python"
-    );
+    List<String> tweetsContent = List.of("java java java spring spring python");
     when(hashtagRepository.findTweetsContentByHashtag(hashtagName)).thenReturn(tweetsContent);
 
     // Act
@@ -463,15 +480,16 @@ class HashtagServiceTest {
   void testGetHashtagProfile_Success() {
     // Arrange
     String hashtagName = "java";
-    HashtagProfileDto expectedProfile = HashtagProfileDto.builder()
-        .name(hashtagName)
-        .totalUsage(100L)
-        .uniqueUsers(50L)
-        .totalLikes(200L)
-        .totalRetweets(25L)
-        .totalReplies(30L)
-        .distinctLanguages(5L)
-        .build();
+    HashtagProfileDto expectedProfile =
+        HashtagProfileDto.builder()
+            .name(hashtagName)
+            .totalUsage(100L)
+            .uniqueUsers(50L)
+            .totalLikes(200L)
+            .totalRetweets(25L)
+            .totalReplies(30L)
+            .distinctLanguages(5L)
+            .build();
     when(hashtagRepository.findHashtagProfile(hashtagName)).thenReturn(expectedProfile);
 
     // Act
@@ -504,13 +522,13 @@ class HashtagServiceTest {
   void testGetHashtagActivity_Success() {
     // Arrange
     String hashtagName = "java";
-    List<ZonedDateTime> activityDates = List.of(
-        ZonedDateTime.parse("2024-01-15T10:00:00Z"),
-        ZonedDateTime.parse("2024-01-20T14:30:00Z"),
-        ZonedDateTime.parse("2024-01-25T09:15:00Z"),
-        ZonedDateTime.parse("2024-02-10T16:45:00Z"),
-        ZonedDateTime.parse("2024-02-15T11:20:00Z")
-    );
+    List<ZonedDateTime> activityDates =
+        List.of(
+            ZonedDateTime.parse("2024-01-15T10:00:00Z"),
+            ZonedDateTime.parse("2024-01-20T14:30:00Z"),
+            ZonedDateTime.parse("2024-01-25T09:15:00Z"),
+            ZonedDateTime.parse("2024-02-10T16:45:00Z"),
+            ZonedDateTime.parse("2024-02-15T11:20:00Z"));
     when(hashtagRepository.getHashtagActivity(hashtagName)).thenReturn(activityDates);
 
     // Act
@@ -545,11 +563,11 @@ class HashtagServiceTest {
   void testGetHashtagActivity_SingleMonth() {
     // Arrange
     String hashtagName = "trending";
-    List<ZonedDateTime> activityDates = List.of(
-        ZonedDateTime.parse("2024-03-01T10:00:00Z"),
-        ZonedDateTime.parse("2024-03-15T14:30:00Z"),
-        ZonedDateTime.parse("2024-03-30T09:15:00Z")
-    );
+    List<ZonedDateTime> activityDates =
+        List.of(
+            ZonedDateTime.parse("2024-03-01T10:00:00Z"),
+            ZonedDateTime.parse("2024-03-15T14:30:00Z"),
+            ZonedDateTime.parse("2024-03-30T09:15:00Z"));
     when(hashtagRepository.getHashtagActivity(hashtagName)).thenReturn(activityDates);
 
     // Act
@@ -567,11 +585,11 @@ class HashtagServiceTest {
   void testGetHashtagActivity_SortedByDate() {
     // Arrange
     String hashtagName = "sorted";
-    List<ZonedDateTime> activityDates = List.of(
-        ZonedDateTime.parse("2024-12-01T10:00:00Z"),
-        ZonedDateTime.parse("2024-01-15T14:30:00Z"),
-        ZonedDateTime.parse("2024-06-20T09:15:00Z")
-    );
+    List<ZonedDateTime> activityDates =
+        List.of(
+            ZonedDateTime.parse("2024-12-01T10:00:00Z"),
+            ZonedDateTime.parse("2024-01-15T14:30:00Z"),
+            ZonedDateTime.parse("2024-06-20T09:15:00Z"));
     when(hashtagRepository.getHashtagActivity(hashtagName)).thenReturn(activityDates);
 
     // Act
@@ -588,4 +606,3 @@ class HashtagServiceTest {
     verify(hashtagRepository).getHashtagActivity(hashtagName);
   }
 }
-

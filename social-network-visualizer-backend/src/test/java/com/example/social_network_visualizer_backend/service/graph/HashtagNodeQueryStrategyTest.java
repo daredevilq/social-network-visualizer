@@ -107,4 +107,3 @@ class HashtagNodeQueryStrategyTest {
     verify(hashtagRepository).findHashtag(false, 10);
   }
 }
-

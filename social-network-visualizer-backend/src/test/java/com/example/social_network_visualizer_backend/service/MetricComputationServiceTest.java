@@ -169,8 +169,7 @@ class MetricComputationServiceTest {
 
     // Act & Assert
     assertThrows(
-        RuntimeException.class,
-        () -> metricComputationService.computeMetrics(projectName, config));
+        RuntimeException.class, () -> metricComputationService.computeMetrics(projectName, config));
     verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
     verify(pageRankStrategy).compute(anyString());
     verify(graphRepository).dropGdsGraph(anyString());
@@ -196,8 +195,7 @@ class MetricComputationServiceTest {
 
     // Act & Assert
     assertThrows(
-        RuntimeException.class,
-        () -> metricComputationService.computeMetrics(projectName, config));
+        RuntimeException.class, () -> metricComputationService.computeMetrics(projectName, config));
     verify(graphRepository).createGraph(anyString(), anyList(), anyMap());
     verify(graphRepository).dropGdsGraph(anyString());
   }
@@ -390,8 +388,7 @@ class MetricComputationServiceTest {
 
     // Act & Assert
     assertThrows(
-        RuntimeException.class,
-        () -> metricComputationService.computeMetrics(projectName, config));
+        RuntimeException.class, () -> metricComputationService.computeMetrics(projectName, config));
     verify(graphRepository).dropGdsGraph(anyString());
   }
 
@@ -481,9 +478,11 @@ class MetricComputationServiceTest {
         new MetricComputationService(graphRepository, strategies, algorithmRepository);
 
     // Act & Assert
-    RuntimeException exception = assertThrows(RuntimeException.class,
-        () -> metricComputationService.computeMetrics(projectName, config));
-    
+    RuntimeException exception =
+        assertThrows(
+            RuntimeException.class,
+            () -> metricComputationService.computeMetrics(projectName, config));
+
     assertTrue(exception.getMessage().contains("Failed to compute metric"));
     verify(graphRepository).dropGdsGraph(anyString());
   }
@@ -504,15 +503,18 @@ class MetricComputationServiceTest {
     List<MetricComputationStrategy> strategies = List.of(pageRankStrategy);
 
     doThrow(new RuntimeException("Graph creation failed"))
-        .when(graphRepository).createGraph(anyString(), anyList(), anyMap());
+        .when(graphRepository)
+        .createGraph(anyString(), anyList(), anyMap());
 
     metricComputationService =
         new MetricComputationService(graphRepository, strategies, algorithmRepository);
 
     // Act & Assert
-    RuntimeException exception = assertThrows(RuntimeException.class,
-        () -> metricComputationService.computeMetrics(projectName, config));
-    
+    RuntimeException exception =
+        assertThrows(
+            RuntimeException.class,
+            () -> metricComputationService.computeMetrics(projectName, config));
+
     assertTrue(exception.getMessage().contains("Failed to compute metric"));
     verify(pageRankStrategy, never()).compute(anyString());
     verify(graphRepository).dropGdsGraph(anyString());
@@ -563,11 +565,18 @@ class MetricComputationServiceTest {
     List<NodeDto> pathResult = List.of(source, target);
 
     when(algorithmRepository.computeShortestPath(eq(graphName), eq("1"), eq("2")))
-            .thenReturn(pathResult);
+        .thenReturn(pathResult);
 
     // Act
-    List<NodeDto> result = metricComputationService.computeShortestPath(
-            graphName, AlgorithmType.SHORTEST_PATH, nodeTypes, relationTypes, Orientation.NATURAL, source, target);
+    List<NodeDto> result =
+        metricComputationService.computeShortestPath(
+            graphName,
+            AlgorithmType.SHORTEST_PATH,
+            nodeTypes,
+            relationTypes,
+            Orientation.NATURAL,
+            source,
+            target);
 
     // Assert
     assertEquals(2, result.size());
@@ -591,12 +600,21 @@ class MetricComputationServiceTest {
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
 
     when(algorithmRepository.computeShortestPath(eq(graphName), eq("1"), eq("2")))
-            .thenThrow(new RuntimeException("Algorithm failure"));
+        .thenThrow(new RuntimeException("Algorithm failure"));
 
     // Act & Assert
-    RuntimeException exception = assertThrows(RuntimeException.class,
-            () -> metricComputationService.computeShortestPath(
-                    graphName, AlgorithmType.SHORTEST_PATH, nodeTypes, relationTypes, Orientation.NATURAL, source, target));
+    RuntimeException exception =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                metricComputationService.computeShortestPath(
+                    graphName,
+                    AlgorithmType.SHORTEST_PATH,
+                    nodeTypes,
+                    relationTypes,
+                    Orientation.NATURAL,
+                    source,
+                    target));
 
     assertTrue(exception.getMessage().contains("Failed to compute metric"));
 
@@ -614,10 +632,11 @@ class MetricComputationServiceTest {
     List<LinkDto> bridges = List.of(new LinkDto("1", "2", RelationType.MENTIONS, 1));
 
     when(algorithmRepository.computeFindBridges(eq(graphName), eq(relationTypes)))
-            .thenReturn(bridges);
+        .thenReturn(bridges);
 
     // Act
-    List<LinkDto> result = metricComputationService.computeFindBridges(
+    List<LinkDto> result =
+        metricComputationService.computeFindBridges(
             graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.NATURAL);
 
     // Assert
@@ -639,12 +658,19 @@ class MetricComputationServiceTest {
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
 
     when(algorithmRepository.computeFindBridges(eq(graphName), eq(relationTypes)))
-            .thenThrow(new RuntimeException("Algorithm failure"));
+        .thenThrow(new RuntimeException("Algorithm failure"));
 
     // Act & Assert
-    RuntimeException exception = assertThrows(RuntimeException.class,
-            () -> metricComputationService.computeFindBridges(
-                    graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.NATURAL));
+    RuntimeException exception =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                metricComputationService.computeFindBridges(
+                    graphName,
+                    AlgorithmType.BRIDGES,
+                    nodeTypes,
+                    relationTypes,
+                    Orientation.NATURAL));
 
     assertTrue(exception.getMessage().contains("Failed to compute metric"));
 
@@ -653,4 +679,3 @@ class MetricComputationServiceTest {
     verify(graphRepository).dropGdsGraph(graphName);
   }
 }
-

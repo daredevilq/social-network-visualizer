@@ -386,7 +386,8 @@ class TweetRelationServiceTest {
     return tweet;
   }
 
-  private TweetDto createTweetWithHashtags(String tweetId, String authorName, List<String> hashtags) {
+  private TweetDto createTweetWithHashtags(
+      String tweetId, String authorName, List<String> hashtags) {
     TweetDto tweet = createBasicTweet(tweetId, authorName);
     tweet.setHashtags(hashtags);
     return tweet;
@@ -398,7 +399,8 @@ class TweetRelationServiceTest {
     return tweet;
   }
 
-  private TweetDto createTweetWithReplies(String tweetId, String authorName, List<ReplyDto> replies) {
+  private TweetDto createTweetWithReplies(
+      String tweetId, String authorName, List<ReplyDto> replies) {
     TweetDto tweet = createBasicTweet(tweetId, authorName);
     tweet.setReplies(replies);
     return tweet;
@@ -411,4 +413,3 @@ class TweetRelationServiceTest {
     return tweet;
   }
 }
-

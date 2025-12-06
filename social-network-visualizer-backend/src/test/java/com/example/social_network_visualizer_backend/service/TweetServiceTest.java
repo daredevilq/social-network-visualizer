@@ -232,8 +232,7 @@ class TweetServiceTest {
 
     // Act
     PaginatedTweetsDto result =
-        tweetService.getRecentTweets(
-            null, page, limit, null, "DATE", "DESC", null, highEngagement);
+        tweetService.getRecentTweets(null, page, limit, null, "DATE", "DESC", null, highEngagement);
 
     // Assert
     assertNotNull(result);
@@ -430,4 +429,3 @@ class TweetServiceTest {
     return tweets;
   }
 }
-

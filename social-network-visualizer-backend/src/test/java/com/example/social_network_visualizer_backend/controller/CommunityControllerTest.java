@@ -17,9 +17,7 @@ import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.service.CommunityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-
 import java.util.*;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -39,7 +37,8 @@ class CommunityControllerTest {
   @Test
   void testGetAllCommunities_Success() throws Exception {
     // Arrange
-    CommunitySummary summary = new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
+    CommunitySummary summary =
+        new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
     List<CommunitySummary> summaries = Arrays.asList(summary, summary);
     when(communityService.listAllCommunities()).thenReturn(summaries);
 
@@ -58,7 +57,8 @@ class CommunityControllerTest {
     // Arrange
     int page = 0;
     int size = 25;
-    CommunitySummary summary = new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
+    CommunitySummary summary =
+        new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
     List<CommunitySummary> summaries = Arrays.asList(summary, summary);
     when(communityService.listCommunities(page, size)).thenReturn(summaries);
 
@@ -79,7 +79,8 @@ class CommunityControllerTest {
   @Test
   void testGetCommunities_WithDefaultParameters() throws Exception {
     // Arrange
-    CommunitySummary summary = new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
+    CommunitySummary summary =
+        new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
     List<CommunitySummary> summaries = Arrays.asList(summary, summary);
     when(communityService.listCommunities(0, 25)).thenReturn(summaries);
 
@@ -130,7 +131,9 @@ class CommunityControllerTest {
   @Test
   void testGetCommunityOverview_Success() throws Exception {
     // Arrange
-    CommunityOverview overview = new CommunityOverview(2.5, 1000L, 5, 10, 100, 50.0, 20.0, 30.0, 50.0, 70.0, 90.0, List.of(), 10.5, 50L);
+    CommunityOverview overview =
+        new CommunityOverview(
+            2.5, 1000L, 5, 10, 100, 50.0, 20.0, 30.0, 50.0, 70.0, 90.0, List.of(), 10.5, 50L);
     when(communityService.getCommunityOverview()).thenReturn(overview);
 
     // Act & Assert
@@ -145,7 +148,8 @@ class CommunityControllerTest {
   void testGetCommunitySummaryById_Success() throws Exception {
     // Arrange
     int communityId = 1;
-    CommunitySummary summary = new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
+    CommunitySummary summary =
+        new CommunitySummary(1, 10, "testUser", 0.5, List.of("tag1", "tag2"), List.of());
     when(communityService.getCommunitySummary(communityId)).thenReturn(summary);
 
     // Act & Assert
@@ -324,9 +328,8 @@ class CommunityControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/community/top-ids")
-                .param("limit", "10")
-                .contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/community/top-ids").param("limit", "10").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -579,4 +582,3 @@ class CommunityControllerTest {
     verify(communityService, times(1)).getProjectCommunityMetricConfig(projectName);
   }
 }
-

@@ -32,8 +32,25 @@ class TweetControllerTest {
   void testGetTweetDetails_Success() throws Exception {
     // Arrange
     String tweetId = "tweet123";
-    TweetDetailsDto tweetDetails = new TweetDetailsDto("tweet123", "http://test.com", "testAuthor", "Test content", 
-        List.of(), List.of(), 10L, 5L, 2L, 0.5, false, "en", "tweet", List.of(), List.of(), null, null);
+    TweetDetailsDto tweetDetails =
+        new TweetDetailsDto(
+            "tweet123",
+            "http://test.com",
+            "testAuthor",
+            "Test content",
+            List.of(),
+            List.of(),
+            10L,
+            5L,
+            2L,
+            0.5,
+            false,
+            "en",
+            "tweet",
+            List.of(),
+            List.of(),
+            null,
+            null);
     when(tweetService.getTweetDetails(tweetId)).thenReturn(tweetDetails);
 
     // Act & Assert
@@ -84,8 +101,7 @@ class TweetControllerTest {
   void testGetTenTweetsByAuthor_WithDefaultParameters() throws Exception {
     // Arrange
     PaginatedTweetsDto paginatedTweets = new PaginatedTweetsDto(List.of(), 0, 0, 0);
-    when(tweetService.getRecentTweets(
-            null, 1, 10, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(null, 1, 10, "", "date", "desc", Arrays.asList(), false))
         .thenReturn(paginatedTweets);
 
     // Act & Assert
@@ -102,14 +118,15 @@ class TweetControllerTest {
     // Arrange
     String userName = "testUser";
     PaginatedTweetsDto paginatedTweets = new PaginatedTweetsDto(List.of(), 0, 0, 0);
-    when(tweetService.getRecentTweets(
-            userName, 1, 10, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(userName, 1, 10, "", "date", "desc", Arrays.asList(), false))
         .thenReturn(paginatedTweets);
 
     // Act & Assert
     mockMvc
         .perform(
-            get("/tweet/list/all").param("userName", userName).contentType(MediaType.APPLICATION_JSON))
+            get("/tweet/list/all")
+                .param("userName", userName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(tweetService, times(1))
@@ -181,7 +198,8 @@ class TweetControllerTest {
     Integer page = 2;
     Integer limit = 20;
     PaginatedTweetsDto paginatedTweets = new PaginatedTweetsDto(List.of(), 0, 0, 0);
-    when(tweetService.getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(
+            null, page, limit, "", "date", "desc", Arrays.asList(), false))
         .thenReturn(paginatedTweets);
 
     // Act & Assert
@@ -245,8 +263,10 @@ class TweetControllerTest {
     // Arrange
     int page = 5;
     int limit = 10;
-    PaginatedTweetsDto emptyPagination = new PaginatedTweetsDto(Collections.emptyList(), 0, page, limit);
-    when(tweetService.getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false))
+    PaginatedTweetsDto emptyPagination =
+        new PaginatedTweetsDto(Collections.emptyList(), 0, page, limit);
+    when(tweetService.getRecentTweets(
+            null, page, limit, "", "date", "desc", Arrays.asList(), false))
         .thenReturn(emptyPagination);
 
     // Act & Assert
@@ -270,7 +290,8 @@ class TweetControllerTest {
     // Arrange
     int page = -1;
     int limit = 10;
-    when(tweetService.getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(
+            null, page, limit, "", "date", "desc", Arrays.asList(), false))
         .thenThrow(new IllegalArgumentException("Page number must be non-negative"));
 
     // Act & Assert
@@ -292,7 +313,8 @@ class TweetControllerTest {
     // Arrange
     int page = 0;
     int limit = 0;
-    when(tweetService.getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(
+            null, page, limit, "", "date", "desc", Arrays.asList(), false))
         .thenThrow(new IllegalArgumentException("Limit must be positive"));
 
     // Act & Assert
@@ -314,7 +336,8 @@ class TweetControllerTest {
     // Arrange
     int page = 0;
     int limit = 10;
-    when(tweetService.getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false))
+    when(tweetService.getRecentTweets(
+            null, page, limit, "", "date", "desc", Arrays.asList(), false))
         .thenThrow(new RuntimeException("Database error"));
 
     // Act & Assert
@@ -331,4 +354,3 @@ class TweetControllerTest {
         .getRecentTweets(null, page, limit, "", "date", "desc", Arrays.asList(), false);
   }
 }
-

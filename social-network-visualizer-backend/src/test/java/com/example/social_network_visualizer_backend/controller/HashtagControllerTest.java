@@ -38,7 +38,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(hashtagService, times(1)).getHashtagDetails(hashtagName, 5, 3);
@@ -54,7 +55,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(hashtagService, times(1)).getHashtagDetails(hashtagName, 5, 3);
@@ -70,7 +72,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(hashtagService, times(1)).getHashtagDetails(hashtagName, 5, 3);
@@ -86,7 +89,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Hashtag not found: " + hashtagName));
 
@@ -103,7 +107,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").exists());
 
@@ -118,7 +123,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/sidebarDetails", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
 
@@ -126,18 +132,20 @@ class HashtagControllerTest {
   void testGetHashtagProfile_Success() throws Exception {
     // Arrange
     String hashtagName = "java";
-    HashtagProfileDto profile = HashtagProfileDto.builder()
-        .name(hashtagName)
-        .totalUsage(100L)
-        .uniqueUsers(50L)
-        .totalRetweets(25L)
-        .build();
+    HashtagProfileDto profile =
+        HashtagProfileDto.builder()
+            .name(hashtagName)
+            .totalUsage(100L)
+            .uniqueUsers(50L)
+            .totalRetweets(25L)
+            .build();
     when(hashtagService.getHashtagProfile(hashtagName)).thenReturn(profile);
 
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/profile", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/profile", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value(hashtagName))
         .andExpect(jsonPath("$.totalUsage").value(100))
@@ -156,7 +164,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/profile", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/profile", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(hashtagService, times(1)).getHashtagProfile(hashtagName);
@@ -210,7 +219,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/activity", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/activity", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$['2024-01']").value(10))
         .andExpect(jsonPath("$['2024-02']").value(15));
@@ -227,7 +237,8 @@ class HashtagControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/hashtag/{hashtagName}/activity", hashtagName).contentType(MediaType.APPLICATION_JSON))
+            get("/hashtag/{hashtagName}/activity", hashtagName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isEmpty());
 
@@ -290,4 +301,3 @@ class HashtagControllerTest {
     verify(hashtagService, times(1)).findMostCommonWords(hashtagName);
   }
 }
-

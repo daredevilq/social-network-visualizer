@@ -253,8 +253,20 @@ class CommunityServiceTest {
     // Arrange
     CommunityOverview expectedOverview =
         new CommunityOverview(
-            5.5, 10000L, 50, 5, 200, 45.5, 10.0, 25.0, 50.0, 75.0, 90.0, Collections.emptyList(),
-            100.5, 500L);
+            5.5,
+            10000L,
+            50,
+            5,
+            200,
+            45.5,
+            10.0,
+            25.0,
+            50.0,
+            75.0,
+            90.0,
+            Collections.emptyList(),
+            100.5,
+            500L);
     when(communityRepository.getCommunityOverview()).thenReturn(expectedOverview);
 
     // Act
@@ -448,11 +460,9 @@ class CommunityServiceTest {
             Set.of(NodeType.AUTHOR),
             Set.of(RelationType.MENTIONS),
             Orientation.NATURAL);
-    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric, pageRankMetric));
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    ProjectConfig config =
+        new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric, pageRankMetric));
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -486,10 +496,7 @@ class CommunityServiceTest {
   void testGetProjectCommunityMetricConfig_NullConfig() {
     // Arrange
     String projectName = "TestProject";
-    Project project = Project.builder()
-        .name(projectName)
-        .config(null)
-        .build();
+    Project project = Project.builder().name(projectName).config(null).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -505,10 +512,7 @@ class CommunityServiceTest {
     // Arrange
     String projectName = "TestProject";
     ProjectConfig config = new ProjectConfig(java.time.Instant.now(), null);
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -524,10 +528,7 @@ class CommunityServiceTest {
     // Arrange
     String projectName = "TestProject";
     ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Collections.emptyList());
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -548,11 +549,9 @@ class CommunityServiceTest {
             Set.of(NodeType.AUTHOR),
             Set.of(RelationType.MENTIONS),
             Orientation.NATURAL);
-    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(pageRankMetric));
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    ProjectConfig config =
+        new ProjectConfig(java.time.Instant.now(), Arrays.asList(pageRankMetric));
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -579,11 +578,10 @@ class CommunityServiceTest {
             Set.of(NodeType.TWEET),
             Set.of(RelationType.MENTIONS),
             Orientation.UNDIRECTED);
-    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric1, communityMetric2));
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    ProjectConfig config =
+        new ProjectConfig(
+            java.time.Instant.now(), Arrays.asList(communityMetric1, communityMetric2));
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -607,11 +605,9 @@ class CommunityServiceTest {
             Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
             Set.of(RelationType.RETWEETS, RelationType.MENTIONS),
             Orientation.UNDIRECTED);
-    ProjectConfig config = new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric));
-    Project project = Project.builder()
-        .name(projectName)
-        .config(config)
-        .build();
+    ProjectConfig config =
+        new ProjectConfig(java.time.Instant.now(), Arrays.asList(communityMetric));
+    Project project = Project.builder().name(projectName).config(config).build();
     when(projectRepository.findByName(projectName)).thenReturn(Optional.of(project));
 
     // Act
@@ -625,4 +621,3 @@ class CommunityServiceTest {
     verify(projectRepository).findByName(projectName);
   }
 }
-

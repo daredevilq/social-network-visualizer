@@ -85,8 +85,7 @@ class MongodbServiceTest {
     // Act & Assert
     DatabaseUnavailableException exception =
         assertThrows(
-            DatabaseUnavailableException.class,
-            () -> mongodbService.waitForMongoDBToBeAvailable());
+            DatabaseUnavailableException.class, () -> mongodbService.waitForMongoDBToBeAvailable());
 
     assertTrue(exception.getMessage().contains("MongoDB is not available after"));
     assertTrue(exception.getMessage().contains("10 attempts"));
@@ -117,8 +116,7 @@ class MongodbServiceTest {
     // Act & Assert
     DatabaseUnavailableException exception =
         assertThrows(
-            DatabaseUnavailableException.class,
-            () -> mongodbService.waitForMongoDBToBeAvailable());
+            DatabaseUnavailableException.class, () -> mongodbService.waitForMongoDBToBeAvailable());
 
     assertEquals("MongoDB is not available after 10 attempts.", exception.getMessage());
   }
@@ -175,4 +173,3 @@ class MongodbServiceTest {
     verify(mongoTemplate).executeCommand("{ ping: 1 }");
   }
 }
-

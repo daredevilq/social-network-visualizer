@@ -110,4 +110,3 @@ class AuthorNodeQueryStrategyTest {
     verify(authorRepository).findAuthors(false, 10);
   }
 }
-

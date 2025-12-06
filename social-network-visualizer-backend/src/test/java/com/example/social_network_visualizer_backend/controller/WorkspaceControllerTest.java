@@ -16,9 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -233,7 +233,8 @@ class WorkspaceControllerTest {
     String projectName = "nonExistentProject";
     Workspace workspace = new Workspace();
     doThrow(new EntityNotFoundException("Project not found: " + projectName))
-        .when(workspaceService).saveWorkspace(eq(projectName), any(Workspace.class));
+        .when(workspaceService)
+        .saveWorkspace(eq(projectName), any(Workspace.class));
 
     // Act & Assert
     mockMvc
@@ -268,7 +269,8 @@ class WorkspaceControllerTest {
     String projectName = "testProject";
     String workspaceName = "nonExistentWorkspace";
     doThrow(new EntityNotFoundException("Workspace not found: " + workspaceName))
-        .when(workspaceService).deleteWorkspace(projectName, workspaceName);
+        .when(workspaceService)
+        .deleteWorkspace(projectName, workspaceName);
 
     // Act & Assert
     mockMvc
@@ -287,7 +289,8 @@ class WorkspaceControllerTest {
     String projectName = "testProject";
     String workspaceName = "testWorkspace";
     doThrow(new RuntimeException("Failed to delete workspace"))
-        .when(workspaceService).deleteWorkspace(projectName, workspaceName);
+        .when(workspaceService)
+        .deleteWorkspace(projectName, workspaceName);
 
     // Act & Assert
     mockMvc
@@ -315,9 +318,11 @@ class WorkspaceControllerTest {
   void testImportWorkspace_InvalidFileFormat() throws Exception {
     // Arrange
     String projectName = "testProject";
-    MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "invalid content".getBytes());
+    MockMultipartFile file =
+        new MockMultipartFile("file", "test.txt", "text/plain", "invalid content".getBytes());
     doThrow(new WorkspaceException("Invalid workspace file format", HttpStatus.BAD_REQUEST))
-        .when(workspaceService).validateAndImportWorkspace(eq(projectName), any());
+        .when(workspaceService)
+        .validateAndImportWorkspace(eq(projectName), any());
 
     // Act & Assert
     mockMvc
@@ -332,9 +337,12 @@ class WorkspaceControllerTest {
   void testImportWorkspace_ProjectNotFound() throws Exception {
     // Arrange
     String projectName = "nonExistentProject";
-    MockMultipartFile file = new MockMultipartFile("file", "workspace.json", "application/json", "{\"name\":\"test\"}".getBytes());
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file", "workspace.json", "application/json", "{\"name\":\"test\"}".getBytes());
     doThrow(new EntityNotFoundException("Project not found: " + projectName))
-        .when(workspaceService).validateAndImportWorkspace(eq(projectName), any());
+        .when(workspaceService)
+        .validateAndImportWorkspace(eq(projectName), any());
 
     // Act & Assert
     mockMvc
@@ -381,4 +389,3 @@ class WorkspaceControllerTest {
     verify(workspaceService, times(1)).getAllWorkspaces(projectName);
   }
 }
-

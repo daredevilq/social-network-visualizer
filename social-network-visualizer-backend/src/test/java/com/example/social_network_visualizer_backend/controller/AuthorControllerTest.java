@@ -47,7 +47,8 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray());
 
@@ -58,7 +59,8 @@ class AuthorControllerTest {
   void testFindAuthorById_Success() throws Exception {
     // Arrange
     String authorName = "testAuthor";
-    AuthorDataResponse authorData = new AuthorDataResponse("testAuthor", "2024-01-01", 100L, 50L, 200L, 30L, 2.5, 5.0, 10.0);
+    AuthorDataResponse authorData =
+        new AuthorDataResponse("testAuthor", "2024-01-01", 100L, 50L, 200L, 30L, 2.5, 5.0, 10.0);
     when(authorService.findAuthorById(authorName)).thenReturn(authorData);
 
     // Act & Assert
@@ -211,7 +213,9 @@ class AuthorControllerTest {
   void testGetViralTweets_Success() throws Exception {
     // Arrange
     String authorName = "testAuthor";
-    ViralTweetDto viralTweet = new ViralTweetDto("testUser", "tweet123", "Test preview", "http://test.com", 100, 50, 20, 170);
+    ViralTweetDto viralTweet =
+        new ViralTweetDto(
+            "testUser", "tweet123", "Test preview", "http://test.com", 100, 50, 20, 170);
     List<ViralTweetDto> viralTweets = Arrays.asList(viralTweet, viralTweet);
     when(authorService.findTheMostViralTweet(authorName)).thenReturn(viralTweets);
 
@@ -238,8 +242,7 @@ class AuthorControllerTest {
     // Act & Assert
     mockMvc
         .perform(
-            get("/author/heatmap/{authorName}", authorName)
-                .contentType(MediaType.APPLICATION_JSON))
+            get("/author/heatmap/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(2));
@@ -256,7 +259,8 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -271,7 +275,8 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/all/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -304,7 +309,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/activity/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/activity/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -319,7 +326,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/activity/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/activity/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isEmpty());
 
@@ -335,7 +344,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/last-posts/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/last-posts/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -350,7 +361,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/last-posts/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/last-posts/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -367,7 +380,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/hashtags/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/hashtags/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -382,7 +397,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/hashtags/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/hashtags/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -399,7 +416,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/mentions/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/mentions/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -414,7 +433,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/mentions/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/mentions/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -431,7 +452,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/most-common-words/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/most-common-words/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").exists());
 
@@ -446,7 +469,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/retweets-by/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/retweets-by/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -463,7 +488,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/retweets-of/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/retweets-of/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -479,7 +506,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/viral-tweets/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/viral-tweets/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -494,7 +523,9 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/viral-tweets/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/viral-tweets/{authorName}", authorName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -511,7 +542,8 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/heatmap/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/heatmap/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Author not found: " + authorName));
 
@@ -526,7 +558,8 @@ class AuthorControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/author/heatmap/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/author/heatmap/{authorName}", authorName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(0));
@@ -534,4 +567,3 @@ class AuthorControllerTest {
     verify(authorService, times(1)).getAuthorActivityHeatmap(authorName);
   }
 }
-

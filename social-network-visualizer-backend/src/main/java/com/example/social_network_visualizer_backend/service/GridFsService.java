@@ -3,8 +3,6 @@ package com.example.social_network_visualizer_backend.service;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -34,10 +32,7 @@ public class GridFsService {
               new Document("projectName", projectName));
 
       log.info(
-          "Stored file '{}' in GridFS for project '{}' with ID: {}",
-          filename,
-          projectName,
-          fileId);
+          "Stored file '{}' in GridFS for project '{}' with ID: {}", filename, projectName, fileId);
       return fileId.toString();
     }
   }

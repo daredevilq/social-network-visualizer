@@ -67,4 +67,3 @@ class PageRankComputationStrategyTest {
     verify(algorithmRepository).computePageRank(graphName);
   }
 }
-

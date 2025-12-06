@@ -3,13 +3,10 @@ package com.example.social_network_visualizer_backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
@@ -26,20 +23,15 @@ import org.springframework.web.multipart.MultipartFile;
 @ExtendWith(MockitoExtension.class)
 class GridFsServiceTest {
 
-  @Mock
-  private GridFsTemplate gridFsTemplate;
+  @Mock private GridFsTemplate gridFsTemplate;
 
-  @Mock
-  private MultipartFile multipartFile;
+  @Mock private MultipartFile multipartFile;
 
-  @Mock
-  private GridFSFile gridFSFile;
+  @Mock private GridFSFile gridFSFile;
 
-  @Mock
-  private GridFsResource gridFsResource;
+  @Mock private GridFsResource gridFsResource;
 
-  @InjectMocks
-  private GridFsService gridFsService;
+  @InjectMocks private GridFsService gridFsService;
 
   @Test
   void testStoreFile_Success() throws IOException {
@@ -54,8 +46,9 @@ class GridFsServiceTest {
     when(multipartFile.getOriginalFilename()).thenReturn(filename);
     when(multipartFile.getContentType()).thenReturn(contentType);
     when(multipartFile.getInputStream()).thenReturn(inputStream);
-    when(gridFsTemplate.store(any(InputStream.class), eq(filename), eq(contentType), any(Document.class)))
-            .thenReturn(expectedFileId);
+    when(gridFsTemplate.store(
+            any(InputStream.class), eq(filename), eq(contentType), any(Document.class)))
+        .thenReturn(expectedFileId);
 
     // Act
     String result = gridFsService.storeFile(projectName, multipartFile);
@@ -64,7 +57,8 @@ class GridFsServiceTest {
     assertNotNull(result);
     assertEquals(expectedFileId.toString(), result);
     verify(multipartFile).getInputStream();
-    verify(gridFsTemplate).store(any(InputStream.class), eq(filename), eq(contentType), any(Document.class));
+    verify(gridFsTemplate)
+        .store(any(InputStream.class), eq(filename), eq(contentType), any(Document.class));
   }
 
   @Test
@@ -86,7 +80,8 @@ class GridFsServiceTest {
     gridFsService.storeFile(projectName, multipartFile);
 
     // Assert
-    verify(gridFsTemplate).store(any(), eq(filename), eq("application/json"), metadataCaptor.capture());
+    verify(gridFsTemplate)
+        .store(any(), eq(filename), eq("application/json"), metadataCaptor.capture());
     Document metadata = metadataCaptor.getValue();
     assertEquals(projectName, metadata.get("projectName"));
   }
@@ -168,7 +163,8 @@ class GridFsServiceTest {
     when(multipartFile.getInputStream()).thenReturn(new ByteArrayInputStream("test".getBytes()));
 
     // Act & Assert
-    assertThrows(NullPointerException.class, () -> gridFsService.storeFile(projectName, multipartFile));
+    assertThrows(
+        NullPointerException.class, () -> gridFsService.storeFile(projectName, multipartFile));
   }
 
   @Test

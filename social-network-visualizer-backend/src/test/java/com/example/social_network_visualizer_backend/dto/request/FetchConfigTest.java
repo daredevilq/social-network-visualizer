@@ -178,4 +178,3 @@ class FetchConfigTest {
     assertEquals(1, limit);
   }
 }
-

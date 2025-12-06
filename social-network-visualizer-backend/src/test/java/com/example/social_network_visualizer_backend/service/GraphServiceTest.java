@@ -16,8 +16,8 @@ import com.example.social_network_visualizer_backend.dto.request.GraphQueryReque
 import com.example.social_network_visualizer_backend.dto.request.ShortestPathRequest;
 import com.example.social_network_visualizer_backend.enums.AlgorithmType;
 import com.example.social_network_visualizer_backend.enums.FetchStrategy;
-import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.GraphRepository;
@@ -52,7 +52,8 @@ class GraphServiceTest {
   @BeforeEach
   void setUp() {
     strategies = Arrays.asList(authorStrategy, tweetStrategy, hashtagStrategy);
-    graphService = new GraphService(graphRepository, authorRepository, strategies, metricComputationService);
+    graphService =
+        new GraphService(graphRepository, authorRepository, strategies, metricComputationService);
 
     lenient().when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
     lenient().when(tweetStrategy.getNodeType()).thenReturn(NodeType.TWEET);
@@ -65,7 +66,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -96,7 +98,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.of(1));
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.of(1));
 
     AuthorNodeDto author = new AuthorNodeDto();
     author.setId("author1");
@@ -168,7 +171,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
     AuthorNodeDto author = new AuthorNodeDto();
     author.setId("author1");
@@ -205,7 +209,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -237,11 +242,10 @@ class GraphServiceTest {
     FetchConfig fetchConfig = FetchConfig.withLimits(limits);
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
-    doReturn(Collections.emptyList())
-        .when(authorStrategy)
-        .fetchNodes(Optional.empty(), false, 10);
+    doReturn(Collections.emptyList()).when(authorStrategy).fetchNodes(Optional.empty(), false, 10);
     when(graphRepository.findAllRelations()).thenReturn(Collections.emptyList());
 
     // Act
@@ -258,7 +262,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -288,7 +293,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS, RelationType.RETWEETS);
     FetchConfig fetchConfig = FetchConfig.defaultConfig();
-    GraphQueryRequest request = new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
+    GraphQueryRequest request =
+        new GraphQueryRequest(nodeTypes, relationTypes, fetchConfig, Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -432,7 +438,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
 
     doReturn(Arrays.asList(author))
         .when(authorStrategy)
@@ -476,7 +483,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId(null);
@@ -502,7 +510,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS, RelationType.RETWEETS);
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.of(1));
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.of(1));
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -534,7 +543,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
 
     List<NodeDto> largeNodeList = new ArrayList<>();
     for (int i = 0; i < 1000; i++) {
@@ -562,7 +572,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of(RelationType.MENTIONS);
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
 
     AuthorNodeDto author1 = new AuthorNodeDto();
     author1.setId("author1");
@@ -593,7 +604,8 @@ class GraphServiceTest {
     Set<NodeType> nodeTypes = Set.of(NodeType.AUTHOR);
     Set<RelationType> relationTypes = Set.of();
     GraphQueryRequest request =
-        new GraphQueryRequest(nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
+        new GraphQueryRequest(
+            nodeTypes, relationTypes, FetchConfig.defaultConfig(), Optional.empty());
 
     AuthorNodeDto author = new AuthorNodeDto();
     author.setId("author1");
@@ -652,26 +664,23 @@ class GraphServiceTest {
     // Arrange
     NodeDto sourceNode = createAuthorNode("author1", "Author 1");
     NodeDto targetNode = createAuthorNode("author2", "Author 2");
-    ShortestPathRequest request = new ShortestPathRequest(
-        sourceNode,
-        targetNode,
-        Set.of(NodeType.AUTHOR, NodeType.TWEET),
-        Set.of(RelationType.POSTED, RelationType.MENTIONS)
-    );
-    List<NodeDto> expectedPath = List.of(
-        sourceNode,
-        createTweetNode("tweet1", "Tweet 1"),
-        targetNode
-    );
+    ShortestPathRequest request =
+        new ShortestPathRequest(
+            sourceNode,
+            targetNode,
+            Set.of(NodeType.AUTHOR, NodeType.TWEET),
+            Set.of(RelationType.POSTED, RelationType.MENTIONS));
+    List<NodeDto> expectedPath =
+        List.of(sourceNode, createTweetNode("tweet1", "Tweet 1"), targetNode);
     when(metricComputationService.computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(request.nodeTypes()),
-        eq(request.relationTypes()),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    )).thenReturn(expectedPath);
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(request.nodeTypes()),
+            eq(request.relationTypes()),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode)))
+        .thenReturn(expectedPath);
 
     // Act
     List<NodeDto> result = graphService.getShortestPath(request);
@@ -682,15 +691,15 @@ class GraphServiceTest {
     assertEquals("author1", result.get(0).getId());
     assertEquals("tweet1", result.get(1).getId());
     assertEquals("author2", result.get(2).getId());
-    verify(metricComputationService).computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(request.nodeTypes()),
-        eq(request.relationTypes()),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    );
+    verify(metricComputationService)
+        .computeShortestPath(
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(request.nodeTypes()),
+            eq(request.relationTypes()),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode));
   }
 
   @Test
@@ -698,22 +707,18 @@ class GraphServiceTest {
     // Arrange
     NodeDto sourceNode = createAuthorNode("source", "Source");
     NodeDto targetNode = createAuthorNode("target", "Target");
-    ShortestPathRequest request = new ShortestPathRequest(
-        sourceNode,
-        targetNode,
-        Set.of(),
-        Set.of(RelationType.POSTED)
-    );
+    ShortestPathRequest request =
+        new ShortestPathRequest(sourceNode, targetNode, Set.of(), Set.of(RelationType.POSTED));
     List<NodeDto> expectedPath = List.of(sourceNode);
     when(metricComputationService.computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(new HashSet<>(Arrays.asList(NodeType.values()))),
-        eq(request.relationTypes()),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    )).thenReturn(expectedPath);
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(new HashSet<>(Arrays.asList(NodeType.values()))),
+            eq(request.relationTypes()),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode)))
+        .thenReturn(expectedPath);
 
     // Act
     List<NodeDto> result = graphService.getShortestPath(request);
@@ -721,15 +726,15 @@ class GraphServiceTest {
     // Assert
     assertNotNull(result);
     assertEquals(1, result.size());
-    verify(metricComputationService).computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(new HashSet<>(Arrays.asList(NodeType.values()))),
-        eq(request.relationTypes()),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    );
+    verify(metricComputationService)
+        .computeShortestPath(
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(new HashSet<>(Arrays.asList(NodeType.values()))),
+            eq(request.relationTypes()),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode));
   }
 
   @Test
@@ -737,22 +742,18 @@ class GraphServiceTest {
     // Arrange
     NodeDto sourceNode = createAuthorNode("source", "Source");
     NodeDto targetNode = createAuthorNode("target", "Target");
-    ShortestPathRequest request = new ShortestPathRequest(
-        sourceNode,
-        targetNode,
-        Set.of(NodeType.AUTHOR),
-        Set.of()
-    );
+    ShortestPathRequest request =
+        new ShortestPathRequest(sourceNode, targetNode, Set.of(NodeType.AUTHOR), Set.of());
     List<NodeDto> expectedPath = List.of();
     when(metricComputationService.computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(request.nodeTypes()),
-        eq(new HashSet<>(Arrays.asList(RelationType.values()))),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    )).thenReturn(expectedPath);
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(request.nodeTypes()),
+            eq(new HashSet<>(Arrays.asList(RelationType.values()))),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode)))
+        .thenReturn(expectedPath);
 
     // Act
     List<NodeDto> result = graphService.getShortestPath(request);
@@ -760,15 +761,15 @@ class GraphServiceTest {
     // Assert
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(metricComputationService).computeShortestPath(
-        eq("shortest-path"),
-        eq(AlgorithmType.SHORTEST_PATH),
-        eq(request.nodeTypes()),
-        eq(new HashSet<>(Arrays.asList(RelationType.values()))),
-        eq(Orientation.NATURAL),
-        eq(sourceNode),
-        eq(targetNode)
-    );
+    verify(metricComputationService)
+        .computeShortestPath(
+            eq("shortest-path"),
+            eq(AlgorithmType.SHORTEST_PATH),
+            eq(request.nodeTypes()),
+            eq(new HashSet<>(Arrays.asList(RelationType.values()))),
+            eq(Orientation.NATURAL),
+            eq(sourceNode),
+            eq(targetNode));
   }
 
   @Test
@@ -776,21 +777,18 @@ class GraphServiceTest {
     // Arrange
     NodeDto sourceNode = createAuthorNode("isolated1", "Isolated 1");
     NodeDto targetNode = createAuthorNode("isolated2", "Isolated 2");
-    ShortestPathRequest request = new ShortestPathRequest(
-        sourceNode,
-        targetNode,
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.POSTED)
-    );
+    ShortestPathRequest request =
+        new ShortestPathRequest(
+            sourceNode, targetNode, Set.of(NodeType.AUTHOR), Set.of(RelationType.POSTED));
     when(metricComputationService.computeShortestPath(
-        anyString(),
-        any(AlgorithmType.class),
-        anySet(),
-        anySet(),
-        any(Orientation.class),
-        any(NodeDto.class),
-        any(NodeDto.class)
-    )).thenReturn(Collections.emptyList());
+            anyString(),
+            any(AlgorithmType.class),
+            anySet(),
+            anySet(),
+            any(Orientation.class),
+            any(NodeDto.class),
+            any(NodeDto.class)))
+        .thenReturn(Collections.emptyList());
 
     // Act
     List<NodeDto> result = graphService.getShortestPath(request);
@@ -803,21 +801,21 @@ class GraphServiceTest {
   @Test
   void testGetBridges_Success() {
     // Arrange
-    BridgesRequest request = new BridgesRequest(
-        Set.of(NodeType.AUTHOR, NodeType.TWEET),
-        Set.of(RelationType.POSTED, RelationType.REPLY_TO)
-    );
-    List<LinkDto> expectedBridges = List.of(
-        new LinkDto("author1", "tweet1", RelationType.POSTED, 1),
-        new LinkDto("tweet1", "tweet2", RelationType.REPLY_TO, 1)
-    );
+    BridgesRequest request =
+        new BridgesRequest(
+            Set.of(NodeType.AUTHOR, NodeType.TWEET),
+            Set.of(RelationType.POSTED, RelationType.REPLY_TO));
+    List<LinkDto> expectedBridges =
+        List.of(
+            new LinkDto("author1", "tweet1", RelationType.POSTED, 1),
+            new LinkDto("tweet1", "tweet2", RelationType.REPLY_TO, 1));
     when(metricComputationService.computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(request.nodeTypes()),
-        eq(request.relationTypes()),
-        eq(Orientation.UNDIRECTED)
-    )).thenReturn(expectedBridges);
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(request.nodeTypes()),
+            eq(request.relationTypes()),
+            eq(Orientation.UNDIRECTED)))
+        .thenReturn(expectedBridges);
 
     // Act
     List<LinkDto> result = graphService.getBridges(request);
@@ -828,30 +826,27 @@ class GraphServiceTest {
     assertEquals("author1", result.get(0).source());
     assertEquals("tweet1", result.get(0).target());
     assertEquals(RelationType.POSTED, result.get(0).relation());
-    verify(metricComputationService).computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(request.nodeTypes()),
-        eq(request.relationTypes()),
-        eq(Orientation.UNDIRECTED)
-    );
+    verify(metricComputationService)
+        .computeFindBridges(
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(request.nodeTypes()),
+            eq(request.relationTypes()),
+            eq(Orientation.UNDIRECTED));
   }
 
   @Test
   void testGetBridges_EmptyNodeTypes_UsesDefaults() {
     // Arrange
-    BridgesRequest request = new BridgesRequest(
-        Set.of(),
-        Set.of(RelationType.POSTED)
-    );
+    BridgesRequest request = new BridgesRequest(Set.of(), Set.of(RelationType.POSTED));
     List<LinkDto> expectedBridges = List.of();
     when(metricComputationService.computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(new HashSet<>(Arrays.asList(NodeType.values()))),
-        eq(request.relationTypes()),
-        eq(Orientation.UNDIRECTED)
-    )).thenReturn(expectedBridges);
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(new HashSet<>(Arrays.asList(NodeType.values()))),
+            eq(request.relationTypes()),
+            eq(Orientation.UNDIRECTED)))
+        .thenReturn(expectedBridges);
 
     // Act
     List<LinkDto> result = graphService.getBridges(request);
@@ -859,30 +854,27 @@ class GraphServiceTest {
     // Assert
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(metricComputationService).computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(new HashSet<>(Arrays.asList(NodeType.values()))),
-        eq(request.relationTypes()),
-        eq(Orientation.UNDIRECTED)
-    );
+    verify(metricComputationService)
+        .computeFindBridges(
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(new HashSet<>(Arrays.asList(NodeType.values()))),
+            eq(request.relationTypes()),
+            eq(Orientation.UNDIRECTED));
   }
 
   @Test
   void testGetBridges_EmptyRelationTypes_UsesDefaults() {
     // Arrange
-    BridgesRequest request = new BridgesRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of()
-    );
+    BridgesRequest request = new BridgesRequest(Set.of(NodeType.AUTHOR), Set.of());
     List<LinkDto> expectedBridges = List.of();
     when(metricComputationService.computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(request.nodeTypes()),
-        eq(new HashSet<>(Arrays.asList(RelationType.values()))),
-        eq(Orientation.UNDIRECTED)
-    )).thenReturn(expectedBridges);
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(request.nodeTypes()),
+            eq(new HashSet<>(Arrays.asList(RelationType.values()))),
+            eq(Orientation.UNDIRECTED)))
+        .thenReturn(expectedBridges);
 
     // Act
     List<LinkDto> result = graphService.getBridges(request);
@@ -890,29 +882,23 @@ class GraphServiceTest {
     // Assert
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(metricComputationService).computeFindBridges(
-        eq("bridges"),
-        eq(AlgorithmType.BRIDGES),
-        eq(request.nodeTypes()),
-        eq(new HashSet<>(Arrays.asList(RelationType.values()))),
-        eq(Orientation.UNDIRECTED)
-    );
+    verify(metricComputationService)
+        .computeFindBridges(
+            eq("bridges"),
+            eq(AlgorithmType.BRIDGES),
+            eq(request.nodeTypes()),
+            eq(new HashSet<>(Arrays.asList(RelationType.values()))),
+            eq(Orientation.UNDIRECTED));
   }
 
   @Test
   void testGetBridges_NoBridgesFound() {
     // Arrange
-    BridgesRequest request = new BridgesRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.POSTED)
-    );
+    BridgesRequest request =
+        new BridgesRequest(Set.of(NodeType.AUTHOR), Set.of(RelationType.POSTED));
     when(metricComputationService.computeFindBridges(
-        anyString(),
-        any(AlgorithmType.class),
-        anySet(),
-        anySet(),
-        any(Orientation.class)
-    )).thenReturn(Collections.emptyList());
+            anyString(), any(AlgorithmType.class), anySet(), anySet(), any(Orientation.class)))
+        .thenReturn(Collections.emptyList());
 
     // Act
     List<LinkDto> result = graphService.getBridges(request);
@@ -925,12 +911,12 @@ class GraphServiceTest {
   @Test
   void testGetGraph_WithEmptyNodesList() {
     // Arrange
-    GraphQueryRequest request = new GraphQueryRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.MENTIONS),
-        FetchConfig.defaultConfig(),
-        Optional.empty()
-    );
+    GraphQueryRequest request =
+        new GraphQueryRequest(
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            FetchConfig.defaultConfig(),
+            Optional.empty());
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
     when(authorStrategy.fetchNodes(any(), anyBoolean(), anyInt()))
         .thenReturn(Collections.emptyList());
@@ -948,17 +934,16 @@ class GraphServiceTest {
   @Test
   void testGetGraph_WithNoMatchingLinks() {
     // Arrange
-    GraphQueryRequest request = new GraphQueryRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.MENTIONS),
-        FetchConfig.defaultConfig(),
-        Optional.empty()
-    );
+    GraphQueryRequest request =
+        new GraphQueryRequest(
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            FetchConfig.defaultConfig(),
+            Optional.empty());
     AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
     author.setId("author1");
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
-    doReturn(List.of(author))
-        .when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
+    doReturn(List.of(author)).when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
     LinkDto unmatchedLink = new LinkDto("author1", "author2", RelationType.RETWEETS, 1);
     when(graphRepository.findAllRelations()).thenReturn(List.of(unmatchedLink));
 
@@ -974,17 +959,16 @@ class GraphServiceTest {
   @Test
   void testGetGraph_LinksFilteredByNodeIds() {
     // Arrange
-    GraphQueryRequest request = new GraphQueryRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.MENTIONS),
-        FetchConfig.defaultConfig(),
-        Optional.empty()
-    );
+    GraphQueryRequest request =
+        new GraphQueryRequest(
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            FetchConfig.defaultConfig(),
+            Optional.empty());
     AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
     author.setId("author1");
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
-    doReturn(List.of(author))
-        .when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
+    doReturn(List.of(author)).when(authorStrategy).fetchNodes(any(), anyBoolean(), anyInt());
     LinkDto linkWithMissingNodes = new LinkDto("author999", "author888", RelationType.MENTIONS, 1);
     when(graphRepository.findAllRelations()).thenReturn(List.of(linkWithMissingNodes));
 
@@ -1003,12 +987,9 @@ class GraphServiceTest {
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
     when(tweetStrategy.getNodeType()).thenReturn(NodeType.TWEET);
     when(hashtagStrategy.getNodeType()).thenReturn(NodeType.HASHTAG);
-    when(authorStrategy.fetchNodes(any(), eq(true), anyInt()))
-        .thenReturn(Collections.emptyList());
-    when(tweetStrategy.fetchNodes(any(), eq(true), anyInt()))
-        .thenReturn(Collections.emptyList());
-    when(hashtagStrategy.fetchNodes(any(), eq(true), anyInt()))
-        .thenReturn(Collections.emptyList());
+    when(authorStrategy.fetchNodes(any(), eq(true), anyInt())).thenReturn(Collections.emptyList());
+    when(tweetStrategy.fetchNodes(any(), eq(true), anyInt())).thenReturn(Collections.emptyList());
+    when(hashtagStrategy.fetchNodes(any(), eq(true), anyInt())).thenReturn(Collections.emptyList());
     when(graphRepository.findWorkspaceRelationships()).thenReturn(Collections.emptyList());
 
     // Act
@@ -1023,17 +1004,18 @@ class GraphServiceTest {
   @Test
   void testGetGraph_WithCommunityIdFilter() {
     // Arrange
-    GraphQueryRequest request = new GraphQueryRequest(
-        Set.of(NodeType.AUTHOR),
-        Set.of(RelationType.MENTIONS),
-        FetchConfig.defaultConfig(),
-        Optional.of(5)
-    );
+    GraphQueryRequest request =
+        new GraphQueryRequest(
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            FetchConfig.defaultConfig(),
+            Optional.of(5));
     AuthorNodeDto author = new AuthorNodeDto(0.5, 5);
     author.setId("author1");
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
     doReturn(List.of(author))
-        .when(authorStrategy).fetchNodes(eq(Optional.of(5)), anyBoolean(), anyInt());
+        .when(authorStrategy)
+        .fetchNodes(eq(Optional.of(5)), anyBoolean(), anyInt());
     LinkDto link = new LinkDto("author1", "author1", RelationType.MENTIONS, 1);
     when(graphRepository.findAllRelations()).thenReturn(List.of(link));
 
@@ -1050,34 +1032,31 @@ class GraphServiceTest {
   @Test
   void testGetGraph_MultipleNodeTypesWithDifferentLimits() {
     // Arrange
-    Map<NodeType, Integer> limits = Map.of(
-        NodeType.AUTHOR, 50,
-        NodeType.TWEET, 100,
-        NodeType.HASHTAG, 200
-    );
+    Map<NodeType, Integer> limits =
+        Map.of(
+            NodeType.AUTHOR, 50,
+            NodeType.TWEET, 100,
+            NodeType.HASHTAG, 200);
     FetchConfig customConfig = new FetchConfig(FetchStrategy.LIMIT_PER_TYPE, limits);
-    GraphQueryRequest request = new GraphQueryRequest(
-        Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
-        Set.of(RelationType.MENTIONS),
-        customConfig,
-        Optional.empty()
-    );
+    GraphQueryRequest request =
+        new GraphQueryRequest(
+            Set.of(NodeType.AUTHOR, NodeType.TWEET, NodeType.HASHTAG),
+            Set.of(RelationType.MENTIONS),
+            customConfig,
+            Optional.empty());
     AuthorNodeDto author = new AuthorNodeDto(0.5, 1);
     author.setId("author1");
     TweetNodeDto tweet = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
     tweet.setId("tweet1");
     HashtagNodeDto hashtag = new HashtagNodeDto();
     hashtag.setId("hashtag1");
-    
+
     when(authorStrategy.getNodeType()).thenReturn(NodeType.AUTHOR);
     when(tweetStrategy.getNodeType()).thenReturn(NodeType.TWEET);
     when(hashtagStrategy.getNodeType()).thenReturn(NodeType.HASHTAG);
-    doReturn(List.of(author))
-        .when(authorStrategy).fetchNodes(any(), anyBoolean(), eq(50));
-    doReturn(List.of(tweet))
-        .when(tweetStrategy).fetchNodes(any(), anyBoolean(), eq(100));
-    doReturn(List.of(hashtag))
-        .when(hashtagStrategy).fetchNodes(any(), anyBoolean(), eq(200));
+    doReturn(List.of(author)).when(authorStrategy).fetchNodes(any(), anyBoolean(), eq(50));
+    doReturn(List.of(tweet)).when(tweetStrategy).fetchNodes(any(), anyBoolean(), eq(100));
+    doReturn(List.of(hashtag)).when(hashtagStrategy).fetchNodes(any(), anyBoolean(), eq(200));
     when(graphRepository.findAllRelations()).thenReturn(Collections.emptyList());
 
     // Act
@@ -1107,4 +1086,3 @@ class GraphServiceTest {
     return node;
   }
 }
-

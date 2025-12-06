@@ -193,11 +193,9 @@ class WordOccurrenceCounterTest {
   @Test
   void testCountOccurrences_MultipleTweets() {
     // Arrange
-    List<String> tweets = List.of(
-        "Java programming is fun",
-        "Python programming is easy",
-        "Rust programming is safe"
-    );
+    List<String> tweets =
+        List.of(
+            "Java programming is fun", "Python programming is easy", "Rust programming is safe");
     int limit = 10;
 
     // Act
@@ -316,11 +314,11 @@ class WordOccurrenceCounterTest {
   @Test
   void testCountOccurrences_WithMixedContent() {
     // Arrange
-    List<String> tweets = List.of(
-        "Check out this link: https://example.com",
-        "Email me at test@example.com",
-        "Follow @user and use #hashtag"
-    );
+    List<String> tweets =
+        List.of(
+            "Check out this link: https://example.com",
+            "Email me at test@example.com",
+            "Follow @user and use #hashtag");
     int limit = 20;
 
     // Act
@@ -338,4 +336,3 @@ class WordOccurrenceCounterTest {
     assertTrue(result.containsKey("hashtag"));
   }
 }
-

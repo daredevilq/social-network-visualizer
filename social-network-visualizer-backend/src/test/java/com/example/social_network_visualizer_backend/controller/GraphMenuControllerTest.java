@@ -63,10 +63,10 @@ class GraphMenuControllerTest {
 
     mixedNodes = new ArrayList<>(List.of(author, tweet, hashtag));
 
-    testGraphData = new GraphDataDto(
-        new ArrayList<>(List.of(author, tweet)),
-        new ArrayList<>(List.of(new LinkDto("author1", "tweet1", RelationType.POSTED, 1)))
-    );
+    testGraphData =
+        new GraphDataDto(
+            new ArrayList<>(List.of(author, tweet)),
+            new ArrayList<>(List.of(new LinkDto("author1", "tweet1", RelationType.POSTED, 1))));
   }
 
   @Test
@@ -75,9 +75,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/latest-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/latest-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray())
         .andExpect(jsonPath("$.links").isArray());
@@ -92,9 +94,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/popular-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/popular-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray())
         .andExpect(jsonPath("$.links").isArray());
@@ -109,10 +113,12 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/communities")
-            .param("nodeNumber", "5")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/communities")
+                .param("nodeNumber", "5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -126,9 +132,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/communities")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/communities")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -142,9 +150,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/used-hashtags")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/used-hashtags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -158,9 +168,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/common-hashtags")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/common-hashtags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -174,9 +186,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/mentioned-users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/mentioned-users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -190,9 +204,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/mentioning-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/mentioning-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -206,9 +222,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/replied-to-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/replied-to-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -222,9 +240,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/replying-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/replying-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -238,9 +258,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/replied-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/replied-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -254,9 +276,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/mentioned-in-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/mentioned-in-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -270,10 +294,12 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/membership")
-            .param("add", "true")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mixedNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/membership")
+                .param("add", "true")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mixedNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -287,10 +313,12 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/membership")
-            .param("add", "false")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mixedNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/membership")
+                .param("add", "false")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mixedNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -304,9 +332,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -320,9 +350,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/hashtags")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/hashtags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -336,9 +368,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/common-hashtags")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/common-hashtags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -352,9 +386,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/mentioned-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/mentioned-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -368,9 +404,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/parent-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/parent-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -384,9 +422,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/children-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(tweetNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/children-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tweetNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -400,9 +440,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/hashtag/highlight-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(hashtagNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/hashtag/highlight-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(hashtagNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -416,9 +458,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/hashtag/top-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(hashtagNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/hashtag/top-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(hashtagNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -432,9 +476,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/hashtag/related-hashtags")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(hashtagNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/hashtag/related-hashtags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(hashtagNodes)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.nodes").isArray());
 
@@ -448,9 +494,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/latest-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of())))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/latest-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of())))
         .andExpect(status().isOk());
 
     verify(graphMenuService).addAuthorsLatestTweets(anyList(), eq(10));
@@ -463,9 +511,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/tweet/authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of())))
+    mockMvc
+        .perform(
+            post("/graph/menu/tweet/authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of())))
         .andExpect(status().isOk());
 
     verify(graphMenuService).addTweetAuthorsToWorkspace(anyList());
@@ -478,9 +528,11 @@ class GraphMenuControllerTest {
     when(graphService.fetchWorkspaceData()).thenReturn(testGraphData);
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/hashtag/highlight-authors")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of())))
+    mockMvc
+        .perform(
+            post("/graph/menu/hashtag/highlight-authors")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of())))
         .andExpect(status().isOk());
 
     verify(graphMenuService).addTopAuthorsForHashtags(anyList());
@@ -490,10 +542,12 @@ class GraphMenuControllerTest {
   @Test
   void testUpdateWorkspaceMembership_InvalidRequest() throws Exception {
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/membership")
-            .param("add", "true")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("invalid json"))
+    mockMvc
+        .perform(
+            post("/graph/menu/membership")
+                .param("add", "true")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("invalid json"))
         .andExpect(status().isInternalServerError());
 
     verify(workspaceService, never()).updateWorkspaceMembership(anyList(), anyBoolean());
@@ -502,17 +556,19 @@ class GraphMenuControllerTest {
   @Test
   void testAddAuthorsLatestTweets_ServiceThrowsException() throws Exception {
     // Arrange
-    doThrow(new RuntimeException("Service error")).when(graphMenuService)
+    doThrow(new RuntimeException("Service error"))
+        .when(graphMenuService)
         .addAuthorsLatestTweets(anyList(), anyInt());
 
     // Act & Assert
-    mockMvc.perform(post("/graph/menu/author/latest-tweets")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(authorNodes)))
+    mockMvc
+        .perform(
+            post("/graph/menu/author/latest-tweets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(authorNodes)))
         .andExpect(status().isInternalServerError());
 
     verify(graphMenuService).addAuthorsLatestTweets(anyList(), eq(10));
     verify(graphService, never()).fetchWorkspaceData();
   }
 }
-

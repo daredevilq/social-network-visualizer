@@ -36,8 +36,7 @@ class DashboardServiceTest {
   @Test
   void testGetProjectStats_Success() {
     // Arrange
-    ProjectStatsDto expectedStats =
-        new ProjectStatsDto(10000L, 500L, 1000L, 50000L, 25L, 3000L);
+    ProjectStatsDto expectedStats = new ProjectStatsDto(10000L, 500L, 1000L, 50000L, 25L, 3000L);
     when(dashboardRepository.getProjectStats()).thenReturn(expectedStats);
 
     // Act
@@ -310,4 +309,3 @@ class DashboardServiceTest {
     verify(dashboardRepository).getProjectHeatMap();
   }
 }
-

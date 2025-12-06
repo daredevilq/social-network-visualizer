@@ -227,4 +227,3 @@ class Neo4jServiceTest {
     verify(hashtagRepository, never()).createHashtagConstraint();
   }
 }
-

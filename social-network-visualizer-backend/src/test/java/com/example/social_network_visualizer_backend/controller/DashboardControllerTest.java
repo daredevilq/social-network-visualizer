@@ -82,7 +82,9 @@ class DashboardControllerTest {
   @Test
   void testGetProjectViralTweets_Success() throws Exception {
     // Arrange
-    ViralTweetDto viralTweet = new ViralTweetDto("testUser", "tweet123", "Test preview", "http://test.com", 100, 50, 20, 170);
+    ViralTweetDto viralTweet =
+        new ViralTweetDto(
+            "testUser", "tweet123", "Test preview", "http://test.com", 100, 50, 20, 170);
     List<ViralTweetDto> viralTweets = Arrays.asList(viralTweet, viralTweet);
     when(dashboardService.getViralTweetStats()).thenReturn(viralTweets);
 
@@ -312,4 +314,3 @@ class DashboardControllerTest {
     verify(dashboardService, times(1)).getHeatMap();
   }
 }
-

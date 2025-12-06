@@ -217,7 +217,7 @@ class AuthorServiceTest {
     assertTrue(result.containsKey("2023-01"));
     assertEquals(1L, result.get("2023-01"));
   }
-  
+
   @Test
   void testFindTopHashtagsByAuthor_Success() {
     // Arrange
@@ -312,7 +312,8 @@ class AuthorServiceTest {
   void testFindMostCommonWords_LimitsTo30Words() {
     // Arrange
     String authorName = "testUser";
-    String longTweet = "unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12";
+    String longTweet =
+        "unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12";
     when(authorRepository.findTweetsContentByAuthor(authorName))
         .thenReturn(Arrays.asList(longTweet));
 
@@ -366,7 +367,8 @@ class AuthorServiceTest {
   void testFindMostCommonWords_EmptyTweetContent() {
     // Arrange
     String authorName = "testUser";
-    when(authorRepository.findTweetsContentByAuthor(authorName)).thenReturn(Collections.emptyList());
+    when(authorRepository.findTweetsContentByAuthor(authorName))
+        .thenReturn(Collections.emptyList());
 
     // Act
     Map<String, Long> result = authorService.findMostCommonWords(authorName);
@@ -509,4 +511,3 @@ class AuthorServiceTest {
     verify(authorRepository).findStatsByAuthorId(authorName);
   }
 }
-

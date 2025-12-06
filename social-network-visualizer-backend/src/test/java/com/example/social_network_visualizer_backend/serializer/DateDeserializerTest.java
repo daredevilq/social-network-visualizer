@@ -217,4 +217,3 @@ class DateDeserializerTest {
     assertTrue(exception.getMessage().contains("Invalid date format"));
   }
 }
-

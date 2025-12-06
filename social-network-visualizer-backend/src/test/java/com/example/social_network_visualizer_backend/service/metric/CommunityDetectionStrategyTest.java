@@ -67,4 +67,3 @@ class CommunityDetectionStrategyTest {
     verify(algorithmRepository).createCommunities(graphName);
   }
 }
-

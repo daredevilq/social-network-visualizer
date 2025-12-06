@@ -9,7 +9,6 @@ import com.example.social_network_visualizer_backend.enums.MetricType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.RelationType;
-import com.example.social_network_visualizer_backend.exceptions.ProjectException;
 import com.example.social_network_visualizer_backend.model.project.MetricConfig;
 import com.example.social_network_visualizer_backend.model.project.ProjectConfig;
 import com.example.social_network_visualizer_backend.service.ProjectService;
@@ -40,7 +39,8 @@ class ProjectControllerTest {
   void testListAllProjects_Success() throws Exception {
     // Arrange
     ProjectSummary projectSummary = new ProjectSummary("testProject", 5);
-    List<ProjectSummary> projectSummaries = Arrays.asList(projectSummary, projectSummary, projectSummary);
+    List<ProjectSummary> projectSummaries =
+        Arrays.asList(projectSummary, projectSummary, projectSummary);
     when(projectService.getAllProjects()).thenReturn(projectSummaries);
 
     // Act & Assert
@@ -66,8 +66,14 @@ class ProjectControllerTest {
             post("/project/{projectName}/import", projectName)
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value("Project " + projectName
-            + " imported successfully. Imported tweets: " + importedTweets + "."));
+        .andExpect(
+            jsonPath("$.message")
+                .value(
+                    "Project "
+                        + projectName
+                        + " imported successfully. Imported tweets: "
+                        + importedTweets
+                        + "."));
 
     verify(projectService, times(1)).importProject(projectName);
   }
@@ -115,10 +121,14 @@ class ProjectControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(multipart("/project/{projectName}", projectName).file(file).with(request -> {
-          request.setMethod("PUT");
-          return request;
-        }))
+        .perform(
+            multipart("/project/{projectName}", projectName)
+                .file(file)
+                .with(
+                    request -> {
+                      request.setMethod("PUT");
+                      return request;
+                    }))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.message").value("Project " + projectName + " processed successfully."));
@@ -134,7 +144,8 @@ class ProjectControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.message").value("Project " + projectName + " deleted successfully."));
@@ -197,10 +208,14 @@ class ProjectControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(multipart("/project/{projectName}/file", projectName).file(file).with(request -> {
-          request.setMethod("PUT");
-          return request;
-        }))
+        .perform(
+            multipart("/project/{projectName}/file", projectName)
+                .file(file)
+                .with(
+                    request -> {
+                      request.setMethod("PUT");
+                      return request;
+                    }))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$.message")
@@ -229,7 +244,12 @@ class ProjectControllerTest {
   @Test
   void testGetDefaultMetrics_Success() throws Exception {
     // Arrange
-    MetricConfig metricConfig = new MetricConfig(MetricType.PAGERANK, Set.of(NodeType.AUTHOR), Set.of(RelationType.MENTIONS), Orientation.NATURAL);
+    MetricConfig metricConfig =
+        new MetricConfig(
+            MetricType.PAGERANK,
+            Set.of(NodeType.AUTHOR),
+            Set.of(RelationType.MENTIONS),
+            Orientation.NATURAL);
     List<MetricConfig> defaultMetrics = Arrays.asList(metricConfig, metricConfig, metricConfig);
     when(projectService.getDefaultMetrics()).thenReturn(defaultMetrics);
 
@@ -278,11 +298,13 @@ class ProjectControllerTest {
     // Arrange
     String projectName = "nonExistentProject";
     doThrow(new EntityNotFoundException("Project not found: " + projectName))
-        .when(projectService).deleteProject(projectName);
+        .when(projectService)
+        .deleteProject(projectName);
 
     // Act & Assert
     mockMvc
-        .perform(delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Project not found: " + projectName));
 
@@ -294,11 +316,13 @@ class ProjectControllerTest {
     // Arrange
     String projectName = "testProject";
     doThrow(new RuntimeException("Failed to delete project"))
-        .when(projectService).deleteProject(projectName);
+        .when(projectService)
+        .deleteProject(projectName);
 
     // Act & Assert
     mockMvc
-        .perform(delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            delete("/project/{projectName}", projectName).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").exists());
 
@@ -314,7 +338,9 @@ class ProjectControllerTest {
 
     // Act & Assert
     mockMvc
-        .perform(get("/project/{projectName}/config", projectName).contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/project/{projectName}/config", projectName)
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("Project not found: " + projectName));
 
@@ -351,4 +377,3 @@ class ProjectControllerTest {
     verify(projectService, times(1)).getDefaultMetrics();
   }
 }
-

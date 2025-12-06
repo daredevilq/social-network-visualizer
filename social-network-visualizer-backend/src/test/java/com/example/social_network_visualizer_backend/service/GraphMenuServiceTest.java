@@ -223,8 +223,7 @@ class GraphMenuServiceTest {
 
     // Assert
     verify(graphMenuRepository).findHashtagsUsedByAuthor("author1");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -239,7 +238,8 @@ class GraphMenuServiceTest {
     HashtagNodeDto commonHashtag = new HashtagNodeDto();
     commonHashtag.setId("java");
 
-    when(graphMenuRepository.findTopCommonHashtagsUsedByAuthors(Arrays.asList("author1", "author2")))
+    when(graphMenuRepository.findTopCommonHashtagsUsedByAuthors(
+            Arrays.asList("author1", "author2")))
         .thenReturn(Arrays.asList(commonHashtag));
 
     // Act
@@ -271,8 +271,7 @@ class GraphMenuServiceTest {
 
     // Assert
     verify(graphMenuRepository).findMentionedUsersByAuthor("author1");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -403,8 +402,7 @@ class GraphMenuServiceTest {
     // Assert
     verify(graphMenuRepository).findAuthorByTweetId("tweet1");
     verify(graphMenuRepository).findAuthorByTweetId("tweet2");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -446,8 +444,7 @@ class GraphMenuServiceTest {
 
     // Assert
     verify(graphMenuRepository).findHashtagsByTweetId("tweet1");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -576,8 +573,7 @@ class GraphMenuServiceTest {
 
     // Assert
     verify(graphMenuRepository).findTopAuthorsByHashtag("java");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -623,8 +619,7 @@ class GraphMenuServiceTest {
 
     // Assert
     verify(graphMenuRepository).findRelatedHashtags("java");
-    verify(workspaceService, times(2))
-        .updateWorkspaceMembership(any(NodeDto.class), eq(true));
+    verify(workspaceService, times(2)).updateWorkspaceMembership(any(NodeDto.class), eq(true));
   }
 
   @Test
@@ -678,4 +673,3 @@ class GraphMenuServiceTest {
     assertEquals("commAuthor", capturedNode.getName());
   }
 }
-

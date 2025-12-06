@@ -14,7 +14,6 @@ import com.example.social_network_visualizer_backend.repository.AuthorRepository
 import com.example.social_network_visualizer_backend.repository.HashtagRepository;
 import com.example.social_network_visualizer_backend.repository.ProjectRepository;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
@@ -509,4 +508,3 @@ class ProjectParserTest {
     return tweet;
   }
 }
-

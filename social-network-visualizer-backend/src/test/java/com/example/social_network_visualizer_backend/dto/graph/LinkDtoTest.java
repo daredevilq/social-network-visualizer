@@ -225,4 +225,3 @@ class LinkDtoTest {
     assertNotEquals(linkDto1, linkDto2);
   }
 }
-
