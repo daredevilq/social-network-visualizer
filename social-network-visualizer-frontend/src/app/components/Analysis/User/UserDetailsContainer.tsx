@@ -191,12 +191,19 @@ export default function UserDetailsContainer({ username }: { username: string })
             <UserProfileContainer userData={data.userData} />
             <ActivityTimelineContainer userActivity={data.userActivity} chartData={chartData} />
             <HeatMapChartCard heat={data.userHeatMap} />
+            <UserMostCommonWordsContainer words={data.mostCommonWords} />
             <TopHashtagsContainer topHashtags={data.topHashtags} />
             <UsersMentionedContainer userMentions={data.userMentions} />
-            <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
-            <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
+
+            <div className="lg:col-span-2 w-full">
+              <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
+            </div>
+
+            <div className="lg:col-span-2 w-full">
+              <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
+            </div>
+
             <HashtagActivityContainer topHashtags={data.topHashtags} />
-            <UserMostCommonWordsContainer words={data.mostCommonWords} />
             <ViralTweetsContainer viralTweets={data.viralTweets} />
           </div>
         )}
