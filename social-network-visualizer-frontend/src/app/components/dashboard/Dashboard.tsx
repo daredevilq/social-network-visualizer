@@ -100,7 +100,7 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="w-full min-h-screen text-white p-10">
-          <div className="mx-auto">
+          <div className="mx-auto w-full max-w-[1600px] transition-all duration-300 ease-in-out">
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={() => router.push('/')}
@@ -141,11 +141,16 @@ const Dashboard = () => {
               <TopAuthorsContainer authors={topAuthors} />
               <TopMentionsContainer mentions={topMentions} />
 
+              <div className="lg:col-span-2 xl:col-span-4">
+                <HeatMapChartCard heat={heatMap} />
+              </div>
+
               <ActivityChartCard activity={projectActivity} />
               <HashtagActivityContainer topHashtags={topHashtags} />
 
-              <HeatMapChartCard heat={heatMap} />
-              <HashtagActivityChartContainer data={topHashtags} />
+              <div className="lg:col-span-2 xl:col-span-4">
+                <HashtagActivityChartContainer data={topHashtags} />
+              </div>
 
               <div className="lg:col-span-2 xl:col-span-4">
                 <ViralTweetsContainer viralTweets={viralTweets} />

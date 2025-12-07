@@ -6,7 +6,7 @@ import TweetList from './TweetList';
 import TweetFilters from './TweetFilters';
 import { Tweet, TweetResponse } from '@/types/tweetTypes';
 import { useInView } from 'react-intersection-observer';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Filter } from 'lucide-react';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
@@ -104,38 +104,53 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
   }, [search]);
 
   return (
-    <div className="relative flex flex-col flex-1 min-h-0">
-      <div className="md:hidden flex justify-end relative z-10 pr-4">
+    <div className="relative flex flex-col flex-1 min-h-0 w-full gap-6">
+      <div className="bg-[#2A2D3D] rounded-xl border border-white/5 shadow-lg overflow-hidden">
         <div
+          className="md:hidden p-4 flex justify-between items-center border-b border-white/5"
           onClick={() => setFiltersVisible(!filtersVisible)}
-          className="w-8 h-6 rounded-b-full bg-[#7140F4] hover:bg-[#5c32c3] cursor-pointer flex items-center justify-center"
         >
-          {filtersVisible ? <ChevronUp className="w-4 h-4 text-white" /> : <ChevronDown className="w-4 h-4 text-white" />}
+          <span className="text-white font-semibold flex items-center gap-2">
+            <Filter className="w-4 h-4 text-[#7140F4]" /> Filters
+          </span>
+          <button className="text-gray-400">
+            {filtersVisible ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
+        </div>
+        <div
+          className={`transition-all duration-300 ease-in-out
+            ${filtersVisible ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 md:max-h-none md:opacity-100'}
+          `}
+        >
+          <div className="p-6">
+            <TweetFilters
+              search={search}
+              setSearch={setSearch}
+              handleSearchSubmit={handleSearchSubmit}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              order={order}
+              setOrder={setOrder}
+              hashtagInput={hashtagInput}
+              setHashtagInput={setHashtagInput}
+              handleHashtagAdd={handleHashtagAdd}
+              hashtags={hashtags}
+              removeHashtag={handleHashtagRemove}
+              setHighEngagement={setHighEngagement}
+              highEngagement={highEngagement}
+            />
+          </div>
         </div>
       </div>
-
-      <div
-        className={`transition-all duration-300 overflow-hidden ${filtersVisible ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'} md:max-h-none md:opacity-100`}
-      >
-        <TweetFilters
-          search={search}
-          setSearch={setSearch}
-          handleSearchSubmit={handleSearchSubmit}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          order={order}
-          setOrder={setOrder}
-          hashtagInput={hashtagInput}
-          setHashtagInput={setHashtagInput}
-          handleHashtagAdd={handleHashtagAdd}
-          hashtags={hashtags}
-          removeHashtag={handleHashtagRemove}
-          setHighEngagement={setHighEngagement}
-          highEngagement={highEngagement}
-        />
+      <div className="flex flex-col gap-4">
+        <TweetList tweets={tweets} hasMore={hasMore} inViewRef={inViewRef} />
+        {loading && hasMore && (
+          <div className="flex justify-center py-8">
+            <div className="w-8 h-8 border-2 border-[#7140F4] border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        {!loading && tweets.length === 0 && <div className="text-center py-12 text-gray-400">No tweets found matching your criteria.</div>}
       </div>
-
-      <TweetList tweets={tweets} hasMore={hasMore} inViewRef={inViewRef} />
     </div>
   );
 };

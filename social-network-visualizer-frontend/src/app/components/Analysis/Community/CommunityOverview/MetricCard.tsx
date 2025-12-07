@@ -1,13 +1,15 @@
 'use client';
 
 import CountUp from 'react-countup';
+import { LucideIcon } from 'lucide-react';
 
 interface Props {
   label: string;
   value: number | string;
+  icon?: LucideIcon;
 }
 
-export default function MetricCard({ label, value }: Props) {
+export default function MetricCard({ label, value, icon: Icon }: Props) {
   const numericValue = Number(value);
   const hasDecimals = !Number.isInteger(numericValue);
 

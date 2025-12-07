@@ -2,7 +2,7 @@
 
 import { useProject } from '@/app/context/ProjectContext';
 import React, { useEffect, useState, useRef } from 'react';
-import { Network, Layers, ChevronDown, ChevronUp, Search, Settings } from 'lucide-react';
+import { Network, Layers, ChevronDown, ChevronUp, Settings, Check } from 'lucide-react';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { RelationType, NodeType } from '@/types/GraphTypes';
@@ -26,6 +26,7 @@ export default function FiltersContent() {
   } = useProject();
 
   const { showNotification } = useNotification();
+  const { isInWorkspaceMode } = useWorkspace();
 
   const [tempNodeTypes, setTempNodeTypes] = useState<NodeType[]>(selectedNodeTypes);
   const [tempRelationTypes, setTempRelationTypes] = useState<RelationType[]>(selectedRelationTypes);
@@ -33,12 +34,10 @@ export default function FiltersContent() {
   const [nodeTypesExpanded, setNodeTypesExpanded] = useState(true);
   const [relationTypesExpanded, setRelationTypesExpanded] = useState(true);
   const [fetchConfigExpanded, setFetchConfigExpanded] = useState(true);
-  const [nodeSearchQuery, setNodeSearchQuery] = useState('');
-  const [relationSearchQuery, setRelationSearchQuery] = useState('');
+
   const [fetchConfigModalOpen, setFetchConfigModalOpen] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { isInWorkspaceMode } = useWorkspace();
 
   useEffect(() => {
     setTempNodeTypes(selectedNodeTypes);
@@ -58,12 +57,11 @@ export default function FiltersContent() {
     checkScroll();
     container.addEventListener('scroll', checkScroll);
     window.addEventListener('resize', checkScroll);
-
     return () => {
       container.removeEventListener('scroll', checkScroll);
       window.removeEventListener('resize', checkScroll);
     };
-  }, [nodeTypesExpanded, relationTypesExpanded, fetchConfigExpanded]);
+  }, [nodeTypesExpanded, relationTypesExpanded, fetchConfigExpanded, tempNodeTypes, tempRelationTypes]);
 
   const toggleNodeType = (nodeType: NodeType) => {
     setTempNodeTypes((prev) => (prev.includes(nodeType) ? prev.filter((t) => t !== nodeType) : [...prev, nodeType]));
@@ -73,22 +71,39 @@ export default function FiltersContent() {
     setTempRelationTypes((prev) => (prev.includes(relationType) ? prev.filter((t) => t !== relationType) : [...prev, relationType]));
   };
 
-  const handleApply = async () => {
-    if (tempNodeTypes.length === 0) {
-      showNotification('Please select at least one node type', BannerType.ERROR);
-      return;
-    }
+  const allNodeTypes = Object.values(NodeType);
+  const allRelationTypes = Object.values(RelationType);
 
-    if (tempRelationTypes.length === 0) {
-      showNotification('Please select at least one relation type', BannerType.ERROR);
-      return;
+  const areAllNodesSelected = allNodeTypes.length > 0 && allNodeTypes.every((nt) => tempNodeTypes.includes(nt));
+
+  const toggleAllNodes = () => {
+    if (areAllNodesSelected) {
+      setTempNodeTypes([]);
+    } else {
+      setTempNodeTypes(allNodeTypes);
     }
+  };
+
+  const availableRelations = allRelationTypes.filter((rt) => isRelationAvailable(rt, tempNodeTypes));
+  const areAllAvailableRelationsSelected =
+    availableRelations.length > 0 && availableRelations.every((rt) => tempRelationTypes.includes(rt));
+
+  const toggleAllRelations = () => {
+    if (areAllAvailableRelationsSelected) {
+      setTempRelationTypes((prev) => prev.filter((rt) => !availableRelations.includes(rt)));
+    } else {
+      setTempRelationTypes((prev) => [...new Set([...prev, ...availableRelations])]);
+    }
+  };
+
+  const handleApply = async () => {
+    if (tempNodeTypes.length === 0) return showNotification('Please select at least one node type', BannerType.ERROR);
+    if (tempRelationTypes.length === 0) return showNotification('Please select at least one relation type', BannerType.ERROR);
 
     await runWithLoading(async () => {
       try {
         setSelectedNodeTypes(tempNodeTypes);
         setSelectedRelationTypes(tempRelationTypes);
-
         const request: GraphQueryRequest = {
           nodeTypes: tempNodeTypes,
           relationTypes: tempRelationTypes,
@@ -103,71 +118,58 @@ export default function FiltersContent() {
     });
   };
 
-  const filteredNodeTypes = Object.values(NodeType).filter((nodeType) => nodeType.toLowerCase().includes(nodeSearchQuery.toLowerCase()));
-
-  const filteredRelationTypes = Object.values(RelationType).filter((relationType) =>
-    relationType.toLowerCase().includes(relationSearchQuery.toLowerCase())
-  );
+  const mainScrollbarClass =
+    '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#7140F4] cursor-pointer';
 
   return (
-    <div className="relative h-full flex flex-col text-[#FAFAFA] px-4 pt-4">
-      <div className="flex items-center border-b border-white pb-2 mb-4">
-        <h1 className="text-2xl font-bold mr-2">Graph Filters</h1>
-        <PopoverIcon
-          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.\n\n**Note:** In workspace mode, filters cannot be applied because the graph always saves all data.`}
-          scale={1.6}
-          position="bottom"
-        />
+    <div className="relative h-full flex flex-col text-[#FAFAFA] px-3 pt-3">
+      <div className="flex items-center border-b border-white/20 pb-2 mb-3 shrink-0">
+        <h1 className="text-xl font-bold mr-2">Graph Filters</h1>
+        <PopoverIcon message={`Filter your graph data.\n\n**Note:** Disabled in workspace mode.`} scale={1.4} position="bottom" />
       </div>
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
-        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
+      <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto space-y-3 pr-1 ${mainScrollbarClass}`}>
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-50 pointer-events-none' : ''}`}>
           <button
             onClick={() => setNodeTypesExpanded(!nodeTypesExpanded)}
-            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+            className="w-full flex items-center justify-between p-2 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
-              <Layers className="w-5 h-5 text-[#FAFAFA]" />
-              <h2 className="text-lg font-semibold">Nodes</h2>
-              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">{tempNodeTypes.length} selected</span>
-              <PopoverIcon
-                message={`Select which **node types** will appear in your graph. These define the main entities included in the analysis.`}
-                scale={1.4}
-                position="right"
-              />
+              <Layers className="w-4 h-4 text-[#FAFAFA]" />
+              <h2 className="text-sm font-bold">Nodes</h2>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">{tempNodeTypes.length} selected</span>
             </div>
-            {nodeTypesExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            {nodeTypesExpanded ? <ChevronUp className="w-4 h-4 cursor-pointer" /> : <ChevronDown className="w-4 h-4 cursor-pointer" />}
           </button>
 
           {nodeTypesExpanded && (
-            <div className="p-3 pt-0">
-              {Object.values(NodeType).length > 5 && (
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search node types..."
-                    value={nodeSearchQuery}
-                    onChange={(e) => setNodeSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 bg-[#262631] border border-gray-600 rounded-lg text-sm text-[#FAFAFA] placeholder:text-gray-400 focus:outline-none focus:border-[#7140F4]"
-                  />
+            <div className="p-2 pt-0">
+              <button
+                onClick={toggleAllNodes}
+                className="group relative flex items-center gap-2 w-full text-left py-1.5 px-2 rounded transition-colors hover:bg-[#FAFAFA]/5 border-b border-white/5 mb-1 cursor-pointer"
+              >
+                <div
+                  className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${areAllNodesSelected ? 'bg-[#7140F4] border-[#7140F4]' : 'border-gray-500'}`}
+                >
+                  {areAllNodesSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />}
                 </div>
-              )}
+                <span className="ml-2 text-sm text-[#7140F4] font-bold">{areAllNodesSelected ? 'Deselect All' : 'Select All'}</span>
+              </button>
 
-              <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-dark">
-                {filteredNodeTypes.map((nodeType) => (
+              <div className="space-y-0.5 mt-1">
+                {allNodeTypes.map((nodeType) => (
                   <button
                     key={nodeType}
                     onClick={() => toggleNodeType(nodeType)}
-                    className="group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors hover:bg-[#FAFAFA]/5"
+                    className="group relative flex items-center gap-2 w-full text-left py-1.5 px-2 rounded transition-colors hover:bg-[#FAFAFA]/5"
                   >
                     <span
-                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded transition-all ${
                         tempNodeTypes.includes(nodeType) ? 'bg-[#7140F4]' : 'bg-transparent'
                       }`}
                     />
                     <span
-                      className={`ml-3 truncate transition-colors ${
+                      className={`ml-2 truncate transition-colors text-sm ${
                         tempNodeTypes.includes(nodeType) ? 'text-[#7140F4] font-medium' : 'text-[#FAFAFA] group-hover:text-[#7140F4]'
                       }`}
                     >
@@ -180,41 +182,42 @@ export default function FiltersContent() {
           )}
         </div>
 
-        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-50 pointer-events-none' : ''}`}>
           <button
             onClick={() => setRelationTypesExpanded(!relationTypesExpanded)}
-            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+            className="w-full flex items-center justify-between p-2 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg cursor-pointer"
           >
-            <div className="flex items-center gap-1.5">
-              <Network className="w-5 h-5 text-[#FAFAFA]" />
-              <h2 className="text-lg font-semibold">Relations</h2>
-              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">{tempRelationTypes.length} selected</span>
-              <PopoverIcon
-                message={`Choose **relation types** connecting your selected nodes. Some relations are **unavailable** until their related node types are selected.`}
-                scale={1.4}
-                position="right"
-              />
+            <div className="flex items-center gap-1.5 cursor-pointer">
+              <Network className="w-4 h-4 text-[#FAFAFA]" />
+              <h2 className="text-sm font-bold">Relations</h2>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#7140F4]/20 text-[#7140F4]">
+                {tempRelationTypes.length} selected
+              </span>
             </div>
-            {relationTypesExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            {relationTypesExpanded ? <ChevronUp className="w-4 h-4 cursor-pointer" /> : <ChevronDown className="w-4 h-4 cursor-pointer" />}
           </button>
 
           {relationTypesExpanded && (
-            <div className="p-3 pt-0">
-              {Object.values(RelationType).length > 5 && (
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search relation types..."
-                    value={relationSearchQuery}
-                    onChange={(e) => setRelationSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 bg-[#262631] border border-gray-600 rounded-lg text-sm text-[#FAFAFA] placeholder:text-gray-400 focus:outline-none focus:border-[#7140F4]"
-                  />
+            <div className="p-2 pt-0">
+              <button
+                onClick={toggleAllRelations}
+                className="group relative flex items-center gap-2 w-full text-left py-1.5 px-2 rounded transition-colors hover:bg-[#FAFAFA]/5 border-b border-white/5 mb-1 cursor-pointer"
+                disabled={availableRelations.length === 0}
+              >
+                <div
+                  className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${areAllAvailableRelationsSelected && availableRelations.length > 0 ? 'bg-[#7140F4] border-[#7140F4]' : 'border-gray-500'}`}
+                >
+                  {areAllAvailableRelationsSelected && availableRelations.length > 0 && (
+                    <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                  )}
                 </div>
-              )}
+                <span className="ml-2 text-sm text-[#7140F4] font-bold">
+                  {areAllAvailableRelationsSelected ? 'Deselect All' : 'Select All Available'}
+                </span>
+              </button>
 
-              <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-dark">
-                {filteredRelationTypes.map((relationType) => {
+              <div className="space-y-0.5 mt-1">
+                {allRelationTypes.map((relationType) => {
                   const isAvailable = isRelationAvailable(relationType, tempNodeTypes);
                   const isSelected = tempRelationTypes.includes(relationType);
 
@@ -223,17 +226,17 @@ export default function FiltersContent() {
                       key={relationType}
                       onClick={() => isAvailable && toggleRelationType(relationType)}
                       disabled={!isAvailable}
-                      className={`group relative flex items-center gap-3 w-full text-left py-2 px-3 rounded transition-colors ${
+                      className={`group relative flex items-center gap-2 w-full text-left py-1.5 px-2 rounded transition-colors ${
                         isAvailable ? 'hover:bg-[#FAFAFA]/5 cursor-pointer' : 'cursor-not-allowed opacity-40'
                       }`}
                     >
                       <span
-                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded transition-all ${
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded transition-all ${
                           isSelected && isAvailable ? 'bg-[#7140F4]' : 'bg-transparent'
                         }`}
                       />
                       <span
-                        className={`ml-3 truncate transition-colors ${
+                        className={`ml-2 truncate transition-colors text-sm ${
                           !isAvailable
                             ? 'text-gray-600'
                             : isSelected
@@ -251,42 +254,36 @@ export default function FiltersContent() {
           )}
         </div>
 
-        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-40 pointer-events-none' : ''}`}>
+        <div className={`border border-gray-700 rounded-lg bg-[#30303d] ${isInWorkspaceMode ? 'opacity-50 pointer-events-none' : ''}`}>
           <button
             onClick={() => setFetchConfigExpanded(!fetchConfigExpanded)}
-            className="w-full flex items-center justify-between p-3 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg"
+            className="w-full flex items-center justify-between p-2 hover:bg-[#FAFAFA]/5 transition-colors rounded-t-lg cursor-pointer"
           >
-            <div className="flex items-center gap-1.5">
-              <Settings className="w-5 h-5 text-[#FAFAFA]" />
-              <h2 className="text-lg font-semibold">Fetch Limits</h2>
-              <PopoverIcon
-                message={`Set how many nodes of each type will be **fetched** from the database. Use this to control performance and data volume.`}
-                scale={1.4}
-                position="right"
-              />
+            <div className="flex items-center gap-1.5 cursor-pointer">
+              <Settings className="w-4 h-4 text-[#FAFAFA]" />
+              <h2 className="text-sm font-bold">Fetch Limits</h2>
             </div>
-            {fetchConfigExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            {fetchConfigExpanded ? <ChevronUp className="w-4 h-4 cursor-pointer" /> : <ChevronDown className="w-4 h-4 cursor-pointer" />}
           </button>
 
           {fetchConfigExpanded && (
-            <div className="p-3 pt-0">
-              <p className="text-sm text-gray-400 mb-3">Control how many nodes to fetch from the database for each type.</p>
-
-              <div className="space-y-2 mb-3">
+            <div className="p-2 pt-0">
+              <div className="space-y-1 mb-2">
                 {tempNodeTypes.map((nodeType) => {
                   const limit = fetchConfig.nodeLimits?.[nodeType] ?? 100;
                   return (
-                    <div key={nodeType} className="flex items-center justify-between text-sm">
-                      <span className="text-[#FAFAFA]">{nodeType}</span>
-                      <span className="text-[#7140F4] font-mono">{limit}</span>
+                    <div key={nodeType} className="flex items-center justify-between text-xs px-2 py-1">
+                      <span className="text-gray-300">{nodeType}</span>
+                      <span className="text-[#7140F4] font-mono bg-[#7140F4]/10 px-1.5 rounded">{limit}</span>
                     </div>
                   );
                 })}
+                {tempNodeTypes.length === 0 && <span className="text-xs text-gray-500 italic px-2">No nodes selected</span>}
               </div>
 
               <button
                 onClick={() => setFetchConfigModalOpen(true)}
-                className="w-full py-2 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] font-semibold rounded-lg transition-colors"
+                className="w-full py-1.5 bg-[#7140F4] hover:bg-[#5a33c4] text-[#FAFAFA] text-xs font-semibold rounded-md transition-colors cursor-pointer"
               >
                 Configure Limits
               </button>
@@ -296,18 +293,18 @@ export default function FiltersContent() {
       </div>
 
       {showScrollHint && (
-        <div className="absolute bottom-16 left-0 right-0 h-8 pointer-events-none flex items-center justify-center">
-          <ChevronDown className="w-5 h-5 text-[#7140F4] animate-bounce" />
+        <div className="absolute bottom-14 left-0 right-0 h-6 pointer-events-none flex items-center justify-center bg-gradient-to-t from-[#30303d] to-transparent">
+          <ChevronDown className="w-4 h-4 text-[#7140F4] animate-bounce" />
         </div>
       )}
 
-      <div className="pt-4 pb-2 border-t border-[#FAFAFA]/20 mt-4">
+      <div className="pt-3 pb-2 border-t border-[#FAFAFA]/20 mt-2 bg-transparent shrink-0">
         <button
           onClick={handleApply}
           disabled={isInWorkspaceMode}
           title={isInWorkspaceMode ? 'Cannot apply filters in workspace mode' : ''}
-          className={`w-full py-3 text-[#FAFAFA] font-semibold rounded-lg transition-colors
-                ${isInWorkspaceMode ? 'bg-gray-500 cursor-not-allowed opacity-50' : 'bg-[#7140F4] hover:bg-[#5a33c4]'}`}
+          className={`w-full py-2.5 text-[#FAFAFA] font-semibold rounded-lg transition-colors text-sm
+                ${isInWorkspaceMode ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-[#7140F4] hover:bg-[#5a33c4] cursor-pointer'}`}
         >
           Apply Filters
         </button>

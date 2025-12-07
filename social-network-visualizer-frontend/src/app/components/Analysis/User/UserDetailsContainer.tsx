@@ -192,7 +192,7 @@ export default function UserDetailsContainer({ username }: { username: string })
             <ActivityTimelineContainer userActivity={data.userActivity} chartData={chartData} />
             <HeatMapChartCard heat={data.userHeatMap} />
             <TopHashtagsContainer topHashtags={data.topHashtags} />
-            <UsersMentionedContainer userMentions={data.userMentions} message={'Users Mentioned by this User'} />
+            <UsersMentionedContainer userMentions={data.userMentions} />
             <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
             <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
             <HashtagActivityContainer topHashtags={data.topHashtags} />
