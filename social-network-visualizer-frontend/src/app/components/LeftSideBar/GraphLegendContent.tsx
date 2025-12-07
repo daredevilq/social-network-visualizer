@@ -44,6 +44,8 @@ const linkStyles = {
   USES_HASHTAG: { color: Colors.AuthorHashtagLinkColorLow() },
   HAS_HASHTAG: { color: Colors.TweetHashtagLinkColorLow() },
   SHARES_HASHTAG: { color: Colors.AuthorAuthorLinkColorLow() },
+  COMMUNITY_LINK: { color: Colors.GoldColor() },
+  SHORTEST_PATH_AND_BRIDGES: { color: Colors.PurpleColor() },
 };
 
 const LinkIconBase = ({ color }: LinkIconBaseProps) => (
@@ -77,6 +79,8 @@ const LinkIcon_QUOTED = () => <LinkIconBase {...linkStyles.QUOTED} />;
 const LinkIcon_USES_HASHTAG = () => <LinkIconBase {...linkStyles.USES_HASHTAG} />;
 const LinkIcon_HAS_HASHTAG = () => <LinkIconBase {...linkStyles.HAS_HASHTAG} />;
 const LinkIcon_SHARES_HASHTAG = () => <LinkIconBase {...linkStyles.SHARES_HASHTAG} />;
+const LinkIcon_COMMUNITY_LINK = () => <LinkIconBase {...linkStyles.COMMUNITY_LINK} />;
+const LinkIcon_SHORTEST_PATH_AND_BRIDGES = () => <LinkIconBase {...linkStyles.SHORTEST_PATH_AND_BRIDGES} />;
 
 export default function GraphLegendContent() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -131,6 +135,16 @@ export default function GraphLegendContent() {
             <LegendItem icon={<LinkIcon_QUOTED />} title="QUOTED" description="Tweet is quoted of another tweet" />
             <LegendItem icon={<LinkIcon_HAS_HASHTAG />} title="HAS_HASHTAG" description="Tweet contains a hashtag" />
             <LegendItem icon={<LinkIcon_USES_HASHTAG />} title="USES_HASHTAG" description="Author uses hashtag" />
+            <LegendItem
+              icon={<LinkIcon_COMMUNITY_LINK />}
+              title="COMMUNITY_LINK"
+              description="Link used to determine community structure"
+            />
+            <LegendItem
+              icon={<LinkIcon_SHORTEST_PATH_AND_BRIDGES />}
+              title="SHORTEST_PATH / BRIDGE"
+              description="Edges highlighted as shortest path or graph bridges"
+            />
           </ul>
         </div>
       </div>
