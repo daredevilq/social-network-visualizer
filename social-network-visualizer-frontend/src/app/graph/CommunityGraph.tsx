@@ -86,7 +86,6 @@ export default function CommunityGraph() {
     }
     return linkStrategy.getColor(link);
   };
-  // SciManDan BiancaTuretsky
   const getLinkWidth = (link: GraphLink): number => {
     if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
       return 4;

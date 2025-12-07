@@ -118,8 +118,7 @@ export default function FiltersContent() {
     });
   };
 
-  const mainScrollbarClass =
-    '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#7140F4] cursor-pointer';
+  const mainScrollbarClass = '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]';
 
   return (
     <div className="relative h-full flex flex-col text-[#FAFAFA] px-3 pt-3">
