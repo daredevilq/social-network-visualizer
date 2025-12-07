@@ -125,7 +125,11 @@ export default function FiltersContent() {
     <div className="relative h-full flex flex-col text-[#FAFAFA] px-3 pt-3">
       <div className="flex items-center border-b border-white/20 pb-2 mb-3 shrink-0">
         <h1 className="text-xl font-bold mr-2">Graph Filters</h1>
-        <PopoverIcon message={`Filter your graph data.\n\n**Note:** Disabled in workspace mode.`} scale={1.4} position="bottom" />
+        <PopoverIcon
+          message={`Filter your graph by node and relation types to focus on the most relevant data for your analysis.\n\n**Note:** In workspace mode, filters cannot be applied because the graph always all relation types and workspace's nodes.`}
+          scale={1.4}
+          position="bottom"
+        />
       </div>
 
       <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto space-y-3 pr-1 ${mainScrollbarClass}`}>

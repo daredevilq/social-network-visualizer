@@ -7,18 +7,23 @@ import { MetricConfig } from '@/types/GraphTypes';
 import { FetchStrategy, GraphQueryRequest } from '@/types/GraphQueryRequest';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
+import { useWorkspace } from '@/app/context/WorkspaceContext';
 
 export function useCommunityGraphNavigation() {
   const router = useRouter();
   const { showNotification } = useNotification();
   const { setFocusedCommunityId, setSelectedGraphType, fetchGraphData, loadedProjectName, setSelectedNodeTypes, setSelectedRelationTypes } =
     useProject();
+  const { setIsInWorkspaceMode, setOpenedWorkspaceName } = useWorkspace();
 
   const openCommunityGraph = async (communityId: number) => {
     if (!loadedProjectName) {
       showNotification('No project loaded. Please select a project first.', BannerType.WARNING);
       return;
     }
+
+    setIsInWorkspaceMode(false);
+    setOpenedWorkspaceName(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/community/${loadedProjectName}/metric-config`);

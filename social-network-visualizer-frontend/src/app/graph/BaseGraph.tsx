@@ -25,7 +25,7 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
   const MIN_CURVATURE = 0.4;
   const MAX_CURVATURE = 1.0;
 
-  const { graphData, nodeVal, nodeLabel, nodeColor, linkColor, linkWidth, linkLabel, nodeFound } = props;
+  const { graphData, nodeVal, nodeLabel, nodeColor, nodeBorderColor, linkColor, linkWidth, linkLabel, nodeFound } = props;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgInstance = useRef<ForceGraphInstance<GraphNode, GraphLink> | null>(null);
@@ -151,10 +151,29 @@ const BaseGraph = forwardRef((props: GraphProps, ref) => {
         ctx.fillStyle = baseColor;
         ctx.fill();
 
+        ctx.restore();
+        const borderColor = nodeBorderColor?.(node);
+
         if (isSelected) {
+          ctx.save();
+          ctx.shadowColor = 'white';
+          ctx.shadowBlur = 10;
+
           ctx.lineWidth = 2 / globalScale;
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = 'white';
+
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius + 1 / globalScale, 0, 2 * Math.PI, false);
           ctx.stroke();
+
+          ctx.restore();
+        } else if (borderColor) {
+          ctx.save();
+          ctx.shadowColor = borderColor;
+          ctx.shadowBlur = 10;
+
+          ctx.lineWidth = 2 / globalScale;
+          ctx.strokeStyle = borderColor;
 
           ctx.beginPath();
           ctx.arc(node.x, node.y, radius + 4 / globalScale, 0, 2 * Math.PI, false);

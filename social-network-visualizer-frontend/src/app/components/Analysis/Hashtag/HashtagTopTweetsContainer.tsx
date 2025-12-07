@@ -1,6 +1,6 @@
 import { Hash, Heart, MessageCircle, Repeat, Zap } from 'lucide-react';
 import { ViralTweet } from '@/types/tweetTypes';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/app/components/Popups/Tooltip';
 
 interface HashtagTopTweetsContainerProps {
   tweets: ViralTweet[] | undefined;

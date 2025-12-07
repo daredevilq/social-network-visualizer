@@ -4,9 +4,13 @@ import com.example.social_network_visualizer_backend.dto.NodeSearchDto;
 import com.example.social_network_visualizer_backend.dto.graph.GraphDataDto;
 import com.example.social_network_visualizer_backend.dto.graph.LinkDto;
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto;
+import com.example.social_network_visualizer_backend.dto.request.BridgesRequest;
 import com.example.social_network_visualizer_backend.dto.request.FetchConfig;
 import com.example.social_network_visualizer_backend.dto.request.GraphQueryRequest;
+import com.example.social_network_visualizer_backend.dto.request.ShortestPathRequest;
+import com.example.social_network_visualizer_backend.enums.AlgorithmType;
 import com.example.social_network_visualizer_backend.enums.NodeType;
+import com.example.social_network_visualizer_backend.enums.Orientation;
 import com.example.social_network_visualizer_backend.enums.RelationType;
 import com.example.social_network_visualizer_backend.repository.AuthorRepository;
 import com.example.social_network_visualizer_backend.repository.GraphRepository;
@@ -25,6 +29,7 @@ public class GraphService {
   private final GraphRepository graphRepository;
   private final AuthorRepository authorRepository;
   private final List<NodeQueryStrategy> nodeQueryStrategies;
+  private final MetricComputationService metricComputationService;
 
   public GraphDataDto getGraph(GraphQueryRequest request) {
     GraphQueryRequest finalRequest = validateRequest(request);
@@ -127,5 +132,43 @@ public class GraphService {
 
   public List<NodeSearchDto> getSuggestions(String query) {
     return graphRepository.performSearch(query);
+  }
+
+  public List<NodeDto> getShortestPath(ShortestPathRequest request) {
+    Set<RelationType> relationTypes =
+        request.relationTypes().isEmpty()
+            ? new HashSet<>(Arrays.asList(RelationType.values()))
+            : request.relationTypes();
+    Set<NodeType> nodeTypes =
+        request.nodeTypes().isEmpty()
+            ? new HashSet<>(Arrays.asList(NodeType.values()))
+            : request.nodeTypes();
+
+    String graphName = "shortest-path";
+
+    return metricComputationService.computeShortestPath(
+        graphName,
+        AlgorithmType.SHORTEST_PATH,
+        nodeTypes,
+        relationTypes,
+        Orientation.NATURAL,
+        request.source(),
+        request.target());
+  }
+
+  public List<LinkDto> getBridges(BridgesRequest request) {
+    Set<RelationType> relationTypes =
+        request.relationTypes().isEmpty()
+            ? new HashSet<>(Arrays.asList(RelationType.values()))
+            : request.relationTypes();
+    Set<NodeType> nodeTypes =
+        request.nodeTypes().isEmpty()
+            ? new HashSet<>(Arrays.asList(NodeType.values()))
+            : request.nodeTypes();
+
+    String graphName = "bridges";
+
+    return metricComputationService.computeFindBridges(
+        graphName, AlgorithmType.BRIDGES, nodeTypes, relationTypes, Orientation.UNDIRECTED);
   }
 }

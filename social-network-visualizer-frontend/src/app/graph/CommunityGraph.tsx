@@ -12,14 +12,14 @@ import { useGraph } from '@/app/context/GraphContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
+import { isLinkBridge, isLinkInPath } from '@/app/utils/GraphUtils';
 
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
 export default function CommunityGraph() {
-  const { loadedProjectName, nodeFound, shortestPath, runWithLoading } = useProject();
-  const { graphData } = useGraph();
+  const { loadedProjectName, nodeFound, runWithLoading } = useProject();
+  const { graphData, shortestPath, graphBridges } = useGraph();
   const { showNotification } = useNotification();
-
   const [filteredGraphData, setFilteredGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({
     nodes: [],
     links: [],
@@ -77,18 +77,19 @@ export default function CommunityGraph() {
   };
 
   const getLinkColor = (link: GraphLink): string => {
-    if (Array.isArray(shortestPath) && shortestPath.includes(link.source) && shortestPath.includes(link.target)) {
-      return Colors.RedColor();
-    }
     if (metricConfig?.relationTypes?.includes(link.relation)) {
       return Colors.GoldColor();
     }
+
+    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
+      return Colors.PurpleColor();
+    }
     return linkStrategy.getColor(link);
   };
-
+  // SciManDan BiancaTuretsky
   const getLinkWidth = (link: GraphLink): number => {
-    if (Array.isArray(shortestPath) && shortestPath.includes(link.source) && shortestPath.includes(link.target)) {
-      return 6;
+    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
+      return 4;
     }
     return linkStrategy.getWidth(link);
   };
@@ -118,6 +119,12 @@ export default function CommunityGraph() {
       nodeVal={(node: GraphNode) => Math.min((nodeStrategy.getRadius(node) * nodeStrategy.getRadius(node)) / 12, 200)}
       nodeLabel={(node: GraphNode) => `${node.name} in Community: ${node.community}`}
       nodeColor={getNodeColor}
+      nodeBorderColor={(node) => {
+        if (shortestPath.some((n) => n.id === node.id)) {
+          return Colors.WhiteColor();
+        }
+        return null;
+      }}
       linkColor={getLinkColor}
       linkWidth={getLinkWidth}
       linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
