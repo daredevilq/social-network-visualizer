@@ -144,11 +144,6 @@ const TweetAnalysisContainer = ({ userName }: TweetAnalysisContainerProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <TweetList tweets={tweets} hasMore={hasMore} inViewRef={inViewRef} />
-        {loading && hasMore && (
-          <div className="flex justify-center py-8">
-            <div className="w-8 h-8 border-2 border-[#7140F4] border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
         {!loading && tweets.length === 0 && <div className="text-center py-12 text-gray-400">No tweets found matching your criteria.</div>}
       </div>
     </div>

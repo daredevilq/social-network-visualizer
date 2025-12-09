@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ArrowUp, UserSearch, MessageSquare } from 'lucide-react';
+import { ArrowUp, UserSearch, MessageSquare } from 'lucide-react';
 import { TweetAnalysisContainerProps } from '@/types/tweetTypes';
 import TweetAnalysisContainer from './TweetAnalysisContainer';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
   const router = useRouter();
@@ -33,9 +33,11 @@ const TweetAnalysisList = ({ userName }: TweetAnalysisContainerProps) => {
         <div className="flex flex-col md:flex-row w-full mb-8 items-start md:items-center justify-between gap-4">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-[#9494A8] hover:text-white transition-colors cursor-pointer text-sm font-medium group"
+            className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors hover:cursor-pointer"
           >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
             Back to Graph
           </button>
 

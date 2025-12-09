@@ -17,7 +17,7 @@ export function TopMentionsContainer({ mentions }: TopMentionsProps) {
     <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg flex flex-col h-full">
       <div className="flex items-center mb-6 border-b border-white/10 pb-4">
         <Users className="w-5 h-5 mr-2 text-[#7140F4]" />
-        <h2 className="text-xl font-bold text-white">Top Mentions</h2>
+        <h2 className="text-xl font-bold text-white">Top Mentions in Tweets</h2>
       </div>
 
       {mentions && mentions.length > 0 ? (
