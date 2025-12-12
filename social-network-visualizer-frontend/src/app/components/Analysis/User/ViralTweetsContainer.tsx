@@ -1,110 +1,85 @@
 import Link from 'next/link';
 import { ViralTweet } from '@/types/tweetTypes';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, MessageCircle, Heart, Repeat2, Zap } from 'lucide-react';
 
 export function ViralTweetsContainer({ viralTweets }: { viralTweets: ViralTweet[] }) {
   return (
-    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg lg:col-span-2">
-      <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
-        <TrendingUp className="w-5 h-5 mr-2" />
-        Most Viral Tweets
-      </h2>
+    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg lg:col-span-2 flex flex-col h-full">
+      <div className="flex items-center mb-6 border-b border-white/10 pb-4">
+        <TrendingUp className="w-5 h-5 mr-2 text-[#7140F4]" />
+        <h2 className="text-xl font-bold text-white">Most Viral Tweets</h2>
+      </div>
 
       {viralTweets && viralTweets.length > 0 ? (
         <div className="space-y-4">
           {viralTweets.map((tweet) => (
             <div
               key={tweet.tweetId}
-              className="bg-[#3D3D4E] rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#45455A] hover:translate-y-[-2px] cursor-pointer group"
+              onClick={() => window.open(tweet.tweetUrl, '_blank', 'noopener,noreferrer')}
+              className="group flex flex-col gap-3 p-5 rounded-xl
+                         bg-[#3D3D4E] border border-white/5
+                         hover:border-[#7140F4]/50 hover:bg-[#2a2a35]
+                         transition-all duration-200 cursor-pointer"
             >
-              <div className="p-5" onClick={() => window.open(tweet.tweetUrl, '_blank', 'noopener,noreferrer')}>
-                <div className="flex items-center mb-3">
-                  <Link
-                    href={`/user-details/${tweet.userName}`}
-                    className="flex items-center group/avatar-nick"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#7140F4] flex items-center justify-center text-white font-semibold text-sm">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Link href={`/user-details/${tweet.userName}`} onClick={(e) => e.stopPropagation()} className="relative z-10">
+                    <div className="w-10 h-10 rounded-full bg-[#7140F4] flex items-center justify-center text-white font-bold text-sm">
                       {tweet.userName.substring(0, 1).toUpperCase()}
                     </div>
-                    <div className="ml-3 text-left">
-                      <div className="font-semibold text-white hover:underline">{tweet.userName}</div>
-                      <div className="text-xs text-gray-400">@{tweet.userName.toLowerCase()}</div>
-                    </div>
                   </Link>
-                </div>
 
-                <p className="text-sm leading-relaxed text-gray-100 mb-3">{tweet.preview}</p>
+                  <div className="flex flex-col">
+                    <Link
+                      href={`/user-details/${tweet.userName}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-bold text-white text-sm hover:text-[#7140F4] transition-colors relative z-10"
+                    >
+                      {tweet.userName}
+                    </Link>
+                    <span className="text-xs text-gray-400">@{tweet.userName.toLowerCase()}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#7140F4] to-[#9F7AEA] shadow-sm">
+                  <Zap className="w-3 h-3 text-white fill-white" />
+                  <span className="text-xs font-bold text-white tracking-wide">{(tweet.engagementScore / 1000).toFixed(1)}K</span>
+                </div>
               </div>
-
-              <div className="flex items-center justify-between p-4 bg-[#36364A] border-t border-[#4D4D6A]">
-                <div className="flex items-center space-x-6">
-                  <div className="flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-[#8A5CF9] transition-colors">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                    </svg>
-                    <span className="font-medium">{tweet.likes.toLocaleString()}</span>
+              <p className="text-sm leading-relaxed text-gray-200 pl-[52px]">{tweet.preview}</p>
+              <div className="flex items-center gap-6 pl-[52px] mt-2 pt-3 border-t border-white/5">
+                <div className="flex items-center gap-1.5 group/stat">
+                  <div className="p-1.5 rounded-full bg-rose-500/10 group-hover/stat:bg-rose-500/20 transition-colors">
+                    <Heart className="w-3.5 h-3.5 text-rose-500 transition-colors" />
                   </div>
-
-                  <div className="flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-[#8A5CF9] transition-colors">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    <span className="font-medium">{tweet.replies.toLocaleString()}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-sm text-gray-300 group-hover:text-[#8A5CF9] transition-colors">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="17 1 21 5 17 9"></polyline>
-                      <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                      <polyline points="7 23 3 19 7 15"></polyline>
-                      <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-                    </svg>
-                    <span className="font-medium">{tweet.retweets.toLocaleString()}</span>
-                  </div>
+                  <span className="text-xs font-bold text-gray-300 group-hover/stat:text-white transition-colors">
+                    {tweet.likes.toLocaleString()}
+                  </span>
                 </div>
-
-                <div className="flex items-center">
-                  <div className="px-3 py-1.5 bg-[#7140F4] rounded-full text-xs font-medium text-white">
-                    Score: {(tweet.engagementScore / 1000).toFixed(1)}K
+                <div className="flex items-center gap-1.5 group/stat">
+                  <div className="p-1.5 rounded-full bg-sky-500/10 group-hover/stat:bg-sky-500/20 transition-colors">
+                    <MessageCircle className="w-3.5 h-3.5 text-sky-500 transition-colors" />
                   </div>
+                  <span className="text-xs font-bold text-gray-300 group-hover/stat:text-white transition-colors">
+                    {tweet.replies.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 group/stat">
+                  <div className="p-1.5 rounded-full bg-emerald-500/10 group-hover/stat:bg-emerald-500/20 transition-colors">
+                    <Repeat2 className="w-3.5 h-3.5 text-emerald-500 transition-colors" />
+                  </div>
+                  <span className="text-xs font-bold text-gray-300 group-hover/stat:text-white transition-colors">
+                    {tweet.retweets.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-400">No viral tweets available.</p>
+        <div className="flex flex-col items-center justify-center h-full text-gray-400 py-8">
+          <TrendingUp className="w-8 h-8 mb-3 opacity-20" />
+          <p className="text-sm">No viral tweets available.</p>
+        </div>
       )}
     </div>
   );

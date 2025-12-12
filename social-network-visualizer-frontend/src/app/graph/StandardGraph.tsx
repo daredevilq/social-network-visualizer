@@ -52,8 +52,6 @@ export default function StandardGraph() {
           return linkStrategy.getWidth(link);
         }}
         linkLabel={(link: GraphLink) => `${link.relation}: ${link.weight}`}
-        linkDirectionalArrowLength={8}
-        linkDirectionalArrowRelPos={1}
         nodeFound={nodeFound}
       />
     </div>

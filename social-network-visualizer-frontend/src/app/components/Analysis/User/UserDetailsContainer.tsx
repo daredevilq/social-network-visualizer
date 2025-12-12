@@ -1,10 +1,9 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import { ViralTweet } from '@/types/tweetTypes';
-import { NodeType } from '@/types/GraphTypes';
 import { UsersMentionedContainer } from '@/app/components/Analysis/User/UsersMentionedContainer';
 import { ViralTweetsContainer } from '@/app/components/Analysis/User/ViralTweetsContainer';
 import { UserProfileContainer } from '@/app/components/Analysis/User/UserProfileContainer';
@@ -63,65 +62,27 @@ export default function UserDetailsContainer({ username }: { username: string })
   const [loading, setLoading] = useState<boolean>(true);
   const { showNotification } = useNotification();
 
-  useEffect(() => {
-    if (!username) {
-      router.push('/');
-      return;
-    }
-    fetchData();
-  }, [username, router]);
-
-  useEffect(() => {
-    if (!username) {
-      router.push('/');
-      return;
-    }
-
-    fetchData();
-  }, [username, router]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
-    const endpointNames = [
-      'UserData',
-      'Activity',
-      'Mentions',
-      'Hashtags',
-      'RetweetsBy',
-      'RetweetsOf',
-      'ViralTweets',
-      'CommonWords',
-      'HeatMap',
+
+    const apiRequests = [
+      { key: 'userData', url: `${API_BASE_URL}/author/${username}` },
+      { key: 'userActivity', url: `${API_BASE_URL}/author/activity/${username}` },
+      { key: 'userMentions', url: `${API_BASE_URL}/author/mentions/${username}` },
+      { key: 'topHashtags', url: `${API_BASE_URL}/author/hashtags/${username}` },
+      { key: 'retweetedUsers', url: `${API_BASE_URL}/author/retweets-by/${username}` },
+      { key: 'retweetingUsers', url: `${API_BASE_URL}/author/retweets-of/${username}` },
+      { key: 'viralTweets', url: `${API_BASE_URL}/author/viral-tweets/${username}` },
+      { key: 'mostCommonWords', url: `${API_BASE_URL}/author/most-common-words/${username}` },
+      { key: 'userHeatMap', url: `${API_BASE_URL}/author/heatmap/${username}` },
     ];
 
-    const endpoints = {
-      userData: `${API_BASE_URL}/author/${username}`,
-      userActivity: `${API_BASE_URL}/author/activity/${username}`,
-      userMentions: `${API_BASE_URL}/author/mentions/${username}`,
-      topHashtags: `${API_BASE_URL}/author/hashtags/${username}`,
-      retweetedUsers: `${API_BASE_URL}/author/retweets-by/${username}`,
-      retweetingUsers: `${API_BASE_URL}/author/retweets-of/${username}`,
-      viralTweets: `${API_BASE_URL}/author/viral-tweets/${username}`,
-      mostCommonWords: `${API_BASE_URL}/author/most-common-words/${username}`,
-      userHeatMap: `${API_BASE_URL}/author/heatmap/${username}`,
-    };
-
     try {
-      const results = await Promise.allSettled([
-        fetch(endpoints.userData),
-        fetch(endpoints.userActivity),
-        fetch(endpoints.userMentions),
-        fetch(endpoints.topHashtags),
-        fetch(endpoints.retweetedUsers),
-        fetch(endpoints.retweetingUsers),
-        fetch(endpoints.viralTweets),
-        fetch(endpoints.mostCommonWords),
-        fetch(endpoints.userHeatMap),
-      ]);
+      const results = await Promise.allSettled(apiRequests.map((req) => fetch(req.url)));
 
       const responses = await Promise.all(
         results.map(async (result, index) => {
-          const currentEndpointName = endpointNames[index];
+          const currentEndpointName = apiRequests[index];
 
           if (result.status === 'fulfilled' && result.value.ok) {
             try {
@@ -132,9 +93,9 @@ export default function UserDetailsContainer({ username }: { username: string })
             }
           }
           if (result.status === 'rejected') {
-            console.error(`Fetch failed for endpoint: ${currentEndpointName}`, result.reason);
+            console.error(`Fetch failed for endpoint: ${currentEndpointName.key}`, result.reason);
           } else if (result.status === 'fulfilled' && !result.value.ok) {
-            console.error(`Fetch error status: ${result.value.status} for endpoint: ${currentEndpointName}`);
+            console.error(`Fetch error status: ${result.value.status} for endpoint: ${currentEndpointName.key}`);
           }
           return null;
         })
@@ -157,7 +118,16 @@ export default function UserDetailsContainer({ username }: { username: string })
     } finally {
       setLoading(false);
     }
-  };
+  }, [username]);
+
+  useEffect(() => {
+    if (!username) {
+      router.push('/');
+      return;
+    }
+
+    fetchData();
+  }, [username, router, fetchData]);
 
   const chartData = {
     labels: data.userActivity ? Object.keys(data.userActivity) : [],
@@ -221,12 +191,19 @@ export default function UserDetailsContainer({ username }: { username: string })
             <UserProfileContainer userData={data.userData} />
             <ActivityTimelineContainer userActivity={data.userActivity} chartData={chartData} />
             <HeatMapChartCard heat={data.userHeatMap} />
-            <TopHashtagsContainer topHashtags={data.topHashtags} />
-            <UsersMentionedContainer userMentions={data.userMentions} message={'Users Mentioned by this User'} />
-            <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
-            <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
-            <HashtagActivityContainer topHashtags={data.topHashtags} />
             <UserMostCommonWordsContainer words={data.mostCommonWords} />
+            <TopHashtagsContainer topHashtags={data.topHashtags} />
+            <UsersMentionedContainer userMentions={data.userMentions} />
+
+            <div className="lg:col-span-2 w-full">
+              <RetweetsByContainer retweetedUsers={data.retweetedUsers} />
+            </div>
+
+            <div className="lg:col-span-2 w-full">
+              <RetweetsOfContainer retweetingUsers={data.retweetingUsers} />
+            </div>
+
+            <HashtagActivityContainer topHashtags={data.topHashtags} />
             <ViralTweetsContainer viralTweets={data.viralTweets} />
           </div>
         )}

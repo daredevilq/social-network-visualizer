@@ -1,4 +1,4 @@
-import { GraphNode, GraphLink } from '@/types/GraphTypes';
+import { GraphNode } from '@/types/GraphTypes';
 
 export const isLinkInPath = (link: any, shortestPath: GraphNode[]) => {
   const pathIds = shortestPath.map((n) => n.id);

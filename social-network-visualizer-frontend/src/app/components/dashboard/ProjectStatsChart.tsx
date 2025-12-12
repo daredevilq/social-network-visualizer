@@ -1,5 +1,5 @@
 import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { PieChart } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -17,56 +17,68 @@ interface Props {
 export function ProjectStatsChart({ projectData }: Props) {
   if (!projectData) {
     return (
-      <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
-        <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
-          <PieChart className="w-5 h-5 mr-2" />
-          Project Overview
-        </h2>
-        <p className="text-gray-400">No project data available.</p>
+      <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg flex flex-col h-full">
+        <div className="flex items-center mb-6 border-b border-white/10 pb-4">
+          <PieChart className="w-5 h-5 mr-2 text-[#7140F4]" />
+          <h2 className="text-xl font-bold text-white">Project Overview</h2>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-400">
+          <p className="text-sm">No project data available.</p>
+        </div>
       </div>
     );
   }
 
   const data = {
-    labels: ['Tweets', 'Users', 'Hashtags'],
+    labels: ['Tweets', 'Authors', 'Hashtags'],
     datasets: [
       {
         data: [projectData.tweetsCount, projectData.usersCount, projectData.hashtagsCount],
-        backgroundColor: ['rgba(127, 90, 255, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(233, 30, 99, 0.8)'],
-        borderColor: ['rgba(127, 90, 255, 1)', 'rgba(33, 150, 243, 1)', 'rgba(233, 30, 99, 1)'],
-        borderWidth: 2,
+        backgroundColor: ['rgba(113, 64, 244, 0.9)', 'rgba(59, 130, 246, 0.9)', 'rgba(20, 184, 166, 0.9)'],
+        borderColor: '#2A2D3D',
+        borderWidth: 4,
+        hoverOffset: 4,
       },
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'pie'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
+        position: 'bottom',
         labels: {
-          color: 'rgba(255, 255, 255, 0.9)',
+          color: '#E2E2E5',
+          usePointStyle: true,
+          padding: 20,
           font: {
-            size: 14,
+            size: 12,
+            family: "'Inter', sans-serif",
           },
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(50, 50, 63, 0.9)',
-        titleColor: 'rgba(255, 255, 255, 0.9)',
-        bodyColor: 'rgba(255, 255, 255, 0.9)',
-        borderColor: 'rgba(92, 55, 230, 0.5)',
+        backgroundColor: '#151521',
+        titleColor: '#FFFFFF',
+        bodyColor: '#E2E2E5',
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: true,
+        borderColor: 'rgba(255,255,255,0.05)',
         borderWidth: 1,
       },
     },
   };
 
   return (
-    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg">
-      <h2 className="text-2xl font-semibold mb-6 border-b border-gray-600 pb-2 flex items-center">
-        <PieChart className="w-5 h-5 mr-2" />
-        Project Overview
-      </h2>
-      <div className="h-80">
+    <div className="bg-[#2A2D3D] rounded-xl p-6 shadow-lg flex flex-col h-full">
+      <div className="flex items-center mb-6 border-b border-white/10 pb-4">
+        <PieChart className="w-5 h-5 mr-2 text-[#7140F4]" />
+        <h2 className="text-xl font-bold text-white">Project Overview</h2>
+      </div>
+
+      <div className="flex-1 min-h-[300px] relative">
         <Pie data={data} options={options} />
       </div>
     </div>

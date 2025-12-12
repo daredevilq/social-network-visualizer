@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { User2, X } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { User2, X, MessageCircle, ChevronDown } from 'lucide-react';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
@@ -20,6 +20,10 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
   const { selectedUserData, onClose } = props;
   const [tweet, setTweet] = useState<TweetDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const { showNotification } = useNotification();
   const { setSelectedUserData, projectData } = useProject();
   const { runWithUnsavedCheck } = useWorkspace();
@@ -28,6 +32,34 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
   useEffect(() => {
     if (selectedUserData?.id) fetchTweetData();
   }, [selectedUserData]);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      const el = scrollContainerRef.current;
+      if (!el) return;
+
+      const isScrollable = el.scrollHeight > el.clientHeight;
+      const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 10;
+
+      setShowScrollHint(isScrollable && !isAtBottom);
+    };
+
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll);
+      checkScroll();
+      window.addEventListener('resize', checkScroll);
+    }
+
+    if (tweet) {
+      setTimeout(checkScroll, 100);
+    }
+
+    return () => {
+      if (el) el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [tweet]);
 
   const fetchTweetData = async () => {
     setLoading(true);
@@ -62,12 +94,18 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
     });
   };
 
+  const scrollbarClass = `
+  [-ms-overflow-style:none] /* IE i Edge */
+  [scrollbar-width:none] /* Firefox */
+  [&::-webkit-scrollbar]:hidden /* Chrome, Safari i Opera */
+`;
+
   return (
-    <div className="p-5 h-full flex flex-col text-white">
-      <div className="flex items-center justify-between border-b border-[#3D3D4E] pb-3 mb-4">
+    <div className="p-5 h-full flex flex-col text-white relative">
+      <div className="flex items-center justify-between border-b border-[#3D3D4E] pb-3 mb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#40A0F4] to-[#6FC1FF] flex items-center justify-center text-lg font-semibold">
-            T
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7140F4] to-[#9b6dff] flex items-center justify-center text-white shadow-lg shadow-purple-900/20">
+            <MessageCircle size={20} />
           </div>
           <div>
             <h1 className="text-xl font-bold">Tweet Details</h1>
@@ -76,7 +114,7 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
         </div>
         <button
           onClick={onClose}
-          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-white rounded-full shadow-md transition-colors duration-200"
+          className="p-2 bg-[#2A2D3D] hover:bg-[#3D3D4E] text-gray-400 hover:text-white rounded-full transition-colors duration-200 cursor-pointer"
           aria-label="Close sidebar"
         >
           <X size={18} />
@@ -86,89 +124,122 @@ export const TweetSidebarContent = (props: TweetSidebarContentProps) => {
       {loading ? (
         <div className="h-40 bg-[#3D3D4E] rounded-lg animate-pulse" />
       ) : tweet ? (
-        <div className="flex flex-col space-y-4 overflow-y-auto  scrollbar-none">
-          <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
-            <h3 className="text-lg font-semibold mb-3">Author</h3>
+        <>
+          <div ref={scrollContainerRef} className={`flex flex-col space-y-5 overflow-y-auto ${scrollbarClass} pr-1 pb-6`}>
+            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+              <h3 className="text-sm font-semibold mb-3 text-gray-300 uppercase tracking-wide">Author</h3>
 
-            <div
-              onClick={() => goToAuthor()}
-              className="flex items-center justify-between bg-[#3D3D4E] hover:bg-[#4D4D5E]
-                 px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200
-                 cursor-pointer hover:shadow-md hover:scale-[1.01]"
-            >
-              <div className="flex items-center gap-3 truncate">
-                <div
-                  className="flex items-center justify-center w-8 h-8 rounded-full
-                        bg-gradient-to-r from-[#7140F4] to-[#40A0F4] text-white shadow-md"
-                >
-                  <User2 size={18} />
-                </div>
-                <div className="flex flex-col">
-                  <span className="truncate font-medium text-gray-200">{tweet.authorName}</span>
-                  {tweet.authorName && <span className="text-xs text-gray-400">@{tweet.authorName}</span>}
-                </div>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  runWithUnsavedCheck(async () => goToAuthor());
-                }}
-                className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md
-                   transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+              <div
+                onClick={() => goToAuthor()}
+                className="flex items-center justify-between bg-[#3D3D4E] hover:bg-[#4D4D5E]
+                 px-4 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200
+                 cursor-pointer hover:shadow-md hover:scale-[1.01] group"
               >
-                View Profile
-              </button>
-            </div>
-          </div>
-
-          <TweetCard tweet={tweet} hoverable={false} />
-
-          {tweet.mentions && tweet.mentions.length > 0 && (
-            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
-              <h3 className="text-lg font-semibold mb-3">Mentioned Users</h3>
-              <div className="flex flex-col space-y-2">
-                {tweet.mentions.map((user, i) => (
+                <div className="flex items-center gap-3 truncate">
                   <div
-                    key={user}
-                    onClick={() => router.push(`/user-details/${user}`)}
-                    className="flex items-center justify-between bg-[#3D3D4E] hover:bg-[#4D4D5E] px-5 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200 cursor-pointer hover:shadow-md hover:scale-[1.01]"
+                    className="flex items-center justify-center w-8 h-8 rounded-full
+                        bg-[#7140F4] text-white shadow-md group-hover:bg-[#8b61ff] transition-colors"
                   >
-                    <div className="flex items-center gap-3 truncate">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md">
-                        <User2 size={18} />
-                      </div>
-                      <span className="truncate font-medium text-gray-200">{user}</span>
-                    </div>
+                    <User2 size={16} />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tweet.replyToId && (
-            <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
-              <div className="flex items-center justify-between mb-1">
-                <div>
-                  <h3 className="text-lg font-semibold">Reply To</h3>
-                  <p className="text-sm text-gray-300 mb-2">Tweet ID: {tweet.replyToId}</p>
+                  <div className="flex flex-col">
+                    <span className="truncate font-medium text-gray-200">{tweet.authorName}</span>
+                    {tweet.authorName && <span className="text-xs text-gray-400">@{tweet.authorName}</span>}
+                  </div>
                 </div>
 
                 <button
-                  onClick={() => goToParentTweet(tweet.replyToId!)}
-                  className="px-3 py-1 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md
-                   transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    runWithUnsavedCheck(async () => goToAuthor());
+                  }}
+                  className="px-3 py-1.5 text-xs bg-[#7140F4] hover:bg-[#5c32c3] text-white rounded-md
+                   transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer font-medium"
                 >
-                  View Parent Tweet
+                  Profile
                 </button>
               </div>
+            </div>
 
-              {tweet.replyToContent && (
-                <p className="text-sm italic text-gray-400 border-l-2 border-[#40A0F4] pl-3">“{tweet.replyToContent.slice(0, 100)}...”</p>
-              )}
+            {tweet.mentions && tweet.mentions.length > 0 && (
+              <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md">
+                <h3 className="text-sm font-semibold mb-3 text-gray-300 uppercase tracking-wide">Mentioned Users</h3>
+                <div className="flex flex-col space-y-2">
+                  {tweet.mentions.map((user, i) => (
+                    <div
+                      key={user}
+                      onClick={() => router.push(`/user-details/${user}`)}
+                      className="flex items-center justify-between bg-[#3D3D4E] hover:bg-[#4D4D5E]
+                       px-4 py-3 rounded-xl text-sm text-gray-100 transition-all duration-200
+                       cursor-pointer hover:shadow-md hover:scale-[1.01] group"
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <div
+                          className="flex items-center justify-center w-8 h-8 rounded-full
+                            bg-[#7140F4] text-white shadow-md group-hover:bg-[#8b61ff] transition-colors"
+                        >
+                          <User2 size={16} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="truncate font-medium text-gray-200">{user}</span>
+                          <span className="text-xs text-gray-400">@{user}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <h3 className="text-sm font-semibold mb-2 text-gray-300 uppercase tracking-wide px-1">Content</h3>
+              <TweetCard tweet={tweet} hoverable={false} />
+            </div>
+
+            {tweet.replyToId && (
+              <div className="mt-2">
+                <div className="flex items-center gap-2 mb-2 px-1">
+                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">In Reply To</h3>
+                </div>
+
+                <div className="bg-[#2A2D3D] rounded-xl p-4 border border-[#3D3D4E]/50 shadow-md flex flex-col gap-3 relative group">
+                  <div className="text-sm text-gray-200 leading-relaxed break-words">
+                    {tweet.replyToContent ? (
+                      <>
+                        <span className="text-gray-400 text-xs block mb-1">Replying to parent tweet:</span>
+                        {tweet.replyToContent}
+                      </>
+                    ) : (
+                      <span className="italic text-gray-500">Content unavailable...</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-[#3D3D4E]/50 mt-1">
+                    <span className="text-[10px] text-gray-500 font-mono truncate max-w-[120px] opacity-70 group-hover:opacity-100 transition-opacity">
+                      ID: {tweet.replyToId}
+                    </span>
+
+                    <button
+                      onClick={() => goToParentTweet(tweet.replyToId!)}
+                      className="px-3 py-1.5 text-xs bg-transparent border border-[#7140F4]/50 text-[#7140F4] hover:bg-[#7140F4] hover:text-white rounded-md
+          transition-all duration-300 cursor-pointer font-medium shadow-sm hover:shadow-[#7140F4]/20"
+                    >
+                      View Parent
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {showScrollHint && (
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none z-10">
+              <div className="bg-[#2A2D3D]/90 p-1.5 rounded-full shadow-lg border border-[#3D3D4E] animate-bounce">
+                <ChevronDown className="w-5 h-5 text-[#7140F4]" />
+              </div>
             </div>
           )}
-        </div>
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center h-48 text-center bg-[#3D3D4E]/30 rounded-lg border border-dashed border-[#3D3D4E]">
           <p className="text-gray-400 italic mb-1">No tweet data available</p>

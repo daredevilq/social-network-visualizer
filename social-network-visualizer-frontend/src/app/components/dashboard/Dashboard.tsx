@@ -99,8 +99,8 @@ const Dashboard = () => {
           <div className="h-96 bg-gray-700 rounded-md animate-pulse"></div>
         </div>
       ) : (
-        <div className="w-full min-h-screen bg-[#262631] text-white p-10">
-          <div className="mx-auto">
+        <div className="w-full min-h-screen text-white p-10">
+          <div className="mx-auto w-full max-w-[1600px] transition-all duration-300 ease-in-out">
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={() => router.push('/')}
@@ -141,11 +141,16 @@ const Dashboard = () => {
               <TopAuthorsContainer authors={topAuthors} />
               <TopMentionsContainer mentions={topMentions} />
 
-              <ActivityChartCard activity={projectActivity} />
-              <HashtagActivityContainer topHashtags={topHashtags.slice(0, 10)} />
+              <div className="lg:col-span-2 xl:col-span-4">
+                <HeatMapChartCard heat={heatMap} />
+              </div>
 
-              <HeatMapChartCard heat={heatMap} />
-              <HashtagActivityChartContainer data={topHashtags} />
+              <ActivityChartCard activity={projectActivity} />
+              <HashtagActivityContainer topHashtags={topHashtags} />
+
+              <div className="lg:col-span-2 xl:col-span-4">
+                <HashtagActivityChartContainer data={topHashtags} />
+              </div>
 
               <div className="lg:col-span-2 xl:col-span-4">
                 <ViralTweetsContainer viralTweets={viralTweets} />

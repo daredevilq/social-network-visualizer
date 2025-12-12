@@ -6,7 +6,7 @@ import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import AdvancedConfigModal from '@/app/components/Popups/AdvancedConfigModal';
 import { useDefaultMetricsConfig } from '@/app/hooks/useDefaultMetricsConfig';
 import { ProjectConfig } from '@/types/GraphTypes';
-import { Settings } from 'lucide-react';
+import { Settings, UploadCloud, FileJson, Trash2 } from 'lucide-react';
 import PopoverIcon from '@/app/components/Popups/PopoverIcon';
 import { useNotification } from '@/app/context/NotificationProvider';
 import { BannerType } from '@/app/components/Popups/Banner';
@@ -28,12 +28,16 @@ export default function ProjectUploadModal({
   onFilesChange,
   onSuccess,
 }: ProjectUploadModalProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null!);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [projectName, setProjectName] = useState<string>(defaultName);
+
   const [isNameError, setIsNameError] = useState(false);
   const [isFileError, setIsFileError] = useState(false);
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [fileErrorMessage, setFileErrorMessage] = useState('');
+
+  const [isDragging, setIsDragging] = useState(false);
+
   const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
   const [config, setConfig] = useState<ProjectConfig | null>(null);
   const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
@@ -48,6 +52,7 @@ export default function ProjectUploadModal({
       setFileErrorMessage('');
       setConfig(null);
       setShowAdvancedConfig(false);
+      setIsDragging(false);
     }
   }, [open]);
 
@@ -58,24 +63,50 @@ export default function ProjectUploadModal({
   }, [defaultMetrics, config]);
 
   const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      onFilesChange([...pendingFiles, ...filesArray]);
-      e.target.value = '';
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(Array.from(e.target.files));
+      e.target.value = ''; // Reset input
+    }
+  };
+
+  const processFiles = (newFiles: File[]) => {
+    const jsonFiles = newFiles.filter((f) => f.name.toLowerCase().endsWith('.json'));
+
+    if (jsonFiles.length !== newFiles.length) {
+      showNotification('Some files were ignored. Only .json files are allowed.', BannerType.WARNING);
+    }
+
+    if (jsonFiles.length > 0) {
+      onFilesChange([...pendingFiles, ...jsonFiles]);
       setIsFileError(false);
       setFileErrorMessage('');
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
   const handleUpload = async () => {
     const trimmedName = projectName.trim();
+    let hasError = false;
 
     setIsNameError(false);
     setIsFileError(false);
-    setNameErrorMessage('');
-    setFileErrorMessage('');
-
-    let hasError = false;
 
     if (!trimmedName) {
       setNameErrorMessage('Please enter a project name.');
@@ -84,7 +115,7 @@ export default function ProjectUploadModal({
     }
 
     if (pendingFiles.length === 0) {
-      setFileErrorMessage('Please add at least one file.');
+      setFileErrorMessage('Please add at least one JSON file.');
       setIsFileError(true);
       hasError = true;
     }
@@ -118,11 +149,8 @@ export default function ProjectUploadModal({
       }
 
       onSuccess(trimmedName);
-      setProjectName('');
-      onFilesChange([]);
-      setConfig(null);
     } catch (err: any) {
-      showNotification(err.message || 'Failed to upload project', BannerType.ERROR);
+      if (!err.message) showNotification('Failed to upload project', BannerType.ERROR);
     }
   };
 
@@ -136,104 +164,145 @@ export default function ProjectUploadModal({
     setConfig(cfg);
   }, []);
 
+  const scrollbarClass = `
+    [scrollbar-width:thin] [scrollbar-color:#7140F4_transparent]
+    [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent
+    [&::-webkit-scrollbar-thumb]:bg-[#7140F4] [&::-webkit-scrollbar-thumb]:rounded-full
+    hover:[&::-webkit-scrollbar-thumb]:bg-[#5a33c4]
+  `;
+
   return (
     <>
-      <Dialog open={open && !showAdvancedConfig} onClose={onCancel} className="fixed inset-0 z-50 flex items-center justify-center">
-        {open && !showAdvancedConfig && <div className="fixed inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />}
+      <Dialog open={open && !showAdvancedConfig} onClose={onCancel} className="relative z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
 
-        <div className="fixed inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md transform rounded-xl bg-[#262631] p-6 text-left align-middle shadow-2xl transition-all border border-gray-700">
+            <Dialog.Title className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <UploadCloud className="w-6 h-6 text-[#7140F4]" />
+              Upload New Project
+            </Dialog.Title>
 
-        <div
-          className="bg-[#262631] rounded-xl p-6 w-full max-w-md z-50 relative shadow-xl text-white"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Dialog.Title className="text-2xl font-bold text-center mb-4">Upload New Project</Dialog.Title>
-
-          <input
-            value={projectName}
-            onChange={(e) => {
-              setProjectName(e.target.value);
-              setIsNameError(false);
-              setNameErrorMessage('');
-            }}
-            placeholder="Project name"
-            className={`w-full mb-1 p-2 rounded placeholder:text-gray-400 bg-transparent border-1 ${
-              isNameError ? 'border-red-400' : 'border-gray-600'
-            }`}
-          />
-          {isNameError && <p className="text-red-400 text-sm mb-3">{nameErrorMessage}</p>}
-
-          <div className={`mb-1 p-2 rounded ${isFileError ? 'border-1 border-red-400' : 'border-1 border-gray-600'}`}>
-            <p className="font-semibold mb-1">Selected files:</p>
-            <ul className="max-h-32 overflow-y-auto text-sm list-disc list-inside bg-[#30303d] p-2 rounded">
-              {pendingFiles.length === 0 ? (
-                <li className="italic text-gray-400">No files added yet. Please select files.</li>
-              ) : (
-                pendingFiles.map((file, idx) => (
-                  <li key={idx} className="flex justify-between items-center">
-                    <span>{file.name}</span>
-                    <button onClick={() => removeFile(idx)} className="text-red-400 hover:text-red-500 ml-2">
-                      ✖
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
-          {isFileError && <p className="text-red-400 text-sm mb-3">{fileErrorMessage}</p>}
-
-          <div className="flex justify-between items-center mb-4 mt-4">
-            <button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black">
-              Add files
-            </button>
-            <input ref={fileInputRef} type="file" multiple accept=".json" onChange={handleFilesSelected} className="hidden" />
-          </div>
-
-          <div className="mb-4 flex items-center justify-between p-3 bg-[#30303d] rounded-lg border border-gray-600">
-            <div>
-              <div className="flex items-center">
-                <p className="text-sm font-medium text-gray-200">Metrics Configuration</p>
-                <PopoverIcon
-                  message={`Configure which metrics will be computed for your project, including node labels, relation types, and orientations.`}
-                  scale={1.1}
-                  position="top"
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-0.5 mr-5">
-                {loadingDefaults
-                  ? 'Loading default configuration...'
-                  : 'Default: PAGERANK, COMMUNITY with AUTHOR nodes and MENTIONS relations'}
-              </p>
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-400 mb-1.5">Project Name</label>
+              <input
+                value={projectName}
+                onChange={(e) => {
+                  setProjectName(e.target.value);
+                  if (isNameError) setIsNameError(false);
+                }}
+                placeholder="My Graph Project"
+                className={`w-full p-2.5 rounded-lg bg-[#30303d] text-white placeholder:text-gray-500 border focus:outline-none transition-colors
+                    ${isNameError ? 'border-red-500 focus:border-red-500' : 'border-transparent focus:border-[#7140F4]'}`}
+              />
+              {isNameError && <p className="text-red-400 text-xs mt-1 ml-1">{nameErrorMessage}</p>}
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAdvancedConfig(true)}
-              disabled={loadingDefaults}
-              className={`px-4 py-2 rounded text-black ${
-                loadingDefaults ? 'bg-gray-500 cursor-not-allowed' : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
 
-          <div className="flex justify-end space-x-2">
-            <button
-              onClick={() => {
-                setIsFileError(false);
-                setIsNameError(false);
-                setNameErrorMessage('');
-                setFileErrorMessage('');
-                onCancel();
-              }}
-              className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-white"
-            >
-              Cancel
-            </button>
-            <button onClick={handleUpload} className="px-4 py-2 rounded bg-[#7140F4] hover:bg-[#5b30c9]">
-              Upload
-            </button>
-          </div>
+            <div className="mb-5">
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-sm font-medium text-gray-400">Source Files (.json)</label>
+                <span className="text-xs text-gray-500">{pendingFiles.length} files selected</span>
+              </div>
+
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-4 transition-all flex flex-col items-center justify-center text-center min-h-[120px] cursor-pointer
+                    ${
+                      isDragging
+                        ? 'border-[#7140F4] bg-[#7140F4]/10'
+                        : isFileError
+                          ? 'border-red-500 bg-red-500/5'
+                          : 'border-gray-600 bg-[#30303d] hover:border-gray-500'
+                    }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => {
+                  if (pendingFiles.length === 0) fileInputRef.current?.click();
+                }}
+              >
+                {pendingFiles.length === 0 ? (
+                  <div className="flex flex-col items-center pointer-events-none">
+                    <UploadCloud className={`w-8 h-8 mb-2 ${isDragging ? 'text-[#7140F4]' : 'text-gray-400'}`} />
+                    <p className="text-sm text-gray-300">Drag & drop JSON files here</p>
+                    <p className="text-xs text-gray-500 mt-1">or click to browse</p>
+                  </div>
+                ) : (
+                  <ul className={`w-full max-h-[120px] overflow-y-auto pr-1 space-y-1 text-left ${scrollbarClass} cursor-default`}>
+                    {pendingFiles.map((file, idx) => (
+                      <li
+                        key={idx}
+                        className="flex justify-between items-center bg-[#262631] px-2 py-1.5 rounded border border-gray-700/50 group hover:border-gray-600 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileJson className="w-4 h-4 text-[#7140F4] shrink-0" />
+                          <span className="text-sm text-gray-200 truncate">{file.name}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFile(idx);
+                          }}
+                          className="text-gray-500 hover:text-red-400 transition-colors p-1 cursor-pointer"
+                          title="Remove file"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <input ref={fileInputRef} type="file" multiple accept=".json" onChange={handleFilesSelected} className="hidden" />
+              </div>
+
+              {isFileError && <p className="text-red-400 text-xs mt-1 ml-1">{fileErrorMessage}</p>}
+
+              {pendingFiles.length > 0 && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs text-[#7140F4] hover:text-[#8b61ff] font-medium mt-2 flex items-center gap-1 ml-1 cursor-pointer"
+                >
+                  + Add more files
+                </button>
+              )}
+            </div>
+
+            <div className="mb-6 p-3 bg-[#30303d] rounded-lg border border-gray-700 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-200">
+                  <Settings className="w-4 h-4 text-gray-400" />
+                  Metrics Configuration
+                  <PopoverIcon message="Configure which metrics will be computed for your project." scale={1.0} position="top" />
+                </div>
+                <p className="text-[10px] text-gray-500 mt-1 max-w-[200px] leading-tight">
+                  {loadingDefaults ? 'Loading...' : 'Default: PAGERANK, COMMUNITY...'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAdvancedConfig(true)}
+                disabled={loadingDefaults}
+                className="px-3 py-1.5 text-xs font-medium rounded bg-[#262631] border border-gray-600 hover:bg-gray-700 text-white transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                Configure
+              </button>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-gray-700 pt-4">
+              <button
+                onClick={onCancel}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpload}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-[#7140F4] hover:bg-[#5b30c9] text-white shadow-lg shadow-purple-900/20 transition-all transform active:scale-95 cursor-pointer"
+              >
+                Create Project
+              </button>
+            </div>
+          </Dialog.Panel>
         </div>
       </Dialog>
 

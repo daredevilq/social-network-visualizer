@@ -28,7 +28,7 @@ export default function CommunityAnalysisContainer() {
 
   return (
     <section className="flex flex-col w-full min-h-screen bg-[#262631] text-[#FAFAFA] p-6">
-      <div className="flex flex-col h-full pt-8 pb-8 max-w-5xl mx-auto w-full">
+      <div className="flex flex-col h-full pt-8 pb-8 max-w-7xl mx-auto w-full">
         <header className="relative flex items-center w-full mb-6">
           <button
             onClick={() => router.push('/')}
@@ -45,7 +45,7 @@ export default function CommunityAnalysisContainer() {
 
         <OverviewSection overview={overview} />
         <HistogramChartCard histogram={overview.sizeHistogram} />
-        <main className="flex-1 overflow-y-auto flex flex-col items-center gap-4 scrollbar-dark">
+        <main className="flex-1 overflow-y-auto flex flex-col gap-4 scrollbar-dark">
           {list.map((c) => (
             <CommunityCard key={c.communityId} data={c} />
           ))}

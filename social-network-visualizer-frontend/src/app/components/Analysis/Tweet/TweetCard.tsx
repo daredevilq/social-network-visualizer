@@ -11,7 +11,7 @@ const TweetCard = ({ tweet, hoverable = true }: TweetCardProps) => {
   const interactionRatio = tweet.engagement;
 
   const baseClasses = 'bg-[#2A2D3D] rounded-xl shadow-md transition-all duration-300 p-4 mb-4 border border-[#3D3D4E]/50 shadow-md';
-  const hoverClasses = hoverable ? 'hover:shadow-lg hover:bg-[#45455A] hover:-translate-y-1' : '';
+  const hoverClasses = hoverable ? 'hover:border-[#7140F4]/50 hover:bg-[#2a2a35] transition-all duration-200 cursor-pointer' : '';
   const highlightClasses = highlight ? 'ring-2 ring-yellow-400/50 bg-gradient-to-r from-yellow-400/10 to-transparent' : '';
 
   return (
