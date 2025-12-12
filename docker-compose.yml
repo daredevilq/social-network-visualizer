@@ -44,6 +44,12 @@ services:
       - NEO4J_URI=${NEO4J_URI}
       - NEO4J_USERNAME=${NEO4J_USERNAME}
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || wget --spider -q http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 200
+    restart: on-failure
 
   frontend_service:
     build: ./social-network-visualizer-frontend
@@ -55,10 +61,11 @@ services:
       - /app/.next
     stdin_open: true
     tty: true
-    depends_on:
-      - backend_service
     environment:
       - WATCHPACK_POLLING=true
+    depends_on:
+      backend_service:
+        condition: service_healthy
 
 volumes:
   mongo_data:
