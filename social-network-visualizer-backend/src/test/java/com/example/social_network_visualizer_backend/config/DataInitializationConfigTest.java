@@ -7,19 +7,22 @@ import com.example.social_network_visualizer_backend.service.MongodbService;
 import com.example.social_network_visualizer_backend.service.Neo4jService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-class DataInitializationConfigUnitTest {
+@ExtendWith(MockitoExtension.class)
+class DataInitializationConfigTest {
 
-  private MongodbService mongodbService;
-  private Neo4jService neo4jService;
-  private DataInitializationConfig config;
+  @Mock private MongodbService mongodbService;
+
+  @Mock private Neo4jService neo4jService;
+
+  @InjectMocks private DataInitializationConfig config;
 
   @BeforeEach
   void setUp() {
-    mongodbService = mock(MongodbService.class);
-    neo4jService = mock(Neo4jService.class);
-    config = new DataInitializationConfig(mongodbService, neo4jService);
-
     try {
       var field = DataInitializationConfig.class.getDeclaredField("dropMode");
       field.setAccessible(true);
