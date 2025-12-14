@@ -1,5 +1,6 @@
 package com.example.social_network_visualizer_backend.config;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import com.example.social_network_visualizer_backend.exceptions.DatabaseUnavailableException;
@@ -51,8 +52,8 @@ class DataInitializationConfigTest {
     try {
       config.init();
       throw new AssertionError("Expected RuntimeException");
-    } catch (RuntimeException e) {
-      assert e.getMessage().contains("Neo4j is not available");
+    } catch (RuntimeException ex) {
+      assertTrue(ex.getMessage().contains("Neo4j is not available"));
     }
   }
 
@@ -65,8 +66,8 @@ class DataInitializationConfigTest {
     try {
       config.init();
       throw new AssertionError("Expected RuntimeException");
-    } catch (RuntimeException e) {
-      assert e.getMessage().contains("MongoDB is not available");
+    } catch (RuntimeException ex) {
+      assertTrue(ex.getMessage().contains("MongoDB is not available"));
     }
   }
 }
