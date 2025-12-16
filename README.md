@@ -21,6 +21,8 @@ cd social-network-visualizer
 
 Update `.env` file by proving credentials for your databases:
 
+**Note:** For **Neo4j** a password of **at least 8 characters is required**. For **MongoDB** it's not strictly required, but it’s **recommended** to also use a password that is at least **8 characters long**.
+
 ```bash
 # MongoDB
 MONGO_HOST=mongodb
