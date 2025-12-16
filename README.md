@@ -70,10 +70,10 @@ Frontend: http://localhost:3000
 Backend: http://localhost:8080/
 
 
-## 📦 Sample projects (import)
+## 📦 Sample projects (upload)
 
-Example project files that can be imported into the application are located here:
+Example projects files that can be uploaded into the application are located here:
 
 ```text
-social-network-visualizer/social-network-visualizer-backend/data/projects
+example-data/
 ```
