@@ -21,6 +21,8 @@ cd social-network-visualizer
 
 Update `.env` file by proving credentials for your databases:
 
+**Note:** For **Neo4j** a password of **at least 8 characters is required**. For **MongoDB** it's not strictly required, but it’s **recommended** to also use a password that is at least **8 characters long**.
+
 ```bash
 # MongoDB
 MONGO_HOST=mongodb
@@ -37,6 +39,19 @@ NEO4J_PASSWORD=
 NEO4J_AUTH="neo4j/${NEO4J_PASSWORD}"
 ```
 
+<p><strong><span style="color:red">IMPORTANT!</span></strong></p>
+
+If the application was previously started with different database credentials, Docker volumes may still contain old database data (including users and passwords).
+
+In such a case, MongoDB or Neo4j may ignore the updated values from the .env file, which can cause authentication failures in the backend.
+
+To start from a clean state and ensure that the new credentials are properly applied, you need to remove all existing containers and volumes:
+
+```bash
+docker compose down -v --remove-orphans
+```
+
+
 Then run all containers:
 
 ```bash
@@ -51,7 +66,17 @@ docker-compose up
 ```
 
 ## Accessing the Application
-Backend: http://localhost:8080/
 
+**Main application:**
 Frontend: http://localhost:3000
 
+Backend: http://localhost:8080/
+
+
+## 📦 Sample projects (upload)
+
+Example projects files that can be uploaded into the application are located here:
+
+```text
+example-data/
+```
