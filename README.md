@@ -37,6 +37,18 @@ NEO4J_PASSWORD=
 NEO4J_AUTH="neo4j/${NEO4J_PASSWORD}"
 ```
 
+<p><strong><span style="color:red">IMPORTANT!</span></strong></p>
+
+If someone previously started the project with different database credentials, Docker volumes may still contain old database data (including users/passwords).  
+In that case MongoDB/Neo4j may ignore new values from `.env` and the backend can fail to authenticate.
+
+To fully reset the databases and start from a clean state, run:
+
+```bash
+docker compose down -v --remove-orphans
+```
+
+
 Then run all containers:
 
 ```bash
@@ -51,7 +63,17 @@ docker-compose up
 ```
 
 ## Accessing the Application
-Backend: http://localhost:8080/
 
+**Main application:**
 Frontend: http://localhost:3000
 
+Backend: http://localhost:8080/
+
+
+## 📦 Sample projects (import)
+
+Example project files that can be imported into the application are located here:
+
+```text
+social-network-visualizer/social-network-visualizer-backend/data/projects
+```
