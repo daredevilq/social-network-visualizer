@@ -39,10 +39,11 @@ NEO4J_AUTH="neo4j/${NEO4J_PASSWORD}"
 
 <p><strong><span style="color:red">IMPORTANT!</span></strong></p>
 
-If someone previously started the project with different database credentials, Docker volumes may still contain old database data (including users/passwords).  
-In that case MongoDB/Neo4j may ignore new values from `.env` and the backend can fail to authenticate.
+If the application was previously started with different database credentials, Docker volumes may still contain old database data (including users and passwords).
 
-To fully reset the databases and start from a clean state, run:
+In such a case, MongoDB or Neo4j may ignore the updated values from the .env file, which can cause authentication failures in the backend.
+
+To start from a clean state and ensure that the new credentials are properly applied, you need to remove all existing containers and volumes:
 
 ```bash
 docker compose down -v --remove-orphans
