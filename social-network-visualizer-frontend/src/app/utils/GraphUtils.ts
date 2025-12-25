@@ -10,11 +10,3 @@ export const isLinkInPath = (link: any, shortestPath: GraphNode[]) => {
     return link.source.id === a && link.target.id === b;
   });
 };
-
-export const isLinkBridge = (link: any, graphBridges: any[]) => {
-  return graphBridges.some(
-    (bridge) =>
-      (bridge.source === link.source.id && bridge.target === link.target.id) ||
-      (bridge.source === link.target.id && bridge.target === link.source.id)
-  );
-};

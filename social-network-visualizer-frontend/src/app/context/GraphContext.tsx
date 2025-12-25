@@ -16,8 +16,7 @@ interface GraphContextType {
   findNodeInProjectData: (node: GraphNode) => void;
   shortestPath: GraphNode[];
   setShortestPath: React.Dispatch<React.SetStateAction<GraphNode[]>>;
-  graphBridges: GraphLink[];
-  setGraphBridges: React.Dispatch<React.SetStateAction<GraphLink[]>>;
+  resetBridgeLinks: () => void;
 }
 
 const GraphContext = createContext<GraphContextType>({
@@ -28,8 +27,7 @@ const GraphContext = createContext<GraphContextType>({
   findNodeInProjectData: () => {},
   shortestPath: [],
   setShortestPath: () => {},
-  graphBridges: [],
-  setGraphBridges: () => {},
+  resetBridgeLinks: () => {},
 });
 
 export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -58,7 +56,6 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setWorkspaceData,
   } = useWorkspace();
   const [shortestPath, setShortestPath] = useState<GraphNode[]>([]);
-  const [graphBridges, setGraphBridges] = useState<GraphLink[]>([]);
 
   useEffect(() => {
     const dataToSet = focusedCommunityId ? focusedCommunityData : isInWorkspaceMode ? workspaceData : projectData;
@@ -68,12 +65,11 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     setShortestPath([]);
-    setGraphBridges([]);
   }, [loadedProjectName, openedWorkspaceName, selectedGraphType, selectedRelationTypes]);
 
   const resetGraphData = async () => {
     setShortestPath([]);
-    setGraphBridges([]);
+    resetBridgeLinks();
     setFocusedCommunityId(null);
     setFocusedCommunityData({ nodes: [], links: [] });
     if (isInWorkspaceMode) {
@@ -150,6 +146,16 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const resetBridgeLinks = () => {
+    setGraphData((prev) => ({
+      ...prev,
+      links: prev.links.map((link) => ({
+        ...link,
+        isBridge: false,
+      })),
+    }));
+  };
+
   return (
     <GraphContext.Provider
       value={{
@@ -160,8 +166,7 @@ export const GraphProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         findNodeInProjectData,
         shortestPath,
         setShortestPath,
-        graphBridges,
-        setGraphBridges,
+        resetBridgeLinks,
       }}
     >
       {children}

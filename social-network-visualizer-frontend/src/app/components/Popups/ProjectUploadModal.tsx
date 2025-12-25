@@ -42,6 +42,8 @@ export default function ProjectUploadModal({
   const [config, setConfig] = useState<ProjectConfig | null>(null);
   const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
   const { showNotification } = useNotification();
+  const INVALID_NAME_CHARS = /[\/.#$%&*?<>\\|]/;
+  const INVALID_NAME_CHARS_LIST = '/ . # $ % & * ? < > \\\\ |';
 
   useEffect(() => {
     if (open) {
@@ -110,6 +112,12 @@ export default function ProjectUploadModal({
 
     if (!trimmedName) {
       setNameErrorMessage('Please enter a project name.');
+      setIsNameError(true);
+      hasError = true;
+    }
+
+    if (INVALID_NAME_CHARS.test(trimmedName)) {
+      setNameErrorMessage(`Project name contains invalid characters: ${INVALID_NAME_CHARS_LIST}`);
       setIsNameError(true);
       hasError = true;
     }

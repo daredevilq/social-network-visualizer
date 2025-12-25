@@ -15,13 +15,14 @@ import { useNotification } from '@/app/context/NotificationProvider';
 export default function FunctionsContent() {
   const [isShortestPathModalOpen, setIsShortestPathModalOpen] = useState(false);
   const { runWithLoading, selectedNodeTypes, selectedRelationTypes, focusedCommunityId } = useProject();
-  const { setShortestPath, setGraphBridges } = useGraph();
+  const { setShortestPath } = useGraph();
   const router = useRouter();
   const { runWithUnsavedCheck, isInWorkspaceMode } = useWorkspace();
+  const { setGraphData, resetBridgeLinks } = useGraph();
   const { showNotification } = useNotification();
 
   const handleSearchPath = async (source: GraphNode, target: GraphNode) => {
-    setGraphBridges([]);
+    resetBridgeLinks();
     if (!source || !target) {
       setShortestPath([]);
       return;
@@ -87,18 +88,40 @@ export default function FunctionsContent() {
         const data = await res.json();
 
         if (!data || data.length === 0) {
-          setGraphBridges([]);
+          // clearBridgeFlags();
           showNotification('No bridges found.', BannerType.INFO);
           return;
         }
 
-        setGraphBridges(data);
+        markBridgeLinks(data);
         showNotification('Graph bridges found successfully.', BannerType.SUCCESS);
       } catch (err) {
         console.error(err);
         showNotification('Unexpected error while fetching bridges.', BannerType.ERROR);
       }
     });
+  };
+
+  const markBridgeLinks = (bridges: { source: string; target: string }[]) => {
+    const bridgeSet = new Set<string>();
+
+    for (const b of bridges) {
+      const key = b.source < b.target ? b.source + '|' + b.target : b.target + '|' + b.source;
+
+      bridgeSet.add(key);
+    }
+
+    setGraphData((prev) => ({
+      ...prev,
+      links: prev.links.map((link) => {
+        const key = link.source < link.target ? link.source + '|' + link.target : link.target + '|' + link.source;
+
+        return {
+          ...link,
+          isBridge: bridgeSet.has(key),
+        };
+      }),
+    }));
   };
 
   return (

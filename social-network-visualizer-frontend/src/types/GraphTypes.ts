@@ -65,6 +65,7 @@ export interface GraphLink extends LinkObject {
   relation: RelationType;
   weight: number;
   curvature?: number;
+  isBridge?: boolean;
 }
 
 export interface GraphProps {

@@ -68,6 +68,11 @@ export default function ShortestPathModal({ isOpen, onCancel, onFind }: Shortest
     setFilteredNodes(filterNodes(value));
   };
 
+  const truncateText = (text: string, maxLength = 30) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
+  };
+
   const pickNode = (node: GraphNode, type: 'source' | 'target') => {
     const display = node.name;
 
@@ -164,9 +169,9 @@ export default function ShortestPathModal({ isOpen, onCancel, onFind }: Shortest
                       className={`px-4 py-2 cursor-pointer ${active ? 'bg-indigo-100' : 'hover:bg-indigo-50'}`}
                     >
                       <span className="text-sm">
-                        {before}
-                        <span className="font-semibold text-indigo-600">{match}</span>
-                        {after}
+                        {truncateText(before)}
+                        <span className="font-semibold text-indigo-600">{truncateText(match)}</span>
+                        {truncateText(after)}
                       </span>
                       <div className="text-xs text-gray-500">{node.nodeType}</div>
                     </li>
@@ -223,9 +228,9 @@ export default function ShortestPathModal({ isOpen, onCancel, onFind }: Shortest
                       className={`px-4 py-2 cursor-pointer ${active ? 'bg-indigo-100' : 'hover:bg-indigo-50'}`}
                     >
                       <span className="text-sm">
-                        {before}
-                        <span className="font-semibold text-indigo-600">{match}</span>
-                        {after}
+                        {truncateText(before)}
+                        <span className="font-semibold text-indigo-600">{truncateText(match)}</span>
+                        {truncateText(after)}
                       </span>
                       <div className="text-xs text-gray-500">{node.nodeType}</div>
                     </li>
