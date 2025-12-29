@@ -7,6 +7,7 @@ import com.example.social_network_visualizer_backend.dto.graph.graphNode.NodeDto
 import com.example.social_network_visualizer_backend.dto.graph.graphNode.TweetNodeDto;
 import com.example.social_network_visualizer_backend.enums.NodeType;
 import com.example.social_network_visualizer_backend.repository.TweetRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,9 @@ class TweetNodeQueryStrategyTest {
   @Test
   void testFetchNodes_InWorkspace() {
     // Arrange
-    TweetNodeDto tweet1 = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    TweetNodeDto tweet1 = createSampleTweet();
     tweet1.setId("tweet1");
-    TweetNodeDto tweet2 = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    TweetNodeDto tweet2 = createSampleTweet();
     tweet2.setId("tweet2");
     List<TweetNodeDto> expectedTweets = List.of(tweet1, tweet2);
 
@@ -56,7 +57,7 @@ class TweetNodeQueryStrategyTest {
   @Test
   void testFetchNodes_NotInWorkspace() {
     // Arrange
-    TweetNodeDto tweet1 = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    TweetNodeDto tweet1 = createSampleTweet();
     tweet1.setId("tweet1");
     List<TweetNodeDto> expectedTweets = List.of(tweet1);
 
@@ -74,8 +75,8 @@ class TweetNodeQueryStrategyTest {
 
   @Test
   void testFetchNodes_WithCommunityId_IgnoresCommunityId() {
-    // Arrange - Tweet strategy ignores communityId
-    TweetNodeDto tweet1 = new TweetNodeDto(null, null, null, null, null, null, null, null, null);
+    // Arrange
+    TweetNodeDto tweet1 = createSampleTweet();
     tweet1.setId("tweet1");
     List<TweetNodeDto> expectedTweets = List.of(tweet1);
 
@@ -102,5 +103,21 @@ class TweetNodeQueryStrategyTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
     verify(tweetRepository).findTweets(false, 10);
+  }
+
+  public TweetNodeDto createSampleTweet() {
+    TweetNodeDto tweet = new TweetNodeDto();
+
+    tweet.setContent("To jest przykładowa treść tweeta");
+    tweet.setAuthorName("Jan Kowalski");
+    tweet.setLikesCount(123L);
+    tweet.setRetweetsCount(45L);
+    tweet.setRepliesCount(6L);
+    tweet.setLanguage("pl");
+    tweet.setObjectCreatedAt(LocalDateTime.now());
+    tweet.setPublicationDate(LocalDateTime.now().minusMinutes(1));
+    tweet.setUrl("https://twitter.com/jankowalski/status/123456");
+
+    return tweet;
   }
 }
