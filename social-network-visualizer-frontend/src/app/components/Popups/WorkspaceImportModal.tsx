@@ -16,6 +16,8 @@ export default function WorkspaceImportModal({ open, onCancel, onImport }: Props
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const INVALID_NAME_CHARS = /[\/.#$%&*?<>\\|]/;
+  const INVALID_NAME_CHARS_LIST = '/ . # $ % & * ? < > \\ |';
 
   const resetState = () => {
     setSelectedFile(null);
@@ -27,13 +29,34 @@ export default function WorkspaceImportModal({ open, onCancel, onImport }: Props
     }
   };
 
-  const validateAndSetFile = (file: File) => {
+  const validateAndSetFile = async (file: File) => {
     setError(null);
+
     if (!file.name.toLowerCase().endsWith('.json')) {
       setError('Invalid format. Only .json files are allowed.');
       return;
     }
-    setSelectedFile(file);
+
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+
+      const workspaceName = json?.name;
+
+      if (!workspaceName || typeof workspaceName !== 'string') {
+        setError('Invalid file: missing "name" field.');
+        return;
+      }
+
+      if (INVALID_NAME_CHARS.test(workspaceName)) {
+        setError(`Name contains invalid characters: ${INVALID_NAME_CHARS_LIST}`);
+        return;
+      }
+
+      setSelectedFile(file);
+    } catch {
+      setError('Invalid JSON file.');
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

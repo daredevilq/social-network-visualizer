@@ -43,7 +43,7 @@ export default function ProjectUploadModal({
   const { defaultMetrics, loading: loadingDefaults } = useDefaultMetricsConfig();
   const { showNotification } = useNotification();
   const INVALID_NAME_CHARS = /[\/.#$%&*?<>\\|]/;
-  const INVALID_NAME_CHARS_LIST = '/ . # $ % & * ? < > \\\\ |';
+  const INVALID_NAME_CHARS_LIST = '/ . # $ % & * ? < > \\ |';
 
   useEffect(() => {
     if (open) {
