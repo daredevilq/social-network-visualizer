@@ -3,8 +3,6 @@ package com.example.social_network_visualizer_backend.service;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -34,10 +32,7 @@ public class GridFsService {
               new Document("projectName", projectName));
 
       log.info(
-          "Stored file '{}' in GridFS for project '{}' with ID: {}",
-          filename,
-          projectName,
-          fileId.toString());
+          "Stored file '{}' in GridFS for project '{}' with ID: {}", filename, projectName, fileId);
       return fileId.toString();
     }
   }
@@ -54,13 +49,6 @@ public class GridFsService {
     return gridFsTemplate.getResource(gridFsFile);
   }
 
-  public List<GridFSFile> getProjectFiles(String projectName) {
-    Query query = new Query(Criteria.where("metadata.projectName").is(projectName));
-    List<GridFSFile> files = new ArrayList<>();
-    gridFsTemplate.find(query).into(files);
-    return files;
-  }
-
   public void deleteFile(String fileId) {
     Query query = new Query(Criteria.where("_id").is(new ObjectId(fileId)));
     gridFsTemplate.delete(query);
@@ -71,11 +59,5 @@ public class GridFsService {
     Query query = new Query(Criteria.where("metadata.projectName").is(projectName));
     gridFsTemplate.delete(query);
     log.info("Deleted all files for project '{}' from GridFS", projectName);
-  }
-
-  public boolean fileExists(String fileId) {
-    GridFSFile file =
-        gridFsTemplate.findOne(new Query(Criteria.where("_id").is(new ObjectId(fileId))));
-    return file != null;
   }
 }
