@@ -16,6 +16,8 @@ export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
   const [workspaceName, setWorkspaceName] = useState('');
   const [isNameError, setIsNameError] = useState(false);
   const [nameErrorMessage, setNameErrorMessage] = useState('');
+  const INVALID_NAME_CHARS = /[\/.#$%&*?<>\\|]/;
+  const INVALID_NAME_CHARS_LIST = '/ . # $ % & * ? < > \\ |';
 
   useEffect(() => {
     if (open) {
@@ -25,7 +27,7 @@ export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
     }
   }, [open]);
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     const trimmedName = workspaceName.trim();
 
     setIsNameError(false);
@@ -34,6 +36,12 @@ export default function WorkspaceCreateModal(props: WorkspaceCreateModalProps) {
     if (!trimmedName) {
       setIsNameError(true);
       setNameErrorMessage('Please enter a workspace name.');
+      return;
+    }
+
+    if (INVALID_NAME_CHARS.test(trimmedName)) {
+      setIsNameError(true);
+      setNameErrorMessage(`Name contains invalid characters: ${INVALID_NAME_CHARS_LIST}`);
       return;
     }
 

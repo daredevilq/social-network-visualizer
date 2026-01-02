@@ -12,13 +12,13 @@ import { useGraph } from '@/app/context/GraphContext';
 import { API_BASE_URL } from '@/app/configuration/urlConfig';
 import linkStrategy from '@/app/model/strategies/LinkStrategy';
 import nodeStrategy from '@/app/model/strategies/NodeStrategy';
-import { isLinkBridge, isLinkInPath } from '@/app/utils/GraphUtils';
+import { isLinkInPath } from '@/app/utils/GraphUtils';
 
 const BaseGraph = dynamic(() => import('./BaseGraph'), { ssr: false });
 
 export default function CommunityGraph() {
   const { loadedProjectName, nodeFound, runWithLoading } = useProject();
-  const { graphData, shortestPath, graphBridges } = useGraph();
+  const { graphData, shortestPath } = useGraph();
   const { showNotification } = useNotification();
   const [filteredGraphData, setFilteredGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({
     nodes: [],
@@ -81,13 +81,13 @@ export default function CommunityGraph() {
       return Colors.GoldColor();
     }
 
-    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
+    if (isLinkInPath(link, shortestPath) || link.isBridge) {
       return Colors.PurpleColor();
     }
     return linkStrategy.getColor(link);
   };
   const getLinkWidth = (link: GraphLink): number => {
-    if (isLinkInPath(link, shortestPath) || isLinkBridge(link, graphBridges)) {
+    if (isLinkInPath(link, shortestPath) || link.isBridge) {
       return 4;
     }
     return linkStrategy.getWidth(link);
